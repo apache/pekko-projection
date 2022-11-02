@@ -1,0 +1,15 @@
+# https://cwiki.apache.org/confluence/display/INFRA/.asf.yaml+features+for+git+repositories
+
+github:
+  description: "Apache Pekko Projections is intended for building systems with the CQRS pattern, and facilitate in event-based service-to-service communication."
+  homepage: https://pekko.apache.org/
+  labels:
+    - pekko
+  
+  features:
+    # Enable wiki for documentation
+    wiki: false
+    # Enable issue management
+    issues: true
+    # Enable projects for project management boards
+    projects: false
