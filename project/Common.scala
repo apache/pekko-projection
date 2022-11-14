@@ -63,9 +63,8 @@ object Common extends AutoPlugin {
     // -q Suppress stdout for successful tests.
     Test / testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q"),
     Test / logBuffered := false,
-    mimaPreviousArtifacts := Set(
-        organization.value %% moduleName.value % previousStableVersion.value
-          .getOrElse(throw new Error("Unable to determine previous version"))),
+    // temporarily disable mima checks
+    mimaPreviousArtifacts := Set.empty,
     sonatypeProfileName := "com.lightbend")
 
 }
