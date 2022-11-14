@@ -13,11 +13,6 @@ github:
     issues: true
     # Enable projects for project management boards
     projects: false
-    
-  enabled_merge_buttons:
-    squash:  true
-    merge:   false
-    rebase:  true  
 
   enabled_merge_buttons:
     squash:  true
