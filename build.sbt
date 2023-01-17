@@ -6,6 +6,7 @@ lazy val core =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.core)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "akka-projection-core",
       Compile / packageBin / packageOptions += Package.ManifestAttributes(
@@ -19,6 +20,7 @@ lazy val coreTest =
     .disablePlugins(MimaPlugin)
     .settings(Defaults.itSettings)
     .settings(Dependencies.coreTest)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(publish / skip := true)
     .dependsOn(core)
     .dependsOn(testkit % Test)
@@ -29,6 +31,7 @@ lazy val testkit =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.testKit)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .dependsOn(core)
 
 // provides offset storage backed by a JDBC table
@@ -38,6 +41,7 @@ lazy val jdbc =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.jdbc)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
@@ -49,6 +53,7 @@ lazy val slick =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.slick)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .dependsOn(jdbc)
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
@@ -61,6 +66,7 @@ lazy val cassandra =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.cassandra)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .dependsOn(core)
     // strictly speaking it is not needed to have test->test here.
     // Cassandra module doesn't have tests, only integration tests
@@ -72,6 +78,7 @@ lazy val cassandra =
 lazy val eventsourced =
   Project(id = "akka-projection-eventsourced", base = file("akka-projection-eventsourced"))
     .settings(Dependencies.eventsourced)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
@@ -82,6 +89,7 @@ lazy val kafka =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.kafka)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .dependsOn(core)
     .dependsOn(testkit % Test)
     .dependsOn(slick % "test->test;it->it")
@@ -91,6 +99,7 @@ lazy val `durable-state` =
   Project(id = "akka-projection-durable-state", base = file("akka-projection-durable-state"))
     .configs(IntegrationTest)
     .settings(Dependencies.state)
+    .settings(MetaInfLicenseNoticeCopy.settings)
     .dependsOn(core)
     .dependsOn(testkit % Test)
     .settings(
@@ -103,6 +112,7 @@ lazy val examples = project
   .disablePlugins(MimaPlugin)
   .settings(Defaults.itSettings)
   .settings(Dependencies.examples)
+  .settings(MetaInfLicenseNoticeCopy.settings)
   .dependsOn(slick % "test->test")
   .dependsOn(jdbc % "test->test")
   .dependsOn(cassandra % "test->test;test->it")
@@ -117,7 +127,7 @@ lazy val docs = project
   .disablePlugins(MimaPlugin)
   .dependsOn(core, testkit)
   .settings(
-    name := "Akka Projections",
+    name := "Apache Pekko Projections",
     publish / skip := true,
     makeSite := makeSite.dependsOn(LocalRootProject / ScalaUnidoc / doc).value,
     previewPath := (Paradox / siteSubdirName).value,
@@ -127,7 +137,7 @@ lazy val docs = project
     Compile / paradoxProperties ++= Map(
         "project.url" -> "https://doc.akka.io/docs/akka-projection/current/",
         "canonical.base_url" -> "https://doc.akka.io/docs/akka-projection/current",
-        "github.base_url" -> "https://github.com/akka/akka-projection",
+        "github.base_url" -> "https://github.com/apache/incubator-pekko-projection",
         "akka.version" -> Dependencies.Versions.akka,
         // Akka
         "extref.akka.base_url" -> s"https://doc.akka.io/docs/akka/${Dependencies.AkkaVersionInDocs}/%s",
