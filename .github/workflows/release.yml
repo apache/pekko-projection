@@ -9,10 +9,10 @@ on:
 jobs:
   release:
     # runs on main repo only
-    if: github.repository == 'akka/akka-projection'
+    if: github.repository == 'apache/incubator-pekko-projection'
     name: Release
     # the release environment provides access to secrets required in the release process
-    # https://github.com/akka/akka-projection/settings/environments
+    # https://github.com/apache/incubator-pekko-projection/settings/environments
     environment: release
     runs-on: ubuntu-18.04
     steps:
