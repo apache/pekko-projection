@@ -31,13 +31,13 @@ To use the Slick module of Akka Projections add the following dependency in your
 
 Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="akka-projection-slick" }
+@@project-info{ projectId="pekko-projection-slick" }
 
 ### Transitive dependencies
 
-The table below shows `akka-projection-slick`'s direct dependencies and the second tab shows all libraries it depends on transitively.
+The table below shows `pekko-projection-slick`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="akka-projection-slick" }
+@@dependencies{ projectId="pekko-projection-slick" }
 
 ## exactly-once
 

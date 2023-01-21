@@ -20,14 +20,14 @@ To use the JDBC module of Akka Projections add the following dependency in your 
 
 Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="akka-projection-jdbc" }
+@@project-info{ projectId="pekko-projection-jdbc" }
 
 
 ### Transitive dependencies
 
-The table below shows `akka-projection-jdbc`'s direct dependencies, and the second tab shows all libraries it depends on transitively.
+The table below shows `pekko-projection-jdbc`'s direct dependencies, and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="akka-projection-jdbc" }
+@@dependencies{ projectId="pekko-projection-jdbc" }
 
 ## Required configuration settings
 

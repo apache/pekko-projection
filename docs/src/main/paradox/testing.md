@@ -15,13 +15,13 @@ To use the Akka Projections TestKit add the following dependency in your project
 
 Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="akka-projection-testkit" }
+@@project-info{ projectId="pekko-projection-testkit" }
 
 ### Transitive dependencies
 
-The table below shows `akka-projection-testkit`'s direct dependencies and the second tab shows all libraries it depends on transitively.
+The table below shows `pekko-projection-testkit`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="akka-projection-testkit" }
+@@dependencies{ projectId="pekko-projection-testkit" }
 
 ## Initializing the Projection TestKit
 

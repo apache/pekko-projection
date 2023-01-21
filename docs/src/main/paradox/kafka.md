@@ -29,13 +29,13 @@ To use the Kafka module of Akka Projections add the following dependency in your
 
 Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="akka-projection-kafka" }
+@@project-info{ projectId="pekko-projection-kafka" }
 
 ### Transitive dependencies
 
-The table below shows `akka-projection-kafka`'s direct dependencies and the second tab shows all libraries it depends on transitively.
+The table below shows `pekko-projection-kafka`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="akka-projection-kafka" }
+@@dependencies{ projectId="pekko-projection-kafka" }
 
 ## KafkaSourceProvider
 
