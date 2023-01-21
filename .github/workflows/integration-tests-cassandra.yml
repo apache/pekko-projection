@@ -10,7 +10,7 @@ on:
 jobs:
   test:
     name: Build and Test Integration for Cassandra
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     strategy:
       fail-fast: false
       matrix:
@@ -19,7 +19,7 @@ jobs:
           - { java-version: adopt@1.11.0-9, scala-version: 2.13.3,  sbt-opts: '-J-XX:+UnlockExperimentalVMOptions -J-XX:+UseJVMCICompiler' }
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
 
@@ -30,7 +30,7 @@ jobs:
           git checkout scratch
 
       - name: Setup JDK ${{ matrix.java-version }}
-        uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v13
         with:
           java-version: ${{ matrix.java-version }}
 
@@ -38,7 +38,7 @@ jobs:
         uses: coursier/cache-action@v6.4.0
 
       - name: Run all integration tests with Scala ${{ matrix.scala-version }} and Java ${{ matrix.java-version }}
-        run: sbt "++${{ matrix.scala-version }} projection-cassandra/it:test" ${{ matrix.sbt-opts }}
+        run: sbt "++${{ matrix.scala-version }} pekko-projection-cassandra/it:test" ${{ matrix.sbt-opts }}
         env: # Disable Ryuk resource reaper since we always spin up fresh VMs
           TESTCONTAINERS_RYUK_DISABLED: true
 

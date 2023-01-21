@@ -14,10 +14,10 @@ jobs:
     # the release environment provides access to secrets required in the release process
     # https://github.com/apache/incubator-pekko-projection/settings/environments
     environment: release
-    runs-on: ubuntu-18.04
+    runs-on: ubuntu-20.04
     steps:
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v3
         with:
           # we don't know what commit the last tag was it's safer to get entire repo so previousStableVersion resolves
           fetch-depth: 0
@@ -29,7 +29,7 @@ jobs:
           git checkout scratch
 
       - name: Setup Scala with JDK 8
-        uses: olafurpg/setup-scala@v10
+        uses: olafurpg/setup-scala@v13
 
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6.4.0
