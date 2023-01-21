@@ -24,7 +24,9 @@ object Common extends AutoPlugin {
       homepage := Some(url("https://pekko.apache.org/")),
       // apiURL defined in projectSettings because version.value is not correct here
       scmInfo := Some(
-          ScmInfo(url("https://github.com/apache/incubator-pekko-projection"), "git@github.com:apache/incubator-pekko-projection.git")),
+          ScmInfo(
+            url("https://github.com/apache/incubator-pekko-projection"),
+            "git@github.com:apache/incubator-pekko-projection.git")),
       developers += Developer(
           "contributors",
           "Contributors",
