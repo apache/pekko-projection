@@ -49,8 +49,8 @@ each module describes which dependency you should define in your project.
 All of them share a dependency to `akka-projection-core`: 
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.lightbend.akka
-  artifact=akka-projection-core_$scala.binary.version$
+  group=org.apache.pekko
+  artifact=pekko-projection-core_$scala.binary.version$
   version=$project.version$
 }
 
@@ -68,7 +68,7 @@ them explicitly to avoid problems with transient dependencies causing an unlucky
   symbol=AkkaVersion
   value=$akka.version$
   group=com.typesafe.akka
-  artifact=akka-cluster-sharding-typed_$scala.binary.version$
+  artifact=pekko-cluster-sharding-typed_$scala.binary.version$
   version=AkkaVersion
   group2=com.typesafe.akka
   artifact2=akka-persistence-query_$scala.binary.version$

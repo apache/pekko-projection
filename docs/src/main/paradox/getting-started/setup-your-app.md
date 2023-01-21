@@ -4,8 +4,8 @@ Add the Akka Projections core library to a new project.
 This isn't strictly required, because as we add other dependencies in the following steps it will transitively include core as a dependency, but it never hurts to be explicit.
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.lightbend.akka
-  artifact=akka-projection-core_$scala.binary.version$
+  group=org.apache.pekko
+  artifact=pekko-projection-core_$scala.binary.version$
   version=$project.version$
 }
 

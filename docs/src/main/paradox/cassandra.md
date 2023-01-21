@@ -16,8 +16,8 @@ processing semantics, but not exactly-once.
 To use the Cassandra module of Akka Projections add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.lightbend.akka
-  artifact=akka-projection-cassandra_$scala.binary.version$
+  group=org.apache.pekko
+  artifact=pekko-projection-cassandra_$scala.binary.version$
   version=$project.version$
 }
 
@@ -289,7 +289,7 @@ Make your edits/overrides in your application.conf.
 
 The reference configuration file with the default values:
 
-@@snip [reference.conf](/akka-projection-cassandra/src/main/resources/reference.conf) { #config }
+@@snip [reference.conf](/projection-cassandra/src/main/resources/reference.conf) { #config }
 
 ### Cassandra driver configuration
 
@@ -320,7 +320,7 @@ akka.projection.cassandra {
 
 ### Cassandra driver overrides
 
-@@snip [reference.conf](/akka-projection-cassandra/src/main/resources/reference.conf) { #profile }
+@@snip [reference.conf](/projection-cassandra/src/main/resources/reference.conf) { #profile }
 
 ### Contact points configuration
 

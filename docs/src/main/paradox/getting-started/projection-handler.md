@@ -11,8 +11,8 @@ The Projection itself will be represented as a Cassandra table.
 To proceed we must add the Cassandra Projection library to our project:
 
 @@dependency [sbt,Maven,Gradle] {
-group=com.lightbend.akka
-artifact=akka-projection-cassandra_$scala.binary.version$
+group=org.apache.pekko
+artifact=pekko-projection-cassandra_$scala.binary.version$
 version=$project.version$
 }
 

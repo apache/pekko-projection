@@ -50,8 +50,8 @@ To learn more about the writing events with [Akka Persistence see the Akka docum
 Add the Akka Cluster Sharding library to your project:
 
 @@dependency [sbt,Maven,Gradle] {
-group=com.typesafe.akka
-artifact=akka-cluster-sharding-typed_$scala.binary.version$
+group=org.apache.pekko
+artifact=pekko-cluster-sharding-typed_$scala.binary.version$
 version=$akka.version$
 }
 

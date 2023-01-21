@@ -8,8 +8,8 @@ There are several supported Source Provider's available (or you can build your o
 Add the following dependencies to your project:
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.lightbend.akka
-  artifact=akka-projection-eventsourced_$scala.binary.version$
+  group=org.apache.pekko
+  artifact=pekko-projection-eventsourced_$scala.binary.version$
   version=$project.version$
 }
 

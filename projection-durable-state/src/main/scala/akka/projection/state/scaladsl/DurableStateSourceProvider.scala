@@ -120,7 +120,7 @@ object DurableStateSourceProvider {
         case other                     =>
           // FIXME case DeletedDurableState when that is added
           throw new IllegalArgumentException(
-            s"DurableStateChange [${other.getClass.getName}] not implemented yet. Please report bug at https://github.com/akka/akka-persistence-r2dbc/issues")
+            s"DurableStateChange [${other.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/incubator-pekko-persistence-r2dbc/issues")
       }
 
     override def getObject(persistenceId: String): Future[GetObjectResult[A]] =

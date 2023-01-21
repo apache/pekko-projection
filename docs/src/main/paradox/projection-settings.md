@@ -12,4 +12,4 @@ Java
 
 ## Configuration
 
-@@snip [reference.conf](/akka-projection-core/src/main/resources/reference.conf)
+@@snip [reference.conf](/projection-core/src/main/resources/reference.conf)

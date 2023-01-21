@@ -13,8 +13,8 @@ processing semantics is supported. It also offers @ref:[at-least-once](#at-least
 To use the JDBC module of Akka Projections add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.lightbend.akka
-  artifact=akka-projection-jdbc_$scala.binary.version$
+  group=org.apache.pekko
+  artifact=pekko-projection-jdbc_$scala.binary.version$
   version=$project.version$
 }
 
@@ -262,7 +262,7 @@ Make your edits/overrides in your application.conf.
 
 The reference configuration file with the default values:
 
-@@snip [reference.conf](/akka-projection-jdbc/src/main/resources/reference.conf) { #config }
+@@snip [reference.conf](/projection-jdbc/src/main/resources/reference.conf) { #config }
 
 @@@ note
 Settings `akka.projection.jdbc.dialect` and `akka.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` do not have a valid default value. You must configured them in your `application.conf` file.  
