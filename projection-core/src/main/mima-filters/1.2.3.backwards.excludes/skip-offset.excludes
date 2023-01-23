@@ -1,1 +1,0 @@
-ProblemFilters.exclude[DirectMissingMethodProblem]("akka.projection.internal.HandlerRecoveryImpl.applyRecovery")
