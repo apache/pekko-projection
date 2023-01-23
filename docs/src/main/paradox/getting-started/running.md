@@ -45,7 +45,7 @@ This app is configured to use [Apache Pekko Persistence Cassandra](https://doc.a
 It will checkout a shopping cart with random items and quantities every 1 second.
 The app will automatically create all the Apache Pekko Persistence infrastructure tables in the `akka` keyspace.
 We won't go into any further detail about how this app functions because it falls outside the scope of Apache Pekko Projections.
-To learn more about the writing events with [Apache Pekko Persistence see the Akka documentation](https://pekko.apache.org/docs/pekko/current/typed/index-persistence.html).
+To learn more about the writing events with [Apache Pekko Persistence see the Apache Pekko documentation](https://pekko.apache.org/docs/pekko/current/typed/index-persistence.html).
 
 Add the Apache Pekko Cluster Sharding library to your project:
 
