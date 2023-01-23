@@ -1,2 +1,0 @@
-# Changing internals to akka.stream.RestartSettings
-ProblemFilters.exclude[IncompatibleMethTypeProblem]("akka.projection.cassandra.internal.CassandraProjectionImpl.withRestartBackoffSettings")
