@@ -8,7 +8,7 @@ target
 
 # we don't want to push this file,
 # each contributor must create its own to signal acceptance
-akka-projection-jdbc/src/it/resources/container-license-acceptance.txt
-akka-projection-slick/src/it/resources/container-license-acceptance.txt
+projection-jdbc/src/it/resources/container-license-acceptance.txt
+projection-slick/src/it/resources/container-license-acceptance.txt
 
 .bsp

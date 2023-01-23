@@ -28,7 +28,7 @@ import akka.annotation.InternalApi
       case None =>
         throw new IllegalStateException(
           "Actor not started, please report issue at " +
-          "https://github.com/akka/akka-projection/issues")
+          "https://github.com/apache/incubator-pekko-projection/issues")
     }
   }
 }

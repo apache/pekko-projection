@@ -10,20 +10,20 @@ Akka Projections has integration with `changes`, which is described here.
 To use the Durable State module of Akka Projections, add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.lightbend.akka
-  artifact=akka-projection-durable-state_$scala.binary.version$
+  group=org.apache.pekko
+  artifact=pekko-projection-durable-state_$scala.binary.version$
   version=$project.version$
 }
 
 Akka Projections requires Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="akka-projection-durable-state" }
+@@project-info{ projectId="pekko-projection-durable-state" }
 
 ### Transitive dependencies
 
-The table below shows the `akka-projection-durable-state` direct dependencies.The second tab shows all libraries it depends on transitively.
+The table below shows the `pekko-projection-durable-state` direct dependencies.The second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="akka-projection-durable-state" }
+@@dependencies{ projectId="pekko-projection-durable-state" }
 
 ## SourceProvider for changesByTag
 

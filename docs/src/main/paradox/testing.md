@@ -7,21 +7,21 @@ Akka Projections provides a TestKit to ease testing. There are two supported sty
 To use the Akka Projections TestKit add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.lightbend.akka
-  artifact=akka-projection-testkit_$scala.binary.version$
+  group=org.apache.pekko
+  artifact=pekko-projection-testkit_$scala.binary.version$
   version=$project.version$
   scope="test"
 }
 
 Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="akka-projection-testkit" }
+@@project-info{ projectId="pekko-projection-testkit" }
 
 ### Transitive dependencies
 
-The table below shows `akka-projection-testkit`'s direct dependencies and the second tab shows all libraries it depends on transitively.
+The table below shows `pekko-projection-testkit`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="akka-projection-testkit" }
+@@dependencies{ projectId="pekko-projection-testkit" }
 
 ## Initializing the Projection TestKit
 

@@ -1,20 +1,20 @@
 import akka.projections.Dependencies
 
 lazy val core =
-  Project(id = "akka-projection-core", base = file("akka-projection-core"))
+  Project(id = "pekko-projection-core", base = file("projection-core"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.core)
     .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
-      name := "akka-projection-core",
+      name := "pekko-projection-core",
       Compile / packageBin / packageOptions += Package.ManifestAttributes(
-          "Automatic-Module-Name" -> "akka.projection.core"))
+          "Automatic-Module-Name" -> "pekko.projection.core"))
     .settings(Protobuf.settings)
 
 lazy val coreTest =
-  Project(id = "akka-projection-core-test", base = file("akka-projection-core-test"))
+  Project(id = "pekko-projection-core-test", base = file("projection-core-test"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .disablePlugins(MimaPlugin)
@@ -26,7 +26,7 @@ lazy val coreTest =
     .dependsOn(testkit % Test)
 
 lazy val testkit =
-  Project(id = "akka-projection-testkit", base = file("akka-projection-testkit"))
+  Project(id = "pekko-projection-testkit", base = file("projection-testkit"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
@@ -36,7 +36,7 @@ lazy val testkit =
 
 // provides offset storage backed by a JDBC table
 lazy val jdbc =
-  Project(id = "akka-projection-jdbc", base = file("akka-projection-jdbc"))
+  Project(id = "pekko-projection-jdbc", base = file("projection-jdbc"))
     .configs(IntegrationTest.extend(Test))
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
@@ -48,7 +48,7 @@ lazy val jdbc =
 
 // provides offset storage backed by a JDBC (Slick) table
 lazy val slick =
-  Project(id = "akka-projection-slick", base = file("akka-projection-slick"))
+  Project(id = "pekko-projection-slick", base = file("projection-slick"))
     .configs(IntegrationTest.extend(Test))
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
@@ -61,7 +61,7 @@ lazy val slick =
 
 // provides offset storage backed by a Cassandra table
 lazy val cassandra =
-  Project(id = "akka-projection-cassandra", base = file("akka-projection-cassandra"))
+  Project(id = "pekko-projection-cassandra", base = file("projection-cassandra"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
@@ -74,9 +74,9 @@ lazy val cassandra =
     .dependsOn(coreTest % "test->test;it->test")
     .dependsOn(testkit % "test->compile;it->compile")
 
-// provides source providers for akka-persistence-query
+// provides source providers for pekko-persistence-query
 lazy val eventsourced =
-  Project(id = "akka-projection-eventsourced", base = file("akka-projection-eventsourced"))
+  Project(id = "pekko-projection-eventsourced", base = file("projection-eventsourced"))
     .settings(Dependencies.eventsourced)
     .settings(MetaInfLicenseNoticeCopy.settings)
     .dependsOn(core)
@@ -84,7 +84,7 @@ lazy val eventsourced =
 
 // provides offset storage backed by Kafka managed offset commits
 lazy val kafka =
-  Project(id = "akka-projection-kafka", base = file("akka-projection-kafka"))
+  Project(id = "pekko-projection-kafka", base = file("projection-kafka"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
@@ -96,7 +96,7 @@ lazy val kafka =
 
 // provides source providers for durable state changes
 lazy val `durable-state` =
-  Project(id = "akka-projection-durable-state", base = file("akka-projection-durable-state"))
+  Project(id = "pekko-projection-durable-state", base = file("projection-durable-state"))
     .configs(IntegrationTest)
     .settings(Dependencies.state)
     .settings(MetaInfLicenseNoticeCopy.settings)
@@ -123,7 +123,7 @@ lazy val examples = project
   .settings(publish / skip := true, scalacOptions += "-feature", javacOptions += "-parameters")
 
 lazy val docs = project
-  .enablePlugins(AkkaParadoxPlugin, ParadoxSitePlugin, PreprocessPlugin, PublishRsyncPlugin)
+  .enablePlugins(ParadoxPlugin, ParadoxSitePlugin, PreprocessPlugin, PublishRsyncPlugin)
   .disablePlugins(MimaPlugin)
   .dependsOn(core, testkit)
   .settings(
@@ -169,7 +169,7 @@ lazy val docs = project
     publishRsyncHost := "akkarepo@gustav.akka.io",
     apidocRootPackage := "akka")
 
-lazy val root = Project(id = "akka-projection", base = file("."))
+lazy val root = Project(id = "projection", base = file("."))
   .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, examples, docs)
   .settings(publish / skip := true)
   .enablePlugins(ScalaUnidocPlugin)

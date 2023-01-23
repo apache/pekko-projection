@@ -46,15 +46,15 @@ each module describes which dependency you should define in your project.
 * @ref:[Offset in a relational DB with JDBC](jdbc.md)
 * @ref:[Offset in a relational DB with Slick](slick.md) (community-driven module)
 
-All of them share a dependency to `akka-projection-core`: 
+All of them share a dependency to `pekko-projection-core`: 
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.lightbend.akka
-  artifact=akka-projection-core_$scala.binary.version$
+  group=org.apache.pekko
+  artifact=pekko-projection-core_$scala.binary.version$
   version=$project.version$
 }
 
-@@project-info{ projectId="akka-projection-core" }
+@@project-info{ projectId="pekko-projection-core" }
 
 ### Akka version
 
@@ -68,7 +68,7 @@ them explicitly to avoid problems with transient dependencies causing an unlucky
   symbol=AkkaVersion
   value=$akka.version$
   group=com.typesafe.akka
-  artifact=akka-cluster-sharding-typed_$scala.binary.version$
+  artifact=pekko-cluster-sharding-typed_$scala.binary.version$
   version=AkkaVersion
   group2=com.typesafe.akka
   artifact2=akka-persistence-query_$scala.binary.version$
@@ -80,9 +80,9 @@ them explicitly to avoid problems with transient dependencies causing an unlucky
 
 ### Transitive dependencies
 
-The table below shows `akka-projection-core`'s direct dependencies and the second tab shows all libraries it depends on transitively.
+The table below shows `pekko-projection-core`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="akka-projection-core" }
+@@dependencies{ projectId="pekko-projection-core" }
 
 See the individual modules for their transitive dependencies.
 

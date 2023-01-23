@@ -8,7 +8,7 @@ To distribute the projection over the cluster we recommend the use of [ShardedDa
 
 @@dependency [sbt,Maven,Gradle] {
   group=com.typesafe.akka
-  artifact=akka-cluster-sharding-typed_$scala.binary.version$
+  artifact=pekko-cluster-sharding-typed_$scala.binary.version$
   version=$akka.version$
 }
 

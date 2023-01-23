@@ -56,7 +56,7 @@ import akka.annotation.ApiMayChange
           "Process called before previous CompletionStage completed. " +
           "Did you share the same handler instance between several Projection instances? " +
           "Otherwise, please report issue at " +
-          "https://github.com/akka/akka-projection/issues")
+          "https://github.com/apache/incubator-pekko-projection/issues")
 
     state = newState.thenCompose(s => process(s, envelope))
     state.thenApply(_ => Done)

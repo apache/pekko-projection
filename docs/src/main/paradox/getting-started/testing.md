@@ -4,8 +4,8 @@ Like other Akka libraries, Projections ships with a @ref:[TestKit](../testing.md
 Add the Projections TestKit dependency to your project:
 
 @@dependency [sbt,Maven,Gradle] {
-group=com.lightbend.akka
-artifact=akka-projection-testkit_$scala.binary.version$
+group=org.apache.pekko
+artifact=pekko-projection-testkit_$scala.binary.version$
 version=$project.version$
 }
 
