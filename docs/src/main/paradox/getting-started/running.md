@@ -41,13 +41,13 @@ PRIMARY KEY (item_id));
 ```
 
 Source events are generated with the `EventGeneratorApp`.
-This app is configured to use [Akka Persistence Cassandra](https://doc.akka.io/docs/akka-persistence-cassandra/current/index.html) and [Akka Cluster](https://doc.akka.io/docs/akka/current/typed/cluster.html) [Sharding](https://doc.akka.io/docs/akka/current/typed/cluster-sharding.html) to persist random `ShoppingCartApp.Events` to a journal.
+This app is configured to use [Apache Pekko Persistence Cassandra](https://doc.akka.io/docs/akka-persistence-cassandra/current/index.html) and [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/cluster.html) [Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html) to persist random `ShoppingCartApp.Events` to a journal.
 It will checkout a shopping cart with random items and quantities every 1 second.
-The app will automatically create all the Akka Persistence infrastructure tables in the `akka` keyspace.
-We won't go into any further detail about how this app functions because it falls outside the scope of Akka Projections.
-To learn more about the writing events with [Akka Persistence see the Akka documentation](https://doc.akka.io/docs/akka/current/typed/index-persistence.html).
+The app will automatically create all the Apache Pekko Persistence infrastructure tables in the `akka` keyspace.
+We won't go into any further detail about how this app functions because it falls outside the scope of Apache Pekko Projections.
+To learn more about the writing events with [Apache Pekko Persistence see the Akka documentation](https://pekko.apache.org/docs/pekko/current/typed/index-persistence.html).
 
-Add the Akka Cluster Sharding library to your project:
+Add the Apache Pekko Cluster Sharding library to your project:
 
 @@dependency [sbt,Maven,Gradle] {
 group=org.apache.pekko

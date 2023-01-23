@@ -1,10 +1,10 @@
 # Testing
 
-Akka Projections provides a TestKit to ease testing. There are two supported styles of test: running with an assert function and driving it with an Akka Streams TestKit `TestSubscriber.Probe`.
+Apache Pekko Projections provides a TestKit to ease testing. There are two supported styles of test: running with an assert function and driving it with an Apache Pekko Streams TestKit `TestSubscriber.Probe`.
 
 ## Dependencies
 
-To use the Akka Projections TestKit add the following dependency in your project:
+To use the Apache Pekko Projections TestKit add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -13,7 +13,7 @@ To use the Akka Projections TestKit add the following dependency in your project
   scope="test"
 }
 
-Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
 @@project-info{ projectId="pekko-projection-testkit" }
 
@@ -58,7 +58,7 @@ Java
 
 ## Testing with a TestSubscriber.Probe
 
-The [Akka Stream TestKit](https://doc.akka.io/docs/akka/current/stream/stream-testkit.html#using-the-testkit) can be used to drive the pace of envelopes flowing through the Projection.
+The [Apache Pekko Stream TestKit](https://pekko.apache.org/docs/pekko/current/stream/stream-testkit.html#using-the-testkit) can be used to drive the pace of envelopes flowing through the Projection.
 
 The Projection starts as soon as the first element is requested by the `TestSubscriber.Probe`, new elements will be emitted as requested. The Projection is stopped once the assert function completes.
 
@@ -71,7 +71,7 @@ Java
 ## Testing with mocked Projection and SourceProvider
 
 To test a handler in isolation you may want to mock out the implementation of a Projection or SourceProvider so that you don't have to setup and teardown the associated technology as part of your _integration_ test.
-For example, you may want to project against a Cassandra database, or read envelopes from an Akka Persistence journal source, but you don't want to have to run Docker containers or embedded/in-memory services just to run your tests.
+For example, you may want to project against a Cassandra database, or read envelopes from an Apache Pekko Persistence journal source, but you don't want to have to run Docker containers or embedded/in-memory services just to run your tests.
 The @apidoc[TestProjection] allows you to isolate the runtime of your handler so that you don't need to run these services.
 Using a `TestProjection` has the added benefit of being fast, since you can run everything within the JVM that runs your tests.
 

@@ -1,9 +1,9 @@
-# Running the Projection in Akka Cluster
+# Running the Projection in Apache Pekko Cluster
 
-Running the Projection with [Akka Cluster](https://doc.akka.io/docs/akka/current/typed/cluster.html) allows us to add two important aspects to our system: availability and scalability.
+Running the Projection with [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/cluster.html) allows us to add two important aspects to our system: availability and scalability.
 A Projection running as a single Actor creates a single point of failure (availability), when the app shuts down for any reason, the projection is no longer running until it's started again.
 A Projection running as a single Actor creates a processing bottleneck (scalability), all messages from the @apidoc[SourceProvider] are processed by a single Actor on a single machine.
-By using a [Sharded Daemon Process](https://doc.akka.io/docs/akka/current/typed/cluster-sharded-daemon-process.html#sharded-daemon-process) with Akka Cluster and [Akka Cluster Sharding](https://doc.akka.io/docs/akka/current/typed/cluster-sharding.html) we can scale up the Projection and make it more available by running at least as many instances of the same Projection as we have cluster members.
+By using a [Sharded Daemon Process](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html#sharded-daemon-process) with Apache Pekko Cluster and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html) we can scale up the Projection and make it more available by running at least as many instances of the same Projection as we have cluster members.
 As Akka cluster members join and leave the cluster the Sharded Daemon Process will automatically scale and rebalance Sharded Daemon Processes (Projection instances) accordingly.
 
 Running the Projection as a Sharded Daemon Process requires no changes to our projection handler and repository, we only need to change the way in which the actor that runs the Projection is initialized.
@@ -28,7 +28,7 @@ Before running the app we must first run the `EventGeneratorApp` in `cluster` mo
 Shopping cart events are tagged in a similar way to the sharded entities themselves.
 Given a sequence of tags from `0..n` a hash is generated using the sharding entity key, the shopping cart id.
 The hash is modded `%` by the number of tags in the sequence to choose a tag from the sequence.
-See the @ref:[Tagging Events in EventSourcedBehavior](../running.md#tagging-events-in-eventsourcedbehavior) section of the documentation for an example of how events can be tagged with Akka Persistence.
+See the @ref:[Tagging Events in EventSourcedBehavior](../running.md#tagging-events-in-eventsourcedbehavior) section of the documentation for an example of how events can be tagged with Apache Pekko Persistence.
 
 The same `EventGeneratorApp` from the previous @ref:[Running the Projection](running.md) section can be used to generate events for this app with an additional argument `cluster`.
 Run the app:

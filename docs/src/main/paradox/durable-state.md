@@ -1,13 +1,13 @@
 # Changes from Durable State
 
-A typical source for Projections is the change stored with @apidoc[DurableStateBehavior$] in [Akka Persistence](https://doc.akka.io/docs/akka/current/typed/durable-state/persistence.html). Durable state changes can be [tagged](https://doc.akka.io/docs/akka/current/typed/durable-state/persistence.html#tagging) and then
-consumed with the [changes query](https://doc.akka.io/docs/akka/current/durable-state/persistence-query.html#using-query-with-akka-projections).
+A typical source for Projections is the change stored with @apidoc[DurableStateBehavior$] in [Apache Pekko Persistence](https://pekko.apache.org/docs/pekko/current/typed/durable-state/persistence.html). Durable state changes can be [tagged](https://pekko.apache.org/docs/pekko/current/typed/durable-state/persistence.html#tagging) and then
+consumed with the [changes query](https://pekko.apache.org/docs/pekko/current/durable-state/persistence-query.html#using-query-with-akka-projections).
 
-Akka Projections has integration with `changes`, which is described here. 
+Apache Pekko Projections has integration with `changes`, which is described here. 
 
 ## Dependencies
 
-To use the Durable State module of Akka Projections, add the following dependency in your project:
+To use the Durable State module of Apache Pekko Projections, add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -15,7 +15,7 @@ To use the Durable State module of Akka Projections, add the following dependenc
   version=$project.version$
 }
 
-Akka Projections requires Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections requires Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
 @@project-info{ projectId="pekko-projection-durable-state" }
 
@@ -36,7 +36,7 @@ Scala
 Java
 :  @@snip [DurableStateStoreDocExample.java](/examples/src/test/java/jdocs/state/DurableStateStoreDocExample.java) { #changesByTagSourceProvider }
 
-This example is using the [DurableStateStore JDBC plugin for Akka Persistence](https://doc.akka.io/docs/akka-persistence-jdbc/current/durable-state-store.html).
+This example is using the [DurableStateStore JDBC plugin for Apache Pekko Persistence](https://doc.akka.io/docs/akka-persistence-jdbc/current/durable-state-store.html).
 You will use the same plugin that you configured for the write side. The one that is used by the `DurableStateBehavior`.
 
 This source is consuming all the changes from the `Account` `DurableStateBehavior` that are tagged with `"bank-accounts-1"`. In a production application, you would need to start as many instances as the number of different tags you used. That way you consume the changes from all entities.
@@ -56,7 +56,7 @@ Scala
 Java
 :  @@snip [DurableStateStoreDocExample.java](/examples/src/test/java/jdocs/state/DurableStateStoreBySlicesDocExample.java) { #changesBySlicesSourceProvider }
 
-This example is using the [R2DBC plugin for Akka Persistence](https://doc.akka.io/docs/akka-persistence-r2dbc/current/query.html).
+This example is using the [R2DBC plugin for Apache Pekko Persistence](https://doc.akka.io/docs/akka-persistence-r2dbc/current/query.html).
 You will use the same plugin that you configured for the write side. The one that is used by the `DurableStateBehavior`.
 
 This source is consuming all the changes from the `Account` `DurableStateBehavior` for the given slice range. In a production application, you would need to start as many instances as the number of slice ranges. That way you consume the changes from all entities.

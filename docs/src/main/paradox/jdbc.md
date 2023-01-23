@@ -2,7 +2,7 @@
 
 The @apidoc[JdbcProjection$] has support for storing the offset in a relational database using JDBC.
 
-The source of the envelopes can be @ref:[events from Akka Persistence](eventsourced.md) or any other `SourceProvider`
+The source of the envelopes can be @ref:[events from Apache Pekko Persistence](eventsourced.md) or any other `SourceProvider`
 with supported @ref:[offset types](#offset-types).
 
 A @apidoc[JdbcHandler] receives a @apidoc[JdbcSession] instance and an envelope. The `JdbcSession` provides the means to access an open JDBC connection that can be used to process the envelope. The target database operations can be run in the same transaction as the storage of the offset, which means that @ref:[exactly-once](#exactly-once)
@@ -10,7 +10,7 @@ processing semantics is supported. It also offers @ref:[at-least-once](#at-least
 
 ## Dependencies
 
-To use the JDBC module of Akka Projections add the following dependency in your project:
+To use the JDBC module of Apache Pekko Projections add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -18,7 +18,7 @@ To use the JDBC module of Akka Projections add the following dependency in your 
   version=$project.version$
 }
 
-Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
 @@project-info{ projectId="pekko-projection-jdbc" }
 
@@ -38,7 +38,7 @@ There are two settings that need to be set beforehand in your `application.conf`
 
 ## Defining a JdbcSession
 
-Before using Akka Projections JDBC you must implement a `JdbcSession` @scala[trait]@java[interface]. `JdbcSession` is used to open a connection and start a transaction. A new `JdbcSession` will be created for each call to the handler. At the end of the processing, the transaction will be committed (or rolled back). 
+Before using Apache Pekko Projections JDBC you must implement a `JdbcSession` @scala[trait]@java[interface]. `JdbcSession` is used to open a connection and start a transaction. A new `JdbcSession` will be created for each call to the handler. At the end of the processing, the transaction will be committed (or rolled back). 
 
 When using `JdbcProjection.exactlyOnce`, the `JdbcSession` that is passed to the handler will be used to save the offset behind the scenes. Therefore, it's extremely important to disable auto-commit (eg: `setAutoCommit(false)`), otherwise the two operations won't participate on the same transaction.  
 
@@ -68,7 +68,7 @@ Java
 
 ## Blocking JDBC Dispatcher
 
-JDBC APIs are blocking by design, therefore Akka Projections JDBC will use a dedicated dispatcher to run all JDBC calls. It's important to configure the dispatcher to have the same size as the connection pool. 
+JDBC APIs are blocking by design, therefore Apache Pekko Projections JDBC will use a dedicated dispatcher to run all JDBC calls. It's important to configure the dispatcher to have the same size as the connection pool. 
 
 Each time the projection handler is called one thread and one database connection will be used. If your connection pool is smaller than the number of threads, the thread can potentially block while waiting for the connection pool to provide a connection. 
 
@@ -192,13 +192,13 @@ Same type of handlers can be used with `JdbcProjection` instead of `CassandraPro
 
 ### Actor handler
 
-A good alternative for advanced state management is to implement the handler as an [actor](https://doc.akka.io/docs/akka/current/typed/actors.html),
+A good alternative for advanced state management is to implement the handler as an [actor](https://pekko.apache.org/docs/pekko/current/typed/actors.html),
 which is described in @ref:[Processing with Actor](actor.md).
 
 ### Flow handler
 
-An Akka Streams `FlowWithContext` can be used instead of a handler for processing the envelopes,
-which is described in @ref:[Processing with Akka Streams](flow.md).
+An Apache Pekko Streams `FlowWithContext` can be used instead of a handler for processing the envelopes,
+which is described in @ref:[Processing with Apache Pekko Streams](flow.md).
 
 ### Handler lifecycle
 
@@ -247,14 +247,12 @@ akka.projection.jdbc.offset-store {
 
 The supported offset types of the `JdbcProjection` are:
 
-* @apidoc[akka.persistence.query.Offset] types from @ref:[events from Akka Persistence](eventsourced.md)
+* @apidoc[akka.persistence.query.Offset] types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
 * @apidoc[MergeableOffset] that is used for @ref:[messages from Kafka](kafka.md#mergeable-offset)
 * `String`
 * `Int`
 * `Long`
 * Any other type that has a configured Akka Serializer is stored with base64 encoding of the serialized bytes.
-  For example the [Akka Persistence Spanner](https://doc.akka.io/docs/akka-persistence-spanner/current/) offset
-  is supported in this way.
 
 ## Configuration
 

@@ -14,12 +14,12 @@ The example used in this guide is based on a more complete application that is p
 * [Build a Stateful Projection handler](projection-handler.md)
 * [Writing tests for a Projection](testing.md)
 * [Running the Projection](running.md)
-* [Running the Projection in Akka Cluster](running-cluster.md)
+* [Running the Projection in Apache Pekko Cluster](running-cluster.md)
 
 @@@
 
 ## Video Introduction
 
-This video on YouTube gives a short introduction to Akka Projections for processing a stream of events or records from a source to a projected model or external system.
+This video on YouTube gives a short introduction to Apache Pekko Projections for processing a stream of events or records from a source to a projected model or external system.
 
-[![Akka Projections introduction](../assets/intro-video.png)](http://www.youtube.com/watch?v=0toyKxomdwo "Watch video on YouTube")
+[![Apache Pekko Projections introduction](../assets/intro-video.png)](http://www.youtube.com/watch?v=0toyKxomdwo "Watch video on YouTube")

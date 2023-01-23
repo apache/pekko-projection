@@ -1,13 +1,13 @@
-# Events from Akka Persistence
+# Events from Apache Pekko Persistence
 
-A typical source for Projections is events stored with @apidoc[EventSourcedBehavior$] in [Akka Persistence](https://doc.akka.io/docs/akka/current/typed/persistence.html). Events can be [tagged](https://doc.akka.io/docs/akka/current/typed/persistence.html#tagging) and then
-consumed with the [eventsByTag query](https://doc.akka.io/docs/akka/current/persistence-query.html#eventsbytag-and-currenteventsbytag).
+A typical source for Projections is events stored with @apidoc[EventSourcedBehavior$] in [Apache Pekko Persistence](https://pekko.apache.org/docs/pekko/current/typed/persistence.html). Events can be [tagged](https://pekko.apache.org/docs/pekko/current/typed/persistence.html#tagging) and then
+consumed with the [eventsByTag query](https://pekko.apache.org/docs/pekko/current/persistence-query.html#eventsbytag-and-currenteventsbytag).
 
-Akka Projections has integration with `eventsByTag`, which is described here. 
+Apache Pekko Projections has integration with `eventsByTag`, which is described here. 
 
 ## Dependencies
 
-To use the Event Sourced module of Akka Projections add the following dependency in your project:
+To use the Event Sourced module of Apache Pekko Projections add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -15,7 +15,7 @@ To use the Event Sourced module of Akka Projections add the following dependency
   version=$project.version$
 }
 
-Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
 @@project-info{ projectId="pekko-projection-eventsourced" }
 
@@ -36,8 +36,8 @@ Scala
 Java
 :  @@snip [EventSourcedDocExample.java](/examples/src/test/java/jdocs/eventsourced/EventSourcedDocExample.java) { #eventsByTagSourceProvider }
 
-This example is using the [Cassandra plugin for Akka Persistence](https://doc.akka.io/docs/akka-persistence-cassandra/current/read-journal.html),
-but same code can be used for other Akka Persistence plugins by replacing the `CassandraReadJournal.Identifier`.
+This example is using the [Cassandra plugin for Apache Pekko Persistence](https://doc.akka.io/docs/akka-persistence-cassandra/current/read-journal.html),
+but same code can be used for other Apache Pekko Persistence plugins by replacing the `CassandraReadJournal.Identifier`.
 For example the [JDBC plugin](https://doc.akka.io/docs/akka-persistence-jdbc/current/) can be used. You will
 use the same plugin as you have configured for the write side that is used by the `EventSourcedBehavior`.
 
@@ -61,7 +61,7 @@ Scala
 Java
 :  @@snip [EventSourcedDocExample.java](/examples/src/test/java/jdocs/eventsourced/EventSourcedBySlicesDocExample.java) { #eventsBySlicesSourceProvider }
 
-This example is using the [R2DBC plugin for Akka Persistence](https://doc.akka.io/docs/akka-persistence-r2dbc/current/query.html).
+This example is using the [R2DBC plugin for Apache Pekko Persistence](https://doc.akka.io/docs/akka-persistence-r2dbc/current/query.html).
 You will use the same plugin as you have configured for the write side that is used by the `EventSourcedBehavior`.
 
 This source is consuming all events from the `ShoppingCart` `EventSourcedBehavior` for the given slice range. In a production application, you would need to start as many instances as the number of slice ranges. That way you consume the events from all entities.

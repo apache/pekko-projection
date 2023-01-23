@@ -6,13 +6,13 @@ The @apidoc[SlickProjection$] has support for storing the offset in a relational
 used with Scala.
 
 @@@ warning
-The Slick module in Akka Projections is [community-driven](https://developer.lightbend.com/docs/introduction/getting-help/support-terminology.html#community-driven)
+The Slick module in Apache Pekko Projections is [community-driven](https://developer.lightbend.com/docs/introduction/getting-help/support-terminology.html#community-driven)
 and not included in Lightbend support.
-Prefer using the @ref[JDBC module](jdbc.md) to implement your projection handler. Slick support in Akka Projections is meant for users 
+Prefer using the @ref[JDBC module](jdbc.md) to implement your projection handler. Slick support in Apache Pekko Projections is meant for users 
 migrating from [`Lagom's Slick ReadSideProcessor`](https://www.lagomframework.com/documentation/1.6.x/scala/ReadSideSlick.html).
 @@@
 
-The source of the envelopes can be @ref:[events from Akka Persistence](eventsourced.md) or any other `SourceProvider`
+The source of the envelopes can be @ref:[events from Apache Pekko Persistence](eventsourced.md) or any other `SourceProvider`
 with supported @ref:[offset types](#offset-types).
 
 The envelope handler returns a `DBIO` that will be run by the projection. This means that the target database
@@ -21,7 +21,7 @@ processing semantics is supported. It also offers @ref:[at-least-once](#at-least
 
 ## Dependencies
 
-To use the Slick module of Akka Projections add the following dependency in your project:
+To use the Slick module of Apache Pekko Projections add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -29,7 +29,7 @@ To use the Slick module of Akka Projections add the following dependency in your
   version=$project.version$
 }
 
-Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
 @@project-info{ projectId="pekko-projection-slick" }
 
@@ -141,13 +141,13 @@ Same type of handlers can be used with `SlickProjection` instead of `CassandraPr
 
 ### Actor handler
 
-A good alternative for advanced state management is to implement the handler as an [actor](https://doc.akka.io/docs/akka/current/typed/actors.html),
+A good alternative for advanced state management is to implement the handler as an [actor](https://pekko.apache.org/docs/pekko/current/typed/actors.html),
 which is described in @ref:[Processing with Actor](actor.md).
 
 ### Flow handler
 
-An Akka Streams `FlowWithContext` can be used instead of a handler for processing the envelopes,
-which is described in @ref:[Processing with Akka Streams](flow.md).
+An Apache Pekko Streams `FlowWithContext` can be used instead of a handler for processing the envelopes,
+which is described in @ref:[Processing with Apache Pekko Streams](flow.md).
 
 ### Handler lifecycle
 
@@ -196,14 +196,12 @@ akka.projection.slick.offset-store {
 
 The supported offset types of the `SlickProjection` are:
 
-* @apidoc[akka.persistence.query.Offset] types from @ref:[events from Akka Persistence](eventsourced.md)
+* @apidoc[akka.persistence.query.Offset] types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
 * @apidoc[MergeableOffset] that is used for @ref:[messages from Kafka](kafka.md#mergeable-offset)
 * `String`
 * `Int`
 * `Long`
 * Any other type that has a configured Akka Serializer is stored with base64 encoding of the serialized bytes.
-  For example the [Akka Persistence Spanner](https://doc.akka.io/docs/akka-persistence-spanner/current/) offset
-  is supported in this way.
 
 ## Configuration
 
