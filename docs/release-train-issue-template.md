@@ -1,4 +1,4 @@
-Release Akka Projections $VERSION$
+Release Apache Pekko Projections $VERSION$
 
 <!--
 

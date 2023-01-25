@@ -1,10 +1,10 @@
 # Messages from and to Kafka
 
-A typical source for Projections is messages from Kafka. Akka Projections supports integration with Kafka using [Alpakka Kafka](https://doc.akka.io/docs/alpakka-kafka/current/).
+A typical source for Projections is messages from Kafka. Apache Pekko Projections supports integration with Kafka using [Alpakka Kafka](https://doc.akka.io/docs/alpakka-kafka/current/).
 
 The @apidoc[KafkaSourceProvider$] uses consumer group assignments from Kafka and can resume from offsets stored in a database.
 
-Akka Projections can store the offsets from Kafka in a @ref:[relational DB with JDBC](jdbc.md)
+Apache Pekko Projections can store the offsets from Kafka in a @ref:[relational DB with JDBC](jdbc.md)
 or in @ref:[relational DB with Slick](slick.md).
 
 The `JdbcProjection` @scala[or `SlickProjection`] envelope handler will be run by the projection. This means that the target database operations can be run in the same transaction as the storage of the offset, which means when used with @ref:[exactly-once](jdbc.md#exactly-once) the offsets will be persisted on the same transaction as the projected model (see @ref:[Committing offset outside Kafka](#committing-offset-outside-kafka)). It also offers @ref:[at-least-once](jdbc.md#at-least-once) semantics.
@@ -19,7 +19,7 @@ A `Projection` can also @ref:[send messages to Kafka](#sending-to-kafka).
 
 ## Dependencies
 
-To use the Kafka module of Akka Projections add the following dependency in your project:
+To use the Kafka module of Apache Pekko Projections add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -27,7 +27,7 @@ To use the Kafka module of Akka Projections add the following dependency in your
   version=$project.version$
 }
 
-Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
 @@project-info{ projectId="pekko-projection-kafka" }
 
@@ -85,7 +85,7 @@ To mitigate that risk, you can increase the value of `akka.projection.kafka.read
 
 ## Committing offset in Kafka
 
-When using the approach of committing the offsets back to Kafka the [Alpakka Kafka comittableSource](https://doc.akka.io/docs/alpakka-kafka/current/consumer.html) can be used, and Akka Projections is not needed for that usage.
+When using the approach of committing the offsets back to Kafka the [Alpakka Kafka comittableSource](https://doc.akka.io/docs/alpakka-kafka/current/consumer.html) can be used, and Apache Pekko Projections is not needed for that usage.
 
 ## Sending to Kafka
 
@@ -151,7 +151,7 @@ Java
 ## Mergeable Offset
 
 The offset type for a projection is determined by the @apidoc[SourceProvider] that's used.
-Akka Projections supports a variety of offset types.
+Apache Pekko Projections supports a variety of offset types.
 In most cases an event is associated with a single offset row in the projection implementation's offset store, but the @apidoc[KafkaSourceProvider$] uses a special type of offset called a @apidoc[MergeableOffset].
 
 @apidoc[MergeableOffset] allows us to read and write a map of offsets to the projection offset store.

@@ -2,7 +2,7 @@
 
 The @apidoc[CassandraProjection$] has support for storing the offset in Cassandra.
 
-The source of the envelopes can be @ref:[events from Akka Persistence](eventsourced.md) or any other `SourceProvider`
+The source of the envelopes can be @ref:[events from Apache Pekko Persistence](eventsourced.md) or any other `SourceProvider`
 with supported @ref:[offset types](#offset-types).
 
 The envelope handler can integrate with anything, such as publishing to a message broker, or updating a read model
@@ -13,7 +13,7 @@ processing semantics, but not exactly-once.
 
 ## Dependencies
 
-To use the Cassandra module of Akka Projections add the following dependency in your project:
+To use the Cassandra module of Apache Pekko Projections add the following dependency in your project:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -21,7 +21,7 @@ To use the Cassandra module of Akka Projections add the following dependency in 
   version=$project.version$
 }
 
-Akka Projections requires Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections requires Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
 @@project-info{ projectId="pekko-projection-cassandra" }
 
@@ -215,13 +215,13 @@ Java
 
 ### Actor handler
 
-A good alternative for advanced state management is to implement the handler as an [actor](https://doc.akka.io/docs/akka/current/typed/actors.html),
+A good alternative for advanced state management is to implement the handler as an [actor](https://pekko.apache.org/docs/pekko/current/typed/actors.html),
 which is described in @ref:[Processing with Actor](actor.md).
 
 ### Flow handler
 
-An Akka Streams `FlowWithContext` can be used instead of a handler for processing the envelopes,
-which is described in @ref:[Processing with Akka Streams](flow.md).
+An Apache Pekko Streams `FlowWithContext` can be used instead of a handler for processing the envelopes,
+which is described in @ref:[Processing with Apache Pekko Streams](flow.md).
 
 ### Handler lifecycle
 
@@ -266,13 +266,11 @@ CREATE TABLE IF NOT EXISTS akka_projection.projection_management (
 
 The supported offset types of the `CassandraProjection` are:
 
-* `akka.persistence.query.Offset` types from @ref:[events from Akka Persistence](eventsourced.md)
+* `akka.persistence.query.Offset` types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
 * `String`
 * @scala[`Int`]@java[Integer]
 * `Long`
 * Any other type that has a configured Akka Serializer is stored with base64 encoding of the serialized bytes.
-  For example the [Akka Persistence Spanner](https://doc.akka.io/docs/akka-persistence-spanner/current/) offset
-  is supported in this way. 
 
 @@@ note
 
@@ -301,7 +299,7 @@ One important setting is to configure the database driver to retry the initial c
 
 It is not enabled automatically as it is in the driver's reference.conf and is not overridable in a profile.
 
-It is possible to share the same Cassandra session as [Akka Persistence Cassandra](https://doc.akka.io/docs/akka-persistence-cassandra/current/)
+It is possible to share the same Cassandra session as [Apache Pekko Persistence Cassandra](https://doc.akka.io/docs/akka-persistence-cassandra/current/)
 by setting the `session-config-path`:
 
 ```

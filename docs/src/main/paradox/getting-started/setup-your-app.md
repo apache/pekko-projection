@@ -1,6 +1,6 @@
 # Setup your application
 
-Add the Akka Projections core library to a new project.
+Add the Apache Pekko Projections core library to a new project.
 This isn't strictly required, because as we add other dependencies in the following steps it will transitively include core as a dependency, but it never hurts to be explicit.
 
 @@dependency [sbt,Maven,Gradle] {
@@ -18,8 +18,8 @@ Scala
 Java
 :  @@snip [ShoppingCartEvents.java](/examples/src/test/java/jdocs/guide/ShoppingCartEvents.java) { #guideEvents }
 
-To enable serialization and deserialization of events with Akka Persistence it's necessary to define a base type for your event type hierarchy.
-In this guide we are using [Jackson Serialization](https://doc.akka.io/docs/akka/current/serialization-jackson.html).
+To enable serialization and deserialization of events with Apache Pekko Persistence it's necessary to define a base type for your event type hierarchy.
+In this guide we are using [Jackson Serialization](https://pekko.apache.org/docs/pekko/current/serialization-jackson.html).
 Add the `CborSerializable` base type to your project:
 
 Scala
@@ -29,7 +29,7 @@ Java
 :  @@snip [CborSerializable.java](/examples/src/test/java/jdocs/guide/CborSerializable.java) { #guideCbor }
 
 Configure the `CborSerializable` type to use `jackson-cbor` configuration in your `application.conf`.
-We will add this configuration when Akka Persistence configuration is setup in the @ref:[Choosing a SourceProvider](source-provider.md) section of the guide.
+We will add this configuration when Apache Pekko Persistence configuration is setup in the @ref:[Choosing a SourceProvider](source-provider.md) section of the guide.
 
 Scala
 :  @@snip [guide-shopping-cart-app.conf](/examples/src/test/resources/guide-shopping-cart-app.conf) { #guideSerializationBindingsScala }
@@ -45,7 +45,7 @@ In @scala[sbt you can add it your sbt project by adding it to the `javacOptions`
 @@@
 
 Define the persistence tags to be used in your project.
-Note that partitioned tags will be used later when @ref[running the projection in Akka Cluster](running-cluster.md).
+Note that partitioned tags will be used later when @ref[running the projection in Apache Pekko Cluster](running-cluster.md).
 Add `ShoppingCartTags` to your project:
 
 Scala

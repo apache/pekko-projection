@@ -1,6 +1,6 @@
-# Processing with Akka Streams
+# Processing with Apache Pekko Streams
 
-An Akka Streams `FlowWithContext` can be used instead of a handler for processing the envelopes with at-least-once
+An Apache Pekko Streams `FlowWithContext` can be used instead of a handler for processing the envelopes with at-least-once
 semantics.
 
 The following example is using the `CassandraProjection` but the flow would be the same if used

@@ -1,26 +1,26 @@
 # Running a Projection
 
-Once you have decided how you want to build your projection, the next step is to run it. Typically, you run it in a distributed fashion in order to spread the load over the different nodes in an Akka Cluster. However, it's also possible to run it as a single instance (when not clustered) or as single instance in a Cluster Singleton.
+Once you have decided how you want to build your projection, the next step is to run it. Typically, you run it in a distributed fashion in order to spread the load over the different nodes in an Apache Pekko Cluster. However, it's also possible to run it as a single instance (when not clustered) or as single instance in a Cluster Singleton.
 
 ## Dependencies
 
-To distribute the projection over the cluster we recommend the use of [ShardedDaemonProcess](https://doc.akka.io/docs/akka/current/typed/cluster-sharded-daemon-process.html). Add the following dependency in your project if not yet using Akka Cluster Sharding:
+To distribute the projection over the cluster we recommend the use of [ShardedDaemonProcess](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html). Add the following dependency in your project if not yet using Apache Pekko Cluster Sharding:
 
 @@dependency [sbt,Maven,Gradle] {
-  group=com.typesafe.akka
+  group=org.apache.pekko
   artifact=pekko-cluster-sharding-typed_$scala.binary.version$
   version=$akka.version$
 }
 
-Akka Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-For more information on using Akka Cluster consult Akka's reference documentation on [Akka Cluster](https://doc.akka.io/docs/akka/current/typed/index-cluster.html) and [Akka Cluster Sharding](https://doc.akka.io/docs/akka/current/typed/cluster-sharding.html).
+For more information on using Apache Pekko Cluster consult Akka's reference documentation on [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/index-cluster.html) and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html).
 
 ## Running with Sharded Daemon Process
 
 The Sharded Daemon Process can be used to distribute `n` instances of a given Projection across the cluster. Therefore, it's important that each Projection instance consumes a subset of the stream of envelopes.
 
-How the subset is created depends on the kind of source we consume. If it's an Alpakka Kafka source, this is done by Kafka consumer groups. When consuming from Akka Persistence Journal, the events must be sliced by tagging them as demonstrated in the example below.
+How the subset is created depends on the kind of source we consume. If it's an Alpakka Kafka source, this is done by Kafka consumer groups. When consuming from Apache Pekko Persistence Journal, the events must be sliced by tagging them as demonstrated in the example below.
 
 ### Tagging Events in EventSourcedBehavior
 
@@ -44,16 +44,14 @@ planned maximum number of cluster nodes. It doesn't have to be exact.
 We will use those tags to query the journal and create as many Projections instances, and distribute them in the cluster.
 
 @@@ warning
-When using [Akka Persistence Cassandra plugin](https://doc.akka.io/docs/akka-persistence-cassandra/current/) you should
+When using [Apache Pekko Persistence Cassandra plugin](https://doc.akka.io/docs/akka-persistence-cassandra/current/) you should
 not use too many tags for each event. Each tag will result in a copy of the event in a separate table and
 that can impact write performance. Typically, you would use 1 tag per event as illustrated here. Additional
 filtering of events can be done in the Projection handler if it doesn't have to act on certain events.
-The [JDBC plugin](https://doc.akka.io/docs/akka-persistence-jdbc/current/) and
-[Spanner plugin](https://doc.akka.io/docs/akka-persistence-spanner/current/)
-don't have this constraint.
+The [JDBC plugin](https://doc.akka.io/docs/akka-persistence-jdbc/current/) doesn't have this constraint.
 @@@
 
-See also the [Akka reference documentation for tagging](https://doc.akka.io/docs/akka/current/typed/persistence.html#tagging).
+See also the [Apache Pekko reference documentation for tagging](https://pekko.apache.org/docs/pekko/current/typed/persistence.html#tagging).
 
 ### Event Sourced Provider per tag
 
@@ -100,7 +98,7 @@ For graceful stop it is recommended to use @scala[`ProjectionBehavior.Stop`]@jav
 ## Running with local Actor
 
 You can spawn the `ProjectionBehavior` as any other `Behavior`. This can be useful for testing or when running
-a local `ActorSystem` without Akka Cluster.
+a local `ActorSystem` without Apache Pekko Cluster.
 
 Scala
 :  @@snip [CassandraProjectionDocExample.scala](/examples/src/it/scala/docs/cassandra/CassandraProjectionDocExample.scala) { #running-with-actor }
@@ -114,7 +112,7 @@ overwrite each others offset storage with undefined and unpredictable results.
 ## Running in Cluster Singleton
 
 If you know that you only need one or a few projection instances an alternative to @ref:[Sharded Daemon Process](#running-with-sharded-daemon-process)
-is to use [Akka Cluster Singleton](https://doc.akka.io/docs/akka/current/typed/cluster-singleton.html)  
+is to use [Apache Pekko Cluster Singleton](https://pekko.apache.org/docs/pekko/current/typed/cluster-singleton.html)  
 
 Scala
 :  @@snip [CassandraProjectionDocExample.scala](/examples/src/it/scala/docs/cassandra/CassandraProjectionDocExample.scala) { #running-with-singleton }
