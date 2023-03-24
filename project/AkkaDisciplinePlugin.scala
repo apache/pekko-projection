@@ -35,8 +35,10 @@ object AkkaDisciplinePlugin extends AutoPlugin {
               "-Ywarn-infer-any",
               "-Ywarn-nullary-override",
               "-Ywarn-nullary-unit",
+              "-Ywarn-unused:_",
               "-Ypartial-unification",
-              "-Yno-adapted-args")
+              "-Yno-adapted-args") ++ Set(
+              "-Xlint:-strict-unsealed-patmat")
           case Some((2, 12)) =>
             disciplineScalacOptions
           case _ =>
