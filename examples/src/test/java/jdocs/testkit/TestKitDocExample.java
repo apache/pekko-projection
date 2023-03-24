@@ -4,21 +4,21 @@
 
 package jdocs.testkit;
 
-import akka.Done;
-import akka.NotUsed;
-import akka.projection.Projection;
-import akka.projection.ProjectionId;
-import akka.projection.javadsl.Handler;
+import org.apache.pekko.Done;
+import org.apache.pekko.NotUsed;
+import org.apache.pekko.projection.Projection;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.javadsl.Handler;
 
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
 // #testkit-import
-import akka.projection.testkit.javadsl.TestSourceProvider;
+import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.junit.ClassRule;
-import akka.actor.testkit.typed.javadsl.TestKitJunitResource;
-import akka.projection.testkit.javadsl.ProjectionTestKit;
+import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
 
 // #testkit-import
 
@@ -38,9 +38,9 @@ import static org.junit.Assert.assertEquals;
 
 // #testkit-testprojection
 
-import akka.japi.Pair;
-import akka.stream.javadsl.Source;
-import akka.projection.testkit.javadsl.TestProjection;
+import org.apache.pekko.japi.Pair;
+import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.projection.testkit.javadsl.TestProjection;
 
 // #testkit-testprojection
 

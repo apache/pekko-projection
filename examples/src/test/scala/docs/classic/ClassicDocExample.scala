@@ -4,28 +4,30 @@
 
 package docs.classic
 
-import akka.projection.Projection
-import akka.projection.ProjectionBehavior
+import org.apache.pekko
+import pekko.projection.Projection
+import pekko.projection.ProjectionBehavior
 
 object ClassicDocExample {
 
   object IllustrateSystem {
     // #system
-    import akka.actor.typed.scaladsl.adapter._
+    import org.apache.pekko
+    import pekko.actor.typed.scaladsl.adapter._
 
-    private val system = akka.actor.ActorSystem("Example")
-    private val typedSystem: akka.actor.typed.ActorSystem[_] = system.toTyped
+    private val system = pekko.actor.ActorSystem("Example")
+    private val typedSystem: pekko.actor.typed.ActorSystem[_] = system.toTyped
     // #system
 
     typedSystem.terminate() // avoid unused warning
   }
 
   object IllustrateSpawn {
-    private val system = akka.actor.ActorSystem("Example")
+    private val system = pekko.actor.ActorSystem("Example")
     private val projection: Projection[Any] = null
 
     // #spawn
-    import akka.actor.typed.scaladsl.adapter._
+    import org.apache.pekko.actor.typed.scaladsl.adapter._
 
     system.spawn(ProjectionBehavior(projection), "theProjection")
     // #spawn

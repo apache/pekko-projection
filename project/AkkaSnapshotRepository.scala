@@ -7,16 +7,16 @@ import sbt._
 object AkkaSnapshotRepositories extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
-  // If using a snapshot version of either Akka or Alpakka, add both snapshot repos
+  // If using a snapshot version of either Pekko or Pekko Connectors, add both snapshot repos
   // in case there are transitive dependencies to other snapshot artifacts
   override def projectSettings: Seq[Def.Setting[_]] = {
     resolvers ++= (sys.props
-      .get("build.akka.version")
-      .orElse(sys.props.get("build.alpakka.kafka.version")) match {
+      .get("build.pekko.version")
+      .orElse(sys.props.get("build.connectors.kafka.version")) match {
       case Some(_) =>
         Seq(
           // akka and alpakka-kafka use Sonatype's snapshot repo
-          Resolver.sonatypeRepo("snapshots"))
+          "Apache Nexus Snapshots".at("https://repository.apache.org/content/repositories/snapshots/"))
       case None => Seq.empty
     })
   }

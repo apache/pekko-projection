@@ -5,34 +5,34 @@
 // #guideClusterSetup
 package jdocs.guide;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.cluster.sharding.typed.javadsl.ShardedDaemonProcess;
-import akka.projection.ProjectionBehavior;
-import akka.projection.eventsourced.EventEnvelope;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.cluster.sharding.typed.javadsl.ShardedDaemonProcess;
+import org.apache.pekko.projection.ProjectionBehavior;
+import org.apache.pekko.projection.eventsourced.EventEnvelope;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import akka.persistence.cassandra.query.javadsl.CassandraReadJournal;
-import akka.persistence.query.Offset;
-import akka.projection.eventsourced.javadsl.EventSourcedProvider;
-import akka.projection.javadsl.SourceProvider;
-import akka.projection.ProjectionId;
-import akka.projection.cassandra.javadsl.CassandraProjection;
-import akka.projection.javadsl.AtLeastOnceProjection;
-import akka.stream.alpakka.cassandra.javadsl.CassandraSession;
-import akka.stream.alpakka.cassandra.javadsl.CassandraSessionRegistry;
+import org.apache.pekko.persistence.cassandra.query.javadsl.CassandraReadJournal;
+import org.apache.pekko.persistence.query.Offset;
+import org.apache.pekko.projection.eventsourced.javadsl.EventSourcedProvider;
+import org.apache.pekko.projection.javadsl.SourceProvider;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.cassandra.javadsl.CassandraProjection;
+import org.apache.pekko.projection.javadsl.AtLeastOnceProjection;
+import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
+import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
 
 public class ShoppingCartClusterApp {
   public static void main(String[] args) throws Exception {
     if (args.length == 0) {
-      throw new IllegalArgumentException("An akka cluster port argument is required");
+      throw new IllegalArgumentException("A pekko cluster port argument is required");
     }
 
     String portString = args[0];
     int port = Integer.parseInt(portString);
 
     Config config =
-        ConfigFactory.parseString("akka.remote.artery.canonical.port = " + port)
+        ConfigFactory.parseString("pekko.remote.artery.canonical.port = " + port)
             .withFallback(ConfigFactory.load("guide-shopping-cart-cluster-app.conf"));
 
     ActorSystem.create(
@@ -42,7 +42,7 @@ public class ShoppingCartClusterApp {
 
               CassandraSession session =
                   CassandraSessionRegistry.get(system)
-                      .sessionFor("akka.projection.cassandra.session-config");
+                      .sessionFor("pekko.projection.cassandra.session-config");
               ItemPopularityProjectionRepositoryImpl repo =
                   new ItemPopularityProjectionRepositoryImpl(session);
 

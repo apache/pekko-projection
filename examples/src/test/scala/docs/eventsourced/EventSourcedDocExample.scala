@@ -4,8 +4,9 @@
 
 package docs.eventsourced
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.Behaviors
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.Behaviors
 
 object EventSourcedDocExample {
 
@@ -13,11 +14,12 @@ object EventSourcedDocExample {
 
   object IllustrateEventsByTagSourceProvider {
     // #eventsByTagSourceProvider
-    import akka.projection.eventsourced.EventEnvelope
-    import akka.persistence.cassandra.query.scaladsl.CassandraReadJournal
-    import akka.persistence.query.Offset
-    import akka.projection.eventsourced.scaladsl.EventSourcedProvider
-    import akka.projection.scaladsl.SourceProvider
+    import org.apache.pekko
+    import pekko.projection.eventsourced.EventEnvelope
+    import pekko.persistence.cassandra.query.scaladsl.CassandraReadJournal
+    import pekko.persistence.query.Offset
+    import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+    import pekko.projection.scaladsl.SourceProvider
 
     val sourceProvider: SourceProvider[Offset, EventEnvelope[ShoppingCart.Event]] =
       EventSourcedProvider
@@ -27,14 +29,15 @@ object EventSourcedDocExample {
 
   object IllustrateEventsBySlicesSourceProvider {
     object R2dbcReadJournal {
-      val Identifier = "akka.persistence.r2dbc.query"
+      val Identifier = "pekko.persistence.r2dbc.query"
     }
 
     // #eventsBySlicesSourceProvider
-    import akka.persistence.query.typed.EventEnvelope
-    import akka.persistence.query.Offset
-    import akka.projection.eventsourced.scaladsl.EventSourcedProvider
-    import akka.projection.scaladsl.SourceProvider
+    import org.apache.pekko
+    import pekko.persistence.query.typed.EventEnvelope
+    import pekko.persistence.query.Offset
+    import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+    import pekko.projection.scaladsl.SourceProvider
 
     // Slit the slices into 4 ranges
     val numberOfSliceRanges: Int = 4

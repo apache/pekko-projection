@@ -5,27 +5,27 @@
 // #guideSetup
 package jdocs.guide;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.projection.ProjectionBehavior;
-import akka.projection.eventsourced.EventEnvelope;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.projection.ProjectionBehavior;
+import org.apache.pekko.projection.eventsourced.EventEnvelope;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 // #guideSetup
 
 // #guideSourceProviderImports
-import akka.persistence.cassandra.query.javadsl.CassandraReadJournal;
-import akka.persistence.query.Offset;
-import akka.projection.eventsourced.javadsl.EventSourcedProvider;
-import akka.projection.javadsl.SourceProvider;
+import org.apache.pekko.persistence.cassandra.query.javadsl.CassandraReadJournal;
+import org.apache.pekko.persistence.query.Offset;
+import org.apache.pekko.projection.eventsourced.javadsl.EventSourcedProvider;
+import org.apache.pekko.projection.javadsl.SourceProvider;
 // #guideSourceProviderImports
 
 // #guideProjectionImports
-import akka.projection.ProjectionId;
-import akka.projection.cassandra.javadsl.CassandraProjection;
-import akka.projection.javadsl.AtLeastOnceProjection;
-import akka.stream.alpakka.cassandra.javadsl.CassandraSession;
-import akka.stream.alpakka.cassandra.javadsl.CassandraSessionRegistry;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.cassandra.javadsl.CassandraProjection;
+import org.apache.pekko.projection.javadsl.AtLeastOnceProjection;
+import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
+import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
 // #guideProjectionImports
 
 // #guideSetup
@@ -51,7 +51,7 @@ public class ShoppingCartApp {
               // #guideProjectionSetup
               CassandraSession session =
                   CassandraSessionRegistry.get(system)
-                      .sessionFor("akka.projection.cassandra.session-config");
+                      .sessionFor("pekko.projection.cassandra.session-config");
               ItemPopularityProjectionRepositoryImpl repo =
                   new ItemPopularityProjectionRepositoryImpl(session);
               AtLeastOnceProjection<Offset, EventEnvelope<ShoppingCartEvents.Event>> projection =

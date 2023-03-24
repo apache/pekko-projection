@@ -10,19 +10,20 @@ import java.time.Instant
 import scala.concurrent.duration._
 import scala.util.Random
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
-import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import akka.cluster.sharding.typed.scaladsl.Entity
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
-import akka.cluster.typed.Cluster
-import akka.cluster.typed.Join
-import akka.persistence.typed.PersistenceId
-import akka.persistence.typed.scaladsl.Effect
-import akka.persistence.typed.scaladsl.EventSourcedBehavior
-import akka.stream.scaladsl.Sink
-import akka.stream.scaladsl.Source
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Behavior
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.cluster.sharding.typed.scaladsl.ClusterSharding
+import pekko.cluster.sharding.typed.scaladsl.Entity
+import pekko.cluster.sharding.typed.scaladsl.EntityTypeKey
+import pekko.cluster.typed.Cluster
+import pekko.cluster.typed.Join
+import pekko.persistence.typed.PersistenceId
+import pekko.persistence.typed.scaladsl.Effect
+import pekko.persistence.typed.scaladsl.EventSourcedBehavior
+import pekko.stream.scaladsl.Sink
+import pekko.stream.scaladsl.Source
 import com.typesafe.config.ConfigFactory
 
 /**
@@ -32,7 +33,7 @@ import com.typesafe.config.ConfigFactory
 object EventGeneratorApp extends App {
   import ShoppingCartEvents._
 
-  val Products = List("cat t-shirt", "akka t-shirt", "skis", "bowling shoes")
+  val Products = List("cat t-shirt", "pekko t-shirt", "skis", "bowling shoes")
 
   val MaxQuantity = 5
   val MaxItems = 3
@@ -41,7 +42,7 @@ object EventGeneratorApp extends App {
   val EntityKey: EntityTypeKey[Event] = EntityTypeKey[Event]("shopping-cart-event")
 
   val config = ConfigFactory
-    .parseString("akka.actor.provider = cluster")
+    .parseString("pekko.actor.provider = cluster")
     .withFallback(ConfigFactory.load("guide-shopping-cart-app.conf"))
 
   ActorSystem(Behaviors.setup[String] {

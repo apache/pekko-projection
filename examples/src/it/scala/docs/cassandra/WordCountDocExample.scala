@@ -11,15 +11,16 @@ import scala.util.Failure
 import scala.util.Success
 import scala.util.Try
 
-import akka.Done
-import akka.NotUsed
-import akka.actor.typed.ActorSystem
-import akka.projection.ProjectionId
-import akka.projection.scaladsl.Handler
-import akka.projection.scaladsl.SourceProvider
-import akka.stream.alpakka.cassandra.scaladsl.CassandraSession
-import akka.stream.scaladsl.Source
-import akka.util.Timeout
+import org.apache.pekko
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.typed.ActorSystem
+import pekko.projection.ProjectionId
+import pekko.projection.scaladsl.Handler
+import pekko.projection.scaladsl.SourceProvider
+import pekko.stream.connectors.cassandra.scaladsl.CassandraSession
+import pekko.stream.scaladsl.Source
+import pekko.util.Timeout
 import org.slf4j.LoggerFactory
 
 object WordCountDocExample {
@@ -119,7 +120,7 @@ object WordCountDocExample {
   object IllustrateStatefulHandlerLoadingInitialState {
 
     // #loadingInitialState
-    import akka.projection.scaladsl.StatefulHandler
+    import org.apache.pekko.projection.scaladsl.StatefulHandler
 
     class WordCountHandler(projectionId: ProjectionId, repository: WordCountRepository)(implicit ec: ExecutionContext)
         extends StatefulHandler[Map[Word, Count], WordEnvelope] {
@@ -142,7 +143,7 @@ object WordCountDocExample {
   object IllustrateStatefulHandlerLoadingStateOnDemand {
 
     // #loadingOnDemand
-    import akka.projection.scaladsl.StatefulHandler
+    import org.apache.pekko.projection.scaladsl.StatefulHandler
 
     class WordCountHandler(projectionId: ProjectionId, repository: WordCountRepository)(implicit ec: ExecutionContext)
         extends StatefulHandler[Map[Word, Count], WordEnvelope] {
@@ -175,15 +176,17 @@ object WordCountDocExample {
   }
 
   object IllstrateActorLoadingInitialState {
-    import akka.actor.typed.ActorRef
-    import akka.actor.typed.Behavior
+    import org.apache.pekko
+    import pekko.actor.typed.ActorRef
+    import pekko.actor.typed.Behavior
 
     // #actorHandler
-    import akka.projection.scaladsl.ActorHandler
+    import org.apache.pekko
+    import pekko.projection.scaladsl.ActorHandler
 
     class WordCountActorHandler(behavior: Behavior[WordCountProcessor.Command])(implicit system: ActorSystem[_])
         extends ActorHandler[WordEnvelope, WordCountProcessor.Command](behavior) {
-      import akka.actor.typed.scaladsl.AskPattern._
+      import pekko.actor.typed.scaladsl.AskPattern._
       import system.executionContext
 
       private implicit val askTimeout: Timeout = 5.seconds
@@ -198,11 +201,12 @@ object WordCountDocExample {
     // #actorHandler
 
     // #behaviorLoadingInitialState
-    import akka.actor.typed.ActorRef
-    import akka.actor.typed.Behavior
-    import akka.actor.typed.SupervisorStrategy
-    import akka.actor.typed.scaladsl.ActorContext
-    import akka.actor.typed.scaladsl.Behaviors
+    import org.apache.pekko
+    import pekko.actor.typed.ActorRef
+    import pekko.actor.typed.Behavior
+    import pekko.actor.typed.SupervisorStrategy
+    import pekko.actor.typed.scaladsl.ActorContext
+    import pekko.actor.typed.scaladsl.Behaviors
 
     object WordCountProcessor {
       trait Command
@@ -274,16 +278,16 @@ object WordCountDocExample {
   }
 
   object IllstrateActorLoadingStateOnDemand {
-    import akka.actor.typed.ActorRef
-    import akka.actor.typed.Behavior
-    import akka.actor.typed.SupervisorStrategy
-    import akka.actor.typed.scaladsl.ActorContext
-    import akka.actor.typed.scaladsl.Behaviors
-    import akka.projection.scaladsl.ActorHandler
+    import pekko.actor.typed.ActorRef
+    import pekko.actor.typed.Behavior
+    import pekko.actor.typed.SupervisorStrategy
+    import pekko.actor.typed.scaladsl.ActorContext
+    import pekko.actor.typed.scaladsl.Behaviors
+    import pekko.projection.scaladsl.ActorHandler
 
     class WordCountActorHandler(behavior: Behavior[WordCountProcessor.Command])(implicit system: ActorSystem[_])
         extends ActorHandler[WordEnvelope, WordCountProcessor.Command](behavior) {
-      import akka.actor.typed.scaladsl.AskPattern._
+      import pekko.actor.typed.scaladsl.AskPattern._
       import system.executionContext
 
       private implicit val askTimeout: Timeout = 5.seconds

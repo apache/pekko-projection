@@ -13,20 +13,20 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
 
-import akka.Done;
-import akka.NotUsed;
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.projection.MergeableOffset;
-import akka.projection.Projection;
-import akka.projection.ProjectionId;
-import akka.projection.javadsl.ExactlyOnceProjection;
-import akka.projection.javadsl.Handler;
-import akka.projection.javadsl.SourceProvider;
-import akka.projection.jdbc.javadsl.JdbcHandler;
-import akka.projection.jdbc.javadsl.JdbcProjection;
-import akka.projection.kafka.javadsl.KafkaSourceProvider;
-import akka.stream.javadsl.Source;
+import org.apache.pekko.Done;
+import org.apache.pekko.NotUsed;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.projection.MergeableOffset;
+import org.apache.pekko.projection.Projection;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.javadsl.ExactlyOnceProjection;
+import org.apache.pekko.projection.javadsl.Handler;
+import org.apache.pekko.projection.javadsl.SourceProvider;
+import org.apache.pekko.projection.jdbc.javadsl.JdbcHandler;
+import org.apache.pekko.projection.jdbc.javadsl.JdbcProjection;
+import org.apache.pekko.projection.kafka.javadsl.KafkaSourceProvider;
+import org.apache.pekko.stream.javadsl.Source;
 import jdocs.jdbc.HibernateSessionFactory;
 import org.apache.kafka.clients.producer.RecordMetadata;
 
@@ -34,7 +34,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 // #imports
-import akka.kafka.ConsumerSettings;
+import org.apache.pekko.kafka.ConsumerSettings;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
 import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
@@ -43,20 +43,20 @@ import org.apache.kafka.common.serialization.StringDeserializer;
 
 // #imports-producer
 import org.apache.kafka.common.serialization.StringSerializer;
-import akka.kafka.ProducerSettings;
+import org.apache.pekko.kafka.ProducerSettings;
 // #imports-producer
 
 // #sendProducer
-import akka.kafka.javadsl.SendProducer;
+import org.apache.pekko.kafka.javadsl.SendProducer;
 
 // #sendProducer
 
 // #producerFlow
 import org.apache.kafka.clients.producer.ProducerRecord;
-import akka.kafka.ProducerMessage;
-import akka.kafka.javadsl.Producer;
-import akka.stream.javadsl.FlowWithContext;
-import akka.projection.ProjectionContext;
+import org.apache.pekko.kafka.ProducerMessage;
+import org.apache.pekko.kafka.javadsl.Producer;
+import org.apache.pekko.stream.javadsl.FlowWithContext;
+import org.apache.pekko.projection.ProjectionContext;
 
 // #producerFlow
 

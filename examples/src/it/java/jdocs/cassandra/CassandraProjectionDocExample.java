@@ -6,46 +6,46 @@ package jdocs.cassandra;
 
 import java.time.Duration;
 
-import akka.Done;
-import akka.NotUsed;
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.projection.ProjectionContext;
-import akka.stream.javadsl.FlowWithContext;
+import org.apache.pekko.Done;
+import org.apache.pekko.NotUsed;
+import org.apache.pekko.actor.typed.ActorRef;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.javadsl.ActorContext;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.projection.ProjectionContext;
+import org.apache.pekko.stream.javadsl.FlowWithContext;
 import jdocs.eventsourced.ShoppingCart;
 
 // #daemon-imports
-import akka.cluster.sharding.typed.javadsl.ShardedDaemonProcess;
-import akka.projection.ProjectionBehavior;
+import org.apache.pekko.cluster.sharding.typed.javadsl.ShardedDaemonProcess;
+import org.apache.pekko.projection.ProjectionBehavior;
 
 // #daemon-imports
 
 // #singleton-imports
-import akka.cluster.typed.ClusterSingleton;
-import akka.cluster.typed.SingletonActor;
+import org.apache.pekko.cluster.typed.ClusterSingleton;
+import org.apache.pekko.cluster.typed.SingletonActor;
 
 // #singleton-imports
 
 // #source-provider-imports
-import akka.persistence.cassandra.query.javadsl.CassandraReadJournal;
-import akka.persistence.query.Offset;
-import akka.projection.javadsl.SourceProvider;
-import akka.projection.eventsourced.javadsl.EventSourcedProvider;
-import akka.projection.eventsourced.EventEnvelope;
+import org.apache.pekko.persistence.cassandra.query.javadsl.CassandraReadJournal;
+import org.apache.pekko.persistence.query.Offset;
+import org.apache.pekko.projection.javadsl.SourceProvider;
+import org.apache.pekko.projection.eventsourced.javadsl.EventSourcedProvider;
+import org.apache.pekko.projection.eventsourced.EventEnvelope;
 
 // #source-provider-imports
 
 // #projection-imports
-import akka.projection.cassandra.javadsl.CassandraProjection;
-import akka.projection.Projection;
-import akka.projection.ProjectionId;
+import org.apache.pekko.projection.cassandra.javadsl.CassandraProjection;
+import org.apache.pekko.projection.Projection;
+import org.apache.pekko.projection.ProjectionId;
 
 // #projection-imports
 
 // #handler-imports
-import akka.projection.javadsl.Handler;
+import org.apache.pekko.projection.javadsl.Handler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -57,17 +57,17 @@ import java.util.concurrent.CompletionStage;
 // #handler-imports
 
 // #withRecoveryStrategy
-import akka.projection.HandlerRecoveryStrategy;
+import org.apache.pekko.projection.HandlerRecoveryStrategy;
 
 // #withRecoveryStrategy
 
 // #get-offset
-import akka.projection.javadsl.ProjectionManagement;
+import org.apache.pekko.projection.javadsl.ProjectionManagement;
 
 // #get-offset
 
 // #update-offset
-import akka.persistence.query.Sequence;
+import org.apache.pekko.persistence.query.Sequence;
 
 // #update-offset
 

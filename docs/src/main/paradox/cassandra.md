@@ -45,7 +45,7 @@ Java
 
 The offset is stored after a time window, or limited by a number of envelopes, whatever happens first.
 This window can be defined with `withSaveOffset` of the returned `AtLeastOnceProjection`.
-The default settings for the window is defined in configuration section `akka.projection.at-least-once`.
+The default settings for the window is defined in configuration section `pekko.projection.at-least-once`.
 There is a performance benefit of not storing the offset too often, but the drawback is that there can be more
 duplicates when the projection that will be processed again when the projection is restarted.
 
@@ -80,7 +80,7 @@ Java
 
 The envelopes are grouped within a time window, or limited by a number of envelopes, whatever happens first.
 This window can be defined with `withGroup` of the returned `GroupedProjection`. The default settings for
-the window is defined in configuration section `akka.projection.grouped`.
+the window is defined in configuration section `pekko.projection.grouped`.
 
 When using `groupedWithin` the handler is a @scala[`Handler[immutable.Seq[EventEnvelope[ShoppingCart.Event]]]`]@java[`Handler<List<EventEnvelope<ShoppingCart.Event>>>`].
 The @ref:[`GroupedShoppingCartHandler` is shown below](#grouped-handler).
@@ -244,7 +244,7 @@ the @apidoc[MergeableOffset] requires all rows.
 @@@
 
 ```
-CREATE TABLE IF NOT EXISTS akka_projection.offset_store (
+CREATE TABLE IF NOT EXISTS pekko_projection.offset_store (
   projection_name text,
   partition int,
   projection_key text,
@@ -253,7 +253,7 @@ CREATE TABLE IF NOT EXISTS akka_projection.offset_store (
   last_updated timestamp,
   PRIMARY KEY ((projection_name, partition), projection_key));
 
-CREATE TABLE IF NOT EXISTS akka_projection.projection_management (
+CREATE TABLE IF NOT EXISTS pekko_projection.projection_management (
   projection_name text,
   partition int,
   projection_key text,
@@ -266,7 +266,7 @@ CREATE TABLE IF NOT EXISTS akka_projection.projection_management (
 
 The supported offset types of the `CassandraProjection` are:
 
-* `akka.persistence.query.Offset` types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
+* `org.apache.pekko.persistence.query.Offset` types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
 * `String`
 * @scala[`Int`]@java[Integer]
 * `Long`
@@ -303,16 +303,16 @@ It is possible to share the same Cassandra session as [Apache Pekko Persistence 
 by setting the `session-config-path`:
 
 ```
-akka.projection.cassandra {
-  session-config-path = "akka.persistence.cassandra"
+pekko.projection.cassandra {
+  session-config-path = "pekko.persistence.cassandra"
 }
 ```
 
 or share the same Cassandra session as [Alpakka Cassandra](https://doc.akka.io/docs/alpakka/2.0/cassandra.html):
 
 ```
-akka.projection.cassandra {
-  session-config-path = "alpakka.cassandra"
+pekko.projection.cassandra {
+  session-config-path = "connectors.cassandra"
 }
 ```
 

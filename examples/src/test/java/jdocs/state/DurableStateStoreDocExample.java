@@ -4,15 +4,15 @@
 
 package jdocs.state;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
 
 // #changesByTagSourceProvider
-import akka.persistence.jdbc.state.javadsl.JdbcDurableStateStore;
-import akka.persistence.query.DurableStateChange;
-import akka.persistence.query.Offset;
-import akka.projection.state.javadsl.DurableStateSourceProvider;
-import akka.projection.javadsl.SourceProvider;
+import org.apache.pekko.persistence.jdbc.state.javadsl.JdbcDurableStateStore;
+import org.apache.pekko.persistence.query.DurableStateChange;
+import org.apache.pekko.persistence.query.Offset;
+import org.apache.pekko.projection.state.javadsl.DurableStateSourceProvider;
+import org.apache.pekko.projection.javadsl.SourceProvider;
 
 // #changesByTagSourceProvider
 

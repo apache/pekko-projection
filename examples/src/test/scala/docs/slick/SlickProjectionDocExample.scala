@@ -9,16 +9,18 @@ import java.time.Instant
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.Behaviors
-import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
-import akka.projection.eventsourced.EventEnvelope
-import akka.projection.eventsourced.scaladsl.EventSourcedProvider
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.persistence.jdbc.query.scaladsl.JdbcReadJournal
+import pekko.projection.eventsourced.EventEnvelope
+import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
 import docs.eventsourced.ShoppingCart
 
 //#projection-imports
-import akka.projection.ProjectionId
-import akka.projection.slick.SlickProjection
+import org.apache.pekko
+import pekko.projection.ProjectionId
+import pekko.projection.slick.SlickProjection
 import slick.basic.DatabaseConfig
 import slick.dbio.DBIO
 import slick.jdbc.H2Profile
@@ -28,8 +30,9 @@ import slick.jdbc.H2Profile
 //#handler-imports
 import scala.concurrent.Future
 
-import akka.Done
-import akka.projection.slick.SlickHandler
+import org.apache.pekko
+import pekko.Done
+import pekko.projection.slick.SlickHandler
 import org.slf4j.LoggerFactory
 
 //#handler-imports
@@ -106,7 +109,7 @@ class SlickProjectionDocExample {
   implicit val system = ActorSystem[Nothing](Behaviors.empty, "Example")
 
   // #db-config
-  val dbConfig: DatabaseConfig[H2Profile] = DatabaseConfig.forConfig("akka.projection.slick", system.settings.config)
+  val dbConfig: DatabaseConfig[H2Profile] = DatabaseConfig.forConfig("pekko.projection.slick", system.settings.config)
 
   val repository = new OrderRepository(dbConfig)
   // #db-config

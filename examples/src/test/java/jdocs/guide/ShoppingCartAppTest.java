@@ -5,21 +5,21 @@
 // #testKitSpec
 package jdocs.guide;
 
-import akka.Done;
-import akka.NotUsed;
-import akka.actor.testkit.typed.javadsl.LoggingTestKit;
-import akka.actor.testkit.typed.javadsl.TestKitJunitResource;
-import akka.persistence.query.Offset;
-import akka.projection.ProjectionId;
-import akka.projection.eventsourced.EventEnvelope;
-import akka.projection.javadsl.Handler;
-import akka.projection.javadsl.SourceProvider;
+import org.apache.pekko.Done;
+import org.apache.pekko.NotUsed;
+import org.apache.pekko.actor.testkit.typed.javadsl.LoggingTestKit;
+import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.persistence.query.Offset;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.eventsourced.EventEnvelope;
+import org.apache.pekko.projection.javadsl.Handler;
+import org.apache.pekko.projection.javadsl.SourceProvider;
 // #testKitImports
-import akka.projection.testkit.javadsl.ProjectionTestKit;
-import akka.projection.testkit.javadsl.TestProjection;
-import akka.projection.testkit.javadsl.TestSourceProvider;
+import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
+import org.apache.pekko.projection.testkit.javadsl.TestProjection;
+import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 // #testKitImports
-import akka.stream.javadsl.Source;
+import org.apache.pekko.stream.javadsl.Source;
 import org.junit.ClassRule;
 import org.junit.Test;
 
@@ -65,7 +65,7 @@ public class ShoppingCartAppTest {
                     2L,
                     0L),
                 createEnvelope(
-                    new ShoppingCartEvents.ItemAdded("0d12d", "akka t-shirt", 1), 3L, 0L),
+                    new ShoppingCartEvents.ItemAdded("0d12d", "pekko t-shirt", 1), 3L, 0L),
                 createEnvelope(new ShoppingCartEvents.ItemAdded("0d12d", "skis", 1), 4L, 0L),
                 createEnvelope(new ShoppingCartEvents.ItemRemoved("0d12d", "skis", 1), 5L, 0L),
                 createEnvelope(
@@ -85,7 +85,7 @@ public class ShoppingCartAppTest {
         () -> {
           assertEquals(repo.counts.size(), 3);
           assertEquals(repo.counts.get("bowling shoes"), Long.valueOf(2L));
-          assertEquals(repo.counts.get("akka t-shirt"), Long.valueOf(1L));
+          assertEquals(repo.counts.get("pekko t-shirt"), Long.valueOf(1L));
           assertEquals(repo.counts.get("skis"), Long.valueOf(0L));
         });
   }

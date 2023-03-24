@@ -10,22 +10,23 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import akka.Done
-import akka.NotUsed
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.Behavior
-import akka.actor.typed.scaladsl.Behaviors
-import akka.actor.typed.scaladsl.LoggerOps
-import akka.projection.MergeableOffset
-import akka.projection.Projection
-import akka.projection.ProjectionBehavior
-import akka.projection.ProjectionId
-import akka.projection.jdbc.scaladsl.JdbcHandler
-import akka.projection.jdbc.scaladsl.JdbcProjection
-import akka.projection.kafka.scaladsl.KafkaSourceProvider
-import akka.projection.scaladsl.Handler
-import akka.projection.scaladsl.SourceProvider
-import akka.stream.scaladsl.Source
+import org.apache.pekko
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Behavior
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.projection.MergeableOffset
+import pekko.projection.Projection
+import pekko.projection.ProjectionBehavior
+import pekko.projection.ProjectionId
+import pekko.projection.jdbc.scaladsl.JdbcHandler
+import pekko.projection.jdbc.scaladsl.JdbcProjection
+import pekko.projection.kafka.scaladsl.KafkaSourceProvider
+import pekko.projection.scaladsl.Handler
+import pekko.projection.scaladsl.SourceProvider
+import pekko.stream.scaladsl.Source
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import javax.persistence.EntityManager
@@ -35,26 +36,27 @@ import org.slf4j.LoggerFactory
 
 // #imports-producer
 import org.apache.kafka.common.serialization.StringSerializer
-import akka.kafka.ProducerSettings
+import org.apache.pekko
+import pekko.kafka.ProducerSettings
 // #imports-producer
 
 //#imports
-import akka.kafka.ConsumerSettings
+import org.apache.pekko.kafka.ConsumerSettings
 import org.apache.kafka.clients.consumer.ConsumerConfig
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.serialization.StringDeserializer
 //#imports
 
 // #sendProducer
-import akka.kafka.scaladsl.SendProducer
+import pekko.kafka.scaladsl.SendProducer
 // #sendProducer
 
 // #producerFlow
 import org.apache.kafka.clients.producer.ProducerRecord
-import akka.kafka.ProducerMessage
-import akka.kafka.scaladsl.Producer
-import akka.stream.scaladsl.FlowWithContext
-import akka.projection.ProjectionContext
+import pekko.kafka.ProducerMessage
+import pekko.kafka.scaladsl.Producer
+import pekko.stream.scaladsl.FlowWithContext
+import pekko.projection.ProjectionContext
 
 // #producerFlow
 
@@ -128,7 +130,7 @@ object KafkaDocExample {
   // #wordPublisher
 
   val config: Config = ConfigFactory.parseString("""
-    akka.projection.jdbc {
+    pekko.projection.jdbc {
       dialect = "h2-dialect"
       blocking-jdbc-dispatcher {
         type = Dispatcher
@@ -214,7 +216,7 @@ object KafkaDocExample {
     private val producerSettings =
       ProducerSettings(system, new StringSerializer, new StringSerializer)
         .withBootstrapServers(bootstrapServers)
-    import akka.actor.typed.scaladsl.adapter._ // FIXME might not be needed in later Alpakka Kafka version?
+    import pekko.actor.typed.scaladsl.adapter._ // FIXME might not be needed in later Alpakka Kafka version?
     private val sendProducer = SendProducer(producerSettings)(system.toClassic)
     // #sendProducer
 

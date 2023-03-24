@@ -9,7 +9,7 @@ artifact=pekko-projection-testkit_$scala.binary.version$
 version=$project.version$
 }
 
-Import the @apidoc[akka.projection.testkit.(javadsl|scaladsl).ProjectionTestKit] and other utilities into a new 
+Import the @apidoc[pekko.projection.testkit.(javadsl|scaladsl).ProjectionTestKit] and other utilities into a new 
 @scala[[ScalaTest](https://pekko.apache.org/docs/pekko/current/typed/testing-async.html#test-framework-integration) test spec]
 @java[[JUnit](https://pekko.apache.org/docs/pekko/current/typed/testing-async.html#test-framework-integration) test].
 
@@ -21,7 +21,7 @@ Java
 
 The TestKit includes several utilities to run the Projection handler in isolation so that a full projection implementation and source provider are not required.
 
-* @apidoc[akka.projection.testkit.(javadsl|scaladsl).ProjectionTestKit] runs a projection with the test @apidoc[akka.actor.typed.ActorSystem].
+* @apidoc[pekko.projection.testkit.(javadsl|scaladsl).ProjectionTestKit] runs a projection with the test @apidoc[pekko.actor.typed.ActorSystem].
 * @apidoc[TestSourceProvider] allows the user to mock out test data `Envelopes` that will be processed by the Projection Handler.
 * @apidoc[TestProjection] is a test Projection implementation that uses an in-memory internal offset store.
 

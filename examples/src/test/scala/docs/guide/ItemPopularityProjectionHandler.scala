@@ -9,11 +9,12 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Success
 
-import akka.Done
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.LoggerOps
-import akka.projection.eventsourced.EventEnvelope
-import akka.projection.scaladsl.Handler
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.projection.eventsourced.EventEnvelope
+import pekko.projection.scaladsl.Handler
 import org.slf4j.LoggerFactory
 
 object ItemPopularityProjectionHandler {

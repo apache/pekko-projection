@@ -6,23 +6,23 @@ package jdocs.state;
 
 import java.util.List;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
 
 // #changesBySlicesSourceProvider
-import akka.japi.Pair;
-import akka.persistence.query.DurableStateChange;
-import akka.persistence.query.Offset;
-import akka.projection.eventsourced.javadsl.EventSourcedProvider;
-import akka.projection.javadsl.SourceProvider;
-import akka.projection.state.javadsl.DurableStateSourceProvider;
+import org.apache.pekko.japi.Pair;
+import org.apache.pekko.persistence.query.DurableStateChange;
+import org.apache.pekko.persistence.query.Offset;
+import org.apache.pekko.projection.eventsourced.javadsl.EventSourcedProvider;
+import org.apache.pekko.projection.javadsl.SourceProvider;
+import org.apache.pekko.projection.state.javadsl.DurableStateSourceProvider;
 
 // #changesBySlicesSourceProvider
 
 public interface DurableStateStoreBySlicesDocExample {
   public static class R2dbcDurableStateStore {
     public static String Identifier() {
-      return "akka.persistence.r2dbc.query";
+      return "pekko.persistence.r2dbc.query";
     }
   }
 

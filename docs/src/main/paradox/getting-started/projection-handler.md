@@ -53,7 +53,7 @@ Scala
 Java
 :  @@snip [ItemPopularityProjectionHandler.java](/examples/src/test/java/jdocs/guide/ItemPopularityProjectionHandler.java) { #guideProjectionHandler }
 
-The projection is run by wrapping it in a @apidoc[ProjectionBehavior$] and spawning it as an Actor in the @apidoc[akka.actor.typed.ActorSystem].
+The projection is run by wrapping it in a @apidoc[ProjectionBehavior$] and spawning it as an Actor in the @apidoc[pekko.actor.typed.ActorSystem].
 
 Add the following imports to `ShoppingCartApp`:
 

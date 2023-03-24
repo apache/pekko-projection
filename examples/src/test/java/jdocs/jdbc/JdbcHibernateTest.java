@@ -4,19 +4,19 @@
 
 package jdocs.jdbc;
 
-import akka.NotUsed;
-import akka.actor.testkit.typed.javadsl.LogCapturing;
-import akka.actor.testkit.typed.javadsl.TestKitJunitResource;
-import akka.projection.Projection;
-import akka.projection.ProjectionId;
-import akka.projection.javadsl.SourceProvider;
-import akka.projection.jdbc.internal.JdbcOffsetStore;
-import akka.projection.jdbc.internal.JdbcSettings;
-import akka.projection.jdbc.javadsl.JdbcHandler;
-import akka.projection.jdbc.javadsl.JdbcProjection;
-import akka.projection.testkit.javadsl.TestSourceProvider;
-import akka.projection.testkit.javadsl.ProjectionTestKit;
-import akka.stream.javadsl.Source;
+import org.apache.pekko.NotUsed;
+import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
+import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.projection.Projection;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.javadsl.SourceProvider;
+import org.apache.pekko.projection.jdbc.internal.JdbcOffsetStore;
+import org.apache.pekko.projection.jdbc.internal.JdbcSettings;
+import org.apache.pekko.projection.jdbc.javadsl.JdbcHandler;
+import org.apache.pekko.projection.jdbc.javadsl.JdbcProjection;
+import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
+import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
+import org.apache.pekko.stream.javadsl.Source;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.junit.BeforeClass;
@@ -40,11 +40,11 @@ public class JdbcHibernateTest extends JUnitSuite {
   private static final Map<String, Object> configuration = new HashMap<>();
 
   static {
-    configuration.put("akka.projection.jdbc.dialect", "h2-dialect");
-    configuration.put("akka.projection.jdbc.offset-store.schema", "");
-    configuration.put("akka.projection.jdbc.offset-store.table", "AKKA_PROJECTION_OFFSET_STORE");
+    configuration.put("pekko.projection.jdbc.dialect", "h2-dialect");
+    configuration.put("pekko.projection.jdbc.offset-store.schema", "");
+    configuration.put("pekko.projection.jdbc.offset-store.table", "PEKKO_PROJECTION_OFFSET_STORE");
     configuration.put(
-        "akka.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size", 5);
+        "pekko.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size", 5);
   }
 
   private static final Config config = ConfigFactory.parseMap(configuration);

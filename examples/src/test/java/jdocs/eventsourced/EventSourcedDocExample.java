@@ -4,15 +4,15 @@
 
 package jdocs.eventsourced;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
 
 // #eventsByTagSourceProvider
-import akka.persistence.cassandra.query.javadsl.CassandraReadJournal;
-import akka.persistence.query.Offset;
-import akka.projection.eventsourced.EventEnvelope;
-import akka.projection.eventsourced.javadsl.EventSourcedProvider;
-import akka.projection.javadsl.SourceProvider;
+import org.apache.pekko.persistence.cassandra.query.javadsl.CassandraReadJournal;
+import org.apache.pekko.persistence.query.Offset;
+import org.apache.pekko.projection.eventsourced.EventEnvelope;
+import org.apache.pekko.projection.eventsourced.javadsl.EventSourcedProvider;
+import org.apache.pekko.projection.javadsl.SourceProvider;
 
 // #eventsByTagSourceProvider
 

@@ -4,19 +4,19 @@
 
 package jdocs.jdbc;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.japi.function.Function;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.japi.function.Function;
 
-import akka.persistence.cassandra.query.javadsl.CassandraReadJournal;
-import akka.persistence.query.Offset;
-import akka.projection.Projection;
-import akka.projection.ProjectionId;
-import akka.projection.eventsourced.EventEnvelope;
-import akka.projection.eventsourced.javadsl.EventSourcedProvider;
-import akka.projection.javadsl.SourceProvider;
-import akka.projection.jdbc.javadsl.JdbcHandler;
-import akka.projection.jdbc.javadsl.JdbcProjection;
+import org.apache.pekko.persistence.cassandra.query.javadsl.CassandraReadJournal;
+import org.apache.pekko.persistence.query.Offset;
+import org.apache.pekko.projection.Projection;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.eventsourced.EventEnvelope;
+import org.apache.pekko.projection.eventsourced.javadsl.EventSourcedProvider;
+import org.apache.pekko.projection.javadsl.SourceProvider;
+import org.apache.pekko.projection.jdbc.javadsl.JdbcHandler;
+import org.apache.pekko.projection.jdbc.javadsl.JdbcProjection;
 import jdocs.eventsourced.ShoppingCart;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
 import javax.persistence.EntityManager;
 
 // #jdbc-session-imports
-import akka.projection.jdbc.JdbcSession;
+import org.apache.pekko.projection.jdbc.JdbcSession;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.sql.Connection;
