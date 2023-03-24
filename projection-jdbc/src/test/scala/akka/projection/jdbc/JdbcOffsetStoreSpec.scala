@@ -148,7 +148,6 @@ abstract class JdbcOffsetStoreSpec(specConfig: JdbcSpecConfig)
 
   private def selectLastUpdated(projectionId: ProjectionId): Instant = {
     withConnection(specConfig.jdbcSessionFactory _) { conn =>
-
       val statement = selectLastStatement
 
       // init statement in try-with-resource
@@ -158,7 +157,6 @@ abstract class JdbcOffsetStoreSpec(specConfig: JdbcSpecConfig)
 
         // init ResultSet in try-with-resource
         tryWithResource(stmt.executeQuery()) { resultSet =>
-
           if (resultSet.next()) {
             val millisSinceEpoch = resultSet.getLong(6)
             Instant.ofEpochMilli(millisSinceEpoch)

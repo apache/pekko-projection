@@ -185,12 +185,13 @@ class KafkaToSlickIntegrationSpec extends KafkaSpecBase(ConfigFactory.load().wit
 
       // repository will fail to insert the "AddToCart" event type once only
       val failedOnce = new AtomicBoolean
-      val failingRepository = new EventTypeCountRepository(dbConfig, doTransientFailure = eventType => {
-        if (!failedOnce.get && eventType == EventType.AddToCart) {
-          failedOnce.set(true)
-          true
-        } else false
-      })
+      val failingRepository = new EventTypeCountRepository(dbConfig,
+        doTransientFailure = eventType => {
+          if (!failedOnce.get && eventType == EventType.AddToCart) {
+            failedOnce.set(true)
+            true
+          } else false
+        })
 
       val slickProjection =
         SlickProjection

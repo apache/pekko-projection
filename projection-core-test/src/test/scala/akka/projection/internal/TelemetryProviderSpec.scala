@@ -14,7 +14,6 @@ import akka.projection.internal.metrics.tools.InMemTelemetry
 import org.scalatest.wordspec.AnyWordSpecLike
 
 /**
- *
  */
 object TelemetryProviderSpec {
   val projectionId = ProjectionId("TelemetryProviderSpec-projection", "noKey")

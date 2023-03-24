@@ -17,8 +17,8 @@ object CopyrightHeader extends AutoPlugin {
         Seq(
           headerLicense := Some(HeaderLicense.Custom(headerFor(CurrentYear))),
           headerMappings := headerMappings.value ++ Map(
-              HeaderFileType.scala -> cStyleComment,
-              HeaderFileType.java -> cStyleComment)))
+            HeaderFileType.scala -> cStyleComment,
+            HeaderFileType.java -> cStyleComment)))
     })
 
   // We hard-code this so PR's created in year X will not suddenly fail in X+1.

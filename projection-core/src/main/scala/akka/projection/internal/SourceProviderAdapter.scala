@@ -26,8 +26,8 @@ import akka.stream.scaladsl.Source
     extends scaladsl.SourceProvider[Offset, Envelope] {
 
   def source(offset: () => Future[Option[Offset]]): Future[Source[Envelope, NotUsed]] = {
-    // the parasitic context is used to convert the Optional to Option and a java streams Source to a scala Source,	
-    // it _should_ not be used for the blocking operation of getting offsets themselves	
+    // the parasitic context is used to convert the Optional to Option and a java streams Source to a scala Source,
+    // it _should_ not be used for the blocking operation of getting offsets themselves
     val ec = akka.dispatch.ExecutionContexts.parasitic
     val offsetAdapter = new Supplier[CompletionStage[Optional[Offset]]] {
       override def get(): CompletionStage[Optional[Offset]] = offset().map(_.asJava)(ec).toJava

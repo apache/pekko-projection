@@ -106,9 +106,10 @@ private[projection] object RunningProjection {
     RestartSource
       .onFailuresWithBackoff(settings.restartBackoff) { () =>
         source()
-          .recoverWithRetries(1, {
-            case AbortProjectionException => Source.empty // don't restart
-          })
+          .recoverWithRetries(1,
+            {
+              case AbortProjectionException => Source.empty // don't restart
+            })
       }
   }
 

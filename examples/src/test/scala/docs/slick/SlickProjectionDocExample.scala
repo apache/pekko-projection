@@ -36,7 +36,7 @@ import org.slf4j.LoggerFactory
 
 class SlickProjectionDocExample {
 
-  //#repository
+  // #repository
   case class Order(id: String, time: Instant)
 
   class OrderRepository(val dbConfig: DatabaseConfig[H2Profile]) {
@@ -60,9 +60,9 @@ class SlickProjectionDocExample {
     def createTable(): Future[Unit] =
       dbConfig.db.run(ordersTable.schema.createIfNotExists)
   }
-  //#repository
+  // #repository
 
-  //#handler
+  // #handler
   class ShoppingCartHandler(repository: OrderRepository)(implicit ec: ExecutionContext)
       extends SlickHandler[EventEnvelope[ShoppingCart.Event]] {
     private val logger = LoggerFactory.getLogger(getClass)
@@ -79,9 +79,9 @@ class SlickProjectionDocExample {
       }
     }
   }
-  //#handler
+  // #handler
 
-  //#grouped-handler
+  // #grouped-handler
   import scala.collection.immutable
 
   class GroupedShoppingCartHandler(repository: OrderRepository)(implicit ec: ExecutionContext)
@@ -101,24 +101,24 @@ class SlickProjectionDocExample {
       DBIO.sequence(dbios).map(_ => Done)
     }
   }
-  //#grouped-handler
+  // #grouped-handler
 
   implicit val system = ActorSystem[Nothing](Behaviors.empty, "Example")
 
-  //#db-config
+  // #db-config
   val dbConfig: DatabaseConfig[H2Profile] = DatabaseConfig.forConfig("akka.projection.slick", system.settings.config)
 
   val repository = new OrderRepository(dbConfig)
-  //#db-config
+  // #db-config
 
-  //#sourceProvider
+  // #sourceProvider
   val sourceProvider =
     EventSourcedProvider
       .eventsByTag[ShoppingCart.Event](system, readJournalPluginId = JdbcReadJournal.Identifier, tag = "carts-1")
-  //#sourceProvider
+  // #sourceProvider
 
   object IllustrateExactlyOnce {
-    //#exactlyOnce
+    // #exactlyOnce
     implicit val ec = system.executionContext
 
     val projection =
@@ -127,11 +127,11 @@ class SlickProjectionDocExample {
         sourceProvider,
         dbConfig,
         handler = () => new ShoppingCartHandler(repository))
-    //#exactlyOnce
+    // #exactlyOnce
   }
 
   object IllustrateAtLeastOnce {
-    //#atLeastOnce
+    // #atLeastOnce
     implicit val ec = system.executionContext
 
     val projection =
@@ -142,11 +142,11 @@ class SlickProjectionDocExample {
           dbConfig,
           handler = () => new ShoppingCartHandler(repository))
         .withSaveOffset(afterEnvelopes = 100, afterDuration = 500.millis)
-    //#atLeastOnce
+    // #atLeastOnce
   }
 
   object IllustrateGrouped {
-    //#grouped
+    // #grouped
     implicit val ec = system.executionContext
 
     val projection =
@@ -157,7 +157,7 @@ class SlickProjectionDocExample {
           dbConfig,
           handler = () => new GroupedShoppingCartHandler(repository))
         .withGroup(groupAfterEnvelopes = 20, groupAfterDuration = 500.millis)
-    //#grouped
+    // #grouped
   }
 
 }

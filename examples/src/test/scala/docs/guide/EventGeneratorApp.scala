@@ -45,57 +45,57 @@ object EventGeneratorApp extends App {
     .withFallback(ConfigFactory.load("guide-shopping-cart-app.conf"))
 
   ActorSystem(Behaviors.setup[String] {
-    ctx =>
-      implicit val system = ctx.system
-      val cluster = Cluster(system)
-      cluster.manager ! Join(cluster.selfMember.address)
-      val sharding = ClusterSharding(system)
-      val _ = sharding.init(Entity(EntityKey) { entityCtx =>
-        cartBehavior(entityCtx.entityId, tagFactory(entityCtx.entityId))
-      })
+      ctx =>
+        implicit val system = ctx.system
+        val cluster = Cluster(system)
+        cluster.manager ! Join(cluster.selfMember.address)
+        val sharding = ClusterSharding(system)
+        val _ = sharding.init(Entity(EntityKey) { entityCtx =>
+          cartBehavior(entityCtx.entityId, tagFactory(entityCtx.entityId))
+        })
 
-      Source
-        .tick(1.second, 1.second, "checkout")
-        .mapConcat {
-          case "checkout" =>
-            val cartId = java.util.UUID.randomUUID().toString.take(5)
-            val items = randomItems()
-            val itemEvents = (0 to items).flatMap {
-              _ =>
-                val itemId = Products(Random.nextInt(Products.size))
+        Source
+          .tick(1.second, 1.second, "checkout")
+          .mapConcat {
+            case "checkout" =>
+              val cartId = java.util.UUID.randomUUID().toString.take(5)
+              val items = randomItems()
+              val itemEvents = (0 to items).flatMap {
+                _ =>
+                  val itemId = Products(Random.nextInt(Products.size))
 
-                // add the item
-                val quantity = randomQuantity()
-                val itemAdded = ItemAdded(cartId, itemId, quantity)
+                  // add the item
+                  val quantity = randomQuantity()
+                  val itemAdded = ItemAdded(cartId, itemId, quantity)
 
-                // make up to `MaxItemAdjusted` adjustments to quantity of item
-                val adjustments = Random.nextInt(MaxItemsAdjusted)
-                val itemQuantityAdjusted = (0 to adjustments).foldLeft(Seq[ItemQuantityAdjusted]()) {
-                  case (events, _) =>
-                    val newQuantity = randomQuantity()
-                    val oldQuantity =
-                      if (events.isEmpty) itemAdded.quantity
-                      else events.last.newQuantity
-                    events :+ ItemQuantityAdjusted(cartId, itemId, newQuantity, oldQuantity)
-                }
+                  // make up to `MaxItemAdjusted` adjustments to quantity of item
+                  val adjustments = Random.nextInt(MaxItemsAdjusted)
+                  val itemQuantityAdjusted = (0 to adjustments).foldLeft(Seq[ItemQuantityAdjusted]()) {
+                    case (events, _) =>
+                      val newQuantity = randomQuantity()
+                      val oldQuantity =
+                        if (events.isEmpty) itemAdded.quantity
+                        else events.last.newQuantity
+                      events :+ ItemQuantityAdjusted(cartId, itemId, newQuantity, oldQuantity)
+                  }
 
-                // flip a coin to decide whether or not to remove the item
-                val itemRemoved =
-                  if (Random.nextBoolean())
-                    List(ItemRemoved(cartId, itemId, itemQuantityAdjusted.last.newQuantity))
-                  else Nil
+                  // flip a coin to decide whether or not to remove the item
+                  val itemRemoved =
+                    if (Random.nextBoolean())
+                      List(ItemRemoved(cartId, itemId, itemQuantityAdjusted.last.newQuantity))
+                    else Nil
 
-                List(itemAdded) ++ itemQuantityAdjusted ++ itemRemoved
-            }
+                  List(itemAdded) ++ itemQuantityAdjusted ++ itemRemoved
+              }
 
-            // checkout the cart and all its preceding item events
-            itemEvents :+ CheckedOut(cartId, Instant.now())
-        }
-        // send each event to the sharded entity represented by the event's cartId
-        .runWith(Sink.foreach(event => sharding.entityRefFor(EntityKey, event.cartId).ref.tell(event)))
+              // checkout the cart and all its preceding item events
+              itemEvents :+ CheckedOut(cartId, Instant.now())
+          }
+          // send each event to the sharded entity represented by the event's cartId
+          .runWith(Sink.foreach(event => sharding.entityRefFor(EntityKey, event.cartId).ref.tell(event)))
 
-      Behaviors.empty
-  }, "EventGeneratorApp", config)
+        Behaviors.empty
+    }, "EventGeneratorApp", config)
 
   /**
    * Random non-zero based quantity for `ItemAdded` and `ItemQuantityAdjusted` events

@@ -43,7 +43,6 @@ object JdbcProjection {
    *
    * It stores the offset in a relational database table using JDBC in the same transaction
    * as the user defined `handler`.
-   *
    */
   def exactlyOnce[Offset, Envelope, S <: JdbcSession](
       projectionId: ProjectionId,

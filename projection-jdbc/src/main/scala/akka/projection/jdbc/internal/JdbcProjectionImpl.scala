@@ -57,7 +57,6 @@ private[projection] object JdbcProjectionImpl {
       sessionFactory: () => S,
       handlerFactory: () => JdbcHandler[Envelope, S],
       offsetStore: JdbcOffsetStore[S]): () => Handler[Envelope] = { () =>
-
     new AdaptedJdbcHandler(handlerFactory(), offsetStore.executionContext) {
       override def process(envelope: Envelope): Future[Done] = {
         val offset = sourceProvider.extractOffset(envelope)
@@ -96,7 +95,6 @@ private[projection] object JdbcProjectionImpl {
       sessionFactory: () => S,
       handlerFactory: () => JdbcHandler[immutable.Seq[Envelope], S],
       offsetStore: JdbcOffsetStore[S]): () => Handler[immutable.Seq[Envelope]] = { () =>
-
     new AdaptedJdbcHandler(handlerFactory(), offsetStore.executionContext) {
       override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
         val offset = sourceProvider.extractOffset(envelopes.last)
@@ -212,7 +210,7 @@ private[projection] class JdbcProjectionImpl[Offset, Envelope, S <: JdbcSession]
     val newStrategy = offsetStrategy match {
       case s: ExactlyOnce => s.copy(recoveryStrategy = Some(recoveryStrategy))
       case s: AtLeastOnce => s.copy(recoveryStrategy = Some(recoveryStrategy))
-      //NOTE: AtMostOnce has its own withRecoveryStrategy variant
+      // NOTE: AtMostOnce has its own withRecoveryStrategy variant
       // this method is not available for AtMostOnceProjection
       case s: AtMostOnce => s
     }

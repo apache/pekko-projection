@@ -97,18 +97,15 @@ private[projection] class JdbcOffsetStore[S <: JdbcSession](
 
   def readOffset[Offset](projectionId: ProjectionId): Future[Option[Offset]] =
     withConnection(jdbcSessionFactory) { conn =>
-
       if (verboseLogging)
         logger.debug("reading offset for [{}], using connection id [{}]", projectionId, System.identityHashCode(conn))
 
       // init Statement in try-with-resource
       tryWithResource(conn.prepareStatement(settings.dialect.readOffsetQuery)) { stmt =>
-
         stmt.setString(1, projectionId.name)
 
         // init ResultSet in try-with-resource
         tryWithResource(stmt.executeQuery()) { resultSet =>
-
           val buffer = ListBuffer.empty[SingleOffset]
 
           while (resultSet.next()) {
@@ -223,7 +220,6 @@ private[projection] class JdbcOffsetStore[S <: JdbcSession](
 
   def readManagementState(projectionId: ProjectionId): Future[Option[ManagementState]] = {
     withConnection(jdbcSessionFactory) { conn =>
-
       if (verboseLogging)
         logger.debug(
           "reading ManagementState for [{}], using connection id [{}]",
@@ -232,7 +228,6 @@ private[projection] class JdbcOffsetStore[S <: JdbcSession](
 
       // init Statement in try-with-resource
       tryWithResource(conn.prepareStatement(settings.dialect.readManagementStateQuery)) { stmt =>
-
         stmt.setString(1, projectionId.name)
         stmt.setString(2, projectionId.key)
 

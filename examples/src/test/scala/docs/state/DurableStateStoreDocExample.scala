@@ -12,7 +12,7 @@ object DurableStateStoreDocExample {
   private val system = ActorSystem[Nothing](Behaviors.empty, "Example")
 
   object IllustrateEventsByTagSourceProvider {
-    //#changesByTagSourceProvider
+    // #changesByTagSourceProvider
     import akka.persistence.jdbc.state.scaladsl.JdbcDurableStateStore
     import akka.persistence.query.DurableStateChange
     import akka.persistence.query.Offset
@@ -22,7 +22,7 @@ object DurableStateStoreDocExample {
     val sourceProvider: SourceProvider[Offset, DurableStateChange[AccountEntity.Account]] =
       DurableStateSourceProvider
         .changesByTag[AccountEntity.Account](system, JdbcDurableStateStore.Identifier, "bank-accounts-1")
-    //#changesByTagSourceProvider
+    // #changesByTagSourceProvider
   }
 
   object IllustrateEventsBySlicesSourceProvider {
@@ -30,7 +30,7 @@ object DurableStateStoreDocExample {
       val Identifier = "akka.persistence.r2dbc.query"
     }
 
-    //#changesBySlicesSourceProvider
+    // #changesBySlicesSourceProvider
     import akka.persistence.query.DurableStateChange
     import akka.persistence.query.Offset
     import akka.projection.state.scaladsl.DurableStateSourceProvider
@@ -54,6 +54,6 @@ object DurableStateStoreDocExample {
           entityType,
           minSlice,
           maxSlice)
-    //#changesBySlicesSourceProvider
+    // #changesBySlicesSourceProvider
   }
 }

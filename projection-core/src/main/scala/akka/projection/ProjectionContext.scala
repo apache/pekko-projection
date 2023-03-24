@@ -5,6 +5,5 @@
 package akka.projection
 
 /**
- *
  */
 trait ProjectionContext

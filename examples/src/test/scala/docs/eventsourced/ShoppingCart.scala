@@ -134,11 +134,11 @@ object ShoppingCart {
 
   final case class CheckedOut(cartId: String, eventTime: Instant) extends Event
 
-  //#slicingTags
+  // #slicingTags
   val tags = Vector.tabulate(5)(i => s"carts-$i")
-  //#slicingTags
+  // #slicingTags
 
-  //#tagging
+  // #tagging
   val EntityKey: EntityTypeKey[Command] = EntityTypeKey[Command]("ShoppingCart")
 
   def init(system: ActorSystem[_]): Unit = {
@@ -155,7 +155,7 @@ object ShoppingCart {
         PersistenceId(EntityKey.name, cartId),
         State.empty,
         (state, command) =>
-          //The shopping cart behavior changes if it's checked out or not.
+          // The shopping cart behavior changes if it's checked out or not.
           // The commands are handled differently for each case.
           if (state.isCheckedOut) checkedOutShoppingCart(cartId, state, command)
           else openShoppingCart(cartId, state, command),
@@ -164,7 +164,7 @@ object ShoppingCart {
       .withRetention(RetentionCriteria.snapshotEvery(numberOfEvents = 100, keepNSnapshots = 3))
       .onPersistFailure(SupervisorStrategy.restartWithBackoff(200.millis, 5.seconds, 0.1))
   }
-  //#tagging
+  // #tagging
 
   private def openShoppingCart(cartId: String, state: State, command: Command): ReplyEffect[Event, State] =
     command match {

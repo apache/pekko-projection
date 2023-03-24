@@ -451,10 +451,11 @@ class ProjectionBehaviorSpec extends ScalaTestWithActorTestKit("""
 
     "work with ProjectionManagement extension" in {
       val projectionId1 = ProjectionId("test-projection-ext", "1")
-      val (testProbe1, _, srcRef1) = setupTestProjection(projectionId1, earlyMgmtCommand = () => {
-        // immediate request should work (via retries)
-        ProjectionManagement(system).getOffset[Int](projectionId1).futureValue shouldBe None
-      })
+      val (testProbe1, _, srcRef1) = setupTestProjection(projectionId1,
+        earlyMgmtCommand = () => {
+          // immediate request should work (via retries)
+          ProjectionManagement(system).getOffset[Int](projectionId1).futureValue shouldBe None
+        })
 
       val projectionId2 = ProjectionId("test-projection-ext", "2")
       val (testProbe2, _, srcRef2) = setupTestProjection(projectionId2)

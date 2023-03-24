@@ -100,34 +100,34 @@ object Dependencies {
 
   val core =
     deps ++= Seq(
-        Compile.akkaStream,
-        Compile.akkaActorTyped,
-        Compile.akkaProtobufV3,
-        // akka-persistence-query is only needed for OffsetSerialization and to provide a typed EventEnvelope that
-        // references the Offset type from akka-persistence.
-        Compile.akkaPersistenceQuery,
-        Test.akkaTypedTestkit,
-        Test.logback,
-        Test.scalatest)
+      Compile.akkaStream,
+      Compile.akkaActorTyped,
+      Compile.akkaProtobufV3,
+      // akka-persistence-query is only needed for OffsetSerialization and to provide a typed EventEnvelope that
+      // references the Offset type from akka-persistence.
+      Compile.akkaPersistenceQuery,
+      Test.akkaTypedTestkit,
+      Test.logback,
+      Test.scalatest)
 
   val coreTest =
     deps ++= Seq(
-        Test.akkaTypedTestkit,
-        Test.akkaStreamTestkit,
-        Test.scalatest,
-        Test.scalatestJUnit,
-        Test.junit,
-        Test.logback)
+      Test.akkaTypedTestkit,
+      Test.akkaStreamTestkit,
+      Test.scalatest,
+      Test.scalatestJUnit,
+      Test.junit,
+      Test.logback)
 
   val testKit =
     deps ++= Seq(
-        Compile.akkaTypedTestkit,
-        Compile.akkaStreamTestkit,
-        Compile.collectionCompat,
-        Test.scalatest,
-        Test.scalatestJUnit,
-        Test.junit,
-        Test.logback)
+      Compile.akkaTypedTestkit,
+      Compile.akkaStreamTestkit,
+      Compile.collectionCompat,
+      Test.scalatest,
+      Test.scalatestJUnit,
+      Test.junit,
+      Test.logback)
 
   val eventsourced =
     deps ++= Seq(Compile.akkaPersistenceQuery)
@@ -137,65 +137,65 @@ object Dependencies {
 
   val jdbc =
     deps ++= Seq(
-        Compile.akkaPersistenceQuery,
-        Test.akkaTypedTestkit,
-        Test.h2Driver,
-        Test.postgresDriver,
-        Test.postgresContainer,
-        Test.mysqlDriver,
-        Test.mysqlContainer,
-        Test.msSQLServerDriver,
-        Test.msSQLServerContainer,
-        Test.oracleDriver,
-        Test.oracleDbContainer,
-        Test.logback)
+      Compile.akkaPersistenceQuery,
+      Test.akkaTypedTestkit,
+      Test.h2Driver,
+      Test.postgresDriver,
+      Test.postgresContainer,
+      Test.mysqlDriver,
+      Test.mysqlContainer,
+      Test.msSQLServerDriver,
+      Test.msSQLServerContainer,
+      Test.oracleDriver,
+      Test.oracleDbContainer,
+      Test.logback)
 
   val slick =
     deps ++= Seq(
-        Compile.slick,
-        Compile.akkaPersistenceQuery,
-        Test.akkaTypedTestkit,
-        Test.h2Driver,
-        Test.postgresDriver,
-        Test.postgresContainer,
-        Test.mysqlDriver,
-        Test.mysqlContainer,
-        Test.msSQLServerDriver,
-        Test.msSQLServerContainer,
-        Test.oracleDriver,
-        Test.oracleDbContainer,
-        Test.logback)
+      Compile.slick,
+      Compile.akkaPersistenceQuery,
+      Test.akkaTypedTestkit,
+      Test.h2Driver,
+      Test.postgresDriver,
+      Test.postgresContainer,
+      Test.mysqlDriver,
+      Test.mysqlContainer,
+      Test.msSQLServerDriver,
+      Test.msSQLServerContainer,
+      Test.oracleDriver,
+      Test.oracleDbContainer,
+      Test.logback)
 
   val cassandra =
     deps ++= Seq(
-        Compile.alpakkaCassandra,
-        Compile.akkaPersistenceQuery,
-        Test.akkaTypedTestkit,
-        Test.logback,
-        Test.cassandraContainer,
-        Test.scalatestJUnit)
+      Compile.alpakkaCassandra,
+      Compile.akkaPersistenceQuery,
+      Test.akkaTypedTestkit,
+      Test.logback,
+      Test.cassandraContainer,
+      Test.scalatestJUnit)
 
   val kafka =
     deps ++= Seq(
-        Compile.alpakkaKafka,
-        Compile.jackson,
-        Test.scalatest,
-        Test.akkaTypedTestkit,
-        Test.akkaStreamTestkit,
-        Test.alpakkaKafkaTestkit,
-        Test.logback,
-        Test.scalatestJUnit)
+      Compile.alpakkaKafka,
+      Compile.jackson,
+      Test.scalatest,
+      Test.akkaTypedTestkit,
+      Test.akkaStreamTestkit,
+      Test.alpakkaKafkaTestkit,
+      Test.logback,
+      Test.scalatestJUnit)
 
   val examples =
     deps ++= Seq(
-        Examples.akkaPersistenceTyped,
-        Examples.akkaClusterShardingTyped,
-        Examples.akkaPersistenceCassandra,
-        Examples.akkaPersistenceJdbc,
-        Examples.akkaSerializationJackson,
-        Examples.hibernate,
-        Test.h2Driver,
-        Test.akkaTypedTestkit,
-        Test.logback,
-        Test.cassandraContainer)
+      Examples.akkaPersistenceTyped,
+      Examples.akkaClusterShardingTyped,
+      Examples.akkaPersistenceCassandra,
+      Examples.akkaPersistenceJdbc,
+      Examples.akkaSerializationJackson,
+      Examples.hibernate,
+      Test.h2Driver,
+      Test.akkaTypedTestkit,
+      Test.logback,
+      Test.cassandraContainer)
 }

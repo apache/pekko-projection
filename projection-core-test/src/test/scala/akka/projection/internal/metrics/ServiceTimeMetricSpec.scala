@@ -43,7 +43,7 @@ class ServiceTimeAndProcessingCountMetricAtLeastOnceSpec extends ServiceTimeAndP
 
         runInternal(tt.projectionState) {
           instruments.afterProcessInvocations.get should be(defaultNumberOfEnvelopes)
-          instruments.lastServiceTimeInNanos.get() should be > (0L)
+          instruments.lastServiceTimeInNanos.get() should be > 0L
         }
       }
       "reports measures for all envelopes (with afterEnvelops optimization)" in {
@@ -53,7 +53,7 @@ class ServiceTimeAndProcessingCountMetricAtLeastOnceSpec extends ServiceTimeAndP
         runInternal(tt.projectionState) {
           // afterProcess invocations happen per envelope (not in a groupWithin!)
           instruments.afterProcessInvocations.get should be(defaultNumberOfEnvelopes)
-          instruments.lastServiceTimeInNanos.get() should be > (0L)
+          instruments.lastServiceTimeInNanos.get() should be > 0L
 
         }
       }
@@ -183,7 +183,7 @@ class ServiceTimeAndProcessingCountMetricAtLeastOnceSpec extends ServiceTimeAndP
           // previous envelope). As a consequence, the `afterProcessInvocations` count is
           // nondeterministic and we can only assert it'll be some value between 8 and 10 (both
           // included)
-          instruments.afterProcessInvocations.get should be >= (8)
+          instruments.afterProcessInvocations.get should be >= 8
         }
       }
     }

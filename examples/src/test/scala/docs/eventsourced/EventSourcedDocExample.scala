@@ -12,7 +12,7 @@ object EventSourcedDocExample {
   private val system = ActorSystem[Nothing](Behaviors.empty, "Example")
 
   object IllustrateEventsByTagSourceProvider {
-    //#eventsByTagSourceProvider
+    // #eventsByTagSourceProvider
     import akka.projection.eventsourced.EventEnvelope
     import akka.persistence.cassandra.query.scaladsl.CassandraReadJournal
     import akka.persistence.query.Offset
@@ -22,7 +22,7 @@ object EventSourcedDocExample {
     val sourceProvider: SourceProvider[Offset, EventEnvelope[ShoppingCart.Event]] =
       EventSourcedProvider
         .eventsByTag[ShoppingCart.Event](system, readJournalPluginId = CassandraReadJournal.Identifier, tag = "carts-1")
-    //#eventsByTagSourceProvider
+    // #eventsByTagSourceProvider
   }
 
   object IllustrateEventsBySlicesSourceProvider {
@@ -30,7 +30,7 @@ object EventSourcedDocExample {
       val Identifier = "akka.persistence.r2dbc.query"
     }
 
-    //#eventsBySlicesSourceProvider
+    // #eventsBySlicesSourceProvider
     import akka.persistence.query.typed.EventEnvelope
     import akka.persistence.query.Offset
     import akka.projection.eventsourced.scaladsl.EventSourcedProvider
@@ -53,6 +53,6 @@ object EventSourcedDocExample {
           entityType,
           minSlice,
           maxSlice)
-    //#eventsBySlicesSourceProvider
+    // #eventsBySlicesSourceProvider
   }
 }
