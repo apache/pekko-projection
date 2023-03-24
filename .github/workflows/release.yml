@@ -12,7 +12,7 @@ jobs:
     if: github.repository == 'apache/incubator-pekko-projection'
     name: Release
     # the release environment provides access to secrets required in the release process
-    # https://github.com/apache/incubator-pekko-projection/settings/environments
+    # https://github.com/apache/incubator-1``````pekko-projection/settings/environments
     environment: release
     runs-on: ubuntu-20.04
     steps:

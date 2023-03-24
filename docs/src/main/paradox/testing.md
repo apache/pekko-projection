@@ -15,13 +15,13 @@ To use the Apache Pekko Projections TestKit add the following dependency in your
 
 Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="pekko-projection-testkit" }
+@@project-info{ projectId="testkit" }
 
 ### Transitive dependencies
 
 The table below shows `pekko-projection-testkit`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="pekko-projection-testkit" }
+@@dependencies{ projectId="testkit" }
 
 ## Initializing the Projection TestKit
 

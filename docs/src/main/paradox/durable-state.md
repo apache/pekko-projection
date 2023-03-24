@@ -17,13 +17,13 @@ To use the Durable State module of Apache Pekko Projections, add the following d
 
 Apache Pekko Projections requires Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="pekko-projection-durable-state" }
+@@project-info{ projectId="durable-state" }
 
 ### Transitive dependencies
 
 The table below shows the `pekko-projection-durable-state` direct dependencies.The second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="pekko-projection-durable-state" }
+@@dependencies{ projectId="durable-state" }
 
 ## SourceProvider for changesByTag
 

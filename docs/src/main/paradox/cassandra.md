@@ -23,13 +23,13 @@ To use the Cassandra module of Apache Pekko Projections add the following depend
 
 Apache Pekko Projections requires Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="pekko-projection-cassandra" }
+@@project-info{ projectId="cassandra" }
 
 ### Transitive dependencies
 
 The table below shows `pekko-projection-cassandra`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="pekko-projection-cassandra" }
+@@dependencies{ projectId="cassandra" }
 
 ## at-least-once
 
@@ -287,7 +287,7 @@ Make your edits/overrides in your application.conf.
 
 The reference configuration file with the default values:
 
-@@snip [reference.conf](/projection-cassandra/src/main/resources/reference.conf) { #config }
+@@snip [reference.conf](/cassandra/src/main/resources/reference.conf) { #config }
 
 ### Cassandra driver configuration
 
@@ -318,7 +318,7 @@ akka.projection.cassandra {
 
 ### Cassandra driver overrides
 
-@@snip [reference.conf](/projection-cassandra/src/main/resources/reference.conf) { #profile }
+@@snip [reference.conf](/cassandra/src/main/resources/reference.conf) { #profile }
 
 ### Contact points configuration
 

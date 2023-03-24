@@ -1,7 +1,7 @@
 import akka.projections.Dependencies
 
 lazy val core =
-  Project(id = "pekko-projection-core", base = file("projection-core"))
+  Project(id = "core", base = file("core"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
@@ -14,46 +14,54 @@ lazy val core =
     .settings(Protobuf.settings)
 
 lazy val coreTest =
-  Project(id = "pekko-projection-core-test", base = file("projection-core-test"))
+  Project(id = "core-test", base = file("core-test"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .disablePlugins(MimaPlugin)
     .settings(Defaults.itSettings)
     .settings(Dependencies.coreTest)
     .settings(MetaInfLicenseNoticeCopy.settings)
+    .settings(
+      name := "pekko-projection-core-test")
     .settings(publish / skip := true)
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
 lazy val testkit =
-  Project(id = "pekko-projection-testkit", base = file("projection-testkit"))
+  Project(id = "testkit", base = file("testkit"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.testKit)
     .settings(MetaInfLicenseNoticeCopy.settings)
+    .settings(
+      name := "pekko-projection-testkit")
     .dependsOn(core)
 
 // provides offset storage backed by a JDBC table
 lazy val jdbc =
-  Project(id = "pekko-projection-jdbc", base = file("projection-jdbc"))
+  Project(id = "jdbc", base = file("jdbc"))
     .configs(IntegrationTest.extend(Test))
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.jdbc)
     .settings(MetaInfLicenseNoticeCopy.settings)
+    .settings(
+      name := "pekko-projection-jdbc")
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
 
 // provides offset storage backed by a JDBC (Slick) table
 lazy val slick =
-  Project(id = "pekko-projection-slick", base = file("projection-slick"))
+  Project(id = "slick", base = file("slick"))
     .configs(IntegrationTest.extend(Test))
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.slick)
     .settings(MetaInfLicenseNoticeCopy.settings)
+    .settings(
+      name := "pekko-projection-slick")
     .dependsOn(jdbc)
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
@@ -61,12 +69,14 @@ lazy val slick =
 
 // provides offset storage backed by a Cassandra table
 lazy val cassandra =
-  Project(id = "pekko-projection-cassandra", base = file("projection-cassandra"))
+  Project(id = "cassandra", base = file("cassandra"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.cassandra)
     .settings(MetaInfLicenseNoticeCopy.settings)
+    .settings(
+      name := "pekko-projection-cassandra")
     .dependsOn(core)
     // strictly speaking it is not needed to have test->test here.
     // Cassandra module doesn't have tests, only integration tests
@@ -76,30 +86,36 @@ lazy val cassandra =
 
 // provides source providers for pekko-persistence-query
 lazy val eventsourced =
-  Project(id = "pekko-projection-eventsourced", base = file("projection-eventsourced"))
+  Project(id = "eventsourced", base = file("eventsourced"))
     .settings(Dependencies.eventsourced)
     .settings(MetaInfLicenseNoticeCopy.settings)
+    .settings(
+      name := "pekko-projection-eventsourced")
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
 // provides offset storage backed by Kafka managed offset commits
 lazy val kafka =
-  Project(id = "pekko-projection-kafka", base = file("projection-kafka"))
+  Project(id = "kafka", base = file("kafka"))
     .configs(IntegrationTest)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.kafka)
     .settings(MetaInfLicenseNoticeCopy.settings)
+    .settings(
+      name := "pekko-projection-kafka")
     .dependsOn(core)
     .dependsOn(testkit % Test)
     .dependsOn(slick % "test->test;it->it")
 
 // provides source providers for durable state changes
 lazy val `durable-state` =
-  Project(id = "pekko-projection-durable-state", base = file("projection-durable-state"))
+  Project(id = "durable-state", base = file("durable-state"))
     .configs(IntegrationTest)
     .settings(Dependencies.state)
     .settings(MetaInfLicenseNoticeCopy.settings)
+    .settings(
+      name := "pekko-projection-durable-state")
     .dependsOn(core)
     .dependsOn(testkit % Test)
     .settings(

@@ -54,7 +54,7 @@ All of them share a dependency to `pekko-projection-core`:
   version=$project.version$
 }
 
-@@project-info{ projectId="pekko-projection-core" }
+@@project-info{ projectId="core" }
 
 ### Akka version
 
@@ -82,7 +82,7 @@ them explicitly to avoid problems with transient dependencies causing an unlucky
 
 The table below shows `pekko-projection-core`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="pekko-projection-core" }
+@@dependencies{ projectId="core" }
 
 See the individual modules for their transitive dependencies.
 
