@@ -2,7 +2,6 @@ import akka.projections.Dependencies
 import com.geirsson.CiReleasePlugin
 import sbtdynver.DynVerPlugin.autoImport._
 import com.lightbend.paradox.projectinfo.ParadoxProjectInfoPluginKeys._
-import org.scalafmt.sbt.ScalafmtPlugin.autoImport._
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
@@ -55,7 +54,6 @@ object Common extends AutoPlugin {
         "-skip-packages",
         "akka.pattern" // for some reason Scaladoc creates this
       ),
-    scalafmtOnCompile := true,
     autoAPIMappings := true,
     apiURL := Some(url(s"https://doc.akka.io/api/akka-projection/${projectInfoVersion.value}")),
     // show full stack traces and test case durations
