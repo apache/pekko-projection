@@ -60,10 +60,10 @@ import akka.projection.ProjectionContext
 
 object KafkaDocExample {
 
-  //#wordSource
+  // #wordSource
   type Word = String
   type Count = Int
-  //#wordSource
+  // #wordSource
 
   class WordCountHandler(projectionId: ProjectionId)
       extends JdbcHandler[ConsumerRecord[String, String], HibernateJdbcSession] {
@@ -84,7 +84,7 @@ object KafkaDocExample {
     }
   }
 
-  //#wordSource
+  // #wordSource
   final case class WordEnvelope(offset: Long, word: Word)
 
   class WordSource(implicit ec: ExecutionContext) extends SourceProvider[Long, WordEnvelope] {
@@ -105,9 +105,9 @@ object KafkaDocExample {
 
     override def extractCreationTime(env: WordEnvelope): Long = 0L
   }
-  //#wordSource
+  // #wordSource
 
-  //#wordPublisher
+  // #wordPublisher
   class WordPublisher(topic: String, sendProducer: SendProducer[String, String])(implicit ec: ExecutionContext)
       extends Handler[WordEnvelope] {
     private val logger = LoggerFactory.getLogger(getClass)
@@ -125,7 +125,7 @@ object KafkaDocExample {
       result
     }
   }
-  //#wordPublisher
+  // #wordPublisher
 
   val config: Config = ConfigFactory.parseString("""
     akka.projection.jdbc {
@@ -152,7 +152,7 @@ object KafkaDocExample {
 
   object IllustrateSourceProvider {
 
-    //#sourceProvider
+    // #sourceProvider
     val bootstrapServers = "localhost:9092"
     val groupId = "group-wordcount"
     val topicName = "words"
@@ -164,14 +164,14 @@ object KafkaDocExample {
 
     val sourceProvider: SourceProvider[MergeableOffset[JLong], ConsumerRecord[String, String]] =
       KafkaSourceProvider(system, consumerSettings, Set(topicName))
-    //#sourceProvider
+    // #sourceProvider
   }
 
   object IllustrateExactlyOnce {
     import IllustrateSourceProvider._
 
     val wordRepository: WordRepository = null
-    //#exactlyOnce
+    // #exactlyOnce
     val sessionProvider = new HibernateSessionFactory
 
     val projectionId = ProjectionId("WordCount", "wordcount-1")
@@ -181,7 +181,7 @@ object KafkaDocExample {
         sourceProvider,
         () => sessionProvider.newInstance(),
         handler = () => new WordCountJdbcHandler(wordRepository))
-    //#exactlyOnce
+    // #exactlyOnce
 
     // #exactly-once-jdbc-handler
     class WordCountJdbcHandler(val wordRepository: WordRepository)
@@ -208,7 +208,7 @@ object KafkaDocExample {
 
     implicit val ec = system.executionContext
 
-    //#sendProducer
+    // #sendProducer
     val bootstrapServers = "localhost:9092"
     val topicName = "words"
     private val producerSettings =
@@ -216,9 +216,9 @@ object KafkaDocExample {
         .withBootstrapServers(bootstrapServers)
     import akka.actor.typed.scaladsl.adapter._ // FIXME might not be needed in later Alpakka Kafka version?
     private val sendProducer = SendProducer(producerSettings)(system.toClassic)
-    //#sendProducer
+    // #sendProducer
 
-    //#sendToKafkaProjection
+    // #sendToKafkaProjection
     val sourceProvider = new WordSource
     val sessionProvider = new HibernateSessionFactory
 
@@ -231,7 +231,7 @@ object KafkaDocExample {
           () => sessionProvider.newInstance(),
           handler = () => new WordPublisher(topicName, sendProducer))
 
-    //#sendToKafkaProjection
+    // #sendToKafkaProjection
 
   }
 
@@ -239,7 +239,7 @@ object KafkaDocExample {
 
     implicit val ec = system.executionContext
 
-    //#producerFlow
+    // #producerFlow
     val bootstrapServers = "localhost:9092"
     val topicName = "words"
 
@@ -252,9 +252,9 @@ object KafkaDocExample {
         .map(wordEnv => ProducerMessage.single(new ProducerRecord(topicName, wordEnv.word, wordEnv.word)))
         .via(Producer.flowWithContext(producerSettings))
         .map(_ => Done)
-    //#producerFlow
+    // #producerFlow
 
-    //#sendToKafkaProjectionFlow
+    // #sendToKafkaProjectionFlow
     val sourceProvider = new WordSource
     val sessionProvider = new HibernateSessionFactory
 
@@ -262,7 +262,7 @@ object KafkaDocExample {
     val projection =
       JdbcProjection
         .atLeastOnceFlow(projectionId, sourceProvider, () => sessionProvider.newInstance(), producerFlow)
-    //#sendToKafkaProjectionFlow
+    // #sendToKafkaProjectionFlow
 
   }
 

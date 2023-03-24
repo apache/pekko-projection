@@ -78,9 +78,10 @@ import org.apache.kafka.common.record.TimestampType
       metadataClient: MetadataClientAdapter): Source[ConsumerRecord[K, V], Consumer.Control] =
     Consumer
       .plainPartitionedManualOffsetSource(settings, subscription, getOffsetsOnAssign(readOffsets, metadataClient))
-      .flatMapMerge(numPartitions, {
-        case (_, partitionedSource) => partitionedSource
-      })
+      .flatMapMerge(numPartitions,
+        {
+          case (_, partitionedSource) => partitionedSource
+        })
 
   override def source(readOffsets: ReadOffsets): Future[Source[ConsumerRecord[K, V], NotUsed]] = {
     // get the total number of partitions to configure the `breadth` parameter, or we could just use a really large
@@ -136,7 +137,7 @@ import org.apache.kafka.common.record.TimestampType
             case Some(groupOffsets) =>
               val filteredMap = groupOffsets.entries.collect {
                 case (topicPartitionKey, offset) if assignedTps.contains(keyToPartition(topicPartitionKey)) =>
-                  (keyToPartition(topicPartitionKey) -> (offset.asInstanceOf[Long] + 1L))
+                  keyToPartition(topicPartitionKey) -> (offset.asInstanceOf[Long] + 1L)
               }
               Future.successful(filteredMap)
             case None => metadataClient.getBeginningOffsets(assignedTps)

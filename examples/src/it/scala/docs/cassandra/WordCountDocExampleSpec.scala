@@ -39,16 +39,16 @@ class WordCountDocExampleSpec
     Await.result(ContainerSessionProvider.started, 30.seconds)
 
     Await.result(for {
-      _ <- CassandraProjection.createTablesIfNotExists()
-      _ <- repository.createKeyspaceAndTable()
-    } yield Done, 30.seconds)
+        _ <- CassandraProjection.createTablesIfNotExists()
+        _ <- repository.createKeyspaceAndTable()
+      } yield Done, 30.seconds)
   }
 
   override protected def afterAll(): Unit = {
     Await.ready(for {
-      _ <- session.executeDDL(s"DROP keyspace akka_projection.offset_store")
-      _ <- session.executeDDL(s"DROP keyspace ${repository.keyspace}")
-    } yield Done, 30.seconds)
+        _ <- session.executeDDL(s"DROP keyspace akka_projection.offset_store")
+        _ <- session.executeDDL(s"DROP keyspace ${repository.keyspace}")
+      } yield Done, 30.seconds)
     super.afterAll()
   }
 
@@ -74,14 +74,14 @@ class WordCountDocExampleSpec
 
       val projectionId = genRandomProjectionId()
 
-      //#projection
+      // #projection
       val projection =
         CassandraProjection
           .atLeastOnce[Long, WordEnvelope](
             projectionId,
             sourceProvider = new WordSource,
             handler = () => new WordCountHandler(projectionId, repository))
-      //#projection
+      // #projection
 
       runAndAssert(projection)
     }
@@ -106,14 +106,14 @@ class WordCountDocExampleSpec
 
       val projectionId = genRandomProjectionId()
 
-      //#actorHandlerProjection
+      // #actorHandlerProjection
       val projection =
         CassandraProjection
           .atLeastOnce[Long, WordEnvelope](
             projectionId,
             sourceProvider = new WordSource,
             handler = () => new WordCountActorHandler(WordCountProcessor(projectionId, repository)))
-      //#actorHandlerProjection
+      // #actorHandlerProjection
 
       runAndAssert(projection)
     }

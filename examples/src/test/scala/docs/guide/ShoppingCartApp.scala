@@ -36,17 +36,17 @@ object ShoppingCartApp extends App {
 
       // ...
 
-      //#guideSetup
-      //#guideSourceProviderSetup
+      // #guideSetup
+      // #guideSourceProviderSetup
       val sourceProvider: SourceProvider[Offset, EventEnvelope[ShoppingCartEvents.Event]] =
         EventSourcedProvider
           .eventsByTag[ShoppingCartEvents.Event](
             system,
             readJournalPluginId = CassandraReadJournal.Identifier,
             tag = ShoppingCartTags.Single)
-      //#guideSourceProviderSetup
+      // #guideSourceProviderSetup
 
-      //#guideProjectionSetup
+      // #guideProjectionSetup
       implicit val ec = system.executionContext
       val session = CassandraSessionRegistry(system).sessionFor("akka.projection.cassandra.session-config")
       val repo = new ItemPopularityProjectionRepositoryImpl(session)
@@ -56,9 +56,9 @@ object ShoppingCartApp extends App {
         handler = () => new ItemPopularityProjectionHandler(ShoppingCartTags.Single, system, repo))
 
       context.spawn(ProjectionBehavior(projection), projection.projectionId.id)
-      //#guideProjectionSetup
+      // #guideProjectionSetup
 
-      //#guideSetup
+      // #guideSetup
       Behaviors.empty
     },
     "ShoppingCartApp",

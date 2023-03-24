@@ -250,7 +250,7 @@ abstract class SlickOffsetStoreSpec(specConfig: SlickSpecConfig)
 
       val projectionId = genRandomProjectionId()
 
-      val timeOffset = TimeBasedUUID(UUID.fromString("49225740-2019-11ea-a752-ffae2393b6e4")) //2019-12-16T15:32:36.148Z[UTC]
+      val timeOffset = TimeBasedUUID(UUID.fromString("49225740-2019-11ea-a752-ffae2393b6e4")) // 2019-12-16T15:32:36.148Z[UTC]
       withClue("check - save offset") {
         dbConfig.db.run(offsetStore.saveOffset(projectionId, timeOffset)).futureValue
       }

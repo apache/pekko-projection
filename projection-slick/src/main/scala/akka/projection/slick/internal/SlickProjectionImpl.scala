@@ -130,7 +130,7 @@ private[projection] class SlickProjectionImpl[Offset, Envelope, P <: JdbcProfile
       offsetStrategy match {
         case s: ExactlyOnce => s.copy(recoveryStrategy = Some(recoveryStrategy))
         case s: AtLeastOnce => s.copy(recoveryStrategy = Some(recoveryStrategy))
-        //NOTE: AtMostOnce has its own withRecoveryStrategy variant
+        // NOTE: AtMostOnce has its own withRecoveryStrategy variant
         // this method is not available for AtMostOnceProjection
         case s: AtMostOnce => s
       }

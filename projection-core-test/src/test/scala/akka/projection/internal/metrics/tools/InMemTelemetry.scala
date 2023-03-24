@@ -19,7 +19,6 @@ import akka.projection.ProjectionId
 import akka.projection.internal.Telemetry
 
 /**
- *
  */
 class InMemTelemetry(projectionId: ProjectionId, system: ActorSystem[_]) extends Telemetry {
   private val instruments: InMemInstruments = InMemInstrumentsRegistry(system).forId(projectionId)
@@ -70,9 +69,10 @@ object InMemInstrumentsRegistry extends ExtensionId[InMemInstrumentsRegistry] {
 class InMemInstrumentsRegistry(system: ActorSystem[_]) extends Extension {
   private val instrumentMap = new ConcurrentHashMap[ProjectionId, InMemInstruments]()
   def forId(projectionId: ProjectionId): InMemInstruments = {
-    instrumentMap.computeIfAbsent(projectionId, new function.Function[ProjectionId, InMemInstruments] {
-      override def apply(t: ProjectionId): InMemInstruments = new InMemInstruments
-    })
+    instrumentMap.computeIfAbsent(projectionId,
+      new function.Function[ProjectionId, InMemInstruments] {
+        override def apply(t: ProjectionId): InMemInstruments = new InMemInstruments
+      })
   }
 
   // these are added to use the constructor argument and keep the AkkaDisciplinePlugin happy

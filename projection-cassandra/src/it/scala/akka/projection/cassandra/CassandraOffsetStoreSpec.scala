@@ -191,7 +191,7 @@ class CassandraOffsetStoreSpec
 
       val projectionId = ProjectionId("projection-with-akka-seq", "00")
 
-      val timeOffset = TimeBasedUUID(UUID.fromString("49225740-2019-11ea-a752-ffae2393b6e4")) //2019-12-16T15:32:36.148Z[UTC]
+      val timeOffset = TimeBasedUUID(UUID.fromString("49225740-2019-11ea-a752-ffae2393b6e4")) // 2019-12-16T15:32:36.148Z[UTC]
       withClue("check - save offset") {
         offsetStore.saveOffset(projectionId, timeOffset).futureValue
       }

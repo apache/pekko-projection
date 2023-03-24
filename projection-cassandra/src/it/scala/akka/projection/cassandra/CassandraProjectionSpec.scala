@@ -165,13 +165,13 @@ class CassandraProjectionSpec
 
   override protected def afterAll(): Unit = {
     Await.ready(for {
-      s <- session.underlying()
-      // reason for setSchemaMetadataEnabled is that it speed up tests
-      _ <- s.setSchemaMetadataEnabled(false).toScala
-      _ <- session.executeDDL(s"DROP keyspace ${offsetStore.keyspace}")
-      _ <- session.executeDDL(s"DROP keyspace ${repository.keyspace}")
-      _ <- s.setSchemaMetadataEnabled(null).toScala
-    } yield Done, 30.seconds)
+        s <- session.underlying()
+        // reason for setSchemaMetadataEnabled is that it speed up tests
+        _ <- s.setSchemaMetadataEnabled(false).toScala
+        _ <- session.executeDDL(s"DROP keyspace ${offsetStore.keyspace}")
+        _ <- session.executeDDL(s"DROP keyspace ${repository.keyspace}")
+        _ <- s.setSchemaMetadataEnabled(null).toScala
+      } yield Done, 30.seconds)
     super.afterAll()
   }
 
@@ -384,7 +384,6 @@ class CassandraProjectionSpec
           .withSaveOffset(10, 2.seconds)
 
       projectionTestKit.runWithTestSink(projection) { sinkProbe =>
-
         eventually {
           sourceProbe.get should not be null
         }

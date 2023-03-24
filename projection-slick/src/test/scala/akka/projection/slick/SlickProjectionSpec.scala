@@ -505,7 +505,6 @@ class SlickProjectionSpec
       }
 
       projectionTestKit.runWithTestSink(slickProjectionFailing) { sinkProbe =>
-
         sinkProbe.request(1000)
         eventuallyExpectError(sinkProbe).getClass shouldBe classOf[JdbcSQLIntegrityConstraintViolationException]
       }
@@ -999,7 +998,6 @@ class SlickProjectionSpec
           .withSaveOffset(10, 1.minute)
 
       projectionTestKit.runWithTestSink(slickProjection) { sinkProbe =>
-
         eventually {
           sourceProbe.get should not be null
         }
@@ -1049,7 +1047,6 @@ class SlickProjectionSpec
           .withSaveOffset(10, 2.seconds)
 
       projectionTestKit.runWithTestSink(slickProjection) { sinkProbe =>
-
         eventually {
           sourceProbe.get should not be null
         }

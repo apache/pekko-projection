@@ -35,7 +35,7 @@ abstract
 class TestKitDocExample extends ScalaTestWithActorTestKit {
   private val projectionTestKit = ProjectionTestKit(system)
 
-  //#testkit
+  // #testkit
 
   case class CartView(id: String)
 
@@ -49,24 +49,24 @@ class TestKitDocExample extends ScalaTestWithActorTestKit {
   val projection = TestProjection(ProjectionId("test", "00"), sourceProvider = null, handler = null)
 
   {
-    //#testkit-run
+    // #testkit-run
     projectionTestKit.run(projection) {
       // confirm that cart checkout was inserted in db
       cartViewRepository.findById("abc-def").futureValue
     }
-    //#testkit-run
+    // #testkit-run
   }
 
   {
-    //#testkit-run-max-interval
+    // #testkit-run-max-interval
     projectionTestKit.run(projection, max = 5.seconds, interval = 300.millis) {
       // confirm that cart checkout was inserted in db
       cartViewRepository.findById("abc-def").futureValue
     }
-    //#testkit-run-max-interval
+    // #testkit-run-max-interval
   }
 
-  //#testkit-sink-probe
+  // #testkit-sink-probe
   projectionTestKit.runWithTestSink(projection) { sinkProbe =>
     sinkProbe.request(1)
     sinkProbe.expectNext(Done)
@@ -75,12 +75,12 @@ class TestKitDocExample extends ScalaTestWithActorTestKit {
   // confirm that cart checkout was inserted in db
   cartViewRepository.findById("abc-def").futureValue
 
-  //#testkit-sink-probe
+  // #testkit-sink-probe
 
   {
     val handler: Handler[(Int, String)] = null
 
-    //#testkit-testprojection
+    // #testkit-testprojection
     val testData = Source((0, "abc") :: (1, "def") :: Nil)
 
     val extractOffset = (envelope: (Int, String)) => envelope._1
@@ -92,7 +92,7 @@ class TestKitDocExample extends ScalaTestWithActorTestKit {
     projectionTestKit.run(projection) {
       // assert logic ..
     }
-    //#testkit-testprojection
+    // #testkit-testprojection
   }
 //#testkit
 }

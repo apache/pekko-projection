@@ -28,7 +28,8 @@ import akka.util.ccompat.JavaConverters._
 @InternalStableApi
 trait Telemetry {
 
-  /** Invoked when a projection is stopped. The reason for stopping is unspecified, can be a
+  /**
+   * Invoked when a projection is stopped. The reason for stopping is unspecified, can be a
    * graceful stop or a failure (see [[Telemetry.failed]]).
    */
   def stopped(): Unit

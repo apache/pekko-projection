@@ -24,10 +24,10 @@ object ClassicDocExample {
     private val system = akka.actor.ActorSystem("Example")
     private val projection: Projection[Any] = null
 
-    //#spawn
+    // #spawn
     import akka.actor.typed.scaladsl.adapter._
 
     system.spawn(ProjectionBehavior(projection), "theProjection")
-    //#spawn
+    // #spawn
   }
 }

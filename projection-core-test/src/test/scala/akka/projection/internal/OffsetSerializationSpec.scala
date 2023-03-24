@@ -101,7 +101,7 @@ class OffsetSerializationSpec
     }
 
     "convert offsets of type akka.persistence.query.TimeBasedUUID" in {
-      //2019-12-16T15:32:36.148Z[UTC]
+      // 2019-12-16T15:32:36.148Z[UTC]
       val uuidString = "49225740-2019-11ea-a752-ffae2393b6e4"
       val timeOffset = query.TimeBasedUUID(UUID.fromString(uuidString))
       toStorageRepresentation(id, timeOffset) shouldBe SingleOffset(id, TimeBasedUUIDManifest, uuidString)

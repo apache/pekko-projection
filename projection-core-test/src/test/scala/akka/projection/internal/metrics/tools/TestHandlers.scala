@@ -14,7 +14,6 @@ import akka.projection.scaladsl.Handler
 import akka.stream.scaladsl.FlowWithContext
 
 /**
- *
  */
 object TestHandlers {
 
@@ -46,7 +45,7 @@ object TestHandlers {
       new Handler[Envelope] {
         override def process(envelope: Envelope): Future[Done] = {
           nextProcessStrategy match {
-            case SomeFailures(nextFail :: tail) if (nextFail == envelope.offset) =>
+            case SomeFailures(nextFail :: tail) if nextFail == envelope.offset =>
               nextProcessStrategy = SomeFailures(tail)
               throw TelemetryException
             case _ => Future.successful(Done)
@@ -71,11 +70,11 @@ object TestHandlers {
         override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
           nextProcessStrategy match {
             case SomeFailures(nextFail :: tail)
-                if (envelopes
+                if envelopes
                   .map {
                     _.offset
                   }
-                  .contains(nextFail)) =>
+                  .contains(nextFail) =>
               nextProcessStrategy = SomeFailures(tail)
               Future.failed(TelemetryException)
             case _ =>
@@ -99,7 +98,7 @@ object TestHandlers {
     FlowWithContext[Envelope, ProjectionContext]
       .map { envelope =>
         nextProcessStrategy match {
-          case SomeFailures(nextFail :: tail) if (envelope.offset == nextFail) =>
+          case SomeFailures(nextFail :: tail) if envelope.offset == nextFail =>
             nextProcessStrategy = SomeFailures(tail)
             throw TelemetryException
           case _ =>

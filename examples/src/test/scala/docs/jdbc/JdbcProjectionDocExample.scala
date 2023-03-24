@@ -38,12 +38,12 @@ import org.slf4j.LoggerFactory
 
 object JdbcProjectionDocExample {
 
-  //#repository
+  // #repository
   case class Order(id: String, time: Instant)
   trait OrderRepository {
     def save(connection: Connection, order: Order): Unit
   }
-  //#repository
+  // #repository
 
   class OrderRepositoryImpl extends OrderRepository {
     override def save(connection: Connection, order: Order): Unit = ???
@@ -67,7 +67,7 @@ object JdbcProjectionDocExample {
   }
   // #jdbc-session
 
-  //#handler
+  // #handler
   class ShoppingCartHandler(repository: OrderRepository)
       extends JdbcHandler[EventEnvelope[ShoppingCart.Event], PlainJdbcSession] {
     private val logger = LoggerFactory.getLogger(getClass)
@@ -85,9 +85,9 @@ object JdbcProjectionDocExample {
       }
     }
   }
-  //#handler
+  // #handler
 
-  //#grouped-handler
+  // #grouped-handler
   import scala.collection.immutable
 
   class GroupedShoppingCartHandler(repository: OrderRepository)
@@ -111,18 +111,18 @@ object JdbcProjectionDocExample {
       }
     }
   }
-  //#grouped-handler
+  // #grouped-handler
 
   implicit val system = ActorSystem[Nothing](Behaviors.empty, "Example")
 
-  //#sourceProvider
+  // #sourceProvider
   val sourceProvider =
     EventSourcedProvider
       .eventsByTag[ShoppingCart.Event](system, readJournalPluginId = JdbcReadJournal.Identifier, tag = "carts-1")
-  //#sourceProvider
+  // #sourceProvider
 
   object IllustrateExactlyOnce {
-    //#exactlyOnce
+    // #exactlyOnce
     val projection =
       JdbcProjection
         .exactlyOnce(
@@ -130,11 +130,11 @@ object JdbcProjectionDocExample {
           sourceProvider,
           () => new PlainJdbcSession, // JdbcSession Factory
           handler = () => new ShoppingCartHandler(orderRepository))
-    //#exactlyOnce
+    // #exactlyOnce
   }
 
   object IllustrateAtLeastOnce {
-    //#atLeastOnce
+    // #atLeastOnce
     val projection =
       JdbcProjection
         .atLeastOnce(
@@ -143,11 +143,11 @@ object JdbcProjectionDocExample {
           () => new PlainJdbcSession, // JdbcSession Factory
           handler = () => new ShoppingCartHandler(orderRepository))
         .withSaveOffset(afterEnvelopes = 100, afterDuration = 500.millis)
-    //#atLeastOnce
+    // #atLeastOnce
   }
 
   object IllustrateGrouped {
-    //#grouped
+    // #grouped
     val projection =
       JdbcProjection
         .groupedWithin(
@@ -156,7 +156,7 @@ object JdbcProjectionDocExample {
           () => new PlainJdbcSession, // JdbcSession Factory
           handler = () => new GroupedShoppingCartHandler(orderRepository))
         .withGroup(groupAfterEnvelopes = 20, groupAfterDuration = 500.millis)
-    //#grouped
+    // #grouped
   }
 
 }

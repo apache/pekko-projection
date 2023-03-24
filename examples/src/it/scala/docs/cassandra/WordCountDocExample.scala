@@ -24,21 +24,21 @@ import org.slf4j.LoggerFactory
 
 object WordCountDocExample {
 
-  //#envelope
+  // #envelope
   type Word = String
   type Count = Int
 
   final case class WordEnvelope(offset: Long, word: Word)
 
-  //#envelope
+  // #envelope
 
-  //#repository
+  // #repository
   trait WordCountRepository {
     def load(id: String, word: Word): Future[Count]
     def loadAll(id: String): Future[Map[Word, Count]]
     def save(id: String, word: Word, count: Count): Future[Done]
   }
-  //#repository
+  // #repository
 
   class CassandraWordCountRepository(session: CassandraSession)(implicit val ec: ExecutionContext)
       extends WordCountRepository {
@@ -80,7 +80,7 @@ object WordCountDocExample {
     }
   }
 
-  //#sourceProvider
+  // #sourceProvider
   class WordSource(implicit ec: ExecutionContext) extends SourceProvider[Long, WordEnvelope] {
 
     private val src = Source(
@@ -97,10 +97,10 @@ object WordCountDocExample {
 
     override def extractCreationTime(env: WordEnvelope): Long = 0L
   }
-  //#sourceProvider
+  // #sourceProvider
 
   object IllustrateVariables {
-    //#mutableState
+    // #mutableState
     class WordCountHandler extends Handler[WordEnvelope] {
       private val logger = LoggerFactory.getLogger(getClass)
       private var state: Map[Word, Count] = Map.empty
@@ -113,12 +113,12 @@ object WordCountDocExample {
         Future.successful(Done)
       }
     }
-    //#mutableState
+    // #mutableState
   }
 
   object IllustrateStatefulHandlerLoadingInitialState {
 
-    //#loadingInitialState
+    // #loadingInitialState
     import akka.projection.scaladsl.StatefulHandler
 
     class WordCountHandler(projectionId: ProjectionId, repository: WordCountRepository)(implicit ec: ExecutionContext)
@@ -136,12 +136,12 @@ object WordCountDocExample {
         newState
       }
     }
-    //#loadingInitialState
+    // #loadingInitialState
   }
 
   object IllustrateStatefulHandlerLoadingStateOnDemand {
 
-    //#loadingOnDemand
+    // #loadingOnDemand
     import akka.projection.scaladsl.StatefulHandler
 
     class WordCountHandler(projectionId: ProjectionId, repository: WordCountRepository)(implicit ec: ExecutionContext)
@@ -171,14 +171,14 @@ object WordCountDocExample {
       }
 
     }
-    //#loadingOnDemand
+    // #loadingOnDemand
   }
 
   object IllstrateActorLoadingInitialState {
     import akka.actor.typed.ActorRef
     import akka.actor.typed.Behavior
 
-    //#actorHandler
+    // #actorHandler
     import akka.projection.scaladsl.ActorHandler
 
     class WordCountActorHandler(behavior: Behavior[WordCountProcessor.Command])(implicit system: ActorSystem[_])
@@ -195,9 +195,9 @@ object WordCountDocExample {
         }
       }
     }
-    //#actorHandler
+    // #actorHandler
 
-    //#behaviorLoadingInitialState
+    // #behaviorLoadingInitialState
     import akka.actor.typed.ActorRef
     import akka.actor.typed.Behavior
     import akka.actor.typed.SupervisorStrategy
@@ -270,7 +270,7 @@ object WordCountDocExample {
             }
         }
     }
-    //#behaviorLoadingInitialState
+    // #behaviorLoadingInitialState
   }
 
   object IllstrateActorLoadingStateOnDemand {
@@ -296,7 +296,7 @@ object WordCountDocExample {
       }
     }
 
-    //#behaviorLoadingOnDemand
+    // #behaviorLoadingOnDemand
     object WordCountProcessor {
       trait Command
       final case class Handle(envelope: WordEnvelope, replyTo: ActorRef[Try[Done]]) extends Command
@@ -375,7 +375,7 @@ object WordCountDocExample {
             }
         }
     }
-    //#behaviorLoadingOnDemand
+    // #behaviorLoadingOnDemand
   }
 
 }

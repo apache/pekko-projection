@@ -49,10 +49,11 @@ import akka.util.Timeout
     "projection-" + projectionName
 
   private def topic(projectionName: String): ActorRef[Topic.Command[ProjectionManagementCommand]] = {
-    topics.computeIfAbsent(projectionName, _ => {
-      val name = topicName(projectionName)
-      system.systemActorOf(Topic[ProjectionManagementCommand](name), name)
-    })
+    topics.computeIfAbsent(projectionName,
+      _ => {
+        val name = topicName(projectionName)
+        system.systemActorOf(Topic[ProjectionManagementCommand](name), name)
+      })
   }
 
   /**

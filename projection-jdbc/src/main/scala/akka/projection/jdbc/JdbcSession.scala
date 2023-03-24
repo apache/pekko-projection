@@ -24,7 +24,6 @@ import akka.japi.function.{ Function => JFunction }
  * When using plain JDBC, one can initialize a connection directly, but when relying on a JDBC framework like JPA it will depend on the
  * chosen implementation. Hibernate for instance provides indirect access to the underlying connection through a
  * lambda call and therefore can be used (see [[JdbcSession#withConnection]] method). Other JPA implementations may not provide this feature.
- *
  */
 @ApiMayChange
 trait JdbcSession {

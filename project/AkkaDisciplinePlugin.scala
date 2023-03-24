@@ -24,24 +24,24 @@ object AkkaDisciplinePlugin extends AutoPlugin {
     if (enabled) {
       Seq(
         Compile / scalacOptions ++= (
-            if (!nonFatalWarningsFor(name.value)) Seq("-Xfatal-warnings")
-            else Seq.empty
-          ),
+          if (!nonFatalWarningsFor(name.value)) Seq("-Xfatal-warnings")
+          else Seq.empty
+        ),
         Test / scalacOptions --= testUndicipline,
         Compile / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-            case Some((2, 13)) =>
-              disciplineScalacOptions -- Set(
-                "-Ywarn-inaccessible",
-                "-Ywarn-infer-any",
-                "-Ywarn-nullary-override",
-                "-Ywarn-nullary-unit",
-                "-Ypartial-unification",
-                "-Yno-adapted-args")
-            case Some((2, 12)) =>
-              disciplineScalacOptions
-            case _ =>
-              Nil
-          }).toSeq,
+          case Some((2, 13)) =>
+            disciplineScalacOptions -- Set(
+              "-Ywarn-inaccessible",
+              "-Ywarn-infer-any",
+              "-Ywarn-nullary-override",
+              "-Ywarn-nullary-unit",
+              "-Ypartial-unification",
+              "-Yno-adapted-args")
+          case Some((2, 12)) =>
+            disciplineScalacOptions
+          case _ =>
+            Nil
+        }).toSeq,
         // Discipline is not needed for the docs compilation run (which uses
         // different compiler phases from the regular run), and in particular
         // '-Ywarn-unused:explicits' breaks 'sbt ++2.13.0-M5 akka-actor/doc'
@@ -61,7 +61,7 @@ object AkkaDisciplinePlugin extends AutoPlugin {
    */
   val undisciplineScalacOptions = Set()
 
-  /** These options are desired, but some are excluded for the time being*/
+  /** These options are desired, but some are excluded for the time being */
   val disciplineScalacOptions = Set(
     "-Xfatal-warnings",
     "-feature",

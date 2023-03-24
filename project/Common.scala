@@ -23,14 +23,14 @@ object Common extends AutoPlugin {
       homepage := Some(url("https://pekko.apache.org/")),
       // apiURL defined in projectSettings because version.value is not correct here
       scmInfo := Some(
-          ScmInfo(
-            url("https://github.com/apache/incubator-pekko-projection"),
-            "git@github.com:apache/incubator-pekko-projection.git")),
+        ScmInfo(
+          url("https://github.com/apache/incubator-pekko-projection"),
+          "git@github.com:apache/incubator-pekko-projection.git")),
       developers += Developer(
-          "contributors",
-          "Contributors",
-          "dev@pekko.apache.org",
-          url("https://github.com/apache/incubator-pekko-projection/graphs/contributors")),
+        "contributors",
+        "Contributors",
+        "dev@pekko.apache.org",
+        url("https://github.com/apache/incubator-pekko-projection/graphs/contributors")),
       licenses := Seq(("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0"))),
       description := "Apache Pekko Projection.")
 
@@ -41,19 +41,19 @@ object Common extends AutoPlugin {
     scalaVersion := Dependencies.Scala213,
     javacOptions ++= List("-Xlint:unchecked", "-Xlint:deprecation"),
     Compile / doc / scalacOptions := scalacOptions.value ++ Seq(
-        "-doc-title",
-        "Apache Pekko Projection",
-        "-doc-version",
-        version.value,
-        "-sourcepath",
-        (baseDirectory in ThisBuild).value.toString,
-        "-doc-source-url", {
-          val branch = if (isSnapshot.value) "main" else s"v${version.value}"
-          s"https://github.com/apache/incubator-pekko-projection/tree/${branch}€{FILE_PATH_EXT}#L€{FILE_LINE}"
-        },
-        "-skip-packages",
-        "akka.pattern" // for some reason Scaladoc creates this
-      ),
+      "-doc-title",
+      "Apache Pekko Projection",
+      "-doc-version",
+      version.value,
+      "-sourcepath",
+      (baseDirectory in ThisBuild).value.toString,
+      "-doc-source-url", {
+        val branch = if (isSnapshot.value) "main" else s"v${version.value}"
+        s"https://github.com/apache/incubator-pekko-projection/tree/${branch}€{FILE_PATH_EXT}#L€{FILE_LINE}"
+      },
+      "-skip-packages",
+      "akka.pattern" // for some reason Scaladoc creates this
+    ),
     autoAPIMappings := true,
     apiURL := Some(url(s"https://doc.akka.io/api/akka-projection/${projectInfoVersion.value}")),
     // show full stack traces and test case durations
