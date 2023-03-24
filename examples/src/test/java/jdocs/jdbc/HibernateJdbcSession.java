@@ -4,8 +4,8 @@
 
 package jdocs.jdbc;
 
-import akka.japi.function.Function;
-import akka.projection.jdbc.JdbcSession;
+import org.apache.pekko.japi.function.Function;
+import org.apache.pekko.projection.jdbc.JdbcSession;
 // #hibernate-session-imports
 import org.hibernate.Session;
 import javax.persistence.EntityManager;

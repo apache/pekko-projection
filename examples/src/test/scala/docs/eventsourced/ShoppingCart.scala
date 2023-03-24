@@ -8,20 +8,22 @@ import java.time.Instant
 
 import scala.concurrent.duration._
 
-import akka.actor.typed.ActorRef
-import akka.actor.typed.Behavior
-import akka.actor.typed.SupervisorStrategy
-import akka.persistence.typed.PersistenceId
-import akka.persistence.typed.scaladsl.Effect
-import akka.persistence.typed.scaladsl.EventSourcedBehavior
-import akka.persistence.typed.scaladsl.ReplyEffect
-import akka.persistence.typed.scaladsl.RetentionCriteria
+import org.apache.pekko
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.Behavior
+import pekko.actor.typed.SupervisorStrategy
+import pekko.persistence.typed.PersistenceId
+import pekko.persistence.typed.scaladsl.Effect
+import pekko.persistence.typed.scaladsl.EventSourcedBehavior
+import pekko.persistence.typed.scaladsl.ReplyEffect
+import pekko.persistence.typed.scaladsl.RetentionCriteria
 
 //#imports
-import akka.actor.typed.ActorSystem
-import akka.cluster.sharding.typed.scaladsl.ClusterSharding
-import akka.cluster.sharding.typed.scaladsl.Entity
-import akka.cluster.sharding.typed.scaladsl.EntityTypeKey
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.cluster.sharding.typed.scaladsl.ClusterSharding
+import pekko.cluster.sharding.typed.scaladsl.Entity
+import pekko.cluster.sharding.typed.scaladsl.EntityTypeKey
 
 //#imports
 

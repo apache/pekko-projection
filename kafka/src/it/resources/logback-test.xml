@@ -9,16 +9,16 @@
     </appender>
 
     <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>target/akka-projection-test.log</file>
+        <file>target/pekko-projection-test.log</file>
         <append>false</append>
         <encoder>
             <pattern>%d{ISO8601} %-5level [%-20.20thread] [%-36.36logger{36}] %msg%n%rEx</pattern>
         </encoder>
     </appender>
 
-    <appender name="CapturingAppender" class="akka.actor.testkit.typed.internal.CapturingAppender"/>
+    <appender name="CapturingAppender" class="org.apache.pekko.actor.testkit.typed.internal.CapturingAppender"/>
 
-    <logger name="akka.actor.testkit.typed.internal.CapturingAppenderDelegate">
+    <logger name="org.apache.pekko.actor.testkit.typed.internal.CapturingAppenderDelegate">
         <appender-ref ref="STDOUT"/>
     </logger>
 

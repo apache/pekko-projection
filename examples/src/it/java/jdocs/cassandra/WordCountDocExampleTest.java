@@ -9,16 +9,16 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
-import akka.actor.testkit.typed.javadsl.LogCapturing;
-import akka.actor.testkit.typed.javadsl.TestKitJunitResource;
-import akka.actor.typed.ActorSystem;
-import akka.projection.Projection;
-import akka.projection.ProjectionId;
-import akka.projection.cassandra.ContainerSessionProvider;
-import akka.projection.cassandra.javadsl.CassandraProjection;
-import akka.projection.testkit.javadsl.ProjectionTestKit;
-import akka.stream.alpakka.cassandra.javadsl.CassandraSession;
-import akka.stream.alpakka.cassandra.javadsl.CassandraSessionRegistry;
+import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
+import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.projection.Projection;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.cassandra.ContainerSessionProvider;
+import org.apache.pekko.projection.cassandra.javadsl.CassandraProjection;
+import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
+import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
+import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
@@ -49,7 +49,7 @@ public class WordCountDocExampleTest extends JUnitSuite {
 
     session =
         CassandraSessionRegistry.get(testKit.system())
-            .sessionFor("akka.projection.cassandra.session-config");
+            .sessionFor("pekko.projection.cassandra.session-config");
     CassandraProjection.createTablesIfNotExists(testKit.system())
         .toCompletableFuture()
         .get(10, TimeUnit.SECONDS);
@@ -61,7 +61,7 @@ public class WordCountDocExampleTest extends JUnitSuite {
   @AfterClass
   public static void afterAll() throws Exception {
     session
-        .executeDDL("DROP keyspace akka_projection.offset_store")
+        .executeDDL("DROP keyspace pekko_projection.offset_store")
         .toCompletableFuture()
         .get(10, TimeUnit.SECONDS);
     session

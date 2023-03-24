@@ -8,8 +8,9 @@ package docs.guide
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-import akka.Done
-import akka.stream.alpakka.cassandra.scaladsl.CassandraSession
+import org.apache.pekko
+import pekko.Done
+import pekko.stream.connectors.cassandra.scaladsl.CassandraSession
 
 trait ItemPopularityProjectionRepository {
 
@@ -18,7 +19,7 @@ trait ItemPopularityProjectionRepository {
 }
 
 object ItemPopularityProjectionRepositoryImpl {
-  val Keyspace = "akka_projection"
+  val Keyspace = "pekko_projection"
   val PopularityTable = "item_popularity"
 }
 

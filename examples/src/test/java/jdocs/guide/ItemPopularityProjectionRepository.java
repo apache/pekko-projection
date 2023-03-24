@@ -5,8 +5,8 @@
 // #guideProjectionRepo
 package jdocs.guide;
 
-import akka.Done;
-import akka.stream.alpakka.cassandra.javadsl.CassandraSession;
+import org.apache.pekko.Done;
+import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
 
 import java.util.Optional;
 import java.util.concurrent.CompletionStage;
@@ -19,7 +19,7 @@ interface ItemPopularityProjectionRepository {
 
 class ItemPopularityProjectionRepositoryImpl implements ItemPopularityProjectionRepository {
 
-  public static final String Keyspace = "akka_projection";
+  public static final String Keyspace = "pekko_projection";
   public static final String PopularityTable = "item_popularity";
 
   CassandraSession session;

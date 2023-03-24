@@ -81,7 +81,7 @@ The `KafkaSourceProvider` described above stores the Kafka offsets in a database
 
 However, there is a caveat when chosing for `exactly-once`. When the Kafka Consumer Group rebalance occurs it's possible that some messages from a revoked partitions are still in-flight and have not yet been committed to the offset store. Projections will attempt to filter out such messages, but it's not possible to guarantee it all the time.
 
-To mitigate that risk, you can increase the value of `akka.projection.kafka.read-offset-delay` (defaults to 500ms). This delay adds a buffer of time between when the Kafka Source Provider starts up, or when it's assigned a new partition, to retrieve the map of partitions to offsets to give any projections running in parallel a chance to drain in-flight messages.
+To mitigate that risk, you can increase the value of `pekko.projection.kafka.read-offset-delay` (defaults to 500ms). This delay adds a buffer of time between when the Kafka Source Provider starts up, or when it's assigned a new partition, to retrieve the map of partitions to offsets to give any projections running in parallel a chance to drain in-flight messages.
 
 ## Committing offset in Kafka
 

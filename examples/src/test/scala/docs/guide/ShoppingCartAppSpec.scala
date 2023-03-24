@@ -9,17 +9,19 @@ import java.time.Instant
 
 import scala.concurrent.Future
 
-import akka.Done
-import akka.actor.testkit.typed.scaladsl.LoggingTestKit
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import akka.persistence.query.Offset
-import akka.projection.ProjectionId
-import akka.projection.eventsourced.EventEnvelope
-import akka.stream.scaladsl.Source
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.testkit.typed.scaladsl.LoggingTestKit
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.persistence.query.Offset
+import pekko.projection.ProjectionId
+import pekko.projection.eventsourced.EventEnvelope
+import pekko.stream.scaladsl.Source
 // #testKitImports
-import akka.projection.testkit.scaladsl.ProjectionTestKit
-import akka.projection.testkit.scaladsl.TestProjection
-import akka.projection.testkit.scaladsl.TestSourceProvider
+import org.apache.pekko
+import pekko.projection.testkit.scaladsl.ProjectionTestKit
+import pekko.projection.testkit.scaladsl.TestProjection
+import pekko.projection.testkit.scaladsl.TestSourceProvider
 // #testKitImports
 import org.scalatest.wordspec.AnyWordSpecLike
 
@@ -56,7 +58,7 @@ class ShoppingCartAppSpec extends ScalaTestWithActorTestKit() with AnyWordSpecLi
           createEnvelope(ShoppingCartEvents.ItemAdded("a7098", "bowling shoes", 1), 0L),
           createEnvelope(ShoppingCartEvents.ItemQuantityAdjusted("a7098", "bowling shoes", 2, 1), 1L),
           createEnvelope(ShoppingCartEvents.CheckedOut("a7098", Instant.parse("2020-01-01T12:00:00.00Z")), 2L),
-          createEnvelope(ShoppingCartEvents.ItemAdded("0d12d", "akka t-shirt", 1), 3L),
+          createEnvelope(ShoppingCartEvents.ItemAdded("0d12d", "pekko t-shirt", 1), 3L),
           createEnvelope(ShoppingCartEvents.ItemAdded("0d12d", "skis", 1), 4L),
           createEnvelope(ShoppingCartEvents.ItemRemoved("0d12d", "skis", 1), 5L),
           createEnvelope(ShoppingCartEvents.CheckedOut("0d12d", Instant.parse("2020-01-01T12:05:00.00Z")), 6L)))
@@ -68,7 +70,7 @@ class ShoppingCartAppSpec extends ScalaTestWithActorTestKit() with AnyWordSpecLi
         TestProjection[Offset, EventEnvelope[ShoppingCartEvents.Event]](projectionId, sourceProvider, () => handler)
 
       projectionTestKit.run(projection) {
-        repo.counts shouldBe Map("bowling shoes" -> 2, "akka t-shirt" -> 1, "skis" -> 0)
+        repo.counts shouldBe Map("bowling shoes" -> 2, "pekko t-shirt" -> 1, "skis" -> 0)
       }
     }
 

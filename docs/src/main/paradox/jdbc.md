@@ -33,8 +33,8 @@ The table below shows `pekko-projection-jdbc`'s direct dependencies, and the sec
 
 There are two settings that need to be set beforehand in your `application.conf` file.
 
-* `akka.projection.jdbc.dialect` - The dialect type indicating your database of choice. Supported dialects are: `mysql-dialect`, `postgres-dialect`, `mssql-dialect`, `oracle-dialect` or `h2-dialect` (testing).
-* `akka.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` indicating the size of the blocking JDBC dispatcher. See also @ref:[Blocking JDBC Dispatcher](#blocking-jdbc-dispatcher).
+* `pekko.projection.jdbc.dialect` - The dialect type indicating your database of choice. Supported dialects are: `mysql-dialect`, `postgres-dialect`, `mssql-dialect`, `oracle-dialect` or `h2-dialect` (testing).
+* `pekko.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` indicating the size of the blocking JDBC dispatcher. See also @ref:[Blocking JDBC Dispatcher](#blocking-jdbc-dispatcher).
 
 ## Defining a JdbcSession
 
@@ -72,7 +72,7 @@ JDBC APIs are blocking by design, therefore Apache Pekko Projections JDBC will u
 
 Each time the projection handler is called one thread and one database connection will be used. If your connection pool is smaller than the number of threads, the thread can potentially block while waiting for the connection pool to provide a connection. 
 
-The dispatcher pool size can be configured through the `akka.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` settings. See @ref:[Configuration](#configuration) section below.
+The dispatcher pool size can be configured through the `pekko.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` settings. See @ref:[Configuration](#configuration) section below.
 
 @@@ note
 Most applications will use database connections to read data, for instance to read a projected model upon user request. This means that other parts of the application will be competing for a connection. It's recommend to configure a connection pool dedicated to the projections and use a different one in other parts of the application.  
@@ -105,7 +105,7 @@ Java
 
 The offset is stored after a time window, or limited by a number of envelopes, whatever happens first.
 This window can be defined with `withSaveOffset` of the returned `AtLeastOnceProjection`.
-The default settings for the window is defined in configuration section `akka.projection.at-least-once`.
+The default settings for the window is defined in configuration section `pekko.projection.at-least-once`.
 There is a performance benefit of not storing the offset too often, but the drawback is that there can be more
 duplicates when the projection that will be processed again when the projection is restarted.
 
@@ -123,7 +123,7 @@ Java
 
 The envelopes are grouped within a time window, or limited by a number of envelopes, whatever happens first.
 This window can be defined with `withGroup` of the returned `GroupedProjection`. The default settings for
-the window is defined in configuration section `akka.projection.grouped`.
+the window is defined in configuration section `pekko.projection.grouped`.
 
 When using `groupedWithin` the handler is a @scala[`JdbcHandler[immutable.Seq[EventEnvelope[ShoppingCart.Event]]]`]@java[`JdbcHandler<List<EventEnvelope<ShoppingCart.Event>>>`].
 The @ref:[`GroupedShoppingCartHandler` is shown below](#grouped-handler).
@@ -233,11 +233,11 @@ The schema can be created and dropped using the methods `JdbcProjection.createTa
 As of version 1.1.0, the schema for PostgreSQL and H2 databases has changed. It now defaults to lowercase table and column names.
 If you have a schema in production, we recommend applying an ALTER table script to change it accordingly.
 
-Alternatively, you can fallback to the uppercase format. You will also need to set `akka.projection.jdbc.offset-store.table` as an uppercase value, as this setting is now defaulting to lowercase.
+Alternatively, you can fallback to the uppercase format. You will also need to set `pekko.projection.jdbc.offset-store.table` as an uppercase value, as this setting is now defaulting to lowercase.
 
 ```hocon
-akka.projection.jdbc.offset-store {
-  table = "AKKA_PROJECTION_OFFSET_STORE"
+pekko.projection.jdbc.offset-store {
+  table = "PEKKO_PROJECTION_OFFSET_STORE"
   use-lowercase-schema = false
 }
 ```
@@ -247,7 +247,7 @@ akka.projection.jdbc.offset-store {
 
 The supported offset types of the `JdbcProjection` are:
 
-* @apidoc[akka.persistence.query.Offset] types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
+* @apidoc[pekko.persistence.query.Offset] types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
 * @apidoc[MergeableOffset] that is used for @ref:[messages from Kafka](kafka.md#mergeable-offset)
 * `String`
 * `Int`
@@ -263,7 +263,7 @@ The reference configuration file with the default values:
 @@snip [reference.conf](/jdbc/src/main/resources/reference.conf) { #config }
 
 @@@ note
-Settings `akka.projection.jdbc.dialect` and `akka.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` do not have a valid default value. You must configured them in your `application.conf` file.  
+Settings `pekko.projection.jdbc.dialect` and `pekko.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` do not have a valid default value. You must configured them in your `application.conf` file.  
 
 See @ref:[Required Configuration Settings](#required-configuration-settings) and @ref:[Blocking JDBC Dispatcher](#blocking-jdbc-dispatcher) sections for details. 
 @@@

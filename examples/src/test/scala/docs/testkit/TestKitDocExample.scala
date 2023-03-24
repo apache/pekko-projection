@@ -6,15 +6,17 @@ package docs.testkit
 
 import scala.concurrent.Future
 
-import akka.Done
-import akka.projection.ProjectionId
-import akka.projection.scaladsl.Handler
-import akka.projection.testkit.scaladsl.TestProjection
-import akka.projection.testkit.scaladsl.TestSourceProvider
+import org.apache.pekko
+import pekko.Done
+import pekko.projection.ProjectionId
+import pekko.projection.scaladsl.Handler
+import pekko.projection.testkit.scaladsl.TestProjection
+import pekko.projection.testkit.scaladsl.TestSourceProvider
 
 //#testkit-import
-import akka.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import akka.projection.testkit.scaladsl.ProjectionTestKit
+import org.apache.pekko
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.projection.testkit.scaladsl.ProjectionTestKit
 
 //#testkit-import
 
@@ -24,7 +26,7 @@ import scala.concurrent.duration._
 //#testkit-duration
 
 //#testkit-testprojection
-import akka.stream.scaladsl.Source
+import org.apache.pekko.stream.scaladsl.Source
 
 //#testkit-testprojection
 

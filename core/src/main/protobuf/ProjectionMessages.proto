@@ -4,9 +4,9 @@
 
 syntax = "proto2";
 
-package akka.projection;
+package org.apache.pekko.projection;
 
-option java_package = "akka.projection.internal.protobuf";
+option java_package = "org.apache.pekko.projection.internal.protobuf";
 option optimize_for = SPEED;
 
 message ProjectionId {

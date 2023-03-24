@@ -5,23 +5,23 @@
 package jdocs.cassandra;
 
 // #StatefulHandler-imports
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.SupervisorStrategy;
-import akka.actor.typed.javadsl.AskPattern;
-import akka.actor.typed.javadsl.StashBuffer;
-import akka.projection.cassandra.CassandraProjectionTest;
-import akka.projection.javadsl.ActorHandler;
-import akka.projection.javadsl.StatefulHandler;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.SupervisorStrategy;
+import org.apache.pekko.actor.typed.javadsl.AskPattern;
+import org.apache.pekko.actor.typed.javadsl.StashBuffer;
+import org.apache.pekko.projection.cassandra.CassandraProjectionTest;
+import org.apache.pekko.projection.javadsl.ActorHandler;
+import org.apache.pekko.projection.javadsl.StatefulHandler;
 
 // #StatefulHandler-imports
 
 // #ActorHandler-imports
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.Behavior;
-import akka.actor.typed.javadsl.AbstractBehavior;
-import akka.actor.typed.javadsl.ActorContext;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.actor.typed.javadsl.Receive;
+import org.apache.pekko.actor.typed.ActorRef;
+import org.apache.pekko.actor.typed.Behavior;
+import org.apache.pekko.actor.typed.javadsl.AbstractBehavior;
+import org.apache.pekko.actor.typed.javadsl.ActorContext;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.actor.typed.javadsl.Receive;
 
 // #ActorHandler-imports
 
@@ -35,13 +35,13 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import akka.Done;
-import akka.NotUsed;
-import akka.projection.ProjectionId;
-import akka.projection.javadsl.Handler;
-import akka.projection.javadsl.SourceProvider;
-import akka.stream.alpakka.cassandra.javadsl.CassandraSession;
-import akka.stream.javadsl.Source;
+import org.apache.pekko.Done;
+import org.apache.pekko.NotUsed;
+import org.apache.pekko.projection.ProjectionId;
+import org.apache.pekko.projection.javadsl.Handler;
+import org.apache.pekko.projection.javadsl.SourceProvider;
+import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
+import org.apache.pekko.stream.javadsl.Source;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

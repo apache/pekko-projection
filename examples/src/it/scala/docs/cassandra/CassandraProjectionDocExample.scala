@@ -4,28 +4,32 @@
 
 package docs.cassandra
 
-import akka.actor.typed.scaladsl.LoggerOps
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.Behaviors
-import akka.projection.ProjectionContext
-import akka.projection.eventsourced.EventEnvelope
-import akka.stream.scaladsl.FlowWithContext
+import org.apache.pekko
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.projection.ProjectionContext
+import pekko.projection.eventsourced.EventEnvelope
+import pekko.stream.scaladsl.FlowWithContext
 //#daemon-imports
-import akka.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
-import akka.projection.ProjectionBehavior
+import org.apache.pekko
+import pekko.cluster.sharding.typed.scaladsl.ShardedDaemonProcess
+import pekko.projection.ProjectionBehavior
 
 //#daemon-imports
 
 //#source-provider-imports
-import akka.persistence.cassandra.query.scaladsl.CassandraReadJournal
-import akka.projection.eventsourced.scaladsl.EventSourcedProvider
+import org.apache.pekko
+import pekko.persistence.cassandra.query.scaladsl.CassandraReadJournal
+import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
 import docs.eventsourced.ShoppingCart
 
 //#source-provider-imports
 
 //#projection-imports
-import akka.projection.ProjectionId
-import akka.projection.cassandra.scaladsl.CassandraProjection
+import org.apache.pekko
+import pekko.projection.ProjectionId
+import pekko.projection.cassandra.scaladsl.CassandraProjection
 
 //#projection-imports
 
@@ -33,8 +37,9 @@ import akka.projection.cassandra.scaladsl.CassandraProjection
 import scala.concurrent.duration._
 import scala.concurrent.Future
 
-import akka.Done
-import akka.projection.scaladsl.Handler
+import org.apache.pekko
+import pekko.Done
+import pekko.projection.scaladsl.Handler
 import org.slf4j.LoggerFactory
 
 //#handler-imports
@@ -145,7 +150,7 @@ object CassandraProjectionDocExample {
 
   object IllustrateRecoveryStrategy {
     // #withRecoveryStrategy
-    import akka.projection.HandlerRecoveryStrategy
+    import org.apache.pekko.projection.HandlerRecoveryStrategy
 
     val projection =
       CassandraProjection
@@ -229,8 +234,9 @@ object CassandraProjectionDocExample {
   object IllustrateRunningWithSingleton {
 
     // #running-with-singleton
-    import akka.cluster.typed.ClusterSingleton
-    import akka.cluster.typed.SingletonActor
+    import org.apache.pekko
+    import pekko.cluster.typed.ClusterSingleton
+    import pekko.cluster.typed.SingletonActor
 
     def sourceProvider(tag: String) =
       EventSourcedProvider
@@ -272,9 +278,10 @@ object CassandraProjectionDocExample {
 
   object IllustrateGetOffset {
     // #get-offset
-    import akka.projection.scaladsl.ProjectionManagement
-    import akka.persistence.query.Offset
-    import akka.projection.ProjectionId
+    import org.apache.pekko
+    import pekko.projection.scaladsl.ProjectionManagement
+    import pekko.persistence.query.Offset
+    import pekko.projection.ProjectionId
 
     val projectionId = ProjectionId("shopping-carts", "carts-1")
     val currentOffset: Future[Option[Offset]] = ProjectionManagement(system).getOffset[Offset](projectionId)
@@ -282,7 +289,7 @@ object CassandraProjectionDocExample {
   }
 
   object IllustrateClearOffset {
-    import akka.projection.scaladsl.ProjectionManagement
+    import org.apache.pekko.projection.scaladsl.ProjectionManagement
     // #clear-offset
     val projectionId = ProjectionId("shopping-carts", "carts-1")
     val done: Future[Done] = ProjectionManagement(system).clearOffset(projectionId)
@@ -290,10 +297,11 @@ object CassandraProjectionDocExample {
   }
 
   object IllustrateUpdateOffset {
-    import akka.projection.scaladsl.ProjectionManagement
+    import org.apache.pekko
+    import pekko.projection.scaladsl.ProjectionManagement
     import system.executionContext
     // #update-offset
-    import akka.persistence.query.Sequence
+    import org.apache.pekko.persistence.query.Sequence
     val projectionId = ProjectionId("shopping-carts", "carts-1")
     val currentOffset: Future[Option[Sequence]] = ProjectionManagement(system).getOffset[Sequence](projectionId)
     currentOffset.foreach {
@@ -307,8 +315,9 @@ object CassandraProjectionDocExample {
     import system.executionContext
     def someDataMigration() = Future.successful(Done)
     // #pause-resume
-    import akka.projection.scaladsl.ProjectionManagement
-    import akka.projection.ProjectionId
+    import org.apache.pekko
+    import pekko.projection.scaladsl.ProjectionManagement
+    import pekko.projection.ProjectionId
 
     val projectionId = ProjectionId("shopping-carts", "carts-1")
     val mgmt = ProjectionManagement(system)
@@ -321,8 +330,9 @@ object CassandraProjectionDocExample {
   }
 
   object IllustrateIsPaused {
-    import akka.projection.scaladsl.ProjectionManagement
-    import akka.projection.ProjectionId
+    import org.apache.pekko
+    import pekko.projection.scaladsl.ProjectionManagement
+    import pekko.projection.ProjectionId
     // #is-paused
     val projectionId = ProjectionId("shopping-carts", "carts-1")
     val paused: Future[Boolean] = ProjectionManagement(system).isPaused(projectionId)

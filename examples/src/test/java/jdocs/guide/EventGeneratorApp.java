@@ -5,20 +5,20 @@
 // #guideEventGeneratorApp
 package jdocs.guide;
 
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.Behavior;
-import akka.actor.typed.javadsl.Behaviors;
-import akka.cluster.sharding.typed.javadsl.ClusterSharding;
-import akka.cluster.sharding.typed.javadsl.Entity;
-import akka.cluster.sharding.typed.javadsl.EntityTypeKey;
-import akka.cluster.typed.Cluster;
-import akka.cluster.typed.Join;
-import akka.persistence.typed.PersistenceId;
-import akka.persistence.typed.javadsl.CommandHandler;
-import akka.persistence.typed.javadsl.EventHandler;
-import akka.persistence.typed.javadsl.EventSourcedBehavior;
-import akka.stream.javadsl.Sink;
-import akka.stream.javadsl.Source;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.Behavior;
+import org.apache.pekko.actor.typed.javadsl.Behaviors;
+import org.apache.pekko.cluster.sharding.typed.javadsl.ClusterSharding;
+import org.apache.pekko.cluster.sharding.typed.javadsl.Entity;
+import org.apache.pekko.cluster.sharding.typed.javadsl.EntityTypeKey;
+import org.apache.pekko.cluster.typed.Cluster;
+import org.apache.pekko.cluster.typed.Join;
+import org.apache.pekko.persistence.typed.PersistenceId;
+import org.apache.pekko.persistence.typed.javadsl.CommandHandler;
+import org.apache.pekko.persistence.typed.javadsl.EventHandler;
+import org.apache.pekko.persistence.typed.javadsl.EventSourcedBehavior;
+import org.apache.pekko.stream.javadsl.Sink;
+import org.apache.pekko.stream.javadsl.Source;
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
@@ -45,14 +45,14 @@ public class EventGeneratorApp {
   }
 
   private static Config config() {
-    return ConfigFactory.parseString("akka.actor.provider = cluster")
+    return ConfigFactory.parseString("pekko.actor.provider = cluster")
         .withFallback(ConfigFactory.load("guide-shopping-cart-app.conf"));
   }
 }
 
 class Guardian {
   static final List<String> PRODUCTS =
-      Arrays.asList("cat t-shirt", "akka t-shirt", "skis", "bowling shoes");
+      Arrays.asList("cat t-shirt", "pekko t-shirt", "skis", "bowling shoes");
 
   static final int MAX_QUANTITY = 5;
   static final int MAX_ITEMS = 3;

@@ -4,20 +4,20 @@
 
 package jdocs.eventsourced;
 
-import akka.actor.typed.ActorRef;
-import akka.actor.typed.ActorSystem;
-import akka.actor.typed.Behavior;
-import akka.actor.typed.SupervisorStrategy;
-import akka.cluster.sharding.typed.javadsl.ClusterSharding;
-import akka.cluster.sharding.typed.javadsl.Entity;
-import akka.cluster.sharding.typed.javadsl.EntityTypeKey;
-import akka.persistence.typed.PersistenceId;
-import akka.persistence.typed.javadsl.CommandHandlerWithReply;
-import akka.persistence.typed.javadsl.CommandHandlerWithReplyBuilder;
-import akka.persistence.typed.javadsl.EventHandler;
-import akka.persistence.typed.javadsl.EventSourcedBehaviorWithEnforcedReplies;
-import akka.persistence.typed.javadsl.ReplyEffect;
-import akka.persistence.typed.javadsl.RetentionCriteria;
+import org.apache.pekko.actor.typed.ActorRef;
+import org.apache.pekko.actor.typed.ActorSystem;
+import org.apache.pekko.actor.typed.Behavior;
+import org.apache.pekko.actor.typed.SupervisorStrategy;
+import org.apache.pekko.cluster.sharding.typed.javadsl.ClusterSharding;
+import org.apache.pekko.cluster.sharding.typed.javadsl.Entity;
+import org.apache.pekko.cluster.sharding.typed.javadsl.EntityTypeKey;
+import org.apache.pekko.persistence.typed.PersistenceId;
+import org.apache.pekko.persistence.typed.javadsl.CommandHandlerWithReply;
+import org.apache.pekko.persistence.typed.javadsl.CommandHandlerWithReplyBuilder;
+import org.apache.pekko.persistence.typed.javadsl.EventHandler;
+import org.apache.pekko.persistence.typed.javadsl.EventSourcedBehaviorWithEnforcedReplies;
+import org.apache.pekko.persistence.typed.javadsl.ReplyEffect;
+import org.apache.pekko.persistence.typed.javadsl.RetentionCriteria;
 import com.fasterxml.jackson.annotation.JsonCreator;
 
 import java.time.Duration;

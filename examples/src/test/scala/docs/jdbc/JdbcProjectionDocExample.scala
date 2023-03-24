@@ -7,29 +7,31 @@ package docs.jdbc
 import java.time.Instant
 import scala.concurrent.duration._
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.Behaviors
-import akka.japi.function
-import akka.persistence.jdbc.query.scaladsl.JdbcReadJournal
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.japi.function
+import pekko.persistence.jdbc.query.scaladsl.JdbcReadJournal
 
 //#handler-imports
-import akka.projection.jdbc.scaladsl.JdbcHandler
+import org.apache.pekko.projection.jdbc.scaladsl.JdbcHandler
 
 //#handler-imports
 
 //#projection-imports
-import akka.projection.ProjectionId
-import akka.projection.jdbc.scaladsl.JdbcProjection
+import org.apache.pekko
+import pekko.projection.ProjectionId
+import pekko.projection.jdbc.scaladsl.JdbcProjection
 
 //#projection-imports
 
-import akka.projection.eventsourced.EventEnvelope
-import akka.projection.eventsourced.scaladsl.EventSourcedProvider
+import pekko.projection.eventsourced.EventEnvelope
+import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
 
 //#jdbc-session-imports
 import java.sql.Connection
 import java.sql.DriverManager
-import akka.projection.jdbc.JdbcSession
+import org.apache.pekko.projection.jdbc.JdbcSession
 
 //#jdbc-session-imports
 

@@ -47,7 +47,7 @@ The tags are assigned as described in @ref:[Tagging Events in EventSourcedBehavi
 
 The @scala[`EventEnvelope[ShoppingCart.Event]`]@java[`EventEnvelope<ShoppingCart.Event>`] is what the `Projection`
 handler will process. It contains the `Event` and additional meta data, such as the offset that will be stored
-by the `Projection`. See @apidoc[akka.projection.eventsourced.EventEnvelope] for full details of what the
+by the `Projection`. See @apidoc[pekko.projection.eventsourced.EventEnvelope] for full details of what the
 envelope contains. 
 
 ## SourceProvider for eventsBySlices
@@ -68,5 +68,5 @@ This source is consuming all events from the `ShoppingCart` `EventSourcedBehavio
 
 The @scala[`EventEnvelope[ShoppingCart.Event]`]@java[`EventEnvelope<ShoppingCart.Event>`] is what the `Projection`
 handler will process. It contains the `Event` and additional meta data, such as the offset that will be stored
-by the `Projection`. See @apidoc[akka.persistence.query.typed.EventEnvelope] for full details of what the
+by the `Projection`. See @apidoc[pekko.persistence.query.typed.EventEnvelope] for full details of what the
 envelope contains.

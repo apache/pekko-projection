@@ -15,7 +15,8 @@ public class HibernateSessionFactory {
   private final EntityManagerFactory entityManagerFactory;
 
   public HibernateSessionFactory() {
-    this.entityManagerFactory = Persistence.createEntityManagerFactory("akka-projection-hibernate");
+    this.entityManagerFactory =
+        Persistence.createEntityManagerFactory("pekko-projection-hibernate");
   }
 
   public HibernateJdbcSession newInstance() {

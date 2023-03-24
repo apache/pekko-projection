@@ -1,4 +1,6 @@
-import akka.projections.Dependencies
+import org.apache.pekko.projections.Dependencies
+
+ThisBuild / resolvers += "Apache Nexus Snapshots".at("https://repository.apache.org/content/repositories/snapshots/")
 
 lazy val core =
   Project(id = "core", base = file("core"))
@@ -154,19 +156,19 @@ lazy val docs = project
       "project.url" -> "https://doc.akka.io/docs/akka-projection/current/",
       "canonical.base_url" -> "https://doc.akka.io/docs/akka-projection/current",
       "github.base_url" -> "https://github.com/apache/incubator-pekko-projection",
-      "akka.version" -> Dependencies.Versions.akka,
+      "akka.version" -> Dependencies.Versions.pekko,
       // Akka
-      "extref.akka.base_url" -> s"https://doc.akka.io/docs/akka/${Dependencies.AkkaVersionInDocs}/%s",
-      "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/akka/${Dependencies.AkkaVersionInDocs}/",
-      "javadoc.akka.base_url" -> s"https://doc.akka.io/japi/akka/${Dependencies.AkkaVersionInDocs}/",
+      "extref.akka.base_url" -> s"https://doc.akka.io/docs/akka/${Dependencies.PekkoVersionInDocs}/%s",
+      "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/akka/${Dependencies.PekkoVersionInDocs}/",
+      "javadoc.akka.base_url" -> s"https://doc.akka.io/japi/akka/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.akka.link_style" -> "direct",
       // Alpakka
-      "extref.alpakka.base_url" -> s"https://doc.akka.io/docs/alpakka/${Dependencies.AlpakkaVersionInDocs}/%s",
-      "scaladoc.akka.stream.alpakka.base_url" -> s"https://doc.akka.io/api/alpakka/${Dependencies.AlpakkaVersionInDocs}/",
+      "extref.alpakka.base_url" -> s"https://doc.akka.io/docs/alpakka/${Dependencies.ConnectorsVersionInDocs}/%s",
+      "scaladoc.akka.stream.alpakka.base_url" -> s"https://doc.akka.io/api/alpakka/${Dependencies.ConnectorsVersionInDocs}/",
       "javadoc.akka.stream.alpakka.base_url" -> "",
       // Alpakka Kafka
-      "extref.alpakka-kafka.base_url" -> s"https://doc.akka.io/docs/alpakka-kafka/${Dependencies.AlpakkaKafkaVersionInDocs}/%s",
-      "scaladoc.akka.kafka.base_url" -> s"https://doc.akka.io/api/alpakka-kafka/${Dependencies.AlpakkaKafkaVersionInDocs}/",
+      "extref.alpakka-kafka.base_url" -> s"https://doc.akka.io/docs/alpakka-kafka/${Dependencies.ConnectorsKafkaVersionInDocs}/%s",
+      "scaladoc.akka.kafka.base_url" -> s"https://doc.akka.io/api/alpakka-kafka/${Dependencies.ConnectorsKafkaVersionInDocs}/",
       "javadoc.akka.kafka.base_url" -> "",
       // Java
       "javadoc.base_url" -> "https://docs.oracle.com/javase/8/docs/api/",
@@ -183,7 +185,7 @@ lazy val docs = project
     resolvers += Resolver.jcenterRepo,
     publishRsyncArtifacts += (makeSite.value -> "www/"),
     publishRsyncHost := "akkarepo@gustav.akka.io",
-    apidocRootPackage := "akka")
+    apidocRootPackage := "org.apache.pekko")
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, examples, docs)

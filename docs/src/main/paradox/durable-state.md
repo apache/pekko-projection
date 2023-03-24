@@ -43,7 +43,7 @@ This source is consuming all the changes from the `Account` `DurableStateBehavio
 
 The @scala[`DurableStateChange[AccountEntity.Account]`]@java[`DurableStateChange<AccountEntity.Account>`] is what the `Projection`
 handler will process. It contains the `State` and additional meta data, such as the offset that will be stored
-by the `Projection`. See @apidoc[akka.persistence.query.DurableStateChange] for full details of what it contains. 
+by the `Projection`. See @apidoc[pekko.persistence.query.DurableStateChange] for full details of what it contains. 
 
 ## SourceProvider for changesBySlices
 
@@ -63,4 +63,4 @@ This source is consuming all the changes from the `Account` `DurableStateBehavio
 
 The @scala[`DurableStateChange[AccountEntity.Account]`]@java[`DurableStateChange<AccountEntity.Account>`] is what the `Projection`
 handler will process. It contains the `State` and additional meta data, such as the offset that will be stored
-by the `Projection`. See @apidoc[akka.persistence.query.DurableStateChange] for full details of what it contains. 
+by the `Projection`. See @apidoc[pekko.persistence.query.DurableStateChange] for full details of what it contains. 

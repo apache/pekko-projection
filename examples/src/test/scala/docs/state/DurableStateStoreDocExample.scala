@@ -4,8 +4,9 @@
 
 package docs.state
 
-import akka.actor.typed.ActorSystem
-import akka.actor.typed.scaladsl.Behaviors
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.Behaviors
 
 object DurableStateStoreDocExample {
 
@@ -13,11 +14,12 @@ object DurableStateStoreDocExample {
 
   object IllustrateEventsByTagSourceProvider {
     // #changesByTagSourceProvider
-    import akka.persistence.jdbc.state.scaladsl.JdbcDurableStateStore
-    import akka.persistence.query.DurableStateChange
-    import akka.persistence.query.Offset
-    import akka.projection.state.scaladsl.DurableStateSourceProvider
-    import akka.projection.scaladsl.SourceProvider
+    import org.apache.pekko
+    import pekko.persistence.jdbc.state.scaladsl.JdbcDurableStateStore
+    import pekko.persistence.query.DurableStateChange
+    import pekko.persistence.query.Offset
+    import pekko.projection.state.scaladsl.DurableStateSourceProvider
+    import pekko.projection.scaladsl.SourceProvider
 
     val sourceProvider: SourceProvider[Offset, DurableStateChange[AccountEntity.Account]] =
       DurableStateSourceProvider
@@ -27,14 +29,15 @@ object DurableStateStoreDocExample {
 
   object IllustrateEventsBySlicesSourceProvider {
     object R2dbcDurableStateStore {
-      val Identifier = "akka.persistence.r2dbc.query"
+      val Identifier = "pekko.persistence.r2dbc.query"
     }
 
     // #changesBySlicesSourceProvider
-    import akka.persistence.query.DurableStateChange
-    import akka.persistence.query.Offset
-    import akka.projection.state.scaladsl.DurableStateSourceProvider
-    import akka.projection.scaladsl.SourceProvider
+    import org.apache.pekko
+    import pekko.persistence.query.DurableStateChange
+    import pekko.persistence.query.Offset
+    import pekko.projection.state.scaladsl.DurableStateSourceProvider
+    import pekko.projection.scaladsl.SourceProvider
 
     // Slit the slices into 4 ranges
     val numberOfSliceRanges: Int = 4

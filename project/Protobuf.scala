@@ -23,8 +23,8 @@ object Protobuf {
   val generate = TaskKey[Unit]("protobuf-generate", "Compile the protobuf sources and do all processing.")
 
   lazy val settings: Seq[Setting[_]] = Seq(
-    paths := Seq((sourceDirectory in Compile).value, (sourceDirectory in Test).value).map(_ / "protobuf"),
-    outputPaths := Seq((sourceDirectory in Compile).value, (sourceDirectory in Test).value).map(_ / "java"),
+    paths := Seq((Compile / sourceDirectory).value, (Test / sourceDirectory).value).map(_ / "protobuf"),
+    outputPaths := Seq((Compile / sourceDirectory).value, (Test / sourceDirectory).value).map(_ / "java"),
     importPath := None,
     protoc := "protoc",
     protocVersion := "3.11.4",
@@ -61,12 +61,12 @@ object Protobuf {
               dst,
               _ => true,
               transformFile(
-                _.replace("com.google.protobuf", "akka.protobufv3.internal")
+                _.replace("com.google.protobuf", "org.apache.pekko.protobufv3.internal")
                   // this is the one thing that protobufGenerate doesn't fully qualify and causes
                   // api doc generation to fail
                   .replace(
                     "UnusedPrivateParameter",
-                    "akka.protobufv3.internal.GeneratedMessageV3.UnusedPrivateParameter")),
+                    "org.apache.pekko.protobufv3.internal.GeneratedMessageV3.UnusedPrivateParameter")),
               cache,
               log)
         }
