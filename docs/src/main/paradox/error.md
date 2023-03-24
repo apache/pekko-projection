@@ -32,7 +32,7 @@ Java
 If the recovery strategy is not defined on the `Projection` the default is `fail`, and that can be defined
 in configuration:
 
-@@snip [reference.conf](/projection-core/src/main/resources/reference.conf) { #recovery-strategy }
+@@snip [reference.conf](/core/src/main/resources/reference.conf) { #recovery-strategy }
  
 
 ## Projection restart
@@ -55,4 +55,4 @@ Java
  
 If the recovery strategy is not defined on the `Projection` the default is defined in configuration:
 
-@@snip [reference.conf](/projection-core/src/main/resources/reference.conf) { #restart-backoff }
+@@snip [reference.conf](/core/src/main/resources/reference.conf) { #restart-backoff }

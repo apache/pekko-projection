@@ -20,14 +20,14 @@ To use the JDBC module of Apache Pekko Projections add the following dependency 
 
 Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="pekko-projection-jdbc" }
+@@project-info{ projectId="jdbc" }
 
 
 ### Transitive dependencies
 
 The table below shows `pekko-projection-jdbc`'s direct dependencies, and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="pekko-projection-jdbc" }
+@@dependencies{ projectId="jdbc" }
 
 ## Required configuration settings
 
@@ -260,7 +260,7 @@ Make your edits/overrides in your application.conf.
 
 The reference configuration file with the default values:
 
-@@snip [reference.conf](/projection-jdbc/src/main/resources/reference.conf) { #config }
+@@snip [reference.conf](/jdbc/src/main/resources/reference.conf) { #config }
 
 @@@ note
 Settings `akka.projection.jdbc.dialect` and `akka.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` do not have a valid default value. You must configured them in your `application.conf` file.  

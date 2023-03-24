@@ -31,13 +31,13 @@ To use the Slick module of Apache Pekko Projections add the following dependency
 
 Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="pekko-projection-slick" }
+@@project-info{ projectId="slick" }
 
 ### Transitive dependencies
 
 The table below shows `pekko-projection-slick`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="pekko-projection-slick" }
+@@dependencies{ projectId="slick" }
 
 ## exactly-once
 
@@ -209,4 +209,4 @@ Make your edits/overrides in your application.conf.
 
 The reference configuration file with the default values:
 
-@@snip [reference.conf](/projection-slick/src/main/resources/reference.conf) { #config }
+@@snip [reference.conf](/slick/src/main/resources/reference.conf) { #config }

@@ -17,13 +17,13 @@ To use the Event Sourced module of Apache Pekko Projections add the following de
 
 Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
 
-@@project-info{ projectId="pekko-projection-eventsourced" }
+@@project-info{ projectId="eventsourced" }
 
 ### Transitive dependencies
 
 The table below shows `pekko-projection-eventsourced`'s direct dependencies and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="pekko-projection-eventsourced" }
+@@dependencies{ projectId="eventsourced" }
 
 ## SourceProvider for eventsByTag
 
