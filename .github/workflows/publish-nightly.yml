@@ -1,0 +1,33 @@
+name: Publish Nightly
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "22 0 * * *"
+
+jobs:
+  publish:
+    # runs on main repo only
+    if: github.repository == 'apache/incubator-pekko-projection'
+    name: Publish
+    runs-on: ubuntu-20.04
+    env:
+      JAVA_OPTS: -Xms2G -Xmx2G -Xss2M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          # we don't know what commit the last tag was it's safer to get entire repo so previousStableVersion resolves
+          fetch-depth: 0
+
+      - name: Setup Java 8
+        uses: actions/setup-java@v3
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Publish to Apache Maven repo
+        env:
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          NEXUS_PW: ${{ secrets.NEXUS_PW }}
+        run: sbt +publish
