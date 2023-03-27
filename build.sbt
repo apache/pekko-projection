@@ -1,5 +1,6 @@
 import org.apache.pekko.projections.Dependencies
 
+ThisBuild / apacheSonatypeProjectProfile := "pekko"
 ThisBuild / resolvers += "Apache Nexus Snapshots".at("https://repository.apache.org/content/repositories/snapshots/")
 
 lazy val core =

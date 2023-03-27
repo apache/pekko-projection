@@ -1,26 +1,23 @@
 import org.apache.pekko.projections.Dependencies
-import com.geirsson.CiReleasePlugin
 import sbtdynver.DynVerPlugin.autoImport._
 import com.lightbend.paradox.projectinfo.ParadoxProjectInfoPluginKeys._
+import org.mdedetrich.apache.sonatype.SonatypeApachePlugin
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
 import com.typesafe.tools.mima.plugin.MimaKeys._
+import sbtdynver.DynVerPlugin
 import xerial.sbt.Sonatype.autoImport.sonatypeProfileName
 
 object Common extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override def requires = JvmPlugin && CiReleasePlugin
+  override def requires = JvmPlugin && SonatypeApachePlugin && DynVerPlugin
 
   override def globalSettings =
     Seq(
-      organization := "org.apache.pekko",
-      organizationName := "Apache Software Foundation",
-      organizationHomepage := Some(url("https://www.apache.org/")),
       startYear := Some(2022),
-      homepage := Some(url("https://pekko.apache.org/")),
       // apiURL defined in projectSettings because version.value is not correct here
       scmInfo := Some(
         ScmInfo(
@@ -31,7 +28,6 @@ object Common extends AutoPlugin {
         "Contributors",
         "dev@pekko.apache.org",
         url("https://github.com/apache/incubator-pekko-projection/graphs/contributors")),
-      licenses := Seq(("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0"))),
       description := "Apache Pekko Projection.")
 
   override lazy val projectSettings = Seq(
@@ -64,7 +60,9 @@ object Common extends AutoPlugin {
     Test / testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q"),
     Test / logBuffered := false,
     // temporarily disable mima checks
-    mimaPreviousArtifacts := Set.empty,
-    sonatypeProfileName := "org.apache.pekko")
+    mimaPreviousArtifacts := Set.empty)
+
+  override lazy val buildSettings = Seq(
+    dynverSonatypeSnapshots := true)
 
 }
