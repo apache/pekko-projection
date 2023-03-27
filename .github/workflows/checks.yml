@@ -25,9 +25,10 @@ jobs:
           git checkout scratch
 
       - name: Set up JDK 11
-        uses: olafurpg/setup-scala@v13
+        uses: actions/setup-java@v3
         with:
-          java-version: adopt@1.11.0-9
+          java-version: 11
+          distribution: temurin
 
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6.4.0
@@ -51,9 +52,10 @@ jobs:
           git checkout scratch
 
       - name: Set up JDK 11
-        uses: olafurpg/setup-scala@v13
+        uses: actions/setup-java@v3
         with:
-          java-version: adopt@1.11.0-9
+          java-version: 11
+          distribution: temurin
 
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6.4.0
@@ -77,9 +79,10 @@ jobs:
           git checkout scratch
 
       - name: Set up JDK 11
-        uses: olafurpg/setup-scala@v13
+        uses: actions/setup-java@v3
         with:
-          java-version: adopt@1.11.0-9
+          java-version: 11
+          distribution: temurin
 
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6.4.0
