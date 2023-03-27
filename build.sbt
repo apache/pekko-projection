@@ -142,11 +142,12 @@ lazy val examples = project
   .settings(publish / skip := true, scalacOptions += "-feature", javacOptions += "-parameters")
 
 lazy val docs = project
-  .enablePlugins(ParadoxPlugin, ParadoxSitePlugin, PreprocessPlugin, PublishRsyncPlugin)
+  .enablePlugins(PekkoParadoxPlugin, ParadoxPlugin, ParadoxSitePlugin, PreprocessPlugin, PublishRsyncPlugin)
   .disablePlugins(MimaPlugin)
   .dependsOn(core, testkit)
   .settings(
     name := "Apache Pekko Projections",
+    pekkoParadoxGithub := Some("https://github.com/apache/incubator-pekko-projection"),
     publish / skip := true,
     makeSite := makeSite.dependsOn(LocalRootProject / ScalaUnidoc / doc).value,
     previewPath := (Paradox / siteSubdirName).value,
