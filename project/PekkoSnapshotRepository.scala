@@ -4,7 +4,7 @@ import sbt._
 /**
  * This plugins conditionally adds Akka snapshot repository.
  */
-object AkkaSnapshotRepositories extends AutoPlugin {
+object PekkoSnapshotRepositories extends AutoPlugin {
   override def trigger: PluginTrigger = allRequirements
 
   // If using a snapshot version of either Pekko or Pekko Connectors, add both snapshot repos
