@@ -29,7 +29,10 @@ jobs:
           git checkout scratch
 
       - name: Setup Scala with JDK 8
-        uses: olafurpg/setup-scala@v13
+        uses: actions/setup-java@v3
+        with:
+          java-version: 8
+          distribution: temurin
 
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6.4.0
