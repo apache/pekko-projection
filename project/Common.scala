@@ -7,7 +7,6 @@ import sbt._
 import sbt.plugins.JvmPlugin
 import com.typesafe.tools.mima.plugin.MimaKeys._
 import sbtdynver.DynVerPlugin
-import xerial.sbt.Sonatype.autoImport.sonatypeProfileName
 
 object Common extends AutoPlugin {
 
