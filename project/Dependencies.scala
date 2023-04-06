@@ -23,16 +23,16 @@ object Dependencies {
   val ConnectorsKafkaVersionInDocs = "0.0.0+1717-267012de-SNAPSHOT"
 
   object Versions {
-    val pekko = sys.props.getOrElse("build.pekko.version", "0.0.0+26623-85c2a469-SNAPSHOT")
+    val pekko = sys.props.getOrElse("build.pekko.version", "0.0.0+26630-2c4d0ee0-SNAPSHOT")
     val pekkoPersistenceJdbc = "0.0.0+958-db5733e6-SNAPSHOT"
-    val connectors = "0.0.0+60-c7dd80e0-SNAPSHOT"
-    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", "0.0.0+1717-267012de-SNAPSHOT")
+    val connectors = "0.0.0+64-20da4165-SNAPSHOT"
+    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", "0.0.0+1719-2dce1c20-SNAPSHOT")
     val slick = "3.3.3"
     val scalaTest = "3.1.1"
     val testContainers = "1.15.3"
     val junit = "4.13.2"
     val h2Driver = "1.4.200"
-    val jackson = "2.11.4" // this should match the version of jackson used by pekko-serialization-jackson
+    val jackson = "2.14.2" // this should match the version of jackson used by pekko-serialization-jackson
   }
 
   object Compile {
