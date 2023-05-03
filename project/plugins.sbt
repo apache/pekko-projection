@@ -4,6 +4,7 @@ addSbtPlugin("de.heikoseeberger" % "sbt-header" % "5.7.0")
 
 addSbtPlugin("com.dwijnand" % "sbt-dynver" % "4.1.1")
 addSbtPlugin("org.mdedetrich" % "sbt-apache-sonatype" % "0.1.6")
+addSbtPlugin("com.github.pjfanning" % "sbt-source-dist" % "0.1.5")
 
 // Documentation
 // allow access to snapshots for pekko-sbt-paradox
