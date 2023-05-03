@@ -193,7 +193,9 @@ lazy val docs = project
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, examples, docs)
-  .settings(publish / skip := true)
+  .settings(
+    publish / skip := true,
+    name := "pekko-projection-root")
   .enablePlugins(ScalaUnidocPlugin)
   .disablePlugins(SitePlugin, MimaPlugin)
 
