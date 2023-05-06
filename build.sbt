@@ -3,7 +3,7 @@ import org.apache.pekko.projections.Dependencies
 ThisBuild / apacheSonatypeProjectProfile := "pekko"
 sourceDistName := "incubating-pekko-projection"
 
-ThisBuild / resolvers += "Apache Nexus Snapshots".at("https://repository.apache.org/content/repositories/snapshots/")
+ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 
 lazy val core =
   Project(id = "core", base = file("core"))
