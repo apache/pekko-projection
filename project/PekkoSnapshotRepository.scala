@@ -22,11 +22,8 @@ object PekkoSnapshotRepositories extends AutoPlugin {
     resolvers ++= (sys.props
       .get("build.pekko.version")
       .orElse(sys.props.get("build.connectors.kafka.version")) match {
-      case Some(_) =>
-        Seq(
-          // akka and alpakka-kafka use Sonatype's snapshot repo
-          "Apache Nexus Snapshots".at("https://repository.apache.org/content/repositories/snapshots/"))
-      case None => Seq.empty
+      case Some(_) => Seq(Resolver.ApacheMavenSnapshotsRepo)
+      case None    => Seq.empty
     })
   }
 }
