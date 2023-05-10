@@ -4,10 +4,10 @@ Running the Projection with [Apache Pekko Cluster](https://pekko.apache.org/docs
 A Projection running as a single Actor creates a single point of failure (availability), when the app shuts down for any reason, the projection is no longer running until it's started again.
 A Projection running as a single Actor creates a processing bottleneck (scalability), all messages from the @apidoc[SourceProvider] are processed by a single Actor on a single machine.
 By using a [Sharded Daemon Process](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html#sharded-daemon-process) with Apache Pekko Cluster and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html) we can scale up the Projection and make it more available by running at least as many instances of the same Projection as we have cluster members.
-As Akka cluster members join and leave the cluster the Sharded Daemon Process will automatically scale and rebalance Sharded Daemon Processes (Projection instances) accordingly.
+As Pekko cluster members join and leave the cluster the Sharded Daemon Process will automatically scale and rebalance Sharded Daemon Processes (Projection instances) accordingly.
 
 Running the Projection as a Sharded Daemon Process requires no changes to our projection handler and repository, we only need to change the way in which the actor that runs the Projection is initialized.
-In the cluster version of this app we use a different configuration that configures Akka cluster.
+In the cluster version of this app we use a different configuration that configures Pekko cluster.
 The main difference in the app itself is that we use @apidoc[ShardedDaemonProcess] to initialize the Projection actor on our behalf.
 Instead of creating single instances of our repository and projection handler we create factory methods that encapsulate their instantiation along with the sharded daemon actors (1 per tag) assigned to this cluster member.
 
@@ -58,7 +58,7 @@ When the app is running you will observe that the logs show events written to di
 [2020-08-13 15:18:58,383] [INFO] [docs.guide.EventGeneratorApp$] [] [EventGenerator-org.apache.pekko.actor.default-dispatcher-19] - id [6059e] tag [carts-1] event: ItemQuantityAdjusted(6059e,cat t-shirt,1,2) MDC: {persistencePhase=persist-evt, pekkoAddress=pekko://EventGenerator@127.0.1.1:25520, pekkoSource=pekko://EventGenerator/system/sharding/shopping-cart-event/903/6059e, sourceActorSystem=EventGenerator, persistenceId=6059e}
 ```
 
-Run the first member of your new Akka cluster:
+Run the first member of your new Pekko cluster:
 
 <!-- run from repo:
 sbt "examples/test:runMain docs.guide.ShoppingCartClusterApp 2551"
@@ -88,7 +88,7 @@ When the app is running you will observe that it will process all the shopping c
 ...
 ```
 
-Run a second member to expand the Akka cluster member count to 2.
+Run a second member to expand the Pekko cluster member count to 2.
 
 <!-- run from repo:
 sbt "examples/test:runMain docs.guide.ShoppingCartClusterApp 2552"

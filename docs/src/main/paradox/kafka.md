@@ -27,7 +27,7 @@ To use the Kafka module of Apache Pekko Projections add the following dependency
   version=$project.version$
 }
 
-Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
 @@project-info{ projectId="kafka" }
 

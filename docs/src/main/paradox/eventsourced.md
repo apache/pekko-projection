@@ -15,7 +15,7 @@ To use the Event Sourced module of Apache Pekko Projections add the following de
   version=$project.version$
 }
 
-Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
 @@project-info{ projectId="eventsourced" }
 
@@ -36,9 +36,9 @@ Scala
 Java
 :  @@snip [EventSourcedDocExample.java](/examples/src/test/java/jdocs/eventsourced/EventSourcedDocExample.java) { #eventsByTagSourceProvider }
 
-This example is using the [Cassandra plugin for Apache Pekko Persistence](https://doc.akka.io/docs/akka-persistence-cassandra/current/read-journal.html),
+This example is using the [Cassandra plugin for Apache Pekko Persistence](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/read-journal.html),
 but same code can be used for other Apache Pekko Persistence plugins by replacing the `CassandraReadJournal.Identifier`.
-For example the [JDBC plugin](https://doc.akka.io/docs/akka-persistence-jdbc/current/) can be used. You will
+For example the [JDBC plugin](https://pekko.apache.org/docs/pekko-persistence-jdbc/current/) can be used. You will
 use the same plugin as you have configured for the write side that is used by the `EventSourcedBehavior`.
 
 This source is consuming all events from the `ShoppingCart` `EventSourcedBehavior` that are tagged with `"cart-1"`.
@@ -61,7 +61,7 @@ Scala
 Java
 :  @@snip [EventSourcedDocExample.java](/examples/src/test/java/jdocs/eventsourced/EventSourcedBySlicesDocExample.java) { #eventsBySlicesSourceProvider }
 
-This example is using the [R2DBC plugin for Apache Pekko Persistence](https://doc.akka.io/docs/akka-persistence-r2dbc/current/query.html).
+This example is using the [R2DBC plugin for Apache Pekko Persistence](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/query.html).
 You will use the same plugin as you have configured for the write side that is used by the `EventSourcedBehavior`.
 
 This source is consuming all events from the `ShoppingCart` `EventSourcedBehavior` for the given slice range. In a production application, you would need to start as many instances as the number of slice ranges. That way you consume the events from all entities.

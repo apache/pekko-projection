@@ -9,12 +9,12 @@ To distribute the projection over the cluster we recommend the use of [ShardedDa
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
   artifact=pekko-cluster-sharding-typed_$scala.binary.version$
-  version=$akka.version$
+  version=$pekko.version$
 }
 
-Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
-For more information on using Apache Pekko Cluster consult Akka's reference documentation on [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/index-cluster.html) and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html).
+For more information on using Apache Pekko Cluster consult Pekko's reference documentation on [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/index-cluster.html) and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html).
 
 ## Running with Sharded Daemon Process
 
@@ -44,11 +44,11 @@ planned maximum number of cluster nodes. It doesn't have to be exact.
 We will use those tags to query the journal and create as many Projections instances, and distribute them in the cluster.
 
 @@@ warning
-When using [Apache Pekko Persistence Cassandra plugin](https://doc.akka.io/docs/akka-persistence-cassandra/current/) you should
+When using [Apache Pekko Persistence Cassandra plugin](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/) you should
 not use too many tags for each event. Each tag will result in a copy of the event in a separate table and
 that can impact write performance. Typically, you would use 1 tag per event as illustrated here. Additional
 filtering of events can be done in the Projection handler if it doesn't have to act on certain events.
-The [JDBC plugin](https://doc.akka.io/docs/akka-persistence-jdbc/current/) doesn't have this constraint.
+The [JDBC plugin](https://pekko.apache.org/docs/pekko-persistence-jdbc/current/) doesn't have this constraint.
 @@@
 
 See also the [Apache Pekko reference documentation for tagging](https://pekko.apache.org/docs/pekko/current/typed/persistence.html#tagging).

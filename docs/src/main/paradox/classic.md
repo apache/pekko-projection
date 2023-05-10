@@ -1,4 +1,4 @@
-# Akka Classic
+# Pekko Classic
 
 Apache Pekko Projections can be used with the [new Actor API](https://pekko.apache.org/docs/pekko/current/typed/actors.html) or
 the [classic Actor API](https://pekko.apache.org/docs/pekko/current/index-classic.html). The documentation samples
@@ -17,7 +17,7 @@ Java
 
 ## PersistentActor
 
-@ref:[Events from Akka Classic Persistence](eventsourced.md) can be emitted from `PersistentActor` and consumed by a
+@ref:[Events from Pekko Classic Persistence](eventsourced.md) can be emitted from `PersistentActor` and consumed by a
 Projection with the @apidoc[EventSourcedProvider$]. The events from the `PersistentActor` must be tagged by wrapping
 them in `org.apache.pekko.persistence.journal.Tagged`, which can be done in the `PersistentActor` or by using
 [Event Adapters](https://pekko.apache.org/docs/pekko/current/persistence.html#event-adapters).

@@ -4,7 +4,7 @@
 
 This example requires a Cassandra database to run. 
 If you do not have a Cassandra database then you can run one locally as a Docker container.
-To run a Cassandra database locally you can use [`docker-compose`](https://docs.docker.com/compose/) to run the [`docker-compose.yaml`](https://raw.githubusercontent.com/akka/akka-projection/master/docker-compose.yml) found in the Projections project root.
+To run a Cassandra database locally you can use [`docker-compose`](https://docs.docker.com/compose/) to run the [`docker-compose.yaml`](https://raw.githubusercontent.com/apache/incubator-pekko-projection/main/docker-compose.yml) found in the Projections project root.
 The `docker-compose.yml` file references the latest [Cassandra Docker Image](https://hub.docker.com/_/cassandra).
 
 Change directory to the directory of the `docker-compose.yml` file and manage a Cassandra container with the following commands.
@@ -16,7 +16,7 @@ Change directory to the directory of the `docker-compose.yml` file and manage a 
 | Delete container state   | `docker-compose --project-name getting-started rm -f` |
 | CQL shell (when running) | `docker run -it --network getting-started_default --rm cassandra cqlsh cassandra` |
 
-To use a different Cassandra database update the [Cassandra driver's contact-points configuration](https://doc.akka.io/docs/akka-persistence-cassandra/current/configuration.html#contact-points-configuration) found in `./examples/src/resources/guide-shopping-cart-app.conf`.
+To use a different Cassandra database update the [Cassandra driver's contact-points configuration](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/configuration.html#contact-points-configuration) found in `./examples/src/resources/guide-shopping-cart-app.conf`.
 
 @@@
 
@@ -41,7 +41,7 @@ PRIMARY KEY (item_id));
 ```
 
 Source events are generated with the `EventGeneratorApp`.
-This app is configured to use [Apache Pekko Persistence Cassandra](https://doc.akka.io/docs/akka-persistence-cassandra/current/index.html) and [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/cluster.html) [Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html) to persist random `ShoppingCartApp.Events` to a journal.
+This app is configured to use [Apache Pekko Persistence Cassandra](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/index.html) and [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/cluster.html) [Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html) to persist random `ShoppingCartApp.Events` to a journal.
 It will checkout a shopping cart with random items and quantities every 1 second.
 The app will automatically create all the Apache Pekko Persistence infrastructure tables in the `pekko` keyspace.
 We won't go into any further detail about how this app functions because it falls outside the scope of Apache Pekko Projections.
@@ -52,7 +52,7 @@ Add the Apache Pekko Cluster Sharding library to your project:
 @@dependency [sbt,Maven,Gradle] {
 group=org.apache.pekko
 artifact=pekko-cluster-sharding-typed_$scala.binary.version$
-version=$akka.version$
+version=$pekko.version$
 }
 
 Add the @ref:[EventGeneratorApp](event-generator-app.md) to your project.

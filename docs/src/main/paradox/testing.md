@@ -13,7 +13,7 @@ To use the Apache Pekko Projections TestKit add the following dependency in your
   scope="test"
 }
 
-Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
 @@project-info{ projectId="testkit" }
 
@@ -25,7 +25,7 @@ The table below shows `pekko-projection-testkit`'s direct dependencies and the s
 
 ## Initializing the Projection TestKit
 
-The Projection TestKit requires an instance of `ActorTestKit`. We recommend using Akka's @scala[`ScalaTestWithActorTestKit`]@java[`TestKitJunitResource`]
+The Projection TestKit requires an instance of `ActorTestKit`. We recommend using Pekko's @scala[`ScalaTestWithActorTestKit`]@java[`TestKitJunitResource`]
 
 Scala
 :  @@snip [TestKitDocExample.scala](/examples/src/test/scala/docs/testkit/TestKitDocExample.scala) { #testkit-import #testkit }

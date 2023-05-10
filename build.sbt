@@ -153,19 +153,19 @@ lazy val docs = project
     publish / skip := true,
     makeSite := makeSite.dependsOn(LocalRootProject / ScalaUnidoc / doc).value,
     previewPath := (Paradox / siteSubdirName).value,
-    Preprocess / siteSubdirName := s"api/akka-projection/${projectInfoVersion.value}",
+    Preprocess / siteSubdirName := s"api/pekko-projection/${projectInfoVersion.value}",
     Preprocess / sourceDirectory := (LocalRootProject / ScalaUnidoc / unidoc / target).value,
-    Paradox / siteSubdirName := s"docs/akka-projection/${projectInfoVersion.value}",
+    Paradox / siteSubdirName := s"docs/pekko-projection/${projectInfoVersion.value}",
     Compile / paradoxProperties ++= Map(
-      "project.url" -> "https://doc.akka.io/docs/akka-projection/current/",
-      "canonical.base_url" -> "https://doc.akka.io/docs/akka-projection/current",
+      "project.url" -> "https://pekko.apache.org/docs/pekko-projection/current/",
+      "canonical.base_url" -> "https://pekko.apache.org/docs/pekko-projection/current",
       "github.base_url" -> "https://github.com/apache/incubator-pekko-projection",
-      "akka.version" -> Dependencies.Versions.pekko,
-      // Akka
-      "extref.akka.base_url" -> s"https://doc.akka.io/docs/akka/${Dependencies.PekkoVersionInDocs}/%s",
-      "scaladoc.akka.base_url" -> s"https://doc.akka.io/api/akka/${Dependencies.PekkoVersionInDocs}/",
-      "javadoc.akka.base_url" -> s"https://doc.akka.io/japi/akka/${Dependencies.PekkoVersionInDocs}/",
-      "javadoc.akka.link_style" -> "direct",
+      "pekko.version" -> Dependencies.Versions.pekko,
+      // Pekko
+      "extref.pekko.base_url" -> s"https://pekko.apache.org/docs/pekko/${Dependencies.PekkoVersionInDocs}/%s",
+      "scaladoc.pekko.base_url" -> s"https://pekko.apache.org/api/pekko/${Dependencies.PekkoVersionInDocs}/",
+      "javadoc.pekko.base_url" -> s"https://pekko.apache.org/japi/pekko/${Dependencies.PekkoVersionInDocs}/",
+      "javadoc.pekko.link_style" -> "direct",
       // Alpakka
       "extref.alpakka.base_url" -> s"https://doc.akka.io/docs/alpakka/${Dependencies.ConnectorsVersionInDocs}/%s",
       "scaladoc.akka.stream.alpakka.base_url" -> s"https://doc.akka.io/api/alpakka/${Dependencies.ConnectorsVersionInDocs}/",
@@ -179,13 +179,10 @@ lazy val docs = project
       // Scala
       "scaladoc.scala.base_url" -> s"https://www.scala-lang.org/api/${scalaBinaryVersion.value}.x/",
       "scaladoc.akka.projection.base_url" -> s"/${(Preprocess / siteSubdirName).value}/",
-      "javadoc.akka.projection.base_url" -> "", // no Javadoc is published
-      // Misc
-      "extref.samples.base_url" -> "https://developer.lightbend.com/start/?group=akka&amp;project=%s",
-      "extref.platform-guide.base_url" -> "https://developer.lightbend.com/docs/akka-platform-guide/%s"),
+      "javadoc.akka.projection.base_url" -> ""),
     paradoxGroups := Map("Language" -> Seq("Java", "Scala")),
     paradoxRoots := List("index.html", "getting-started/event-generator-app.html"),
-    ApidocPlugin.autoImport.apidocRootPackage := "akka",
+    ApidocPlugin.autoImport.apidocRootPackage := "org.apache.pekko",
     resolvers += Resolver.jcenterRepo,
     publishRsyncArtifacts += (makeSite.value -> "www/"),
     publishRsyncHost := "akkarepo@gustav.akka.io",
