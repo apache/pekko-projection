@@ -17,7 +17,6 @@ import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 
-import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -40,6 +39,7 @@ import pekko.projection.BySlicesSourceProvider
 import pekko.projection.javadsl
 import pekko.projection.javadsl.SourceProvider
 import pekko.stream.javadsl.Source
+import pekko.util.FutureConverters._
 
 /**
  * API may change
@@ -67,11 +67,11 @@ object DurableStateSourceProvider {
 
     override def source(offsetAsync: Supplier[CompletionStage[Optional[Offset]]])
         : CompletionStage[Source[DurableStateChange[A], NotUsed]] = {
-      val source: Future[Source[DurableStateChange[A], NotUsed]] = offsetAsync.get().toScala.map { offsetOpt =>
+      val source: Future[Source[DurableStateChange[A], NotUsed]] = offsetAsync.get().asScala.map { offsetOpt =>
         durableStateStoreQuery
           .changes(tag, offsetOpt.orElse(NoOffset))
       }
-      source.toJava
+      source.asJava
     }
 
     override def extractOffset(stateChange: DurableStateChange[A]): Offset = stateChange.offset
@@ -126,11 +126,11 @@ object DurableStateSourceProvider {
 
     override def source(offsetAsync: Supplier[CompletionStage[Optional[Offset]]])
         : CompletionStage[Source[DurableStateChange[A], NotUsed]] = {
-      val source: Future[Source[DurableStateChange[A], NotUsed]] = offsetAsync.get().toScala.map { offsetOpt =>
+      val source: Future[Source[DurableStateChange[A], NotUsed]] = offsetAsync.get().asScala.map { offsetOpt =>
         durableStateStoreQuery
           .changesBySlices(entityType, minSlice, maxSlice, offsetOpt.orElse(NoOffset))
       }
-      source.toJava
+      source.asJava
     }
 
     override def extractOffset(stateChange: DurableStateChange[A]): Offset = stateChange.offset

@@ -18,8 +18,6 @@ import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 
-import scala.compat.java8.FutureConverters._
-import scala.compat.java8.OptionConverters._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -42,6 +40,8 @@ import pekko.projection.kafka.KafkaOffsets.keyToPartition
 import pekko.projection.scaladsl
 import pekko.stream.scaladsl.Keep
 import pekko.stream.scaladsl.Source
+import pekko.util.FutureConverters._
+import pekko.util.OptionConverters._
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.record.TimestampType
@@ -115,7 +115,7 @@ import org.apache.kafka.common.record.TimestampType
 
   override def source(readOffsets: Supplier[CompletionStage[Optional[MergeableOffset[JLong]]]])
       : CompletionStage[pekko.stream.javadsl.Source[ConsumerRecord[K, V], NotUsed]] = {
-    source(() => readOffsets.get().toScala.map(_.asScala)).map(_.asJava).toJava
+    source(() => readOffsets.get().asScala.map(_.toScala)).map(_.asJava).asJava
   }
 
   override def extractOffset(record: ConsumerRecord[K, V]): MergeableOffset[JLong] =

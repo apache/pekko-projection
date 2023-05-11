@@ -17,8 +17,6 @@ import java.util.Optional
 import java.util.concurrent.CompletionStage
 
 import scala.concurrent.ExecutionContext
-import scala.compat.java8.FutureConverters._
-import scala.compat.java8.OptionConverters._
 
 import org.apache.pekko
 import pekko.Done
@@ -26,6 +24,8 @@ import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange
 import pekko.projection.ProjectionId
 import pekko.projection.scaladsl
+import pekko.util.FutureConverters._
+import pekko.util.OptionConverters._
 
 @ApiMayChange object ProjectionManagement {
   def get(system: ActorSystem[_]): ProjectionManagement = new ProjectionManagement(system)
@@ -39,7 +39,7 @@ import pekko.projection.scaladsl
    * Get the latest stored offset for the `projectionId`.
    */
   def getOffset[Offset](projectionId: ProjectionId): CompletionStage[Optional[Offset]] =
-    delegate.getOffset[Offset](projectionId).map(_.asJava).toJava
+    delegate.getOffset[Offset](projectionId).map(_.toJava).asJava
 
   /**
    * Update the stored offset for the `projectionId` and restart the `Projection`.
@@ -48,7 +48,7 @@ import pekko.projection.scaladsl
    * the next offset that is greater than the stored offset.
    */
   def updateOffset[Offset](projectionId: ProjectionId, offset: Offset): CompletionStage[Done] =
-    delegate.updateOffset[Offset](projectionId, offset).toJava
+    delegate.updateOffset[Offset](projectionId, offset).asJava
 
   /**
    * Clear the stored offset for the `projectionId` and restart the `Projection`.
@@ -56,13 +56,13 @@ import pekko.projection.scaladsl
    * offset.
    */
   def clearOffset(projectionId: ProjectionId): CompletionStage[Done] =
-    delegate.clearOffset(projectionId).toJava
+    delegate.clearOffset(projectionId).asJava
 
   /**
    * Is the given Projection paused or not?
    */
   def isPaused(projectionId: ProjectionId): CompletionStage[java.lang.Boolean] =
-    delegate.isPaused(projectionId).map(java.lang.Boolean.valueOf).toJava
+    delegate.isPaused(projectionId).map(java.lang.Boolean.valueOf).asJava
 
   /**
    * Pause the given Projection. Processing will be stopped.
@@ -74,7 +74,7 @@ import pekko.projection.scaladsl
    * in case of rebalance or system restart.
    */
   def pause(projectionId: ProjectionId): CompletionStage[Done] =
-    delegate.pause(projectionId).toJava
+    delegate.pause(projectionId).asJava
 
   /**
    * Resume a paused Projection. Processing will be start from previously stored offset.
@@ -83,6 +83,6 @@ import pekko.projection.scaladsl
    * in case of rebalance or system restart.
    */
   def resume(projectionId: ProjectionId): CompletionStage[Done] =
-    delegate.resume(projectionId).toJava
+    delegate.resume(projectionId).asJava
 
 }

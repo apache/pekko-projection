@@ -19,7 +19,6 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 
-import scala.compat.java8.FutureConverters._
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -41,6 +40,7 @@ import pekko.projection.eventsourced.EventEnvelope
 import pekko.projection.javadsl
 import pekko.projection.javadsl.SourceProvider
 import pekko.stream.javadsl.Source
+import pekko.util.FutureConverters._
 
 @ApiMayChange
 object EventSourcedProvider {
@@ -69,12 +69,12 @@ object EventSourcedProvider {
 
     override def source(offsetAsync: Supplier[CompletionStage[Optional[Offset]]])
         : CompletionStage[Source[EventEnvelope[Event], NotUsed]] = {
-      val source: Future[Source[EventEnvelope[Event], NotUsed]] = offsetAsync.get().toScala.map { offsetOpt =>
+      val source: Future[Source[EventEnvelope[Event], NotUsed]] = offsetAsync.get().asScala.map { offsetOpt =>
         eventsByTagQuery
           .eventsByTag(tag, offsetOpt.orElse(NoOffset))
           .map(env => EventEnvelope(env))
       }
-      source.toJava
+      source.asJava
     }
 
     override def extractOffset(envelope: EventEnvelope[Event]): Offset = envelope.offset
@@ -137,11 +137,11 @@ object EventSourcedProvider {
     override def source(offsetAsync: Supplier[CompletionStage[Optional[Offset]]])
         : CompletionStage[Source[pekko.persistence.query.typed.EventEnvelope[Event], NotUsed]] = {
       val source: Future[Source[pekko.persistence.query.typed.EventEnvelope[Event], NotUsed]] =
-        offsetAsync.get().toScala.map { offsetOpt =>
+        offsetAsync.get().asScala.map { offsetOpt =>
           eventsBySlicesQuery
             .eventsBySlices(entityType, minSlice, maxSlice, offsetOpt.orElse(NoOffset))
         }
-      source.toJava
+      source.asJava
     }
 
     override def extractOffset(envelope: pekko.persistence.query.typed.EventEnvelope[Event]): Offset = envelope.offset
@@ -165,8 +165,8 @@ object EventSourcedProvider {
         persistenceId: String,
         sequenceNr: Long): CompletionStage[pekko.persistence.query.typed.EventEnvelope[Evt]] =
       eventsBySlicesQuery match {
-        case laodEventQuery: LoadEventQuery =>
-          laodEventQuery.loadEnvelope(persistenceId, sequenceNr)
+        case loadEventQuery: LoadEventQuery =>
+          loadEventQuery.loadEnvelope(persistenceId, sequenceNr)
         case _ =>
           val failed = new CompletableFuture[pekko.persistence.query.typed.EventEnvelope[Evt]]
           failed.completeExceptionally(
