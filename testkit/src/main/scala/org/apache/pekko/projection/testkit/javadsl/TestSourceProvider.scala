@@ -13,14 +13,13 @@
 
 package org.apache.pekko.projection.testkit.javadsl
 
-import scala.compat.java8.FunctionConverters._
-
 import org.apache.pekko
 import pekko.NotUsed
 import pekko.annotation.ApiMayChange
 import pekko.projection.OffsetVerification
 import pekko.projection.javadsl.VerifiableSourceProvider
 import pekko.projection.testkit.internal.TestSourceProviderImpl
+import pekko.util.FunctionConverters._
 
 @ApiMayChange
 object TestSourceProvider {

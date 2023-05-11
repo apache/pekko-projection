@@ -38,9 +38,9 @@ import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
 import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.FutureConverters;
 import org.junit.*;
 import org.scalatestplus.junit.JUnitSuite;
-import scala.compat.java8.FutureConverters;
 import scala.concurrent.Await;
 
 import java.time.Duration;
@@ -78,13 +78,13 @@ public class CassandraProjectionTest extends JUnitSuite {
     // we should keep trying to create the table until it succeeds
     CompletionStage<Done> createTableAttempts =
         Patterns.retry(
-            () -> FutureConverters.toJava(offsetStore.createKeyspaceAndTable()),
+            () -> FutureConverters.asJava(offsetStore.createKeyspaceAndTable()),
             20,
             Duration.ofSeconds(3),
             testKit.system().classicSystem().scheduler(),
             testKit.system().executionContext());
     Await.result(
-        FutureConverters.toScala(createTableAttempts),
+        FutureConverters.asScala(createTableAttempts),
         scala.concurrent.duration.Duration.create(60, TimeUnit.SECONDS));
   }
 

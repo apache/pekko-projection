@@ -31,13 +31,13 @@ import org.apache.pekko.stream.SharedKillSwitch;
 import org.apache.pekko.stream.javadsl.DelayStrategy;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.util.FutureConverters;
 import org.junit.Assert;
 import org.junit.ClassRule;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.scalatestplus.junit.JUnitSuite;
 import scala.Option;
-import scala.compat.java8.FutureConverters;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 
@@ -285,7 +285,7 @@ public class ProjectionTestKitTest extends JUnitSuite {
           ActorSystem<?> system) {
         this.killSwitch = killSwitch;
         CompletionStage<Done> done = source.asJava().runWith(Sink.ignore(), system);
-        this.futureDone = FutureConverters.toScala(done);
+        this.futureDone = FutureConverters.asScala(done);
       }
 
       @Override

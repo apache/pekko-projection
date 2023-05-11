@@ -16,7 +16,6 @@ package org.apache.pekko.projection.cassandra
 import java.time.Instant
 import java.util.UUID
 
-import scala.compat.java8.FutureConverters._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
@@ -33,6 +32,7 @@ import pekko.projection.cassandra.internal.CassandraOffsetStore
 import pekko.projection.internal.ManagementState
 import pekko.projection.testkit.internal.TestClock
 import pekko.stream.connectors.cassandra.scaladsl.CassandraSessionRegistry
+import pekko.util.FutureConverters._
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class CassandraOffsetStoreSpec
@@ -61,9 +61,9 @@ class CassandraOffsetStoreSpec
         s <- session.underlying()
 
         // reason for setSchemaMetadataEnabled is that it speed up tests
-        _ <- s.setSchemaMetadataEnabled(false).toScala
+        _ <- s.setSchemaMetadataEnabled(false).asScala
         _ <- offsetStore.createKeyspaceAndTable()
-        _ <- s.setSchemaMetadataEnabled(null).toScala
+        _ <- s.setSchemaMetadataEnabled(null).asScala
       } yield Done
 
     // the container can takes time to be 'ready',
