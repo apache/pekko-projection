@@ -27,7 +27,10 @@ Maven
 
 sbt
 :   ```scala
+    // sbt 1.9.0+
     resolvers += Resolver.ApacheMavenSnapshotsRepo
+    // use the following if you are using an older version of sbt
+    resolvers += "apache-snapshot-repository" at "https://repository.apache.org/content/repositories/snapshots"
     ```
 
 Gradle
