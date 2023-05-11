@@ -166,20 +166,12 @@ lazy val docs = project
       "scaladoc.pekko.base_url" -> s"https://pekko.apache.org/api/pekko/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.pekko.base_url" -> s"https://pekko.apache.org/japi/pekko/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.pekko.link_style" -> "direct",
-      // Alpakka
-      "extref.alpakka.base_url" -> s"https://doc.akka.io/docs/alpakka/${Dependencies.ConnectorsVersionInDocs}/%s",
-      "scaladoc.akka.stream.alpakka.base_url" -> s"https://doc.akka.io/api/alpakka/${Dependencies.ConnectorsVersionInDocs}/",
-      "javadoc.akka.stream.alpakka.base_url" -> "",
-      // Alpakka Kafka
-      "extref.alpakka-kafka.base_url" -> s"https://doc.akka.io/docs/alpakka-kafka/${Dependencies.ConnectorsKafkaVersionInDocs}/%s",
-      "scaladoc.akka.kafka.base_url" -> s"https://doc.akka.io/api/alpakka-kafka/${Dependencies.ConnectorsKafkaVersionInDocs}/",
-      "javadoc.akka.kafka.base_url" -> "",
       // Java
       "javadoc.base_url" -> "https://docs.oracle.com/javase/8/docs/api/",
       // Scala
       "scaladoc.scala.base_url" -> s"https://www.scala-lang.org/api/${scalaBinaryVersion.value}.x/",
-      "scaladoc.akka.projection.base_url" -> s"/${(Preprocess / siteSubdirName).value}/",
-      "javadoc.akka.projection.base_url" -> ""),
+      "scaladoc.pekko.projection.base_url" -> s"/${(Preprocess / siteSubdirName).value}/",
+      "javadoc.pekko.projection.base_url" -> ""),
     paradoxGroups := Map("Language" -> Seq("Java", "Scala")),
     paradoxRoots := List("index.html", "getting-started/event-generator-app.html"),
     ApidocPlugin.autoImport.apidocRootPackage := "org.apache.pekko",

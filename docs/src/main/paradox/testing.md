@@ -76,7 +76,7 @@ The @apidoc[TestProjection] allows you to isolate the runtime of your handler so
 Using a `TestProjection` has the added benefit of being fast, since you can run everything within the JVM that runs your tests.
 
 Alongside the `TestProjection` is the @apidoc[TestSourceProvider] which can be used to provide test data to the `TestProjection` running the handler.
-Test data can be represented in an akka streams @apidoc[pekko.stream.(javadsl|scaladsl).Source] that is passed to the `TestSourceProvider` constructor.
+Test data can be represented in a Pekko streams @apidoc[pekko.stream.(javadsl|scaladsl).Source] that is passed to the `TestSourceProvider` constructor.
 
 Scala
 :  @@snip [TestKitDocExample.scala](/examples/src/test/scala/docs/testkit/TestKitDocExample.scala) { #testkit-testprojection }

@@ -79,7 +79,7 @@ import org.apache.kafka.common.record.TimestampType
   private val subscription = Subscriptions.topics(topics).withPartitionAssignmentHandler(partitionHandler)
   private[projection] var control: Option[Consumer.Control] = None
   // assigned partitions is only ever mutated by consumer rebalance partition handler executed in the Kafka consumer
-  // poll thread in the Alpakka Kafka `KafkaConsumerActor`
+  // poll thread in the Pekko Connectors Kafka `KafkaConsumerActor`
   @volatile private var assignedPartitions: Set[TopicPartition] = Set.empty
 
   protected[internal] def _source(
