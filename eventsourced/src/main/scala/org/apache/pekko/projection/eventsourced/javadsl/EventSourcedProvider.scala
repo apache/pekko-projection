@@ -165,8 +165,8 @@ object EventSourcedProvider {
         persistenceId: String,
         sequenceNr: Long): CompletionStage[pekko.persistence.query.typed.EventEnvelope[Evt]] =
       eventsBySlicesQuery match {
-        case laodEventQuery: LoadEventQuery =>
-          laodEventQuery.loadEnvelope(persistenceId, sequenceNr)
+        case loadEventQuery: LoadEventQuery =>
+          loadEventQuery.loadEnvelope(persistenceId, sequenceNr)
         case _ =>
           val failed = new CompletableFuture[pekko.persistence.query.typed.EventEnvelope[Evt]]
           failed.completeExceptionally(
