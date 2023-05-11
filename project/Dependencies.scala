@@ -18,15 +18,15 @@ object Dependencies {
   val Scala212 = "2.12.17"
   val ScalaVersions = Seq(Scala213, Scala212)
 
-  val PekkoVersionInDocs = "0.0.0+26623-85c2a469-SNAPSHOT"
-  val ConnectorsVersionInDocs = "0.0.0+60-c7dd80e0-SNAPSHOT"
-  val ConnectorsKafkaVersionInDocs = "0.0.0+1717-267012de-SNAPSHOT"
+  val PekkoVersionInDocs = "0.0.0+26656-898c6970-SNAPSHOT"
+  val ConnectorsVersionInDocs = "0.0.0+85-a82f3c3c-SNAPSHOT"
+  val ConnectorsKafkaVersionInDocs = "0.0.0+1728-e2c660ef-SNAPSHOT"
 
   object Versions {
-    val pekko = sys.props.getOrElse("build.pekko.version", "0.0.0+26630-2c4d0ee0-SNAPSHOT")
-    val pekkoPersistenceJdbc = "0.0.0+958-db5733e6-SNAPSHOT"
-    val connectors = "0.0.0+64-20da4165-SNAPSHOT"
-    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", "0.0.0+1719-2dce1c20-SNAPSHOT")
+    val pekko = sys.props.getOrElse("build.pekko.version", "0.0.0+26656-898c6970-SNAPSHOT")
+    val pekkoPersistenceJdbc = "0.0.0+966-e6f717eb-SNAPSHOT"
+    val connectors = "0.0.0+85-a82f3c3c-SNAPSHOT"
+    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", "0.0.0+1728-e2c660ef-SNAPSHOT")
     val slick = "3.3.3"
     val scalaTest = "3.1.1"
     val testContainers = "1.15.3"
@@ -100,7 +100,7 @@ object Dependencies {
 
     val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
     val pekkoClusterShardingTyped = "org.apache.pekko" %% "pekko-cluster-sharding-typed" % Versions.pekko
-    val pekkoPersistenceCassandra = "org.apache.pekko" %% "pekko-persistence-cassandra" % "0.0.0-1072-7c02b521-SNAPSHOT"
+    val pekkoPersistenceCassandra = "org.apache.pekko" %% "pekko-persistence-cassandra" % "0.0.0-1079-c30f82ae-SNAPSHOT"
     val pekkoPersistenceJdbc = "org.apache.pekko" %% "pekko-persistence-jdbc" % Versions.pekkoPersistenceJdbc
     val pekkoSerializationJackson = "org.apache.pekko" %% "pekko-serialization-jackson" % Versions.pekko
   }

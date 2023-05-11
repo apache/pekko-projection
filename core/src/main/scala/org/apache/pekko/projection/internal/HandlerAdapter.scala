@@ -14,7 +14,6 @@
 package org.apache.pekko.projection.internal
 
 import scala.collection.immutable
-import scala.compat.java8.FutureConverters._
 import scala.concurrent.Future
 
 import org.apache.pekko
@@ -23,6 +22,7 @@ import pekko.annotation.InternalApi
 import pekko.projection.javadsl
 import pekko.projection.scaladsl
 import pekko.util.ccompat.JavaConverters._
+import pekko.util.FutureConverters._
 
 /**
  * INTERNAL API
@@ -43,14 +43,14 @@ import pekko.util.ccompat.JavaConverters._
     extends scaladsl.Handler[Envelope] {
 
   override def process(envelope: Envelope): Future[Done] = {
-    delegate.process(envelope).toScala
+    delegate.process(envelope).asScala
   }
 
   override def start(): Future[Done] =
-    delegate.start().toScala
+    delegate.start().asScala
 
   override def stop(): Future[Done] =
-    delegate.stop().toScala
+    delegate.stop().asScala
 
 }
 
@@ -62,14 +62,14 @@ import pekko.util.ccompat.JavaConverters._
     extends scaladsl.Handler[immutable.Seq[Envelope]] {
 
   override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
-    delegate.process(envelopes.asJava).toScala
+    delegate.process(envelopes.asJava).asScala
   }
 
   override def start(): Future[Done] =
-    delegate.start().toScala
+    delegate.start().asScala
 
   override def stop(): Future[Done] =
-    delegate.stop().toScala
+    delegate.stop().asScala
 
 }
 
@@ -86,14 +86,14 @@ private[projection] class HandlerLifecycleAdapter(delegate: javadsl.HandlerLifec
    * is restarted after a failure.
    */
   override def start(): Future[Done] =
-    delegate.start().toScala
+    delegate.start().asScala
 
   /**
    * Invoked when the projection has been stopped. Can be overridden to implement resource
    * cleanup. It is also called when the `Projection` is restarted after a failure.
    */
   override def stop(): Future[Done] =
-    delegate.stop().toScala
+    delegate.stop().asScala
 }
 
 /**
@@ -106,12 +106,12 @@ private[projection] class HandlerLifecycleAdapter(delegate: javadsl.HandlerLifec
   override private[projection] def behavior = delegate.behavior
 
   override final def process(envelope: Envelope): Future[Done] =
-    delegate.process(getActor(), envelope).toScala
+    delegate.process(getActor(), envelope).asScala
 
   override def start(): Future[Done] =
-    delegate.start().toScala
+    delegate.start().asScala
 
   override def stop(): Future[Done] =
-    delegate.stop().toScala
+    delegate.stop().asScala
 
 }

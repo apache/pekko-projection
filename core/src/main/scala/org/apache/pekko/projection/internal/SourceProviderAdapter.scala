@@ -17,8 +17,6 @@ import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 
-import scala.compat.java8.FutureConverters._
-import scala.compat.java8.OptionConverters._
 import scala.concurrent.Future
 
 import org.apache.pekko
@@ -27,6 +25,8 @@ import pekko.annotation.InternalApi
 import pekko.projection.javadsl
 import pekko.projection.scaladsl
 import pekko.stream.scaladsl.Source
+import pekko.util.FutureConverters._
+import pekko.util.OptionConverters._
 
 /**
  * INTERNAL API: Adapter from javadsl.SourceProvider to scaladsl.SourceProvider
@@ -40,9 +40,9 @@ import pekko.stream.scaladsl.Source
     // it _should_ not be used for the blocking operation of getting offsets themselves
     val ec = pekko.dispatch.ExecutionContexts.parasitic
     val offsetAdapter = new Supplier[CompletionStage[Optional[Offset]]] {
-      override def get(): CompletionStage[Optional[Offset]] = offset().map(_.asJava)(ec).toJava
+      override def get(): CompletionStage[Optional[Offset]] = offset().map(_.toJava)(ec).asJava
     }
-    delegate.source(offsetAdapter).toScala.map(_.asScala)(ec)
+    delegate.source(offsetAdapter).asScala.map(_.asScala)(ec)
   }
 
   def extractOffset(envelope: Envelope): Offset = delegate.extractOffset(envelope)
