@@ -118,7 +118,7 @@ class OffsetSerializationSpec
       fromStorageRepresentation[query.TimeBasedUUID](uuidString, TimeBasedUUIDManifest) shouldBe timeOffset
     }
 
-    "convert other offsets types with Akka Serialization" in {
+    "convert other offsets types with Pekko Serialization" in {
       val offsetValue = "123-åäö"
       val base64EncodedValue = Base64.getEncoder.encodeToString(offsetValue.getBytes(StandardCharsets.UTF_8))
       toStorageRepresentation(id, OtherOffset(offsetValue)) shouldBe SingleOffset(id, "9999:a", base64EncodedValue)

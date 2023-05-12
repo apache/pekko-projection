@@ -40,7 +40,7 @@ Java
 @@@ note
 
 For Jackson serialization to work correctly in Java projects you must use the `javac` compiler parameter `-parameters` when building your project.
-In @scala[sbt you can add it your sbt project by adding it to the `javacOptions` Setting: `javacOptions += "-parameters"`]@java[maven you can add an argument to `maven-compiler-plugin` plugin under `compilerArgs` ([see an example here](https://github.com/akka/akka-samples/blob/2.6/akka-sample-cqrs-java/pom.xml#L136))].
+In @scala[sbt you can add it your sbt project by adding it to the `javacOptions` Setting: `javacOptions += "-parameters"`]@java[maven you can add an argument to `maven-compiler-plugin` plugin under `compilerArgs`].
 
 @@@
 
@@ -55,7 +55,7 @@ Java
 :  @@snip [ShoppingCartTags.java](/examples/src/test/java/jdocs/guide/ShoppingCartTags.java) { #guideTags }
 
 Create the `ShoppingCartApp` with an `org.apache.pekko.actor.typed.ActorSystem` (API: @apidoc[pekko.actor.typed.ActorSystem]) for Projections to use.
-Create an empty [Guardian Actor](https://doc.akka.io/docs/akka/2.6/typed/actor-lifecycle.html#the-guardian-actor) (the root Actor of the `ActorSystem`).
+Create an empty [Guardian Actor](https://pekko.apache.org/docs/pekko/current/typed/actor-lifecycle.html#the-guardian-actor) (the root Actor of the `ActorSystem`).
 We will populate this Actor in the following steps of the guide.
 Note that we are using the @scala[`docs.scaladsl`]@java[`jdocs.scaladsl`] package.
 You may use any package, but we include this package in snippets throughout the guide.

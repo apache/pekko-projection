@@ -225,7 +225,7 @@ object KafkaDocExample {
     private val producerSettings =
       ProducerSettings(system, new StringSerializer, new StringSerializer)
         .withBootstrapServers(bootstrapServers)
-    import pekko.actor.typed.scaladsl.adapter._ // FIXME might not be needed in later Alpakka Kafka version?
+    import pekko.actor.typed.scaladsl.adapter._ // FIXME might not be needed in later Pekko Connectors Kafka version?
     private val sendProducer = SendProducer(producerSettings)(system.toClassic)
     // #sendProducer
 

@@ -1,6 +1,6 @@
 # Writing tests for a Projection
 
-Like other Akka libraries, Projections ships with a @ref:[TestKit](../testing.md) that a user can include to assert the correctness of their Projection handler implementation.
+Like other Pekko libraries, Projections ships with a @ref:[TestKit](../testing.md) that a user can include to assert the correctness of their Projection handler implementation.
 Add the Projections TestKit dependency to your project:
 
 @@dependency [sbt,Maven,Gradle] {

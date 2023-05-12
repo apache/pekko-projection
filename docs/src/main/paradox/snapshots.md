@@ -1,13 +1,12 @@
 ---
-project.description: Snapshot builds of Akka Projection are provided via the Sonatype snapshot repository.
+project.description: Snapshot builds of Pekko Projection are provided via the Sonatype snapshot repository.
 ---
 # Snapshots
 
-[snapshots-badge]:  https://img.shields.io/nexus/s/com.lightbend.akka/akka-projection-core_2.13?server=https%3A%2F%2Foss.sonatype.org
-[snapshots]:        https://oss.sonatype.org/content/repositories/snapshots/com/lightbend/akka/akka-projection-core_2.13/
+[snapshots]:        https://repository.apache.org/content/groups/snapshots/org/apache/pekko/pekko-projection-core_2.13/
 
 Snapshots are published to the Sonatype Snapshot repository after every successful build on master.
-Add the following to your project build definition to resolve Akka Projection's snapshots:
+Add the following to your project build definition to resolve Pekko Projection's snapshots:
 
 ## Configure repository
 
@@ -19,7 +18,7 @@ Maven
         <repository>
             <id>snapshots-repo</id>
             <name>Sonatype snapshots</name>
-            <url>https://oss.sonatype.org/content/repositories/snapshots</url>
+            <url>https://repository.apache.org/content/groups/snapshots/</url>
         </repository>
       </repositories>
     ...
@@ -28,24 +27,25 @@ Maven
 
 sbt
 :   ```scala
-    resolvers += Resolver.sonatypeRepo("snapshots")
+    // sbt 1.9.0+
+    resolvers += Resolver.ApacheMavenSnapshotsRepo
+    // use the following if you are using an older version of sbt
+    resolvers += "apache-snapshot-repository" at "https://repository.apache.org/content/repositories/snapshots"
     ```
 
 Gradle
 :   ```gradle
     repositories {
       maven {
-        url  "https://oss.sonatype.org/content/repositories/snapshots"
+        url  "https://repository.apache.org/content/groups/snapshots/"
       }
     }
     ```
 
 ## Documentation
 
-The [snapshot documentation](https://doc.akka.io/docs/akka-projection/snapshot) is updated with every snapshot build.
+The [snapshot documentation](https://pekko.apache.org/docs/pekko-projection/snapshot) is updated with every snapshot build.
 
 ## Versions
 
-Latest published snapshot version is [![snapshots-badge][]][snapshots]
-
-The snapshot repository is cleaned from time to time with no further notice. Check [Sonatype snapshots Akka Projection files](https://oss.sonatype.org/content/repositories/snapshots/com/lightbend/akka/) to see what versions are currently available.
+The snapshot repository is cleaned from time to time with no further notice. Check [Sonatype snapshots Pekko Projection files](https://repository.apache.org/content/groups/snapshots/org/apache/pekko/) to see what versions are currently available.

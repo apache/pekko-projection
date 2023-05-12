@@ -55,7 +55,7 @@ object PekkoDisciplinePlugin extends AutoPlugin {
         }).toSeq,
         // Discipline is not needed for the docs compilation run (which uses
         // different compiler phases from the regular run), and in particular
-        // '-Ywarn-unused:explicits' breaks 'sbt ++2.13.0-M5 akka-actor/doc'
+        // '-Ywarn-unused:explicits' is an issue
         // https://github.com/akka/akka/issues/26119
         Compile / doc / scalacOptions --= disciplineScalacOptions.toSeq :+ "-Xfatal-warnings",
         // having discipline warnings in console is just an annoyance

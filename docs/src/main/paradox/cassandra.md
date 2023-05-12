@@ -21,7 +21,7 @@ To use the Cassandra module of Apache Pekko Projections add the following depend
   version=$project.version$
 }
 
-Apache Pekko Projections requires Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections requires Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
 @@project-info{ projectId="cassandra" }
 
@@ -270,7 +270,7 @@ The supported offset types of the `CassandraProjection` are:
 * `String`
 * @scala[`Int`]@java[Integer]
 * `Long`
-* Any other type that has a configured Akka Serializer is stored with base64 encoding of the serialized bytes.
+* Any other type that has a configured Pekko Serializer is stored with base64 encoding of the serialized bytes.
 
 @@@ note
 
@@ -299,7 +299,7 @@ One important setting is to configure the database driver to retry the initial c
 
 It is not enabled automatically as it is in the driver's reference.conf and is not overridable in a profile.
 
-It is possible to share the same Cassandra session as [Apache Pekko Persistence Cassandra](https://doc.akka.io/docs/akka-persistence-cassandra/current/)
+It is possible to share the same Cassandra session as [Apache Pekko Persistence Cassandra](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/)
 by setting the `session-config-path`:
 
 ```
@@ -308,7 +308,7 @@ pekko.projection.cassandra {
 }
 ```
 
-or share the same Cassandra session as [Alpakka Cassandra](https://doc.akka.io/docs/alpakka/2.0/cassandra.html):
+or share the same Cassandra session as [Pekko Connectors Cassandra](https://pekko.apache.org/docs/pekko-connectors/2.0/cassandra.html):
 
 ```
 pekko.projection.cassandra {
@@ -331,7 +331,7 @@ datastax-java-driver {
 }
 ```
 
-Alternatively, Akka Discovery can be used for finding the Cassandra server contact points as described
-in the [Alpakka Cassandra documentation](https://doc.akka.io/docs/alpakka/2.0/cassandra.html#using-akka-discovery).
+Alternatively, Pekko Discovery can be used for finding the Cassandra server contact points as described
+in the [Pekkp Connectors Cassandra documentation](https://pekko.apache.org/docs/pekko-connectors/current/cassandra.html#using-pekko-discovery).
 
 Without any configuration it will use `localhost:9042` as default.

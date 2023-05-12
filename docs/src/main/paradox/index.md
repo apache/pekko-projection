@@ -1,4 +1,4 @@
-# Akka Projection
+# Apache Pekko Projection
 
 .
 

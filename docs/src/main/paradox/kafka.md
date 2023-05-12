@@ -1,6 +1,6 @@
 # Messages from and to Kafka
 
-A typical source for Projections is messages from Kafka. Apache Pekko Projections supports integration with Kafka using [Alpakka Kafka](https://doc.akka.io/docs/alpakka-kafka/current/).
+A typical source for Projections is messages from Kafka. Apache Pekko Projections supports integration with Kafka using [Pekko Connectors Kafka](https://pekko.apache.org/docs/pekko-connectors-kafka/current/).
 
 The @apidoc[KafkaSourceProvider$] uses consumer group assignments from Kafka and can resume from offsets stored in a database.
 
@@ -27,7 +27,7 @@ To use the Kafka module of Apache Pekko Projections add the following dependency
   version=$project.version$
 }
 
-Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
 @@project-info{ projectId="kafka" }
 
@@ -48,7 +48,7 @@ Scala
 Java
 :  @@snip [KafkaDocExample.java](/examples/src/test/java/jdocs/kafka/KafkaDocExample.java) { #imports #sourceProvider }
 
-Please consult the [Alpakka Kafka documentation](https://doc.akka.io/docs/alpakka-kafka/current/consumer.html) for
+Please consult the [Pekko Connectors Kafka documentation](https://pekko.apache.org/docs/pekko-connectors-kafka/current/consumer.html) for
 specifics around the `ConsumerSettings`. The `KafkaSourceProvider` is using `Consumer.plainPartitionedManualOffsetSource`.
 
 The `Projection` can then be defined as:
@@ -85,11 +85,11 @@ To mitigate that risk, you can increase the value of `pekko.projection.kafka.rea
 
 ## Committing offset in Kafka
 
-When using the approach of committing the offsets back to Kafka the [Alpakka Kafka comittableSource](https://doc.akka.io/docs/alpakka-kafka/current/consumer.html) can be used, and Apache Pekko Projections is not needed for that usage.
+When using the approach of committing the offsets back to Kafka the [Pekko Connectors Kafka comittableSource](https://pekko.apache.org/docs/pekko-connectors-kafka/current/consumer.html) can be used, and Apache Pekko Projections is not needed for that usage.
 
 ## Sending to Kafka
 
-To send events to Kafka one can use @apidoc[SendProducer] or @apidoc[Producer.flowWithContext](Producer$) method in Alpakka Kafka.
+To send events to Kafka one can use @apidoc[SendProducer] or @apidoc[Producer.flowWithContext](Producer$) method in Pekko Connectors Kafka.
 
 ### Sending to Kafka using the SendProducer
 
@@ -109,7 +109,7 @@ Scala
 Java
 :  @@snip [KafkaDocExample.java](/examples/src/test/java/jdocs/kafka/KafkaDocExample.java) { #imports-producer #sendProducer }
 
-Please consult the [Alpakka Kafka documentation](https://doc.akka.io/docs/alpakka-kafka/current/producer.html) for
+Please consult the [Pekko Connectors Kafka documentation](https://pekko.apache.org/docs/pekko-connectors-kafka/current/producer.html) for
 specifics around the `ProducerSettings` and `SendProducer`.
 
 The `Projection` is defined as:
@@ -132,7 +132,7 @@ Java
 
 Alternatively, we can define the same projection using @apidoc[Producer.flowWithContext](Producer$) in combination with `atLeastOnceFlow`.
 
-The `WordSource` emits `WordEnvelope`s, therefore we will build a flow that takes every single emitted `WordEnvelope` and map it into an Alpakka Kafka @apidoc[ProducerMessage$]. The `ProducerMessage` factory methods can be used to produce a single message, multiple messages, or pass through a message (skip a message from being produced). The @apidoc[ProducerMessage$] will pass through @apidoc[Producer.flowWithContext](Producer$) that will publish it to the Kafka Topic and finally we map the result to `Done`.
+The `WordSource` emits `WordEnvelope`s, therefore we will build a flow that takes every single emitted `WordEnvelope` and map it into an Pekko Connectors Kafka @apidoc[ProducerMessage$]. The `ProducerMessage` factory methods can be used to produce a single message, multiple messages, or pass through a message (skip a message from being produced). The @apidoc[ProducerMessage$] will pass through @apidoc[Producer.flowWithContext](Producer$) that will publish it to the Kafka Topic and finally we map the result to `Done`.
 
 Scala
 :  @@snip [KafkaDocExample.scala](/examples/src/test/scala/docs/kafka/KafkaDocExample.scala) { #imports-producer #producerFlow }

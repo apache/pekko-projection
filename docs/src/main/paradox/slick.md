@@ -29,7 +29,7 @@ To use the Slick module of Apache Pekko Projections add the following dependency
   version=$project.version$
 }
 
-Apache Pekko Projections require Akka $akka.version$ or later, see @ref:[Akka version](overview.md#akka-version).
+Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
 @@project-info{ projectId="slick" }
 
@@ -201,7 +201,7 @@ The supported offset types of the `SlickProjection` are:
 * `String`
 * `Int`
 * `Long`
-* Any other type that has a configured Akka Serializer is stored with base64 encoding of the serialized bytes.
+* Any other type that has a configured Pekko Serializer is stored with base64 encoding of the serialized bytes.
 
 ## Configuration
 

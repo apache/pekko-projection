@@ -47,10 +47,10 @@ object Common extends AutoPlugin {
         s"https://github.com/apache/incubator-pekko-projection/tree/${branch}€{FILE_PATH_EXT}#L€{FILE_LINE}"
       },
       "-skip-packages",
-      "akka.pattern" // for some reason Scaladoc creates this
+      "org.apache.pekko.pattern" // for some reason Scaladoc creates this
     ),
     autoAPIMappings := true,
-    apiURL := Some(url(s"https://doc.akka.io/api/akka-projection/${projectInfoVersion.value}")),
+    apiURL := Some(url(s"https://pekko.apache.org/api/pekko-projection/${projectInfoVersion.value}")),
     // show full stack traces and test case durations
     Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
     // -a Show stack traces and exception class name for AssertionErrors.
