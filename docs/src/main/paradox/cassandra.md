@@ -308,7 +308,7 @@ pekko.projection.cassandra {
 }
 ```
 
-or share the same Cassandra session as [Pekko Connectors Cassandra](https://pekko.apache.org/docs/pekko-connectors/2.0/cassandra.html):
+or share the same Cassandra session as [Pekko Connectors Cassandra](https://pekko.apache.org/docs/pekko-connectors/current/cassandra.html):
 
 ```
 pekko.projection.cassandra {
