@@ -1,7 +1,7 @@
 import org.apache.pekko.projections.Dependencies
 import sbtdynver.DynVerPlugin.autoImport._
 import com.lightbend.paradox.projectinfo.ParadoxProjectInfoPluginKeys._
-import org.mdedetrich.apache.sonatype.SonatypeApachePlugin
+import org.mdedetrich.apache.sonatype.ApacheSonatypePlugin
 import sbt.Keys._
 import sbt._
 import sbt.plugins.JvmPlugin
@@ -12,7 +12,7 @@ object Common extends AutoPlugin {
 
   override def trigger = allRequirements
 
-  override def requires = JvmPlugin && SonatypeApachePlugin && DynVerPlugin
+  override def requires = JvmPlugin && ApacheSonatypePlugin && DynVerPlugin
 
   override def globalSettings =
     Seq(
