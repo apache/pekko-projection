@@ -20,7 +20,7 @@ addSbtPlugin(("com.lightbend.paradox" % "sbt-paradox" % "0.9.2").force())
 addSbtPlugin(("com.lightbend.paradox" % "sbt-paradox-apidoc" % "0.10.1").force())
 addSbtPlugin(("com.lightbend.paradox" % "sbt-paradox-project-info" % "2.0.0").force())
 
-addSbtPlugin("com.eed3si9n" % "sbt-unidoc" % "0.5.0")
+addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.4.1")
 
 addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.8.1")
