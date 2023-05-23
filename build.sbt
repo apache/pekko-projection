@@ -144,7 +144,7 @@ lazy val examples = project
   .settings(publish / skip := true, scalacOptions += "-feature", javacOptions += "-parameters")
 
 lazy val docs = project
-  .enablePlugins(PekkoParadoxPlugin, ParadoxPlugin, ParadoxSitePlugin, PreprocessPlugin, PublishRsyncPlugin)
+  .enablePlugins(PekkoParadoxPlugin, ParadoxPlugin, ParadoxSitePlugin, PreprocessPlugin)
   .disablePlugins(MimaPlugin)
   .dependsOn(core, testkit)
   .settings(
@@ -174,10 +174,6 @@ lazy val docs = project
       "javadoc.pekko.projection.base_url" -> ""),
     paradoxGroups := Map("Language" -> Seq("Java", "Scala")),
     paradoxRoots := List("index.html", "getting-started/event-generator-app.html"),
-    ApidocPlugin.autoImport.apidocRootPackage := "org.apache.pekko",
-    resolvers += Resolver.jcenterRepo,
-    publishRsyncArtifacts += (makeSite.value -> "www/"),
-    publishRsyncHost := "akkarepo@gustav.akka.io",
     apidocRootPackage := "org.apache.pekko")
 
 lazy val root = Project(id = "projection", base = file("."))
