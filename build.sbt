@@ -1,6 +1,7 @@
 import org.apache.pekko.projections.Dependencies
 
 ThisBuild / apacheSonatypeProjectProfile := "pekko"
+ThisBuild / versionScheme := Some("semver-spec")
 sourceDistName := "incubating-pekko-projection"
 
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
