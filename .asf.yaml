@@ -6,6 +6,8 @@ github:
   labels:
     - pekko
 
+  protected_tags:
+    - "v*.*.*"
   features:
     # Enable wiki for documentation
     wiki: false
