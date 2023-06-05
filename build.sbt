@@ -4,7 +4,9 @@ ThisBuild / apacheSonatypeProjectProfile := "pekko"
 ThisBuild / versionScheme := Some(VersionScheme.SemVerSpec)
 sourceDistName := "incubating-pekko-projection"
 
+// TODO: Remove when Pekko has a proper release
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
+ThisBuild / updateOptions := updateOptions.value.withLatestSnapshots(false)
 
 lazy val core =
   Project(id = "core", base = file("core"))
