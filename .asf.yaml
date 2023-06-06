@@ -5,7 +5,7 @@ github:
   homepage: https://pekko.apache.org/
   labels:
     - pekko
-  
+
   features:
     # Enable wiki for documentation
     wiki: false
