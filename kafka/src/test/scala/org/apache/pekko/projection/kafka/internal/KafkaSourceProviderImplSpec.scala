@@ -14,7 +14,7 @@
 package org.apache.pekko.projection.kafka.internal
 
 import scala.concurrent.duration._
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 import org.apache.pekko
 import pekko.Done
@@ -57,7 +57,7 @@ class KafkaSourceProviderImplSpec extends ScalaTestWithActorTestKit with LogCapt
   import KafkaSourceProviderImplSpec._
 
   val projectionTestKit: ProjectionTestKit = ProjectionTestKit(system)
-  implicit val ec = system.classicSystem.dispatcher
+  implicit val ec: ExecutionContext = system.classicSystem.dispatcher
 
   "The KafkaSourceProviderImpl" must {
 

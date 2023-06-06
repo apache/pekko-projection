@@ -159,7 +159,7 @@ object KafkaDocExample {
     }
     """)
 
-  implicit lazy val system = ActorSystem[Guardian.Command](Guardian(), "Example", config)
+  implicit lazy val system: ActorSystem[Guardian.Command] = ActorSystem[Guardian.Command](Guardian(), "Example", config)
 
   object IllustrateSourceProvider {
 
@@ -217,7 +217,7 @@ object KafkaDocExample {
 
   object IllustrateSendingToKafka {
 
-    implicit val ec = system.executionContext
+    implicit val ec: ExecutionContext = system.executionContext
 
     // #sendProducer
     val bootstrapServers = "localhost:9092"
@@ -248,7 +248,7 @@ object KafkaDocExample {
 
   object IllustrateSendingToKafkaUsingFlow {
 
-    implicit val ec = system.executionContext
+    implicit val ec: ExecutionContext = system.executionContext
 
     // #producerFlow
     val bootstrapServers = "localhost:9092"

@@ -23,6 +23,7 @@ import scala.util.Try
 
 import org.apache.pekko
 import pekko.Done
+import pekko.actor.Scheduler
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.persistence.query.Sequence
@@ -48,7 +49,7 @@ class CassandraOffsetStoreSpec
   private val offsetStore = new CassandraOffsetStore(system, clock)
   private val session = CassandraSessionRegistry(system).sessionFor("pekko.projection.cassandra.session-config")
   private implicit val ec: ExecutionContext = system.executionContext
-  private implicit val classicScheduler = system.classicSystem.scheduler
+  private implicit val classicScheduler: Scheduler = system.classicSystem.scheduler
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()

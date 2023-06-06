@@ -28,6 +28,7 @@ import scala.concurrent.duration._
 import org.apache.pekko
 import pekko.Done
 import pekko.NotUsed
+import pekko.actor.Scheduler
 import pekko.actor.testkit.typed.TestException
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
@@ -145,7 +146,7 @@ class CassandraProjectionSpec
     PatienceConfig(timeout = 10.seconds, interval = 100.millis)
 
   private implicit val ec: ExecutionContext = system.executionContext
-  private implicit val classicScheduler = system.classicSystem.scheduler
+  private implicit val classicScheduler: Scheduler = system.classicSystem.scheduler
   private val offsetStore = new CassandraOffsetStore(system)
   private val session = CassandraSessionRegistry(system).sessionFor("pekko.projection.cassandra.session-config")
   private val repository = new TestRepository(session)

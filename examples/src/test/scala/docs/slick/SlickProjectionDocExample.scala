@@ -115,7 +115,7 @@ class SlickProjectionDocExample {
   }
   // #grouped-handler
 
-  implicit val system = ActorSystem[Nothing](Behaviors.empty, "Example")
+  implicit val system: ActorSystem[Nothing] = ActorSystem[Nothing](Behaviors.empty, "Example")
 
   // #db-config
   val dbConfig: DatabaseConfig[H2Profile] = DatabaseConfig.forConfig("pekko.projection.slick", system.settings.config)
@@ -131,7 +131,7 @@ class SlickProjectionDocExample {
 
   object IllustrateExactlyOnce {
     // #exactlyOnce
-    implicit val ec = system.executionContext
+    implicit val ec: ExecutionContext = system.executionContext
 
     val projection =
       SlickProjection.exactlyOnce(
@@ -144,7 +144,7 @@ class SlickProjectionDocExample {
 
   object IllustrateAtLeastOnce {
     // #atLeastOnce
-    implicit val ec = system.executionContext
+    implicit val ec: ExecutionContext = system.executionContext
 
     val projection =
       SlickProjection
@@ -159,7 +159,7 @@ class SlickProjectionDocExample {
 
   object IllustrateGrouped {
     // #grouped
-    implicit val ec = system.executionContext
+    implicit val ec: ExecutionContext = system.executionContext
 
     val projection =
       SlickProjection
