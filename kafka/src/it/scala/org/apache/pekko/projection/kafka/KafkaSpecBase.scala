@@ -14,7 +14,7 @@
 package org.apache.pekko.projection.kafka
 
 import org.apache.pekko
-import pekko.actor.ActorSystem
+import pekko.actor.{ typed, ActorSystem }
 import pekko.actor.testkit.typed.scaladsl.ActorTestKit
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.typed.scaladsl.adapter._
@@ -33,6 +33,8 @@ import org.scalatest.concurrent.PatienceConfiguration
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
+
+import scala.concurrent.ExecutionContext
 
 abstract class KafkaSpecBase(val config: Config, kafkaPort: Int)
     extends KafkaSpec(kafkaPort, kafkaPort + 1, ActorSystem("Spec", config))
@@ -54,8 +56,8 @@ abstract class KafkaSpecBase(val config: Config, kafkaPort: Int)
   val testKit = ActorTestKit(system.toTyped)
   val projectionTestKit = ProjectionTestKit(system.toTyped)
 
-  implicit val actorSystem = testKit.system
-  implicit val dispatcher = testKit.system.executionContext
+  implicit val actorSystem: typed.ActorSystem[Nothing] = testKit.system
+  implicit val dispatcher: ExecutionContext = testKit.system.executionContext
 
   override val testcontainersSettings = KafkaTestkitTestcontainersSettings(system)
 }

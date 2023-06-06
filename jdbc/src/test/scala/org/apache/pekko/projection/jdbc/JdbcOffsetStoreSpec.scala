@@ -26,6 +26,7 @@ import scala.util.Try
 
 import org.apache.pekko
 import pekko.Done
+import pekko.actor.Scheduler
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.japi.function
@@ -125,7 +126,7 @@ abstract class JdbcOffsetStoreSpec(specConfig: JdbcSpecConfig)
     PatienceConfig(timeout = 10.seconds, interval = 100.millis)
 
   private implicit val executionContext: ExecutionContextExecutor = system.executionContext
-  private implicit val classicScheduler = system.classicSystem.scheduler
+  private implicit val classicScheduler: Scheduler = system.classicSystem.scheduler
 
   // test clock for testing of the `last_updated` Instant
   private val clock = new TestClock

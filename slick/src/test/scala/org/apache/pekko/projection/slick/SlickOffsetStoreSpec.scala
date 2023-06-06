@@ -16,11 +16,12 @@ package org.apache.pekko.projection.slick
 import java.time.Instant
 import java.util.UUID
 
-import scala.concurrent.Await
+import scala.concurrent.{ Await, ExecutionContext }
 import scala.concurrent.duration._
 
 import org.apache.pekko
 import pekko.Done
+import pekko.actor.Scheduler
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.persistence.query.Sequence
@@ -93,8 +94,8 @@ abstract class SlickOffsetStoreSpec(specConfig: SlickSpecConfig)
   override implicit val patienceConfig: PatienceConfig =
     PatienceConfig(timeout = 10.seconds, interval = 100.millis)
 
-  private implicit val executionContext = system.executionContext
-  private implicit val classicScheduler = system.classicSystem.scheduler
+  private implicit val executionContext: ExecutionContext = system.executionContext
+  private implicit val classicScheduler: Scheduler = system.classicSystem.scheduler
 
   private val slickConfig = specConfig.config.getConfig(SlickSettings.configPath)
   private val dialectLabel = specConfig.name

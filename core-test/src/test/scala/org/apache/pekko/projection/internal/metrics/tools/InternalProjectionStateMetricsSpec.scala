@@ -138,7 +138,7 @@ object InternalProjectionStateMetricsSpec {
       implicit system: ActorSystem[_],
       projectionId: ProjectionId) {
 
-    private implicit val exCtx = system.executionContext
+    private implicit val exCtx: ExecutionContext = system.executionContext
     val entityId = UUID.randomUUID().toString
 
     private val projectionSettings = ProjectionSettings(system)
