@@ -100,7 +100,7 @@ object Dependencies {
 
     val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
     val pekkoClusterShardingTyped = "org.apache.pekko" %% "pekko-cluster-sharding-typed" % Versions.pekko
-    val pekkoPersistenceCassandra = "org.apache.pekko" %% "pekko-persistence-cassandra" % "0.0.0-1079-c30f82ae-SNAPSHOT"
+    val pekkoPersistenceCassandra = "org.apache.pekko" %% "pekko-persistence-cassandra" % "0.0.0-1097-3f489113-SNAPSHOT"
     val pekkoPersistenceJdbc = "org.apache.pekko" %% "pekko-persistence-jdbc" % Versions.pekkoPersistenceJdbc
     val pekkoSerializationJackson = "org.apache.pekko" %% "pekko-serialization-jackson" % Versions.pekko
   }
