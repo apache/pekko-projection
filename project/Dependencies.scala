@@ -28,7 +28,7 @@ object Dependencies {
     val connectors = ConnectorsVersionInDocs
     val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", ConnectorsKafkaVersionInDocs)
     val slick = "3.3.3"
-    val scalaTest = "3.1.1"
+    val scalaTest = "3.2.14"
     val testContainers = "1.15.3"
     val junit = "4.13.2"
     val h2Driver = "1.4.200"
