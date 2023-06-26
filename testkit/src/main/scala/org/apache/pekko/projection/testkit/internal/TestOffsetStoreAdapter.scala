@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.testkit.internal
 
-import scala.jdk.CollectionConverters._
 import scala.concurrent.Future
 
 import org.apache.pekko
@@ -22,6 +21,7 @@ import pekko.annotation.InternalApi
 import pekko.projection.ProjectionId
 import pekko.projection.internal.ManagementState
 import pekko.projection.testkit.scaladsl.TestOffsetStore
+import pekko.util.ccompat.JavaConverters._
 import pekko.util.OptionConverters._
 import pekko.util.FutureConverters._
 
