@@ -18,15 +18,15 @@ object Dependencies {
   val Scala212 = "2.12.18"
   val ScalaVersions = Seq(Scala213, Scala212)
 
-  val PekkoVersionInDocs = "0.0.0+26656-898c6970-SNAPSHOT"
-  val ConnectorsVersionInDocs = "0.0.0+85-a82f3c3c-SNAPSHOT"
-  val ConnectorsKafkaVersionInDocs = "0.0.0+1728-e2c660ef-SNAPSHOT"
+  val PekkoVersionInDocs = "0.0.0+26669-ec5b6764-SNAPSHOT"
+  val ConnectorsVersionInDocs = "0.0.0+123-178795f6-SNAPSHOT"
+  val ConnectorsKafkaVersionInDocs = "0.0.0+1738-07a19b8e-SNAPSHOT"
 
   object Versions {
-    val pekko = sys.props.getOrElse("build.pekko.version", "0.0.0+26656-898c6970-SNAPSHOT")
-    val pekkoPersistenceJdbc = "0.0.0+966-e6f717eb-SNAPSHOT"
-    val connectors = "0.0.0+85-a82f3c3c-SNAPSHOT"
-    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", "0.0.0+1728-e2c660ef-SNAPSHOT")
+    val pekko = sys.props.getOrElse("build.pekko.version", PekkoVersionInDocs)
+    val pekkoPersistenceJdbc = "0.0.0+985-6b7eeb08-SNAPSHOT"
+    val connectors = ConnectorsVersionInDocs
+    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", ConnectorsKafkaVersionInDocs)
     val slick = "3.3.3"
     val scalaTest = "3.1.1"
     val testContainers = "1.15.3"
