@@ -23,7 +23,6 @@ lazy val core =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.core)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-core",
       Compile / packageBin / packageOptions += Package.ManifestAttributes(
@@ -37,7 +36,6 @@ lazy val coreTest =
     .disablePlugins(MimaPlugin)
     .settings(Defaults.itSettings)
     .settings(Dependencies.coreTest)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-core-test")
     .settings(publish / skip := true)
@@ -50,7 +48,6 @@ lazy val testkit =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.testKit)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-testkit")
     .dependsOn(core)
@@ -62,7 +59,6 @@ lazy val jdbc =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.jdbc)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-jdbc")
     .dependsOn(core)
@@ -76,7 +72,6 @@ lazy val slick =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.slick)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-slick")
     .dependsOn(jdbc)
@@ -91,7 +86,6 @@ lazy val cassandra =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.cassandra)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-cassandra")
     .dependsOn(core)
@@ -105,7 +99,6 @@ lazy val cassandra =
 lazy val eventsourced =
   Project(id = "eventsourced", base = file("eventsourced"))
     .settings(Dependencies.eventsourced)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-eventsourced")
     .dependsOn(core)
@@ -118,7 +111,6 @@ lazy val kafka =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.kafka)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-kafka")
     .dependsOn(core)
@@ -130,7 +122,6 @@ lazy val `durable-state` =
   Project(id = "durable-state", base = file("durable-state"))
     .configs(IntegrationTest)
     .settings(Dependencies.state)
-    .settings(MetaInfLicenseNoticeCopy.settings)
     .settings(
       name := "pekko-projection-durable-state")
     .dependsOn(core)
@@ -145,7 +136,6 @@ lazy val examples = project
   .disablePlugins(MimaPlugin)
   .settings(Defaults.itSettings)
   .settings(Dependencies.examples)
-  .settings(MetaInfLicenseNoticeCopy.settings)
   .dependsOn(slick % "test->test")
   .dependsOn(jdbc % "test->test")
   .dependsOn(cassandra % "test->test;test->it")
