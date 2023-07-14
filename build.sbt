@@ -18,11 +18,10 @@ sourceDistIncubating := true
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 ThisBuild / updateOptions := updateOptions.value.withLatestSnapshots(false)
 
-enablePlugins(ReproducibleBuildsPlugin)
-
 lazy val core =
   Project(id = "core", base = file("core"))
     .configs(IntegrationTest)
+    .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.core)
@@ -48,6 +47,7 @@ lazy val coreTest =
 lazy val testkit =
   Project(id = "testkit", base = file("testkit"))
     .configs(IntegrationTest)
+    .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.testKit)
@@ -59,6 +59,7 @@ lazy val testkit =
 lazy val jdbc =
   Project(id = "jdbc", base = file("jdbc"))
     .configs(IntegrationTest.extend(Test))
+    .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.jdbc)
@@ -72,6 +73,7 @@ lazy val jdbc =
 lazy val slick =
   Project(id = "slick", base = file("slick"))
     .configs(IntegrationTest.extend(Test))
+    .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.slick)
@@ -86,6 +88,7 @@ lazy val slick =
 lazy val cassandra =
   Project(id = "cassandra", base = file("cassandra"))
     .configs(IntegrationTest)
+    .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.cassandra)
@@ -101,6 +104,7 @@ lazy val cassandra =
 // provides source providers for pekko-persistence-query
 lazy val eventsourced =
   Project(id = "eventsourced", base = file("eventsourced"))
+    .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.eventsourced)
     .settings(
       name := "pekko-projection-eventsourced")
@@ -111,6 +115,7 @@ lazy val eventsourced =
 lazy val kafka =
   Project(id = "kafka", base = file("kafka"))
     .configs(IntegrationTest)
+    .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.kafka)
@@ -124,6 +129,7 @@ lazy val kafka =
 lazy val `durable-state` =
   Project(id = "durable-state", base = file("durable-state"))
     .configs(IntegrationTest)
+    .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.state)
     .settings(
       name := "pekko-projection-durable-state")
@@ -136,6 +142,7 @@ lazy val `durable-state` =
 lazy val examples = project
   .configs(IntegrationTest.extend(Test))
   .settings(headerSettings(IntegrationTest))
+  .enablePlugins(ReproducibleBuildsPlugin)
   .disablePlugins(MimaPlugin)
   .settings(Defaults.itSettings)
   .settings(Dependencies.examples)
