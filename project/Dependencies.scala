@@ -31,7 +31,7 @@ object Dependencies {
     val scalaTest = "3.2.14"
     val testContainers = "1.15.3"
     val junit = "4.13.2"
-    val h2Driver = "1.4.200"
+    val h2Driver = "2.2.220"
     val jackson = "2.14.3" // this should match the version of jackson used by pekko-serialization-jackson
   }
 
