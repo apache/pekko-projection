@@ -11,7 +11,8 @@ import org.apache.pekko.projections.Dependencies
 
 ThisBuild / apacheSonatypeProjectProfile := "pekko"
 ThisBuild / versionScheme := Some(VersionScheme.SemVerSpec)
-sourceDistName := "incubating-pekko-projection"
+sourceDistName := "apache-pekko-projection"
+sourceDistIncubating := true
 
 // TODO: Remove when Pekko has a proper release
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
