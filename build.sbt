@@ -18,6 +18,8 @@ sourceDistIncubating := true
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 ThisBuild / updateOptions := updateOptions.value.withLatestSnapshots(false)
 
+enablePlugins(ReproducibleBuildsPlugin)
+
 lazy val core =
   Project(id = "core", base = file("core"))
     .configs(IntegrationTest)
