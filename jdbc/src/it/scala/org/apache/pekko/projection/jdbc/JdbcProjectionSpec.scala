@@ -184,8 +184,8 @@ object JdbcProjectionSpec {
 
       val createTableStatement = s"""
        create table if not exists "$table" (
-        "ID" CHAR(255) NOT NULL,
-        "CONCATENATED" CHAR(255) NOT NULL
+        "ID" VARCHAR(255) NOT NULL,
+        "CONCATENATED" VARCHAR(255) NOT NULL
        );
        """
 
