@@ -14,6 +14,12 @@ ThisBuild / versionScheme := Some(VersionScheme.SemVerSpec)
 sourceDistName := "apache-pekko-projection"
 sourceDistIncubating := true
 
+commands := commands.value.filterNot { command =>
+  command.nameOption.exists { name =>
+    name.contains("sonatypeRelease") || name.contains("sonatypeBundleRelease")
+  }
+}
+
 // TODO: Remove when Pekko has a proper release
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 ThisBuild / updateOptions := updateOptions.value.withLatestSnapshots(false)
