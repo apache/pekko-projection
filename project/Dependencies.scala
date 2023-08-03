@@ -18,13 +18,13 @@ object Dependencies {
   val Scala212 = "2.12.18"
   val ScalaVersions = Seq(Scala213, Scala212)
 
-  val PekkoVersionInDocs = "1.0.0"
-  val ConnectorsVersionInDocs = "0.0.0+131-79ec6fa6-SNAPSHOT"
-  val ConnectorsKafkaVersionInDocs = "0.0.0+1761-2291eac2-SNAPSHOT"
+  val PekkoVersionInDocs = "1.0.1"
+  val ConnectorsVersionInDocs = "0.0.0+140-7d704044-SNAPSHOT"
+  val ConnectorsKafkaVersionInDocs = "1.0.0"
 
   object Versions {
     val pekko = sys.props.getOrElse("build.pekko.version", PekkoVersionInDocs)
-    val pekkoPersistenceJdbc = "0.0.0+993-1f987f87-SNAPSHOT"
+    val pekkoPersistenceJdbc = "0.0.0+998-6a9e5841-SNAPSHOT"
     val pekkoPersistenceCassandra = "0.0.0-1102-939e199d-SNAPSHOT"
     val connectors = ConnectorsVersionInDocs
     val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", ConnectorsKafkaVersionInDocs)
