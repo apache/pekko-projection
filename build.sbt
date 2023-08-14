@@ -7,6 +7,7 @@
  * This file is part of the Apache Pekko project, which was derived from Akka.
  */
 
+import net.bzzt.reproduciblebuilds.ReproducibleBuildsPlugin.reproducibleBuildsCheckResolver
 import org.apache.pekko.projections.Dependencies
 
 ThisBuild / apacheSonatypeProjectProfile := "pekko"
@@ -19,6 +20,9 @@ commands := commands.value.filterNot { command =>
     name.contains("sonatypeRelease") || name.contains("sonatypeBundleRelease")
   }
 }
+
+ThisBuild / reproducibleBuildsCheckResolver :=
+  "Apache Pekko Staging".at("https://repository.apache.org/content/groups/staging/")
 
 // TODO: Remove when Pekko has a proper release
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
