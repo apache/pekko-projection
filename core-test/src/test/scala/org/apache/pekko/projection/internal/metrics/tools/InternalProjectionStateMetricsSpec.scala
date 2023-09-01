@@ -148,25 +148,27 @@ object InternalProjectionStateMetricsSpec {
     val adaptedHandlerStrategy: HandlerStrategy = offsetStrategy match {
       case ExactlyOnce(_) =>
         handlerStrategy match {
-          case SingleHandlerStrategy(handlerFactory) => {
+          case singleHandlerStrategy: SingleHandlerStrategy[Envelope] @unchecked => {
             val adaptedHandler = () =>
               new Handler[Envelope] {
-                override def process(envelope: Envelope): Future[Done] = handlerFactory().process(envelope).flatMap {
-                  _ =>
-                    offsetStore.saveOffset(projectionId, envelope.offset)
-                }
+                override def process(envelope: Envelope): Future[Done] =
+                  singleHandlerStrategy.handlerFactory().process(envelope).flatMap {
+                    _ =>
+                      offsetStore.saveOffset(projectionId, envelope.offset)
+                  }
               }
             SingleHandlerStrategy(adaptedHandler)
           }
-          case GroupedHandlerStrategy(handlerFactory, afterEnvelopes, orAfterDuration) => {
+          case groupedHandlerStrategy: GroupedHandlerStrategy[Envelope] @unchecked => {
             val adaptedHandler = () =>
               new Handler[immutable.Seq[Envelope]] {
                 override def process(envelopes: immutable.Seq[Envelope]): Future[Done] =
-                  handlerFactory().process(envelopes).flatMap { _ =>
+                  groupedHandlerStrategy.handlerFactory().process(envelopes).flatMap { _ =>
                     offsetStore.saveOffset(projectionId, envelopes.last.offset)
                   }
               }
-            GroupedHandlerStrategy(adaptedHandler, afterEnvelopes, orAfterDuration)
+            GroupedHandlerStrategy(adaptedHandler, groupedHandlerStrategy.afterEnvelopes,
+              groupedHandlerStrategy.orAfterDuration)
           }
           case FlowHandlerStrategy(_) => handlerStrategy
         }
@@ -202,7 +204,8 @@ object InternalProjectionStateMetricsSpec {
         handlerStrategy,
         statusObserver,
         settings) {
-    override def logger: LoggingAdapter = Logging(system.classicSystem, this.getClass)
+    override def logger: LoggingAdapter =
+      Logging(system.classicSystem, classOf[InMemInternalProjectionState[Offset, Env]])
 
     override implicit def executionContext: ExecutionContext = system.executionContext
 
