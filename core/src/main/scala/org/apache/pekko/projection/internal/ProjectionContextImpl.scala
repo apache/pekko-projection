@@ -22,7 +22,7 @@ import pekko.projection.ProjectionContext
  * @param groupSize is used only in GroupHandlerStrategies so a single context instance
  *                  can report that multiple envelopes were processed.
  */
-@InternalApi private[projection] case class ProjectionContextImpl[Offset, Envelope] private (
+@InternalApi private[projection] case class ProjectionContextImpl[Offset, Envelope](
     offset: Offset,
     envelope: Envelope,
     externalContext: AnyRef,

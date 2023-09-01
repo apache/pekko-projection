@@ -32,6 +32,7 @@ lazy val core =
   Project(id = "core", base = file("core"))
     .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.core)
@@ -44,6 +45,7 @@ lazy val core =
 lazy val coreTest =
   Project(id = "core-test", base = file("core-test"))
     .configs(IntegrationTest)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(headerSettings(IntegrationTest))
     .disablePlugins(MimaPlugin)
     .settings(Defaults.itSettings)
@@ -58,6 +60,7 @@ lazy val testkit =
   Project(id = "testkit", base = file("testkit"))
     .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.testKit)
@@ -70,6 +73,7 @@ lazy val jdbc =
   Project(id = "jdbc", base = file("jdbc"))
     .configs(IntegrationTest.extend(Test))
     .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.jdbc)
@@ -84,6 +88,7 @@ lazy val slick =
   Project(id = "slick", base = file("slick"))
     .configs(IntegrationTest.extend(Test))
     .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(crossScalaVersions := Dependencies.Scala2Versions)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.slick)
@@ -99,6 +104,7 @@ lazy val cassandra =
   Project(id = "cassandra", base = file("cassandra"))
     .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.cassandra)
@@ -115,6 +121,7 @@ lazy val cassandra =
 lazy val eventsourced =
   Project(id = "eventsourced", base = file("eventsourced"))
     .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(Dependencies.eventsourced)
     .settings(
       name := "pekko-projection-eventsourced")
@@ -140,6 +147,7 @@ lazy val `durable-state` =
   Project(id = "durable-state", base = file("durable-state"))
     .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(Dependencies.state)
     .settings(
       name := "pekko-projection-durable-state")

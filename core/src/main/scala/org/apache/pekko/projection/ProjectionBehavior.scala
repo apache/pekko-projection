@@ -13,22 +13,13 @@
 
 package org.apache.pekko.projection
 
-import org.apache.pekko
-import pekko.actor.typed.scaladsl.LoggerOps
-import scala.util.Failure
-import scala.util.Success
+import scala.util.{ Failure, Success }
 
+import org.apache.pekko
 import pekko.Done
-import pekko.actor.typed.ActorRef
-import pekko.actor.typed.Behavior
-import pekko.actor.typed.PostStop
-import pekko.actor.typed.PreRestart
-import pekko.actor.typed.SupervisorStrategy
-import pekko.actor.typed.scaladsl.ActorContext
-import pekko.actor.typed.scaladsl.Behaviors
-import pekko.actor.typed.scaladsl.StashBuffer
-import pekko.annotation.ApiMayChange
-import pekko.annotation.InternalApi
+import pekko.actor.typed.{ ActorRef, Behavior, PostStop, PreRestart, SupervisorStrategy }
+import pekko.actor.typed.scaladsl.{ ActorContext, Behaviors, LoggerOps, StashBuffer }
+import pekko.annotation.{ ApiMayChange, InternalApi }
 import pekko.projection.internal.ManagementState
 import pekko.projection.scaladsl.ProjectionManagement
 
@@ -96,7 +87,7 @@ object ProjectionBehavior {
         val running = projection.run()(ctx.system)
         if (running.isInstanceOf[RunningProjectionManagement[_]])
           ProjectionManagement(ctx.system).register(projection.projectionId, ctx.self)
-        new ProjectionBehavior(ctx, projection, stashBuffer).started(running)
+        new ProjectionBehavior[Any, Envelope](ctx, projection, stashBuffer).started(running)
       }
     }
   }
