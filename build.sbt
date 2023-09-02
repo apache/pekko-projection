@@ -142,6 +142,7 @@ lazy val kafkaTest =
   Project(id = "kafka-test", base = file("kafka-test"))
     .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
+    .disablePlugins(MimaPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.kafkaTest)
@@ -214,7 +215,8 @@ lazy val docs = project
     apidocRootPackage := "org.apache.pekko")
 
 lazy val root = Project(id = "projection", base = file("."))
-  .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, kafkaTest, `durable-state`, examples, docs)
+  .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, kafkaTest, `durable-state`, examples,
+    docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")
