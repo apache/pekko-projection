@@ -131,14 +131,24 @@ lazy val eventsourced =
 // provides offset storage backed by Kafka managed offset commits
 lazy val kafka =
   Project(id = "kafka", base = file("kafka"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(Dependencies.kafka)
     .settings(
       name := "pekko-projection-kafka")
     .dependsOn(core)
+
+lazy val kafkaTest =
+  Project(id = "kafka-test", base = file("kafka-test"))
+    .configs(IntegrationTest)
+    .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(headerSettings(IntegrationTest))
+    .settings(Defaults.itSettings)
+    .settings(Dependencies.kafkaTest)
+    .settings(
+      name := "pekko-projection-kafka-test",
+      publish / skip := true)
+    .dependsOn(kafka)
     .dependsOn(testkit % Test)
     .dependsOn(slick % "test->test;it->it")
 
@@ -166,7 +176,7 @@ lazy val examples = project
   .dependsOn(cassandra % "test->test;test->it")
   .dependsOn(eventsourced)
   .dependsOn(`durable-state`)
-  .dependsOn(kafka % "test->test")
+  .dependsOn(kafkaTest % "test->test")
   .dependsOn(testkit % Test)
   .settings(publish / skip := true, scalacOptions += "-feature", javacOptions += "-parameters")
 
@@ -204,7 +214,7 @@ lazy val docs = project
     apidocRootPackage := "org.apache.pekko")
 
 lazy val root = Project(id = "projection", base = file("."))
-  .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, examples, docs)
+  .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, kafkaTest, `durable-state`, examples, docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")
