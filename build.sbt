@@ -153,9 +153,6 @@ lazy val `durable-state` =
       name := "pekko-projection-durable-state")
     .dependsOn(core)
     .dependsOn(testkit % Test)
-    .settings(
-      // no previous artifact so must disable MiMa until this is released at least once.
-      mimaPreviousArtifacts := Set.empty)
 
 lazy val examples = project
   .configs(IntegrationTest.extend(Test))
