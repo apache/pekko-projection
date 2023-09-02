@@ -41,7 +41,7 @@ object Common extends AutoPlugin {
   override lazy val projectSettings = Seq(
     projectInfoVersion := (if (isSnapshot.value) "snapshot" else version.value),
     crossVersion := CrossVersion.binary,
-    crossScalaVersions := Dependencies.ScalaVersions,
+    crossScalaVersions := Dependencies.Scala2Versions,
     scalaVersion := Dependencies.Scala213,
     javacOptions ++= List("-Xlint:unchecked", "-Xlint:deprecation"),
     Compile / doc / scalacOptions := scalacOptions.value ++ Seq(
@@ -54,10 +54,11 @@ object Common extends AutoPlugin {
       "-doc-source-url", {
         val branch = if (isSnapshot.value) "main" else s"v${version.value}"
         s"https://github.com/apache/incubator-pekko-projection/tree/${branch}€{FILE_PATH_EXT}#L€{FILE_LINE}"
-      },
-      "-skip-packages",
-      "org.apache.pekko.pattern" // for some reason Scaladoc creates this
-    ),
+      }) ++ (if (scalaBinaryVersion.value.startsWith("3")) {
+               Seq("-skip-packages:org.apache.pekko.pattern")
+             } else {
+               Seq("-skip-packages", "org.apache.pekko.pattern")
+             }),
     autoAPIMappings := true,
     apiURL := Some(url(s"https://pekko.apache.org/api/pekko-projection/${projectInfoVersion.value}")),
     // show full stack traces and test case durations

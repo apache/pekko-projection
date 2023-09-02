@@ -270,7 +270,7 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
       }
 
       sourceProvider match {
-        case _: MergeableOffsetSourceProvider[Offset, Envelope] =>
+        case _: MergeableOffsetSourceProvider[_, _] =>
           val batches = envelopesAndOffsets
             .flatMap {
               case context @ ProjectionContextImpl(offset: MergeableOffset[_] @unchecked, _, _, _) =>
