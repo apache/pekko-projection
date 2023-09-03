@@ -188,7 +188,10 @@ object Dependencies {
   val kafka =
     deps ++= Seq(
       Compile.connectorsKafka,
-      Compile.jackson,
+      Compile.jackson)
+
+  val kafkaTest =
+    deps ++= Seq(
       Test.scalatest,
       Test.pekkoTypedTestkit,
       Test.pekkoStreamTestkit,
