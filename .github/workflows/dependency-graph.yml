@@ -9,5 +9,5 @@ jobs:
     runs-on: ubuntu-latest
     if: github.repository == 'apache/incubator-pekko-projection'
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: scalacenter/sbt-dependency-submission@v2
