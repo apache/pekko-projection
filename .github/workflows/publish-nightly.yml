@@ -15,10 +15,11 @@ jobs:
       JAVA_OPTS: -Xms2G -Xmx2G -Xss2M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           # we don't know what commit the last tag was it's safer to get entire repo so previousStableVersion resolves
           fetch-depth: 0
+          fetch-tags: true
 
       - name: Setup Java 8
         uses: actions/setup-java@v3
@@ -38,9 +39,10 @@ jobs:
     if: github.repository == 'apache/incubator-pekko-projection'
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          fetch-tags: true
 
       - name: Set up JDK 8
         uses: actions/setup-java@v3
