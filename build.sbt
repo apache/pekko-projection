@@ -21,8 +21,7 @@ commands := commands.value.filterNot { command =>
   }
 }
 
-ThisBuild / reproducibleBuildsCheckResolver :=
-  "Apache Pekko Staging".at("https://repository.apache.org/content/groups/staging/")
+ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
 // TODO: Remove when Pekko-Connectors has a proper release
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
