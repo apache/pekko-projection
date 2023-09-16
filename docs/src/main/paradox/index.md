@@ -23,6 +23,7 @@
 * [Management](management.md)
 * [Testing](testing.md)
 * [Classic](classic.md)
+* [Release Notes](release-notes.md)
 * [Snapshots](snapshots.md)
 
 @@@
