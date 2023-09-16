@@ -1,7 +1,5 @@
 # Apache Pekko Projection
 
-.
-
 @@toc { depth=2 }
 
 @@@ index
