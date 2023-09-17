@@ -44,7 +44,7 @@ Gradle
 
 ## Documentation
 
-The [snapshot documentation](https://pekko.apache.org/docs/pekko-projection/snapshot) is updated with every snapshot build.
+The [snapshot documentation](https://nightlies.apache.org/pekko/docs/pekko-projection/main-snapshot/) is updated with every snapshot build.
 
 ## Versions
 
