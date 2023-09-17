@@ -1,7 +1,5 @@
 # Apache Pekko Projection
 
-.
-
 @@toc { depth=2 }
 
 @@@ index
@@ -23,6 +21,7 @@
 * [Management](management.md)
 * [Testing](testing.md)
 * [Classic](classic.md)
+* [Release Notes](release-notes.md)
 * [Snapshots](snapshots.md)
 
 @@@
