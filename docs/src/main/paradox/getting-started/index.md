@@ -18,6 +18,6 @@ This guide will briefly describe the basic components of a Projection and instru
 
 ## Video Introduction
 
-This video on YouTube gives a short introduction to Pekko Projections for processing a stream of events or records from a source to a projected model or external system.
+This video on YouTube gives a short introduction to Akka Projections for processing a stream of events or records from a source to a projected model or external system.
 
-[![Akka Projections introduction](../assets/intro-video.png)](http://www.youtube.com/watch?v=0toyKxomdwo "Watch video on YouTube")
+[![Akka Projections introduction](../assets/intro-video.png)](https://www.youtube.com/watch?v=0toyKxomdwo "Watch video on YouTube")
