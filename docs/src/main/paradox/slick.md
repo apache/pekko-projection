@@ -6,10 +6,7 @@ The @apidoc[SlickProjection$] has support for storing the offset in a relational
 used with Scala.
 
 @@@ warning
-The Slick module in Apache Pekko Projections is [community-driven](https://developer.lightbend.com/docs/introduction/getting-help/support-terminology.html#community-driven)
-and not included in Lightbend support.
-Prefer using the @ref[JDBC module](jdbc.md) to implement your projection handler. Slick support in Apache Pekko Projections is meant for users 
-migrating from [`Lagom's Slick ReadSideProcessor`](https://www.lagomframework.com/documentation/1.6.x/scala/ReadSideSlick.html).
+Use the @ref[JDBC module](jdbc.md) to implement your projection handler. This module is deprecated.
 @@@
 
 The source of the envelopes can be @ref:[events from Apache Pekko Persistence](eventsourced.md) or any other `SourceProvider`
