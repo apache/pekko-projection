@@ -27,7 +27,7 @@ object Dependencies {
   object Versions {
     val pekko = sys.props.getOrElse("build.pekko.version", PekkoVersionInDocs)
     val pekkoPersistenceJdbc = "1.0.0"
-    val pekkoPersistenceCassandra = "0.0.0-1119-c9e19256-SNAPSHOT"
+    val pekkoPersistenceCassandra = "1.0.0"
     val connectors = ConnectorsVersionInDocs
     val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", ConnectorsKafkaVersionInDocs)
     val slick = "3.3.3"

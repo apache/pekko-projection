@@ -23,10 +23,6 @@ commands := commands.value.filterNot { command =>
 
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
-// TODO: Remove when Pekko-Connectors has a proper release
-ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
-ThisBuild / updateOptions := updateOptions.value.withLatestSnapshots(false)
-
 lazy val core =
   Project(id = "core", base = file("core"))
     .configs(IntegrationTest)
