@@ -207,7 +207,14 @@ lazy val docs = project
       "javadoc.pekko.projection.base_url" -> ""),
     paradoxGroups := Map("Language" -> Seq("Java", "Scala")),
     paradoxRoots := List("index.html", "getting-started/event-generator-app.html"),
-    apidocRootPackage := "org.apache.pekko")
+    apidocRootPackage := "org.apache.pekko",
+    Compile / paradoxMarkdownToHtml / sourceGenerators += Def.taskDyn {
+      val targetFile = (Compile / paradox / sourceManaged).value / "license-report.md"
+
+      (LocalRootProject / dumpLicenseReportAggregate).map { dir =>
+        IO.copy(List(dir / "pekko-projection-root-licenses.md" -> targetFile)).toList
+      }
+    }.taskValue)
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, kafkaTest, `durable-state`, examples,
