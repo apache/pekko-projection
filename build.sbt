@@ -31,10 +31,8 @@ lazy val core =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.core)
-    .settings(
-      name := "pekko-projection-core",
-      Compile / packageBin / packageOptions += Package.ManifestAttributes(
-        "Automatic-Module-Name" -> "pekko.projection.core"))
+    .settings(AutomaticModuleName.settings("pekko.projection.core"))
+    .settings(name := "pekko-projection-core")
     .settings(Protobuf.settings)
 
 lazy val coreTest =
@@ -59,8 +57,8 @@ lazy val testkit =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.testKit)
-    .settings(
-      name := "pekko-projection-testkit")
+    .settings(AutomaticModuleName.settings("pekko.projection.testkit"))
+    .settings(name := "pekko-projection-testkit")
     .dependsOn(core)
 
 // provides offset storage backed by a JDBC table
@@ -72,8 +70,8 @@ lazy val jdbc =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.jdbc)
-    .settings(
-      name := "pekko-projection-jdbc")
+    .settings(AutomaticModuleName.settings("pekko.projection.jdbc"))
+    .settings(name := "pekko-projection-jdbc")
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
@@ -87,8 +85,8 @@ lazy val slick =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.slick)
-    .settings(
-      name := "pekko-projection-slick")
+    .settings(AutomaticModuleName.settings("pekko.projection.slick"))
+    .settings(name := "pekko-projection-slick")
     .dependsOn(jdbc)
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
@@ -103,8 +101,8 @@ lazy val cassandra =
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.cassandra)
-    .settings(
-      name := "pekko-projection-cassandra")
+    .settings(AutomaticModuleName.settings("pekko.projection.cassandra"))
+    .settings(name := "pekko-projection-cassandra")
     .dependsOn(core)
     // strictly speaking it is not needed to have test->test here.
     // Cassandra module doesn't have tests, only integration tests
@@ -118,8 +116,8 @@ lazy val eventsourced =
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(Dependencies.eventsourced)
-    .settings(
-      name := "pekko-projection-eventsourced")
+    .settings(AutomaticModuleName.settings("pekko.projection.eventsourced"))
+    .settings(name := "pekko-projection-eventsourced")
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
@@ -129,8 +127,8 @@ lazy val kafka =
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(Dependencies.kafka)
-    .settings(
-      name := "pekko-projection-kafka")
+    .settings(AutomaticModuleName.settings("pekko.projection.kafka"))
+    .settings(name := "pekko-projection-kafka")
     .dependsOn(core)
 
 lazy val kafkaTest =
@@ -155,8 +153,8 @@ lazy val `durable-state` =
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(Dependencies.state)
-    .settings(
-      name := "pekko-projection-durable-state")
+    .settings(AutomaticModuleName.settings("pekko.projection.durable-state"))
+    .settings(name := "pekko-projection-durable-state")
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
