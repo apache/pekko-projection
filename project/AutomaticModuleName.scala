@@ -11,8 +11,8 @@
  * Copyright (C) 2016-2022 Lightbend Inc. <https://www.lightbend.com>
  */
 
-import sbt.Keys.*
-import sbt.{Def, *}
+import sbt.Keys._
+import sbt._
 
 /**
  * Helper to set Automatic-Module-Name in projects.
