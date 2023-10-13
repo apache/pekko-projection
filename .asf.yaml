@@ -5,6 +5,10 @@ github:
   homepage: https://pekko.apache.org/
   labels:
     - pekko
+    - pekko-projection
+    - envelope
+    - projection
+    - cqrs
 
   protected_tags:
     - "v*.*.*"
