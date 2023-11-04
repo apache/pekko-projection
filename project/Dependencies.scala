@@ -20,16 +20,16 @@ object Dependencies {
   val Scala2Versions = Seq(Scala213, Scala212)
   val Scala2And3Versions = Scala2Versions.+:(Scala3)
 
-  val PekkoVersionInDocs = "1.0.1"
-  val ConnectorsVersionInDocs = "1.0.0"
-  val ConnectorsKafkaVersionInDocs = "1.0.0"
+  val PekkoVersionInDocs = "1.0"
+  val ConnectorsVersionInDocs = "1.0"
+  val ConnectorsKafkaVersionInDocs = "1.0"
 
   object Versions {
-    val pekko = sys.props.getOrElse("build.pekko.version", PekkoVersionInDocs)
+    val pekko = sys.props.getOrElse("build.pekko.version", "1.0.1")
     val pekkoPersistenceJdbc = "1.0.0"
     val pekkoPersistenceCassandra = "1.0.0"
-    val connectors = ConnectorsVersionInDocs
-    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", ConnectorsKafkaVersionInDocs)
+    val connectors = "1.0.1"
+    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", "1.0.0")
     val slick = "3.3.3"
     val scalaTest = "3.2.14"
     val testContainers = "1.15.3"
