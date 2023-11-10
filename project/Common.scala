@@ -68,8 +68,16 @@ object Common extends AutoPlugin {
     // -q Suppress stdout for successful tests.
     Test / testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q"),
     Test / logBuffered := false,
-    // temporarily disable mima checks
-    mimaPreviousArtifacts := Set.empty)
+    mimaPreviousArtifacts := {
+      moduleName.value match {
+        case name if name.endsWith("-tests") => Set.empty
+        case _ =>
+          Set(
+            organization.value %% moduleName.value % previousStableVersion.value
+              .getOrElse(throw new Error("Unable to determine previous version")))
+
+      }
+    })
 
   override lazy val buildSettings = Seq(
     dynverSonatypeSnapshots := true)
