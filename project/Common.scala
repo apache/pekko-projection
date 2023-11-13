@@ -38,6 +38,8 @@ object Common extends AutoPlugin {
         url("https://github.com/apache/incubator-pekko-projection/graphs/contributors")),
       description := "Apache Pekko Projection.")
 
+  val mimaCompareVersion = "1.0.0"
+
   override lazy val projectSettings = Seq(
     projectInfoVersion := (if (isSnapshot.value) "snapshot" else version.value),
     crossVersion := CrossVersion.binary,
@@ -68,8 +70,14 @@ object Common extends AutoPlugin {
     // -q Suppress stdout for successful tests.
     Test / testOptions += Tests.Argument(TestFrameworks.JUnit, "-a", "-v", "-q"),
     Test / logBuffered := false,
-    // temporarily disable mima checks
-    mimaPreviousArtifacts := Set.empty)
+    mimaPreviousArtifacts := {
+      moduleName.value match {
+        case name if name.endsWith("-tests") => Set.empty
+        case _ =>
+          Set(
+            organization.value %% moduleName.value % mimaCompareVersion)
+      }
+    })
 
   override lazy val buildSettings = Seq(
     dynverSonatypeSnapshots := true)
