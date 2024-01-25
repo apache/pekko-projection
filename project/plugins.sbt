@@ -32,4 +32,4 @@ addSbtPlugin(("com.lightbend.paradox" % "sbt-paradox-project-info" % "2.0.0").fo
 addSbtPlugin("com.github.sbt" % "sbt-unidoc" % "0.5.0")
 addSbtPlugin("com.typesafe.sbt" % "sbt-site" % "1.4.1")
 
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "0.8.1")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.3")
