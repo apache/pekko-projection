@@ -25,7 +25,7 @@ object Dependencies {
   val ConnectorsKafkaVersionInDocs = "1.0"
 
   object Versions {
-    val pekko = sys.props.getOrElse("build.pekko.version", "1.0.1")
+    val pekko = PekkoCoreDependency.version
     val pekkoPersistenceJdbc = "1.0.0"
     val pekkoPersistenceCassandra = "1.0.0"
     val connectors = "1.0.1"
