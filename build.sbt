@@ -10,17 +10,11 @@
 import net.bzzt.reproduciblebuilds.ReproducibleBuildsPlugin.reproducibleBuildsCheckResolver
 import org.apache.pekko.projections.Dependencies
 
-ThisBuild / apacheSonatypeProjectProfile := "pekko"
 ThisBuild / versionScheme := Some(VersionScheme.SemVerSpec)
 sourceDistName := "apache-pekko-projection"
 sourceDistIncubating := true
 
-commands := commands.value.filterNot { command =>
-  command.nameOption.exists { name =>
-    name.contains("sonatypeRelease") || name.contains("sonatypeBundleRelease")
-  }
-}
-
+ThisBuild / pekkoInlineEnabled := false
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
 lazy val core =
