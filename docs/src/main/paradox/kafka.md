@@ -1,4 +1,4 @@
-# Messages from and to Kafka
+# Messages from and to Apache Kafka
 
 A typical source for Projections is messages from Kafka. Apache Pekko Projections supports integration with Kafka using [Pekko Connectors Kafka](https://pekko.apache.org/docs/pekko-connectors-kafka/current/).
 
@@ -132,7 +132,7 @@ Java
 
 Alternatively, we can define the same projection using @apidoc[Producer.flowWithContext](Producer$) in combination with `atLeastOnceFlow`.
 
-The `WordSource` emits `WordEnvelope`s, therefore we will build a flow that takes every single emitted `WordEnvelope` and map it into an Pekko Connectors Kafka @apidoc[ProducerMessage$]. The `ProducerMessage` factory methods can be used to produce a single message, multiple messages, or pass through a message (skip a message from being produced). The @apidoc[ProducerMessage$] will pass through @apidoc[Producer.flowWithContext](Producer$) that will publish it to the Kafka Topic and finally we map the result to `Done`.
+The `WordSource` emits `WordEnvelope`s, therefore we will build a flow that takes every single emitted `WordEnvelope` and map it into an Apache Pekko Connectors Kafka @apidoc[ProducerMessage$]. The `ProducerMessage` factory methods can be used to produce a single message, multiple messages, or pass through a message (skip a message from being produced). The @apidoc[ProducerMessage$] will pass through @apidoc[Producer.flowWithContext](Producer$) that will publish it to the Kafka Topic and finally we map the result to `Done`.
 
 Scala
 :  @@snip [KafkaDocExample.scala](/examples/src/test/scala/docs/kafka/KafkaDocExample.scala) { #imports-producer #producerFlow }

@@ -20,7 +20,7 @@ For more information on using Apache Pekko Cluster consult Pekko's reference doc
 
 The Sharded Daemon Process can be used to distribute `n` instances of a given Projection across the cluster. Therefore, it's important that each Projection instance consumes a subset of the stream of envelopes.
 
-How the subset is created depends on the kind of source we consume. If it's an Pekko Connectors Kafka source, this is done by Kafka consumer groups. When consuming from Apache Pekko Persistence Journal, the events must be sliced by tagging them as demonstrated in the example below.
+How the subset is created depends on the kind of source we consume. If it's an Apache Pekko Connectors Kafka source, this is done by Kafka consumer groups. When consuming from Apache Pekko Persistence Journal, the events must be sliced by tagging them as demonstrated in the example below.
 
 ### Tagging Events in EventSourcedBehavior
 
