@@ -70,9 +70,10 @@ class KafkaSourceProviderImplSpec extends ScalaTestWithActorTestKit with LogCapt
       val metadataClient = new TestMetadataClientAdapter(partitions)
       val tp0 = new TopicPartition(topic, 0)
       val tp1 = new TopicPartition(topic, 1)
+      val testCount = 10
 
       val consumerRecords =
-        for (n <- 0 to 10; tp <- List(tp0, tp1))
+        for (n <- 0 to testCount; tp <- List(tp0, tp1))
           yield new ConsumerRecord(tp.topic(), tp.partition(), n, n.toString, n.toString)
 
       val consumerSource = Source(consumerRecords)
@@ -99,9 +100,10 @@ class KafkaSourceProviderImplSpec extends ScalaTestWithActorTestKit with LogCapt
         provider.partitionHandler.onAssign(Set(tp0, tp1), null)
         provider.partitionHandler.onRevoke(Set.empty, null)
 
-        sinkProbe.request(10)
-        sinkProbe.expectNextN(10)
-        var records = probe.receiveMessages(10)
+        sinkProbe.request(testCount)
+        sinkProbe.expectNextN(testCount)
+        var records = probe.receiveMessages(testCount)
+        val tp0ReceivedCount = records.count(_.partition() == tp0.partition())
 
         withClue("checking: processed records contain 5 from each partition") {
           records.length shouldBe 10
@@ -118,9 +120,10 @@ class KafkaSourceProviderImplSpec extends ScalaTestWithActorTestKit with LogCapt
         eventually(probe.expectNoMessage(1.millis))
 
         // only records from partition 0 should remain, because the rest were filtered
-        sinkProbe.request(5)
-        sinkProbe.expectNextN(5)
-        records = probe.receiveMessages(5)
+        val tp0TestCount = testCount - tp0ReceivedCount
+        sinkProbe.request(tp0TestCount)
+        sinkProbe.expectNextN(tp0TestCount)
+        records = probe.receiveMessages(tp0TestCount)
 
         withClue("checking: after rebalance processed records should only have records from partition 0") {
           records.count(_.partition() == tp0.partition()) shouldBe 5
