@@ -15,6 +15,8 @@ sourceDistName := "apache-pekko-projection"
 sourceDistIncubating := true
 
 ThisBuild / pekkoInlineEnabled := false
+// we want to be able to test with snapshot versions of Pekko dependencies
+ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
 lazy val core =
