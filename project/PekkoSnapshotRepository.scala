@@ -19,11 +19,6 @@ object PekkoSnapshotRepositories extends AutoPlugin {
   // If using a snapshot version of either Pekko or Pekko Connectors, add both snapshot repos
   // in case there are transitive dependencies to other snapshot artifacts
   override def projectSettings: Seq[Def.Setting[_]] = {
-    resolvers ++= (sys.props
-      .get("build.pekko.version")
-      .orElse(sys.props.get("build.connectors.kafka.version")) match {
-      case Some(_) => Seq(Resolver.ApacheMavenSnapshotsRepo)
-      case None    => Seq.empty
-    })
+    resolvers += Resolver.ApacheMavenSnapshotsRepo
   }
 }

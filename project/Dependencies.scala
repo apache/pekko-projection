@@ -14,7 +14,7 @@ import sbt._
 
 object Dependencies {
 
-  val Scala213 = "2.13.11"
+  val Scala213 = "2.13.12"
   val Scala212 = "2.12.18"
   val Scala3 = "3.3.1"
   val Scala2Versions = Seq(Scala213, Scala212)
@@ -28,14 +28,15 @@ object Dependencies {
     val pekko = PekkoCoreDependency.version
     val pekkoPersistenceJdbc = "1.0.0"
     val pekkoPersistenceCassandra = "1.0.0"
-    val connectors = "1.0.1"
-    val connectorsKafka = sys.props.getOrElse("build.connectors.kafka.version", "1.0.0")
+    val connectors = PekkoConnectorsDependency.version
+    val connectorsKafka = PekkoConnectorsKafkaDependency.version
     val slick = "3.3.3"
     val scalaTest = "3.2.14"
     val testContainers = "1.15.3"
     val junit = "4.13.2"
-    val h2Driver = "2.2.220"
+    val h2Driver = "2.2.224"
     val jackson = "2.14.3" // this should match the version of jackson used by pekko-serialization-jackson
+    val logback = "1.2.13"
   }
 
   object Compile {
@@ -78,7 +79,7 @@ object Dependencies {
     val msSQLServerDriver = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.4.1.jre8" % allTestConfig
     val oracleDriver = "com.oracle.ojdbc" % "ojdbc8" % "19.3.0.0" % allTestConfig
 
-    val logback = "ch.qos.logback" % "logback-classic" % "1.2.11" % allTestConfig
+    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback % allTestConfig
 
     val cassandraContainer =
       "org.testcontainers" % "cassandra" % Versions.testContainers % allTestConfig
