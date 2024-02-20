@@ -294,6 +294,7 @@ public class JdbcProjectionTest extends JUnitSuite {
         (probe) -> {
           probe.request(3);
           probe.expectNextN(3);
+          assertTrue(latch.await(3, TimeUnit.SECONDS));
           assertEquals("abc|def|ghi|", str.toString());
           expectNextUntilErrorMessage(probe, failMessage(4));
         });
