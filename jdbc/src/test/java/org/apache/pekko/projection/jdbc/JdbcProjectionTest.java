@@ -346,8 +346,9 @@ public class JdbcProjectionTest extends JUnitSuite {
            *
            * See https://github.com/akka/akka-projection/issues/462 for a possible solution.
            */
-          probe.request(2);
-          probe.expectNextN(2);
+          // because concatHandler won't concat element that offset 4, so this is safe that request 3
+          probe.request(3);
+          probe.expectNextN(3);
           assertEquals("abc|def|ghi|", str.toString());
           expectNextUntilErrorMessage(probe, failMessage(4));
         });
