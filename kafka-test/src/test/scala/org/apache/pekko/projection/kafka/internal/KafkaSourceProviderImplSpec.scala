@@ -37,11 +37,13 @@ import org.scalatest.wordspec.AnyWordSpecLike
 object KafkaSourceProviderImplSpec {
   private val TestProjectionId = ProjectionId("test-projection", "00")
 
-  def handler(probe: TestProbe[ConsumerRecord[String, String]]): Handler[ConsumerRecord[String, String]] =
+  def handler(probe: TestProbe[ConsumerRecord[String, String]],
+      assertFunction: TestProbe[ConsumerRecord[String, String]] => Future[Done])
+      : Handler[ConsumerRecord[String, String]] =
     new Handler[ConsumerRecord[String, String]] {
       override def process(env: ConsumerRecord[String, String]): Future[Done] = {
         probe.ref ! env
-        Future.successful(Done)
+        assertFunction(probe)
       }
     }
 
@@ -70,10 +72,9 @@ class KafkaSourceProviderImplSpec extends ScalaTestWithActorTestKit with LogCapt
       val metadataClient = new TestMetadataClientAdapter(partitions)
       val tp0 = new TopicPartition(topic, 0)
       val tp1 = new TopicPartition(topic, 1)
-      val testCount = 10
 
       val consumerRecords =
-        for (n <- 0 to testCount; tp <- List(tp0, tp1))
+        for (n <- 0 to 10; tp <- List(tp0, tp1))
           yield new ConsumerRecord(tp.topic(), tp.partition(), n, n.toString, n.toString)
 
       val consumerSource = Source(consumerRecords)
@@ -94,19 +95,24 @@ class KafkaSourceProviderImplSpec extends ScalaTestWithActorTestKit with LogCapt
         }
 
       val probe = testKit.createTestProbe[ConsumerRecord[String, String]]()
-      val projection = TestProjection(TestProjectionId, provider, () => handler(probe))
+      val records = Set.empty[ConsumerRecord[String, String]]
+      val projection = TestProjection(TestProjectionId, provider,
+        () =>
+          handler(probe,
+            p => {
+              records ++= p.receiveMessage()
+              Future.successful(Done)
+            }))
 
       projectionTestKit.runWithTestSink(projection) { sinkProbe =>
         provider.partitionHandler.onAssign(Set(tp0, tp1), null)
         provider.partitionHandler.onRevoke(Set.empty, null)
 
-        sinkProbe.request(testCount)
-        sinkProbe.expectNextN(testCount)
-        var records = probe.receiveMessages(testCount)
-        val tp0ReceivedCount = records.count(_.partition() == tp0.partition())
+        sinkProbe.request(10)
+        sinkProbe.expectNextN(10)
 
         withClue("checking: processed records contain 5 from each partition") {
-          records.length shouldBe 10
+          records.toSeq.length shouldBe 10
           records.count(_.partition() == tp0.partition()) shouldBe 5
           records.count(_.partition() == tp1.partition()) shouldBe 5
         }
@@ -120,14 +126,12 @@ class KafkaSourceProviderImplSpec extends ScalaTestWithActorTestKit with LogCapt
         eventually(probe.expectNoMessage(1.millis))
 
         // only records from partition 0 should remain, because the rest were filtered
-        val tp0TestCount = testCount - tp0ReceivedCount
-        sinkProbe.request(tp0TestCount)
-        sinkProbe.expectNextN(tp0TestCount)
-        records = probe.receiveMessages(tp0TestCount)
+        sinkProbe.request(5)
+        sinkProbe.expectNextN(5)
 
         withClue("checking: after rebalance processed records should only have records from partition 0") {
-          records.count(_.partition() == tp0.partition()) shouldBe 5
-          records.count(_.partition() == tp1.partition()) shouldBe 0
+          records.count(_.partition() == tp0.partition()) shouldBe 10
+          records.count(_.partition() == tp1.partition()) shouldBe 5
         }
       }
     }
