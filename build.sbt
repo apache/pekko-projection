@@ -82,7 +82,9 @@ lazy val slick =
     .settings(Defaults.itSettings)
     .settings(Dependencies.slick)
     .settings(AutomaticModuleName.settings("pekko.projection.slick"))
-    .settings(name := "pekko-projection-slick")
+    .settings(
+      name := "pekko-projection-slick",
+      versionScheme := None)
     .dependsOn(jdbc)
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
