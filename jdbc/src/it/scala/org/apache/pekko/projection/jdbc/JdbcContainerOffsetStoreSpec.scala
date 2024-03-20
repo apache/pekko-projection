@@ -115,7 +115,7 @@ object JdbcContainerOffsetStoreSpec {
     // otherwise we get ORA-01882: timezone region not found
     System.setProperty("oracle.jdbc.timezoneAsRegion", "false")
     override def newContainer() =
-      new OracleContainer("oracleinanutshell/oracle-xe-11g:1.0.0")
+      new OracleContainer("gvenzl/oracle-xe:21.3.0")
         .withInitScript("db/oracle-init.sql")
   }
 

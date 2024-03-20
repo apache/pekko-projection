@@ -125,7 +125,7 @@ object SlickContainerOffsetStoreSpec {
     // otherwise we get ORA-01882: timezone region not found
     System.setProperty("oracle.jdbc.timezoneAsRegion", "false")
 
-    val container = initContainer(new OracleContainer("oracleinanutshell/oracle-xe-11g:1.0.0"))
+    val container = initContainer(new OracleContainer("gvenzl/oracle-xe:21.3.0"))
 
     override def config: Config =
       super.config.withFallback(ConfigFactory.parseString("""
