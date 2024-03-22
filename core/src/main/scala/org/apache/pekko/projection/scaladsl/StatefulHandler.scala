@@ -65,7 +65,7 @@ import pekko.annotation.ApiMayChange
           "Process called before previous Future completed. " +
           "Did you share the same handler instance between several Projection instances? " +
           "Otherwise, please report issue at " +
-          "https://github.com/apache/incubator-pekko-projection/issues")
+          "https://github.com/apache/pekko-projection/issues")
     }
     state = newState.flatMap(s => process(s, envelope))
     state.map(_ => Done)

@@ -38,7 +38,7 @@ import pekko.annotation.InternalApi
       case None =>
         throw new IllegalStateException(
           "Actor not started, please report issue at " +
-          "https://github.com/apache/incubator-pekko-projection/issues")
+          "https://github.com/apache/pekko-projection/issues")
     }
   }
 }
