@@ -12,7 +12,7 @@ import org.apache.pekko.projections.Dependencies
 
 ThisBuild / versionScheme := Some(VersionScheme.SemVerSpec)
 sourceDistName := "apache-pekko-projection"
-sourceDistIncubating := true
+sourceDistIncubating := main
 
 ThisBuild / pekkoInlineEnabled := false
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
