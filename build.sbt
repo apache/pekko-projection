@@ -12,7 +12,7 @@ import org.apache.pekko.projections.Dependencies
 
 ThisBuild / versionScheme := Some(VersionScheme.SemVerSpec)
 sourceDistName := "apache-pekko-projection"
-sourceDistIncubating := true
+sourceDistIncubating := false
 
 ThisBuild / pekkoInlineEnabled := false
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
@@ -174,7 +174,7 @@ lazy val docs = project
   .dependsOn(core, testkit)
   .settings(
     name := "Apache Pekko Projections",
-    pekkoParadoxGithub := Some("https://github.com/apache/incubator-pekko-projection"),
+    pekkoParadoxGithub := Some("https://github.com/apache/pekko-projection"),
     publish / skip := true,
     makeSite := makeSite.dependsOn(LocalRootProject / ScalaUnidoc / doc).value,
     previewPath := (Paradox / siteSubdirName).value,
@@ -184,7 +184,7 @@ lazy val docs = project
     Compile / paradoxProperties ++= Map(
       "project.url" -> "https://pekko.apache.org/docs/pekko-projection/current/",
       "canonical.base_url" -> "https://pekko.apache.org/docs/pekko-projection/current",
-      "github.base_url" -> "https://github.com/apache/incubator-pekko-projection",
+      "github.base_url" -> "https://github.com/apache/pekko-projection",
       "pekko.version" -> Dependencies.Versions.pekko,
       // Pekko
       "extref.pekko.base_url" -> s"https://pekko.apache.org/docs/pekko/${Dependencies.PekkoVersionInDocs}/%s",

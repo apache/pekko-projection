@@ -8,7 +8,7 @@ on:
 jobs:
   publish:
     # runs on main repo only
-    if: github.repository == 'apache/incubator-pekko-projection'
+    if: github.repository == 'apache/pekko-projection'
     name: Publish
     runs-on: ubuntu-20.04
     env:
@@ -36,7 +36,7 @@ jobs:
   publish-docs:
     name: Publish documentation to nightlies.apache.org
     runs-on: ubuntu-latest
-    if: github.repository == 'apache/incubator-pekko-projection'
+    if: github.repository == 'apache/pekko-projection'
     steps:
       - name: Checkout
         uses: actions/checkout@v4

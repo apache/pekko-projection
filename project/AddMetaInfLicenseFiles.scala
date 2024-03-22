@@ -26,8 +26,4 @@ object AddMetaInfLicenseFiles extends AutoPlugin {
   override def trigger = allRequirements
 
   override def requires = ApacheSonatypePlugin
-
-  override lazy val projectSettings = Seq(
-    apacheSonatypeDisclaimerFile := Some((LocalRootProject / baseDirectory).value / "DISCLAIMER"))
-
 }

@@ -29,13 +29,13 @@ object Common extends AutoPlugin {
       // apiURL defined in projectSettings because version.value is not correct here
       scmInfo := Some(
         ScmInfo(
-          url("https://github.com/apache/incubator-pekko-projection"),
-          "git@github.com:apache/incubator-pekko-projection.git")),
+          url("https://github.com/apache/pekko-projection"),
+          "git@github.com:apache/pekko-projection.git")),
       developers += Developer(
         "contributors",
         "Contributors",
         "dev@pekko.apache.org",
-        url("https://github.com/apache/incubator-pekko-projection/graphs/contributors")),
+        url("https://github.com/apache/pekko-projection/graphs/contributors")),
       description := "Apache Pekko Projection.")
 
   val mimaCompareVersion = "1.0.0"
@@ -55,7 +55,7 @@ object Common extends AutoPlugin {
       (ThisBuild / baseDirectory).value.toString,
       "-doc-source-url", {
         val branch = if (isSnapshot.value) "main" else s"v${version.value}"
-        s"https://github.com/apache/incubator-pekko-projection/tree/${branch}€{FILE_PATH_EXT}#L€{FILE_LINE}"
+        s"https://github.com/apache/pekko-projection/tree/${branch}€{FILE_PATH_EXT}#L€{FILE_LINE}"
       }) ++ (if (scalaBinaryVersion.value.startsWith("3")) {
                Seq("-skip-packages:org.apache.pekko.pattern")
              } else {
