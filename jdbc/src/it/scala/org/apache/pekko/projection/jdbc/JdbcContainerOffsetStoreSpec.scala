@@ -63,7 +63,7 @@ object JdbcContainerOffsetStoreSpec {
 
     def newContainer(): JdbcDatabaseContainer[_]
 
-    final override def initContainer(): Unit = {
+    override def initContainer(): Unit = {
       val container = newContainer()
       _container = Some(container)
       container.withStartupCheckStrategy(new IsRunningStartupCheckStrategy)
@@ -103,9 +103,13 @@ object JdbcContainerOffsetStoreSpec {
   object MSSQLServerSpecConfig extends ContainerJdbcSpecConfig("mssql-dialect") {
     val name = "MS SQL Server Database"
     override val tag: Tag = TestTags.FlakyDb
-    override def newContainer(): JdbcDatabaseContainer[_] =
-      new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU8-ubuntu-16.04")
-        .withInitScript("db/default-init.sql")
+    override def newContainer(): JdbcDatabaseContainer[_] = {
+      val container: MSSQLServerContainer[_] =
+        new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU8-ubuntu-16.04")
+      container.acceptLicense()
+      container.withInitScript("db/default-init.sql")
+      container
+    }
   }
 
   object OracleSpecConfig extends ContainerJdbcSpecConfig("oracle-dialect") {
