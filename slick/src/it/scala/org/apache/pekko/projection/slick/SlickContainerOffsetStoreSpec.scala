@@ -112,6 +112,8 @@ object SlickContainerOffsetStoreSpec {
 
     override protected def initContainer(container: JdbcDatabaseContainer[_]): JdbcDatabaseContainer[_] = {
       container.asInstanceOf[MSSQLServerContainer[_]].acceptLicense()
+      container.withUrlParam("integratedSecurity", "false")
+      container.withUrlParam("encrypt", "false")
       super.initContainer(container)
     }
 
