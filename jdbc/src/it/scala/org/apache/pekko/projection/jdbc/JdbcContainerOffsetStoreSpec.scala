@@ -108,6 +108,8 @@ object JdbcContainerOffsetStoreSpec {
         new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU8-ubuntu-16.04")
       container.acceptLicense()
       container.withInitScript("db/default-init.sql")
+      container.withUrlParam("integratedSecurity", "false")
+      container.withUrlParam("encrypt", "false")
       container
     }
   }
