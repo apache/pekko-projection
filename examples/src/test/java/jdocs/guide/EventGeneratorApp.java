@@ -14,6 +14,14 @@
 // #guideEventGeneratorApp
 package jdocs.guide;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.actor.typed.Behavior;
 import org.apache.pekko.actor.typed.javadsl.Behaviors;
@@ -28,17 +36,8 @@ import org.apache.pekko.persistence.typed.javadsl.EventHandler;
 import org.apache.pekko.persistence.typed.javadsl.EventSourcedBehavior;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.stream.javadsl.Source;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-import java.util.stream.Stream;
 
 /**
  * Generate a shopping cart every 1 second and check it out. Each cart will contain a variety of

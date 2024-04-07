@@ -14,20 +14,20 @@
 // #guideClusterSetup
 package jdocs.guide;
 
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.actor.typed.javadsl.Behaviors;
 import org.apache.pekko.cluster.sharding.typed.javadsl.ShardedDaemonProcess;
-import org.apache.pekko.projection.ProjectionBehavior;
-import org.apache.pekko.projection.eventsourced.EventEnvelope;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.apache.pekko.persistence.cassandra.query.javadsl.CassandraReadJournal;
 import org.apache.pekko.persistence.query.Offset;
-import org.apache.pekko.projection.eventsourced.javadsl.EventSourcedProvider;
-import org.apache.pekko.projection.javadsl.SourceProvider;
+import org.apache.pekko.projection.ProjectionBehavior;
 import org.apache.pekko.projection.ProjectionId;
 import org.apache.pekko.projection.cassandra.javadsl.CassandraProjection;
+import org.apache.pekko.projection.eventsourced.EventEnvelope;
+import org.apache.pekko.projection.eventsourced.javadsl.EventSourcedProvider;
 import org.apache.pekko.projection.javadsl.AtLeastOnceProjection;
+import org.apache.pekko.projection.javadsl.SourceProvider;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
 

@@ -13,6 +13,10 @@
 
 package jdocs.eventsourced;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import java.time.Duration;
+import java.time.Instant;
+import java.util.*;
 import org.apache.pekko.actor.typed.ActorRef;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.actor.typed.Behavior;
@@ -27,11 +31,6 @@ import org.apache.pekko.persistence.typed.javadsl.EventHandler;
 import org.apache.pekko.persistence.typed.javadsl.EventSourcedBehaviorWithEnforcedReplies;
 import org.apache.pekko.persistence.typed.javadsl.ReplyEffect;
 import org.apache.pekko.persistence.typed.javadsl.RetentionCriteria;
-import com.fasterxml.jackson.annotation.JsonCreator;
-
-import java.time.Duration;
-import java.time.Instant;
-import java.util.*;
 
 /**
  * This is an event sourced actor. It has a state, {@link ShoppingCart.State}, which stores the

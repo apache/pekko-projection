@@ -13,20 +13,17 @@
 
 package org.apache.pekko.projection;
 
+import java.time.Duration;
 import org.apache.pekko.Done;
-import org.apache.pekko.NotUsed;
 import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
 import org.apache.pekko.actor.typed.ActorRef;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.projection.internal.ActorHandlerInit;
 import org.apache.pekko.projection.internal.NoopStatusObserver;
-import org.apache.pekko.projection.internal.ProjectionSettings;
 import org.apache.pekko.stream.scaladsl.Source;
 import scala.Option;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
-
-import java.time.Duration;
 
 /** Compile test: this class serves only for exercising the Java API. */
 public class ProjectionBehaviorCompileTest {
