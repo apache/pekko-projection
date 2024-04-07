@@ -13,6 +13,15 @@
 
 package org.apache.pekko.projection.testkit.javadsl;
 
+import static org.junit.Assert.assertEquals;
+
+import java.time.Duration;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
 import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
@@ -20,10 +29,9 @@ import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.japi.function.Function;
 import org.apache.pekko.projection.Projection;
 import org.apache.pekko.projection.ProjectionId;
-import org.apache.pekko.projection.internal.ActorHandlerInit;
-import org.apache.pekko.projection.internal.ProjectionSettings;
 import org.apache.pekko.projection.RunningProjection;
 import org.apache.pekko.projection.StatusObserver;
+import org.apache.pekko.projection.internal.ActorHandlerInit;
 import org.apache.pekko.projection.internal.NoopStatusObserver;
 import org.apache.pekko.stream.DelayOverflowStrategy;
 import org.apache.pekko.stream.KillSwitches;
@@ -40,16 +48,6 @@ import org.scalatestplus.junit.JUnitSuite;
 import scala.Option;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
-
-import java.time.Duration;
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.function.Predicate;
-import java.util.stream.Collectors;
-import java.util.stream.IntStream;
-
-import static org.junit.Assert.assertEquals;
 
 public class ProjectionTestKitTest extends JUnitSuite {
 

@@ -13,6 +13,15 @@
 
 package jdocs.jdbc;
 
+import static org.junit.Assert.assertEquals;
+
+import com.typesafe.config.Config;
+import com.typesafe.config.ConfigFactory;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.apache.pekko.NotUsed;
 import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
 import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
@@ -23,11 +32,9 @@ import org.apache.pekko.projection.jdbc.internal.JdbcOffsetStore;
 import org.apache.pekko.projection.jdbc.internal.JdbcSettings;
 import org.apache.pekko.projection.jdbc.javadsl.JdbcHandler;
 import org.apache.pekko.projection.jdbc.javadsl.JdbcProjection;
-import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
+import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.apache.pekko.stream.javadsl.Source;
-import com.typesafe.config.Config;
-import com.typesafe.config.ConfigFactory;
 import org.junit.BeforeClass;
 import org.junit.ClassRule;
 import org.junit.Rule;
@@ -36,14 +43,6 @@ import org.scalatestplus.junit.JUnitSuite;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
-
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
 
 public class JdbcHibernateTest extends JUnitSuite {
   private static final Map<String, Object> configuration = new HashMap<>();
