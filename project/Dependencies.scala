@@ -30,13 +30,13 @@ object Dependencies {
     val pekkoPersistenceCassandra = "1.0.0"
     val connectors = PekkoConnectorsDependency.version
     val connectorsKafka = PekkoConnectorsKafkaDependency.version
-    val slick = "3.3.3"
+    val slick = "3.5.0"
     val scalaTest = "3.2.18"
     val testContainers = "1.15.3"
     val junit = "4.13.2"
     val h2Driver = "2.2.224"
     val jackson = "2.16.2" // this should match the version of jackson used by pekko-serialization-jackson
-    val logback = "1.2.13"
+    val logback = "1.3.14"
   }
 
   object Compile {
