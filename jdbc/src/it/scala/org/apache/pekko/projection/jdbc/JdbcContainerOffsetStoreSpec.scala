@@ -122,7 +122,8 @@ object JdbcContainerOffsetStoreSpec {
     System.setProperty("oracle.jdbc.timezoneAsRegion", "false")
     override def newContainer() =
       new OracleContainer("gvenzl/oracle-xe:21-slim-faststart")
-        .withInitScript("db/oracle-init.sql")
+        .withUsername("TEST_SCHEMA")
+        .withPassword("password")
   }
 
 }
