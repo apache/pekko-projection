@@ -153,6 +153,9 @@ lazy val `durable-state` =
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
+lazy val userProjects: Seq[ProjectReference] = List[ProjectReference](
+  core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, testkit)
+
 lazy val examples = project
   .configs(IntegrationTest.extend(Test))
   .settings(headerSettings(IntegrationTest))
@@ -210,9 +213,18 @@ lazy val docs = project
       }
     }.taskValue)
 
+lazy val billOfMaterials = Project("bill-of-materials", file("bill-of-materials"))
+  .enablePlugins(BillOfMaterialsPlugin)
+  .disablePlugins(MimaPlugin, SitePlugin)
+  .settings(
+    name := "pekko-projection-bom",
+    licenses := List(License.Apache2),
+    bomIncludeProjects := userProjects,
+    description := s"${description.value} (depending on Scala ${CrossVersion.binaryScalaVersion(scalaVersion.value)})")
+
 lazy val root = Project(id = "projection", base = file("."))
-  .aggregate(core, coreTest, testkit, jdbc, slick, cassandra, eventsourced, kafka, kafkaTest, `durable-state`, examples,
-    docs)
+  .aggregate(userProjects: _*)
+  .aggregate(billOfMaterials, coreTest, kafkaTest, examples, docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")
