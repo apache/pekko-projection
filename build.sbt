@@ -153,7 +153,6 @@ lazy val `durable-state` =
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
-
 lazy val userProjects: Seq[ProjectReference] = List[ProjectReference](
   core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, testkit)
 
