@@ -74,7 +74,7 @@ lazy val slick =
   Project(id = "slick", base = file("slick"))
     .configs(IntegrationTest.extend(Test))
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(crossScalaVersions := Dependencies.Scala2Versions)
+    .settings(crossScalaVersions := Dependencies.Scala2And3Versions)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
     .settings(Dependencies.slick)

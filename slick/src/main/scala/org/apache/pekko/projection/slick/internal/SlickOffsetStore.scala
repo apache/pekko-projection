@@ -35,6 +35,7 @@ import pekko.projection.jdbc.internal.MySQLDialect
 import pekko.projection.jdbc.internal.OracleDialect
 import pekko.projection.jdbc.internal.PostgresDialect
 import pekko.util.Helpers.toRootLowerCase
+import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
 /**
@@ -42,22 +43,24 @@ import slick.jdbc.JdbcProfile
  */
 @InternalApi private[projection] class SlickOffsetStore[P <: JdbcProfile](
     system: ActorSystem[_],
-    val db: P#Backend#Database,
-    val profile: P,
+    val databaseConfig: DatabaseConfig[P],
     slickSettings: SlickSettings,
     clock: Clock) {
+
+  def this(system: ActorSystem[_], databaseConfig: DatabaseConfig[P], slickSettings: SlickSettings) =
+    this(system, databaseConfig, slickSettings, Clock.systemUTC())
+
   import OffsetSerialization.MultipleOffsets
   import OffsetSerialization.SingleOffset
-  import profile.api._
+  import databaseConfig.profile.api._
 
-  def this(system: ActorSystem[_], db: P#Backend#Database, profile: P, slickSettings: SlickSettings) =
-    this(system, db, profile, slickSettings, Clock.systemUTC())
+  private val db = databaseConfig.db
 
   val (dialect, useLowerCase): (Dialect, Boolean) = {
 
     val useLowerCase = slickSettings.useLowerCase
 
-    profile match {
+    databaseConfig.profile match {
       case _: slick.jdbc.H2Profile =>
         (
           H2Dialect(slickSettings.schema, slickSettings.table, slickSettings.managementTable, useLowerCase),
