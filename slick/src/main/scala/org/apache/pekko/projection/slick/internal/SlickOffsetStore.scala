@@ -57,7 +57,6 @@ import slick.jdbc.JdbcProfile
   import OffsetSerialization.MultipleOffsets
   import OffsetSerialization.SingleOffset
 
-
   val (dialect, useLowerCase): (Dialect, Boolean) = {
 
     val useLowerCase = slickSettings.useLowerCase
