@@ -43,24 +43,26 @@ import slick.jdbc.JdbcProfile
  */
 @InternalApi private[projection] class SlickOffsetStore[P <: JdbcProfile](
     system: ActorSystem[_],
-    val databaseConfig: DatabaseConfig[P],
+    databaseConfig: DatabaseConfig[P],
     slickSettings: SlickSettings,
     clock: Clock) {
 
   def this(system: ActorSystem[_], databaseConfig: DatabaseConfig[P], slickSettings: SlickSettings) =
     this(system, databaseConfig, slickSettings, Clock.systemUTC())
 
+  private[projection] val profile: P = databaseConfig.profile
+  private val db = databaseConfig.db
+
+  import profile.api._
   import OffsetSerialization.MultipleOffsets
   import OffsetSerialization.SingleOffset
-  import databaseConfig.profile.api._
 
-  private val db = databaseConfig.db
 
   val (dialect, useLowerCase): (Dialect, Boolean) = {
 
     val useLowerCase = slickSettings.useLowerCase
 
-    databaseConfig.profile match {
+    profile match {
       case _: slick.jdbc.H2Profile =>
         (
           H2Dialect(slickSettings.schema, slickSettings.table, slickSettings.managementTable, useLowerCase),
