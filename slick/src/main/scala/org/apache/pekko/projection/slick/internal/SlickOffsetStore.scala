@@ -51,7 +51,6 @@ import slick.jdbc.JdbcProfile
     this(system, databaseConfig, slickSettings, Clock.systemUTC())
 
   private[projection] val profile: P = databaseConfig.profile
-  private val db = databaseConfig.db
 
   import profile.api._
   import OffsetSerialization.MultipleOffsets
@@ -92,7 +91,7 @@ import slick.jdbc.JdbcProfile
         SingleOffset(ProjectionId(projectionId.name, row.projectionKey), row.manifest, row.offsetStr, row.mergeable))
     }
 
-    val results = db.run(action)
+    val results = databaseConfig.db.run(action)
 
     results.map {
       case Nil => None
@@ -181,7 +180,8 @@ import slick.jdbc.JdbcProfile
           stmt.execute(sql)
         })
     }
-    db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO)).map(_ => Done)(ExecutionContexts.parasitic)
+    databaseConfig.db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO))
+      .map(_ => Done)(ExecutionContexts.parasitic)
   }
 
   def dropIfExists(): Future[Done] = {
@@ -197,7 +197,8 @@ import slick.jdbc.JdbcProfile
         stmt.execute(dialect.dropManagementTableStatement)
       }
     }
-    db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO)).map(_ => Done)(ExecutionContexts.parasitic)
+    databaseConfig.db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO))
+      .map(_ => Done)(ExecutionContexts.parasitic)
   }
 
   def readManagementState(projectionId: ProjectionId)(
@@ -210,7 +211,7 @@ import slick.jdbc.JdbcProfile
         maybeRow.map(row => ManagementState(row.paused))
       }
 
-    db.run(action)
+    databaseConfig.db.run(action)
   }
 
   def savePaused(projectionId: ProjectionId, paused: Boolean): Future[Done] = {
@@ -218,6 +219,6 @@ import slick.jdbc.JdbcProfile
     val action =
       managementTable.insertOrUpdate(ManagementStateRow(projectionId.name, projectionId.key, paused, millisSinceEpoch))
 
-    db.run(action).map(_ => Done)(ExecutionContexts.parasitic)
+    databaseConfig.db.run(action).map(_ => Done)(ExecutionContexts.parasitic)
   }
 }
