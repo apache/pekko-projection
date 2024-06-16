@@ -7,3 +7,6 @@ ebead18d8114832ebe4f9d7196686af087fb2507
 
 # Scala Steward: Reformat with sbt-java-formatter 0.8.0
 5791799541ac7638c4e6cd687656a77f1885c9a3
+
+# Scala Steward: Reformat with scalafmt 3.8.2
+e57e85f0c098741e585fe3cbdfdcb77a354ee744
