@@ -242,7 +242,8 @@ abstract class SlickOffsetStoreSpec(specConfig: SlickSpecConfig)
       }
     }
 
-    s"save and retrieve offsets of type org.apache.pekko.persistence.query.Sequence [$dialectLabel]" taggedAs (specConfig.tag) in {
+    s"save and retrieve offsets of type org.apache.pekko.persistence.query.Sequence [$dialectLabel]" taggedAs (specConfig
+      .tag) in {
 
       val projectionId = genRandomProjectionId()
 
@@ -257,7 +258,8 @@ abstract class SlickOffsetStoreSpec(specConfig: SlickSpecConfig)
       }
     }
 
-    s"save and retrieve offsets of type org.apache.pekko.persistence.query.TimeBasedUUID [$dialectLabel]" taggedAs (specConfig.tag) in {
+    s"save and retrieve offsets of type org.apache.pekko.persistence.query.TimeBasedUUID [$dialectLabel]" taggedAs (specConfig
+      .tag) in {
 
       val projectionId = genRandomProjectionId()
 
