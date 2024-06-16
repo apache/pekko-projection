@@ -45,7 +45,7 @@ import org.slf4j.LoggerFactory
  * INTERNAL API
  */
 @InternalApi
-private[projection] class JdbcOffsetStore[S <: JdbcSession](
+class JdbcOffsetStore[S <: JdbcSession](
     system: ActorSystem[_],
     settings: JdbcSettings,
     jdbcSessionFactory: () => S,

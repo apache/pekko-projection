@@ -35,6 +35,7 @@ import pekko.projection.jdbc.internal.MySQLDialect
 import pekko.projection.jdbc.internal.OracleDialect
 import pekko.projection.jdbc.internal.PostgresDialect
 import pekko.util.Helpers.toRootLowerCase
+import slick.basic.DatabaseConfig
 import slick.jdbc.JdbcProfile
 
 /**
@@ -42,16 +43,18 @@ import slick.jdbc.JdbcProfile
  */
 @InternalApi private[projection] class SlickOffsetStore[P <: JdbcProfile](
     system: ActorSystem[_],
-    val db: P#Backend#Database,
-    val profile: P,
+    databaseConfig: DatabaseConfig[P],
     slickSettings: SlickSettings,
     clock: Clock) {
+
+  def this(system: ActorSystem[_], databaseConfig: DatabaseConfig[P], slickSettings: SlickSettings) =
+    this(system, databaseConfig, slickSettings, Clock.systemUTC())
+
+  private[projection] val profile: P = databaseConfig.profile
+
+  import profile.api._
   import OffsetSerialization.MultipleOffsets
   import OffsetSerialization.SingleOffset
-  import profile.api._
-
-  def this(system: ActorSystem[_], db: P#Backend#Database, profile: P, slickSettings: SlickSettings) =
-    this(system, db, profile, slickSettings, Clock.systemUTC())
 
   val (dialect, useLowerCase): (Dialect, Boolean) = {
 
@@ -88,7 +91,7 @@ import slick.jdbc.JdbcProfile
         SingleOffset(ProjectionId(projectionId.name, row.projectionKey), row.manifest, row.offsetStr, row.mergeable))
     }
 
-    val results = db.run(action)
+    val results = databaseConfig.db.run(action)
 
     results.map {
       case Nil => None
@@ -177,7 +180,8 @@ import slick.jdbc.JdbcProfile
           stmt.execute(sql)
         })
     }
-    db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO)).map(_ => Done)(ExecutionContexts.parasitic)
+    databaseConfig.db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO))
+      .map(_ => Done)(ExecutionContexts.parasitic)
   }
 
   def dropIfExists(): Future[Done] = {
@@ -193,7 +197,8 @@ import slick.jdbc.JdbcProfile
         stmt.execute(dialect.dropManagementTableStatement)
       }
     }
-    db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO)).map(_ => Done)(ExecutionContexts.parasitic)
+    databaseConfig.db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO))
+      .map(_ => Done)(ExecutionContexts.parasitic)
   }
 
   def readManagementState(projectionId: ProjectionId)(
@@ -206,7 +211,7 @@ import slick.jdbc.JdbcProfile
         maybeRow.map(row => ManagementState(row.paused))
       }
 
-    db.run(action)
+    databaseConfig.db.run(action)
   }
 
   def savePaused(projectionId: ProjectionId, paused: Boolean): Future[Done] = {
@@ -214,6 +219,6 @@ import slick.jdbc.JdbcProfile
     val action =
       managementTable.insertOrUpdate(ManagementStateRow(projectionId.name, projectionId.key, paused, millisSinceEpoch))
 
-    db.run(action).map(_ => Done)(ExecutionContexts.parasitic)
+    databaseConfig.db.run(action).map(_ => Done)(ExecutionContexts.parasitic)
   }
 }
