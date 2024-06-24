@@ -332,6 +332,6 @@ datastax-java-driver {
 ```
 
 Alternatively, Pekko Discovery can be used for finding the Cassandra server contact points as described
-in the [Pekkp Connectors Cassandra documentation](https://pekko.apache.org/docs/pekko-connectors/current/cassandra.html#using-pekko-discovery).
+in the [Pekko Connectors Cassandra documentation](https://pekko.apache.org/docs/pekko-connectors/current/cassandra.html#using-pekko-discovery).
 
 Without any configuration it will use `localhost:9042` as default.
