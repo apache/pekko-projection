@@ -1,7 +1,6 @@
 name: Nightly Integration Tests for JDBC (Pekko 1.0.x)
 
 on:
-  pull_request:
   schedule:
     - cron: '0 1 * * *'
   workflow_dispatch:  
