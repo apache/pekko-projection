@@ -1,11 +1,9 @@
-name: Integration Tests for JDBC
+name: Nightly Integration Tests for JDBC (Pekko 1.0.x)
 
 on:
-  pull_request:
-  push:
-    branches:
-      - main
-    tags-ignore: [ v.* ]
+  schedule:
+    - cron: '0 1 * * *'
+  workflow_dispatch:  
 
 jobs:
   test:
@@ -15,10 +13,9 @@ jobs:
       fail-fast: false
       matrix:
         include:
-          - { java-version: 8,  scala-version: 2.13,  sbt-opts: '' }
-          - { java-version: 11, scala-version: 2.13,  sbt-opts: '-J-XX:+UnlockExperimentalVMOptions -J-XX:+UseJVMCICompiler' }
-          - { java-version: 8,  scala-version: 2.12,  sbt-opts: '' }
-          - { java-version: 8,  scala-version: 3.3,  sbt-opts: '' }
+          - { java-version: 8, scala-version: 2.12, sbt-opts: '' }
+          - { java-version: 8, scala-version: 2.13, sbt-opts: '' }
+          - { java-version: 8, scala-version: 3.3, sbt-opts: '' }
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -46,7 +43,11 @@ jobs:
         uses: coursier/cache-action@v6        
 
       - name: Run all integration tests with Scala ${{ matrix.scala-version }} and Java ${{ matrix.java-version }}
-        run: sbt ++${{ matrix.scala-version }} jdbc/IntegrationTest/test ${{ matrix.sbt-opts }}
+        run: |
+          sbt -Dpekko.build.pekko.version=1.0.x \
+            -Dpekko.build.pekko.connectors.version=1.0.x \
+            ++${{ matrix.scala-version }} \
+            jdbc/IntegrationTest/test ${{ matrix.sbt-opts }}
         env: # Disable Ryuk resource reaper since we always spin up fresh VMs
           TESTCONTAINERS_RYUK_DISABLED: true
 
