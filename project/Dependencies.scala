@@ -25,8 +25,8 @@ object Dependencies {
 
   object Versions {
     val pekko = PekkoCoreDependency.version
-    val pekkoPersistenceJdbc = "1.1.0-M1"
-    val pekkoPersistenceCassandra = "1.1.0-M1"
+    val pekkoPersistenceJdbc = "1.1.0"
+    val pekkoPersistenceCassandra = "1.1.0"
     val connectors = PekkoConnectorsDependency.version
     val connectorsKafka = PekkoConnectorsKafkaDependency.version
     val slick = "3.5.1"
