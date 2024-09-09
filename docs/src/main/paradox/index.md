@@ -21,7 +21,7 @@
 * [Management](management.md)
 * [Testing](testing.md)
 * [Classic](classic.md)
-* [Release Notes](release-notes.md)
+* [Release Notes](release-notes/index.md)
 * [License Report](license-report.md)
 * [Snapshots](snapshots.md)
 

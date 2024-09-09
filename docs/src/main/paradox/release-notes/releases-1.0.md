@@ -1,4 +1,4 @@
-# Release Notes
+# Release Notes (1.0.x)
 
 ## 1.0.0
 Apache Pekko Projections 1.0.0 is based on Akka Projections 1.2.5. Pekko came about as a result of Lightbend's decision to make future
