@@ -202,6 +202,7 @@ lazy val docs = project
     paradoxGroups := Map("Language" -> Seq("Java", "Scala")),
     paradoxRoots := List("index.html", "getting-started/event-generator-app.html"),
     apidocRootPackage := "org.apache.pekko",
+    Global / pekkoParadoxIncubatorNotice := None,
     Compile / paradoxMarkdownToHtml / sourceGenerators += Def.taskDyn {
       val targetFile = (Compile / paradox / sourceManaged).value / "license-report.md"
 
