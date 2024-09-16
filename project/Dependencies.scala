@@ -19,9 +19,9 @@ object Dependencies {
   val Scala3 = "3.3.3"
   val ScalaVersions = Seq(Scala213, Scala212, Scala3)
 
-  val PekkoVersionInDocs = "1.1"
-  val ConnectorsVersionInDocs = "1.0"
-  val ConnectorsKafkaVersionInDocs = "1.0"
+  val PekkoVersionInDocs = PekkoCoreDependency.default.link
+  val ConnectorsVersionInDocs = PekkoConnectorsDependency.default.link
+  val ConnectorsKafkaVersionInDocs = PekkoConnectorsKafkaDependency.default.link
 
   object Versions {
     val pekko = PekkoCoreDependency.version
