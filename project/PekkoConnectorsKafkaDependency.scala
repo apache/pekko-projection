@@ -21,5 +21,5 @@ import com.github.pjfanning.pekkobuild.PekkoDependency
 object PekkoConnectorsKafkaDependency extends PekkoDependency {
   override val checkProject: String = "pekko-connectors-kafka-testkit"
   override val module: Option[String] = Some("connectors.kafka")
-  override val currentVersion: String = "1.1.0-RC1"
+  override val currentVersion: String = "1.1.0-M1"
 }
