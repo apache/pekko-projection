@@ -22,7 +22,7 @@ import scala.util.Try
 import org.apache.pekko.stream.connectors.cassandra.CqlSessionProvider
 import com.datastax.oss.driver.api.core.CqlSession
 import com.datastax.oss.driver.internal.core.metadata.DefaultEndPoint
-import org.testcontainers.containers.CassandraContainer
+import org.testcontainers.cassandra.CassandraContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
@@ -43,7 +43,7 @@ final class ContainerSessionProvider extends CqlSessionProvider {
 object ContainerSessionProvider {
   private val disabled = java.lang.Boolean.getBoolean("disable-cassandra-testcontainer")
 
-  private lazy val container: CassandraContainer[_] = new CassandraContainer(DockerImageName.parse("cassandra:3.11.9"))
+  private lazy val container: CassandraContainer = new CassandraContainer(DockerImageName.parse("cassandra:3.11.9"))
 
   lazy val started: Future[Unit] = {
     if (disabled)
