@@ -29,7 +29,7 @@ object Dependencies {
     val pekkoPersistenceCassandra = "1.1.0-M1"
     val connectors = PekkoConnectorsDependency.version
     val connectorsKafka = PekkoConnectorsKafkaDependency.version
-    val slick = "3.5.1"
+    val slick = "3.5.2"
     val scalaTest = "3.2.19"
     val testContainers = "1.20.1"
     val junit = "4.13.2"
