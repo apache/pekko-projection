@@ -7,14 +7,14 @@
  * This file is part of the Apache Pekko project, which was derived from Akka.
  */
 
+import com.github.pjfanning.pekkobuild._
 import net.bzzt.reproduciblebuilds.ReproducibleBuildsPlugin.reproducibleBuildsCheckResolver
-import org.apache.pekko.projections.Dependencies
+import org.apache.pekko.projections._
 
 ThisBuild / versionScheme := Some(VersionScheme.SemVerSpec)
 sourceDistName := "apache-pekko-projection"
 sourceDistIncubating := false
 
-ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
 lazy val core =
@@ -23,6 +23,13 @@ lazy val core =
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
+    .addPekkoModuleDependency("pekko-stream", "", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-actor-typed", "", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-protobuf-v3", "", PekkoCoreDependency.default)
+    // pekko-persistence-query is only needed for OffsetSerialization and to provide a typed EventEnvelope that
+    // references the Offset type from pekko-persistence.
+    .addPekkoModuleDependency("pekko-persistence-query", "", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-actor-testkit-typed", "test,it", PekkoCoreDependency.default)
     .settings(Dependencies.core)
     .settings(AutomaticModuleName.settings("pekko.projection.core"))
     .settings(name := "pekko-projection-core")
@@ -34,6 +41,8 @@ lazy val coreTest =
     .settings(headerSettings(IntegrationTest))
     .disablePlugins(MimaPlugin)
     .settings(Defaults.itSettings)
+    .addPekkoModuleDependency("pekko-actor-testkit-typed", "test,it", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-stream-testkit", "test,it", PekkoCoreDependency.default)
     .settings(Dependencies.coreTest)
     .settings(
       name := "pekko-projection-core-test")
@@ -47,6 +56,8 @@ lazy val testkit =
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
+    .addPekkoModuleDependency("pekko-actor-testkit-typed", "", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-stream-testkit", "", PekkoCoreDependency.default)
     .settings(Dependencies.testKit)
     .settings(AutomaticModuleName.settings("pekko.projection.testkit"))
     .settings(name := "pekko-projection-testkit")
@@ -59,6 +70,8 @@ lazy val jdbc =
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
+    .addPekkoModuleDependency("pekko-persistence-query", "", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-actor-testkit-typed", "test,it", PekkoCoreDependency.default)
     .settings(Dependencies.jdbc)
     .settings(AutomaticModuleName.settings("pekko.projection.jdbc"))
     .settings(name := "pekko-projection-jdbc")
@@ -73,6 +86,8 @@ lazy val slick =
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
+    .addPekkoModuleDependency("pekko-persistence-query", "", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-actor-testkit-typed", "test,it", PekkoCoreDependency.default)
     .settings(
       // Transitive dependency `scala-reflect` to avoid `NoClassDefFoundError`.
       // See: https://github.com/slick/slick/issues/2933
@@ -97,6 +112,9 @@ lazy val cassandra =
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
+    .addPekkoModuleDependency("pekko-connectors-cassandra", "", PekkoConnectorsDependency.default)
+    .addPekkoModuleDependency("pekko-persistence-query", "", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-actor-testkit-typed", "test", PekkoCoreDependency.default)
     .settings(Dependencies.cassandra)
     .settings(AutomaticModuleName.settings("pekko.projection.cassandra"))
     .settings(name := "pekko-projection-cassandra")
@@ -111,7 +129,7 @@ lazy val cassandra =
 lazy val eventsourced =
   Project(id = "eventsourced", base = file("eventsourced"))
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(Dependencies.eventsourced)
+    .addPekkoModuleDependency("pekko-persistence-query", "", PekkoCoreDependency.default)
     .settings(AutomaticModuleName.settings("pekko.projection.eventsourced"))
     .settings(name := "pekko-projection-eventsourced")
     .dependsOn(core)
@@ -121,6 +139,7 @@ lazy val eventsourced =
 lazy val kafka =
   Project(id = "kafka", base = file("kafka"))
     .enablePlugins(ReproducibleBuildsPlugin)
+    .addPekkoModuleDependency("pekko-connectors-kafka", "", PekkoConnectorsKafkaDependency.default)
     .settings(Dependencies.kafka)
     .settings(AutomaticModuleName.settings("pekko.projection.kafka"))
     .settings(name := "pekko-projection-kafka")
@@ -133,6 +152,9 @@ lazy val kafkaTest =
     .disablePlugins(MimaPlugin)
     .settings(headerSettings(IntegrationTest))
     .settings(Defaults.itSettings)
+    .addPekkoModuleDependency("pekko-actor-testkit-typed", "test,it", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-stream-testkit", "test,it", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-connectors-kafka-testkit", "test,it", PekkoConnectorsKafkaDependency.default)
     .settings(Dependencies.kafkaTest)
     .settings(
       name := "pekko-projection-kafka-test",
@@ -146,6 +168,9 @@ lazy val `durable-state` =
   Project(id = "durable-state", base = file("durable-state"))
     .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
+    .addPekkoModuleDependency("pekko-persistence-query", "", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-persistence-testkit", "test", PekkoCoreDependency.default)
+    .addPekkoModuleDependency("pekko-stream-testkit", "test", PekkoCoreDependency.default)
     .settings(Dependencies.state)
     .settings(AutomaticModuleName.settings("pekko.projection.durable-state"))
     .settings(name := "pekko-projection-durable-state")
@@ -161,6 +186,12 @@ lazy val examples = project
   .enablePlugins(ReproducibleBuildsPlugin)
   .disablePlugins(MimaPlugin)
   .settings(Defaults.itSettings)
+  .addPekkoModuleDependency("pekko-persistence-typed", "", PekkoCoreDependency.default)
+  .addPekkoModuleDependency("pekko-cluster-sharding-typed", "", PekkoCoreDependency.default)
+  .addPekkoModuleDependency("pekko-persistence-cassandra", "", PekkoPersistenceCassandraDependency.default)
+  .addPekkoModuleDependency("pekko-persistence-jdbc", "", PekkoPersistenceJdbcDependency.default)
+  .addPekkoModuleDependency("pekko-serialization-jackson", "", PekkoCoreDependency.default)
+  .addPekkoModuleDependency("pekko-actor-testkit-typed", "test", PekkoCoreDependency.default)
   .settings(Dependencies.examples)
   .dependsOn(slick % "test->test")
   .dependsOn(jdbc % "test->test")
@@ -188,7 +219,7 @@ lazy val docs = project
       "project.url" -> "https://pekko.apache.org/docs/pekko-projection/current/",
       "canonical.base_url" -> "https://pekko.apache.org/docs/pekko-projection/current",
       "github.base_url" -> "https://github.com/apache/pekko-projection",
-      "pekko.version" -> Dependencies.Versions.pekko,
+      "pekko.version" -> PekkoCoreDependency.version,
       // Pekko
       "extref.pekko.base_url" -> s"https://pekko.apache.org/docs/pekko/${Dependencies.PekkoVersionInDocs}/%s",
       "scaladoc.pekko.base_url" -> s"https://pekko.apache.org/api/pekko/${Dependencies.PekkoVersionInDocs}/",
