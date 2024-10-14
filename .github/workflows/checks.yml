@@ -10,7 +10,7 @@ on:
 jobs:
   check-code-style:
     name: Check Code Style
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -31,6 +31,9 @@ jobs:
           java-version: 11
           distribution: temurin
 
+      - name: Install sbt
+        uses: sbt/setup-sbt@v1
+
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6
 
@@ -39,7 +42,7 @@ jobs:
 
   check-code-compilation:
     name: Check Code Compilation
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,6 +61,9 @@ jobs:
         with:
           java-version: 11
           distribution: temurin
+
+      - name: Install sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6
@@ -67,7 +73,7 @@ jobs:
 
   check-docs:
     name: Check Docs
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -86,6 +92,9 @@ jobs:
         with:
           java-version: 11
           distribution: temurin
+
+      - name: Install sbt
+        uses: sbt/setup-sbt@v1
 
       - name: Cache Coursier cache
         uses: coursier/cache-action@v6
