@@ -21,7 +21,7 @@ import java.util.function.Supplier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
-
+import com.typesafe.config.Config
 import org.apache.pekko
 import pekko.NotUsed
 import pekko.actor.typed.ActorSystem
@@ -52,6 +52,18 @@ object EventSourcedProvider {
 
     val eventsByTagQuery =
       PersistenceQuery(system).getReadJournalFor(classOf[EventsByTagQuery], readJournalPluginId)
+
+    new EventsByTagSourceProvider(system, eventsByTagQuery, tag)
+  }
+
+  def eventsByTag[Event](
+      system: ActorSystem[_],
+      readJournalPluginId: String,
+      readJournalConfig: Config,
+      tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
+
+    val eventsByTagQuery =
+      PersistenceQuery(system).getReadJournalFor(classOf[EventsByTagQuery], readJournalPluginId, readJournalConfig)
 
     new EventsByTagSourceProvider(system, eventsByTagQuery, tag)
   }
