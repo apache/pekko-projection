@@ -93,6 +93,19 @@ object EventSourcedProvider {
     new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
   }
 
+  def eventsBySlices[Event](
+      system: ActorSystem[_],
+      readJournalPluginId: String,
+      readJournalConfig: Config,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
+    val eventsBySlicesQuery =
+      PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId, readJournalConfig)
+
+    new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+  }
+
   def sliceForPersistenceId(system: ActorSystem[_], readJournalPluginId: String, persistenceId: String): Int =
     PersistenceQuery(system)
       .readJournalFor[EventsBySliceQuery](readJournalPluginId)
