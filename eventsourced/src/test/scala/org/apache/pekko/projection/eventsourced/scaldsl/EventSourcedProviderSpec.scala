@@ -45,7 +45,7 @@ object EventSourcedProviderSpec {
   private case class Command(event: String, ack: ActorRef[Done])
   private case class State()
 
-  private def testBehaviour(persistenceId: String, tags: Set[String], maybeJournal: Option[String] = None) = {
+  private def testBehaviour(persistenceId: String, tags: Set[String], maybeJournal: Option[String]) = {
     val behavior = EventSourcedBehavior[Command, String, State](
       PersistenceId.ofUniqueId(persistenceId),
       State(),
