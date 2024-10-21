@@ -1,23 +1,22 @@
 package org.apache.pekko.projection.eventsourced.scaldsl
 
+import scala.concurrent.Future
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko
-import org.apache.pekko.Done
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.persistence.Persistence
-import org.apache.pekko.persistence.query.NoOffset
-import org.apache.pekko.persistence.testkit.PersistenceTestKitPlugin
-import org.apache.pekko.persistence.testkit.query.scaladsl.PersistenceTestKitReadJournal
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.persistence.typed.scaladsl.Effect
-import org.apache.pekko.persistence.typed.scaladsl.EventSourcedBehavior
-import org.apache.pekko.projection.eventsourced.scaladsl.EventSourcedProvider
-import org.apache.pekko.stream.testkit.scaladsl.TestSink
+import pekko.Done
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorRef
+import pekko.persistence.Persistence
+import pekko.persistence.query.NoOffset
+import pekko.persistence.testkit.PersistenceTestKitPlugin
+import pekko.persistence.testkit.query.scaladsl.PersistenceTestKitReadJournal
+import pekko.persistence.typed.PersistenceId
+import pekko.persistence.typed.scaladsl.Effect
+import pekko.persistence.typed.scaladsl.EventSourcedBehavior
+import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+import pekko.stream.testkit.scaladsl.TestSink
 import org.scalatest.freespec.AnyFreeSpecLike
-
-import scala.concurrent.Future
 
 object EventSourcedProviderSpec {
   private val config = PersistenceTestKitPlugin.config.withFallback(
