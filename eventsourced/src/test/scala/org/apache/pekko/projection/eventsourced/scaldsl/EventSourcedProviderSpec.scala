@@ -17,6 +17,7 @@
 
 package org.apache.pekko.projection.eventsourced.scaldsl
 
+import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko
