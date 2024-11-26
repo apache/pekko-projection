@@ -24,11 +24,6 @@ object Dependencies {
   val ConnectorsKafkaVersionInDocs = PekkoConnectorsKafkaDependency.default.link
 
   object Versions {
-    val pekko = PekkoCoreDependency.version
-    val pekkoPersistenceJdbc = "1.1.0"
-    val pekkoPersistenceCassandra = "1.1.0-M1"
-    val connectors = PekkoConnectorsDependency.version
-    val connectorsKafka = PekkoConnectorsKafkaDependency.version
     val slick = "3.5.1"
     val scalaTest = "3.2.19"
     val testContainers = "1.20.4"
@@ -39,20 +34,7 @@ object Dependencies {
   }
 
   object Compile {
-    val pekkoActorTyped = "org.apache.pekko" %% "pekko-actor-typed" % Versions.pekko
-    val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekko
-    val pekkoProtobufV3 = "org.apache.pekko" %% "pekko-protobuf-v3" % Versions.pekko
-    val pekkoPersistenceQuery = "org.apache.pekko" %% "pekko-persistence-query" % Versions.pekko
-
-    // TestKit in compile scope for ProjectionTestKit
-    val pekkoTypedTestkit = "org.apache.pekko" %% "pekko-actor-testkit-typed" % Versions.pekko
-    val pekkoStreamTestkit = "org.apache.pekko" %% "pekko-stream-testkit" % Versions.pekko
-
     val slick = "com.typesafe.slick" %% "slick" % Versions.slick
-
-    val connectorsCassandra = "org.apache.pekko" %% "pekko-connectors-cassandra" % Versions.connectors
-
-    val connectorsKafka = "org.apache.pekko" %% "pekko-connectors-kafka" % Versions.connectorsKafka
 
     // must be provided on classpath when using Apache Kafka 2.6.0+
     val jackson = "com.fasterxml.jackson.core" % "jackson-databind" % Versions.jackson
@@ -63,10 +45,6 @@ object Dependencies {
 
   object Test {
     private val allTestConfig = "test,it"
-
-    val pekkoTypedTestkit = Compile.pekkoTypedTestkit % allTestConfig
-    val pekkoStreamTestkit = Compile.pekkoStreamTestkit % allTestConfig
-    val persistenceTestkit = "org.apache.pekko" %% "pekko-persistence-testkit" % Versions.pekko % "test"
 
     val scalatest = "org.scalatest" %% "scalatest" % Versions.scalaTest % allTestConfig
     val scalatestJUnit = "org.scalatestplus" %% "junit-4-13" % (Versions.scalaTest + ".0") % allTestConfig
@@ -91,40 +69,21 @@ object Dependencies {
 
     val oracleDbContainer =
       "org.testcontainers" % "oracle-xe" % Versions.testContainers % allTestConfig
-
-    val connectorsKafkaTestkit =
-      "org.apache.pekko" %% "pekko-connectors-kafka-testkit" % Versions.connectorsKafka % allTestConfig
   }
 
   object Examples {
     val hibernate = "org.hibernate" % "hibernate-core" % "5.6.15.Final"
-
-    val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
-    val pekkoClusterShardingTyped = "org.apache.pekko" %% "pekko-cluster-sharding-typed" % Versions.pekko
-    val pekkoPersistenceCassandra =
-      "org.apache.pekko" %% "pekko-persistence-cassandra" % Versions.pekkoPersistenceCassandra
-    val pekkoPersistenceJdbc = "org.apache.pekko" %% "pekko-persistence-jdbc" % Versions.pekkoPersistenceJdbc
-    val pekkoSerializationJackson = "org.apache.pekko" %% "pekko-serialization-jackson" % Versions.pekko
   }
 
   private val deps = libraryDependencies
 
   val core =
     deps ++= Seq(
-      Compile.pekkoStream,
-      Compile.pekkoActorTyped,
-      Compile.pekkoProtobufV3,
-      // pekko-persistence-query is only needed for OffsetSerialization and to provide a typed EventEnvelope that
-      // references the Offset type from pekko-persistence.
-      Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit,
       Test.logback,
       Test.scalatest)
 
   val coreTest =
     deps ++= Seq(
-      Test.pekkoTypedTestkit,
-      Test.pekkoStreamTestkit,
       Test.scalatest,
       Test.scalatestJUnit,
       Test.junit,
@@ -132,23 +91,16 @@ object Dependencies {
 
   val testKit =
     deps ++= Seq(
-      Compile.pekkoTypedTestkit,
-      Compile.pekkoStreamTestkit,
       Test.scalatest,
       Test.scalatestJUnit,
       Test.junit,
       Test.logback)
 
-  val eventsourced =
-    deps ++= Seq(Compile.pekkoPersistenceQuery)
-
   val state =
-    deps ++= Seq(Compile.pekkoPersistenceQuery, Test.persistenceTestkit, Test.pekkoStreamTestkit, Test.scalatest)
+    deps ++= Seq(Test.scalatest)
 
   val jdbc =
     deps ++= Seq(
-      Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit,
       Test.h2Driver,
       Test.postgresDriver,
       Test.postgresContainer,
@@ -163,8 +115,6 @@ object Dependencies {
   val slick =
     deps ++= Seq(
       Compile.slick,
-      Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit,
       Test.h2Driver,
       Test.postgresDriver,
       Test.postgresContainer,
@@ -178,36 +128,24 @@ object Dependencies {
 
   val cassandra =
     deps ++= Seq(
-      Compile.connectorsCassandra,
-      Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit,
       Test.logback,
       Test.cassandraContainer,
       Test.scalatestJUnit)
 
   val kafka =
     deps ++= Seq(
-      Compile.connectorsKafka,
       Compile.jackson)
 
   val kafkaTest =
     deps ++= Seq(
       Test.scalatest,
-      Test.pekkoTypedTestkit,
-      Test.pekkoStreamTestkit,
-      Test.connectorsKafkaTestkit,
       Test.logback,
       Test.scalatestJUnit)
 
   val examples =
     deps ++= Seq(
-      Examples.pekkoPersistenceTyped,
-      Examples.pekkoClusterShardingTyped,
-      Examples.pekkoPersistenceCassandra,
-      Examples.pekkoPersistenceJdbc,
       Examples.hibernate,
       Test.h2Driver,
-      Test.pekkoTypedTestkit,
       Test.logback,
       Test.cassandraContainer)
 }
