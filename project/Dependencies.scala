@@ -61,6 +61,14 @@ object Dependencies {
     val h2Driver = "com.h2database" % "h2" % Versions.h2Driver
   }
 
+  object TestNonIt {
+    val persistenceTestkit = "org.apache.pekko" %% "pekko-persistence-testkit" % Versions.pekko % "test"
+
+    val scalatest = "org.scalatest" %% "scalatest" % Versions.scalaTest % "test"
+
+    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback % "test"
+  }
+
   object Test {
     private val allTestConfig = "test,it"
 
@@ -140,7 +148,7 @@ object Dependencies {
       Test.logback)
 
   val eventsourced =
-    deps ++= Seq(Compile.pekkoPersistenceQuery)
+    deps ++= Seq(Compile.pekkoPersistenceQuery, TestNonIt.persistenceTestkit, TestNonIt.scalatest, TestNonIt.logback)
 
   val state =
     deps ++= Seq(Compile.pekkoPersistenceQuery, Test.persistenceTestkit, Test.pekkoStreamTestkit, Test.scalatest)
