@@ -15,23 +15,41 @@
 # specific language governing permissions and limitations
 # under the License.
 
+name: Publish 1.0.x Nightly
+
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 0 * * 0'
-
-name: Launch Scala Steward
+    - cron: "22 0 * * *"
 
 jobs:
-  scala-steward:
-    runs-on: ubuntu-22.04
-    name: Launch Scala Steward
+  publish:
+    # runs on main repo only
     if: github.repository == 'apache/pekko-projection'
+    name: Publish
+    runs-on: ubuntu-22.04
+    env:
+      JAVA_OPTS: -Xms2G -Xmx2G -Xss2M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
     steps:
-      - name: Launch Scala Steward
-        uses: scala-steward-org/scala-steward-action@v2
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
-          github-app-id: ${{ secrets.SCALA_STEWARD_APP_ID }}
-          github-app-installation-id: ${{ secrets.SCALA_STEWARD_INSTALLATION_ID }}
-          github-app-key: ${{ secrets.SCALA_STEWARD_PRIVATE_KEY }}
-          github-app-auth-only: true
+          # we don't know what commit the last tag was it's safer to get entire repo so previousStableVersion resolves
+          fetch-depth: 0
+          fetch-tags: true
+          ref: 1.0.x
+
+      - name: Setup Java 8
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 8
+
+      - name: Install sbt
+        uses: sbt/setup-sbt@v1
+
+      - name: Publish to Apache Maven repo
+        env:
+          NEXUS_USER: ${{ secrets.NEXUS_USER }}
+          NEXUS_PW: ${{ secrets.NEXUS_PW }}
+        run: sbt +publish
