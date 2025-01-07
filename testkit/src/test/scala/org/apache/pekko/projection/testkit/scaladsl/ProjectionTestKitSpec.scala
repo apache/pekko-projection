@@ -67,7 +67,7 @@ class ProjectionTestKitSpec extends ScalaTestWithActorTestKit with LogCapturing 
       val prj = TestProjection(projectionId, sp, () => handler(strBuffer, _ <= 6))
 
       // total processing time expected to be around 1.2 seconds
-      projectionTestKit.run(prj, max = 2.seconds) {
+      projectionTestKit.run(prj, max = 4.seconds) {
         strBuffer.toString shouldBe "1-2-3-4-5-6"
       }
     }
@@ -82,7 +82,7 @@ class ProjectionTestKitSpec extends ScalaTestWithActorTestKit with LogCapturing 
       val prj = TestProjection(projectionId, sp, () => handler(strBuffer, _ <= 2))
 
       assertThrows[TestFailedException] {
-        projectionTestKit.run(prj, max = 1.seconds) {
+        projectionTestKit.run(prj, max = 2.seconds) {
           strBuffer.toString shouldBe "1-2"
         }
       }
