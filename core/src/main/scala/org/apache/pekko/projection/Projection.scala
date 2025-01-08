@@ -108,7 +108,7 @@ trait Projection[Envelope] {
 private[projection] object RunningProjection {
 
   /**
-   * When stopping an projection the retry mechanism is aborted via this exception.
+   * When stopping a projection the retry mechanism is aborted via this exception.
    */
   case object AbortProjectionException extends RuntimeException("Projection aborted.") with NoStackTrace
 

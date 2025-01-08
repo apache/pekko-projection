@@ -153,7 +153,7 @@ object CassandraProjection {
 
   /**
    * For testing purposes the projection offset and management tables can be created programmatically.
-   * For production it's recommended to create the table with DDL statements
+   * For production, it's recommended to create the table with DDL statements
    * before the system is started.
    */
   def createTablesIfNotExists()(implicit system: ActorSystem[_]): Future[Done] = {
