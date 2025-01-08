@@ -15,7 +15,6 @@ sourceDistName := "apache-pekko-projection"
 sourceDistIncubating := false
 
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
-ThisBuild / resolvers += Resolver.ApacheMavenStagingRepo
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
 lazy val core =
