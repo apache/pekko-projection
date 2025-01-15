@@ -21,5 +21,5 @@ import com.github.pjfanning.pekkobuild.PekkoDependency
 object PekkoConnectorsDependency extends PekkoDependency {
   override val checkProject: String = "pekko-connectors-cassandra"
   override val module: Option[String] = Some("connectors")
-  override val currentVersion: String = "1.1.0-M1"
+  override val currentVersion: String = "1.1.0"
 }
