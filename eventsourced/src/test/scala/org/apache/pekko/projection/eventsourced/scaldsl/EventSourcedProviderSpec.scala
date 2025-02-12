@@ -96,7 +96,9 @@ class EventSourcedProviderSpec
       Seq(Some(s"$persistenceId-$event"), maybeJournal).flatten.mkString("-")
     }
     ref ! Command(makeEvent("event-1"), probe.ref)
+    probe.expectMessage(Done)
     ref ! Command(makeEvent("event-2"), probe.ref)
+    probe.expectMessage(Done)
     ref ! Command(makeEvent("event-3"), probe.ref)
     probe.expectMessage(Done)
   }
