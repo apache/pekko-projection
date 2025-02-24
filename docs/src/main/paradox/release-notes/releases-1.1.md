@@ -15,5 +15,5 @@ It is recommended to use Pekko 1.1 jars with this release and with pekko-project
     * Slick has been upgraded to v3.5.1
 * pekko-projections-bom added ([PR155](https://github.com/apache/pekko-projection/pull/155))
 
-### Depenendency Upgrades
+### Dependency Upgrades
 * jackson 2.17.3
