@@ -108,7 +108,7 @@ object SlickContainerOffsetStoreSpec {
     val name = "MS SQL Server Database"
     override val tag = TestTags.FlakyDb
 
-    val container = initContainer(new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU8-ubuntu-16.04"))
+    val container = initContainer(new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04"))
 
     override protected def initContainer(container: JdbcDatabaseContainer[_]): JdbcDatabaseContainer[_] = {
       container.asInstanceOf[MSSQLServerContainer[_]].acceptLicense()
