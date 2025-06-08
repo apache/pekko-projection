@@ -19,10 +19,8 @@ ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
 lazy val core =
   Project(id = "core", base = file("core"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.core)
     .settings(AutomaticModuleName.settings("pekko.projection.core"))
     .settings(name := "pekko-projection-core")
@@ -30,23 +28,16 @@ lazy val core =
 
 lazy val coreTest =
   Project(id = "core-test", base = file("core-test"))
-    .configs(IntegrationTest)
-    .settings(headerSettings(IntegrationTest))
     .disablePlugins(MimaPlugin)
-    .settings(Defaults.itSettings)
     .settings(Dependencies.coreTest)
-    .settings(
-      name := "pekko-projection-core-test")
+    .settings(name := "pekko-projection-core-test")
     .settings(publish / skip := true)
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
 lazy val testkit =
   Project(id = "testkit", base = file("testkit"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.testKit)
     .settings(AutomaticModuleName.settings("pekko.projection.testkit"))
     .settings(name := "pekko-projection-testkit")
@@ -93,19 +84,22 @@ lazy val slick =
 // provides offset storage backed by a Cassandra table
 lazy val cassandra =
   Project(id = "cassandra", base = file("cassandra"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.cassandra)
     .settings(AutomaticModuleName.settings("pekko.projection.cassandra"))
     .settings(name := "pekko-projection-cassandra")
     .dependsOn(core)
-    // strictly speaking it is not needed to have test->test here.
-    // Cassandra module doesn't have tests, only integration tests
-    // however, without it the generated pom.xml doesn't get this test dependencies
-    .dependsOn(coreTest % "test->test;it->test")
-    .dependsOn(testkit % "test->compile;it->compile")
+
+lazy val cassandraTest =
+  Project(id = "cassandra-test", base = file("cassandra-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.cassandra)
+    .settings(name := "pekko-projection-cassandra-test")
+    .settings(publish / skip := true)
+    .dependsOn(core)
+    .dependsOn(cassandra)
+    .dependsOn(coreTest % Test)
+    .dependsOn(testkit % Test)
 
 // provides source providers for pekko-persistence-query
 lazy val eventsourced =
