@@ -98,7 +98,7 @@ lazy val cassandraTest =
     .settings(publish / skip := true)
     .dependsOn(core)
     .dependsOn(cassandra)
-    .dependsOn(coreTest % Test)
+    .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
 
 // provides source providers for pekko-persistence-query

@@ -191,6 +191,7 @@ object Dependencies {
       Test.pekkoTypedTestkit % "test",
       Test.logback % "test",
       Test.cassandraContainer % "test",
+      Test.scalatest % "test",
       Test.scalatestJUnit % "test")
 
   val kafka =
