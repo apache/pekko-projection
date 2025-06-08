@@ -96,6 +96,7 @@ lazy val cassandraTest =
     .settings(Dependencies.cassandra)
     .settings(name := "pekko-projection-cassandra-test")
     .settings(publish / skip := true)
+    .settings(Test / parallelExecution := false)
     .dependsOn(core)
     .dependsOn(cassandra)
     .dependsOn(coreTest % "test->test")
