@@ -158,7 +158,7 @@ lazy val examples = project
   .settings(Dependencies.examples)
   .dependsOn(slick % "test->test")
   .dependsOn(jdbc % "test->test")
-  .dependsOn(cassandra % "test->test;test->it")
+  .dependsOn(cassandraTest % "test->test")
   .dependsOn(eventsourced)
   .dependsOn(`durable-state`)
   .dependsOn(kafkaTest % "test->test")
