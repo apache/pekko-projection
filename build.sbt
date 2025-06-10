@@ -153,7 +153,8 @@ lazy val kafkaTest =
       publish / skip := true)
     .dependsOn(kafka)
     .dependsOn(testkit % Test)
-    .dependsOn(slick % "test->test;it->it")
+    .dependsOn(slick % "test->test")
+    .dependsOn(slickIntTest % "test->test")
 
 // provides source providers for durable state changes
 lazy val `durable-state` =
@@ -237,7 +238,7 @@ lazy val billOfMaterials = Project("bill-of-materials", file("bill-of-materials"
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(userProjects: _*)
-  .aggregate(billOfMaterials, coreTest, kafkaTest, examples, docs)
+  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, jdbcIntTest, slickIntTest, examples, docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")
