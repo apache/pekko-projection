@@ -55,6 +55,7 @@ lazy val jdbc =
 
 lazy val jdbcIntTest =
   Project(id = "jdbc-int-test", base = file("jdbc-int-test"))
+    .disablePlugin(MimaPlugin)
     .settings(Dependencies.jdbc)
     .settings(
       name := "pekko-projection-jdbc-int-test",
@@ -87,6 +88,7 @@ lazy val slick =
 
 lazy val slickIntTest =
   Project(id = "slick-int-test", base = file("slick-int-test"))
+    .disablePlugin(MimaPlugin)
     .settings(Dependencies.slick)
     .settings(
       name := "pekko-projection-slick-int-test",
@@ -109,6 +111,7 @@ lazy val cassandra =
 
 lazy val cassandraTest =
   Project(id = "cassandra-test", base = file("cassandra-test"))
+    .disablePlugin(MimaPlugin)
     .settings(Dependencies.cassandra)
     .settings(name := "pekko-projection-cassandra-test")
     .settings(publish / skip := true)
@@ -136,10 +139,11 @@ lazy val kafka =
     .settings(AutomaticModuleName.settings("pekko.projection.kafka"))
     .settings(name := "pekko-projection-kafka")
     .dependsOn(core)
-    .dependsOn(testkit % "test") 
+    .dependsOn(testkit % "test")
 
 lazy val kafkaTest =
   Project(id = "kafka-test", base = file("kafka-test"))
+    .disablePlugin(MimaPlugin)
     .settings(Dependencies.kafkaTest)
     .settings(
       name := "pekko-projection-kafka-test",
