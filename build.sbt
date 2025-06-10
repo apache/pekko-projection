@@ -61,7 +61,7 @@ lazy val jdbcIntTest =
       name := "pekko-projection-jdbc-int-test",
       publish / skip := true,
       Test / parallelExecution := false)
-    .dependsOn(jdbc)
+    .dependsOn(jdbc % "test->test")
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
 
@@ -95,7 +95,7 @@ lazy val slickIntTest =
       versionScheme := None,
       publish / skip := true,
       Test / parallelExecution := false)
-    .dependsOn(slick)
+    .dependsOn(slick % "test->test")
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
