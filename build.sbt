@@ -55,7 +55,6 @@ lazy val jdbc =
 
 lazy val jdbcIntTest =
   Project(id = "jdbc-int-test", base = file("jdbc-int-test"))
-    .disablePlugins(MimaPlugin)
     .settings(Dependencies.jdbc)
     .settings(
       name := "pekko-projection-jdbc-int-test",
@@ -88,7 +87,6 @@ lazy val slick =
 
 lazy val slickIntTest =
   Project(id = "slick-int-test", base = file("slick-int-test"))
-    .disablePlugins(MimaPlugin)
     .settings(Dependencies.slick)
     .settings(
       name := "pekko-projection-slick-int-test",
@@ -111,7 +109,6 @@ lazy val cassandra =
 
 lazy val cassandraTest =
   Project(id = "cassandra-test", base = file("cassandra-test"))
-    .disablePlugins(MimaPlugin)
     .settings(Dependencies.cassandra)
     .settings(name := "pekko-projection-cassandra-test")
     .settings(publish / skip := true)
@@ -139,27 +136,21 @@ lazy val kafka =
     .settings(AutomaticModuleName.settings("pekko.projection.kafka"))
     .settings(name := "pekko-projection-kafka")
     .dependsOn(core)
+    .dependsOn(testkit % "test") 
 
 lazy val kafkaTest =
   Project(id = "kafka-test", base = file("kafka-test"))
-    .configs(IntegrationTest)
-    .enablePlugins(ReproducibleBuildsPlugin)
-    .disablePlugins(MimaPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.kafkaTest)
     .settings(
       name := "pekko-projection-kafka-test",
       publish / skip := true)
-    .dependsOn(kafka)
-    .dependsOn(testkit % Test)
-    .dependsOn(slick % "test->test")
-    .dependsOn(slickIntTest % "test->test")
+    .dependsOn(kafka % "test->test")
+    .dependsOn(slick % "compile;test->test")
+    .dependsOn(testkit % "test")
 
 // provides source providers for durable state changes
 lazy val `durable-state` =
   Project(id = "durable-state", base = file("durable-state"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.state)
     .settings(AutomaticModuleName.settings("pekko.projection.durable-state"))
@@ -182,7 +173,7 @@ lazy val examples = project
   .dependsOn(cassandraTest % "test->test")
   .dependsOn(eventsourced)
   .dependsOn(`durable-state`)
-  .dependsOn(kafkaTest % "test->test")
+  .dependsOn(kafka % "test->test")
   .dependsOn(testkit % Test)
   .settings(publish / skip := true, scalacOptions += "-feature", javacOptions += "-parameters")
 
