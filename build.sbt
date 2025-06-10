@@ -20,7 +20,6 @@ ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 lazy val core =
   Project(id = "core", base = file("core"))
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
     .settings(Dependencies.core)
     .settings(AutomaticModuleName.settings("pekko.projection.core"))
     .settings(name := "pekko-projection-core")
@@ -46,10 +45,7 @@ lazy val testkit =
 // provides offset storage backed by a JDBC table
 lazy val jdbc =
   Project(id = "jdbc", base = file("jdbc"))
-    .configs(IntegrationTest.extend(Test))
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.jdbc)
     .settings(AutomaticModuleName.settings("pekko.projection.jdbc"))
     .settings(name := "pekko-projection-jdbc")
@@ -57,13 +53,22 @@ lazy val jdbc =
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
 
+lazy val jdbcIntTest =
+  Project(id = "jdbc-int-test", base = file("jdbc-int-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.jdbc)
+    .settings(
+      name := "pekko-projection-jdbc-int-test",
+      publish / skip := true,
+      Test / parallelExecution := false)
+    .dependsOn(jdbc)
+    .dependsOn(coreTest % "test->test")
+    .dependsOn(testkit % Test)
+
 // provides offset storage backed by a JDBC (Slick) table
 lazy val slick =
   Project(id = "slick", base = file("slick"))
-    .configs(IntegrationTest.extend(Test))
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(
       // Transitive dependency `scala-reflect` to avoid `NoClassDefFoundError`.
       // See: https://github.com/slick/slick/issues/2933
@@ -77,6 +82,20 @@ lazy val slick =
       name := "pekko-projection-slick",
       versionScheme := None)
     .dependsOn(jdbc)
+    .dependsOn(core)
+    .dependsOn(coreTest % "test->test")
+    .dependsOn(testkit % Test)
+
+lazy val slickIntTest =
+  Project(id = "slick-int-test", base = file("slick-int-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.slick)
+    .settings(
+      name := "pekko-projection-slick-int-test",
+      versionScheme := None,
+      publish / skip := true,
+      Test / parallelExecution := false)
+    .dependsOn(slick)
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)

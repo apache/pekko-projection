@@ -156,33 +156,33 @@ object Dependencies {
   val jdbc =
     deps ++= Seq(
       Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit % Test.allTestConfig,
-      Test.h2Driver % Test.allTestConfig,
-      Test.postgresDriver % Test.allTestConfig,
-      Test.postgresContainer % Test.allTestConfig,
-      Test.mysqlDriver % Test.allTestConfig,
-      Test.mysqlContainer % Test.allTestConfig,
-      Test.msSQLServerDriver % Test.allTestConfig,
-      Test.msSQLServerContainer % Test.allTestConfig,
-      Test.oracleDriver % Test.allTestConfig,
-      Test.oracleDbContainer % Test.allTestConfig,
-      Test.logback % Test.allTestConfig)
+      Test.pekkoTypedTestkit % "test",
+      Test.h2Driver % "test",
+      Test.postgresDriver % "test",
+      Test.postgresContainer % "test",
+      Test.mysqlDriver % "test",
+      Test.mysqlContainer % "test",
+      Test.msSQLServerDriver % "test",
+      Test.msSQLServerContainer % "test",
+      Test.oracleDriver % "test",
+      Test.oracleDbContainer % "test",
+      Test.logback % "test")
 
   val slick =
     deps ++= Seq(
       Compile.slick,
       Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit % Test.allTestConfig,
-      Test.h2Driver % Test.allTestConfig,
-      Test.postgresDriver % Test.allTestConfig,
-      Test.postgresContainer % Test.allTestConfig,
-      Test.mysqlDriver % Test.allTestConfig,
-      Test.mysqlContainer % Test.allTestConfig,
-      Test.msSQLServerDriver % Test.allTestConfig,
-      Test.msSQLServerContainer % Test.allTestConfig,
-      Test.oracleDriver % Test.allTestConfig,
-      Test.oracleDbContainer % Test.allTestConfig,
-      Test.logback % Test.allTestConfig)
+      Test.pekkoTypedTestkit % "test",
+      Test.h2Driver % "test",
+      Test.postgresDriver % "test",
+      Test.postgresContainer % "test",
+      Test.mysqlDriver % "test",
+      Test.mysqlContainer % "test",
+      Test.msSQLServerDriver % "test",
+      Test.msSQLServerContainer % "test",
+      Test.oracleDriver % "test",
+      Test.oracleDbContainer % "test",
+      Test.logback % "test")
 
   val cassandra =
     deps ++= Seq(
