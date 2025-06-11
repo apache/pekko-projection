@@ -70,38 +70,38 @@ object Dependencies {
   }
 
   object Test {
-    private val allTestConfig = "test,it"
+    val allTestConfig = "test,it"
 
-    val pekkoTypedTestkit = Compile.pekkoTypedTestkit % allTestConfig
-    val pekkoStreamTestkit = Compile.pekkoStreamTestkit % allTestConfig
+    val pekkoTypedTestkit = Compile.pekkoTypedTestkit
+    val pekkoStreamTestkit = Compile.pekkoStreamTestkit
     val persistenceTestkit = "org.apache.pekko" %% "pekko-persistence-testkit" % Versions.pekko % "test"
 
-    val scalatest = "org.scalatest" %% "scalatest" % Versions.scalaTest % allTestConfig
-    val scalatestJUnit = "org.scalatestplus" %% "junit-4-13" % (Versions.scalaTest + ".0") % allTestConfig
-    val junit = "junit" % "junit" % Versions.junit % allTestConfig
+    val scalatest = "org.scalatest" %% "scalatest" % Versions.scalaTest
+    val scalatestJUnit = "org.scalatestplus" %% "junit-4-13" % (Versions.scalaTest + ".0")
+    val junit = "junit" % "junit" % Versions.junit
 
-    val h2Driver = Compile.h2Driver % allTestConfig
-    val postgresDriver = "org.postgresql" % "postgresql" % "42.7.6" % allTestConfig
-    val mysqlDriver = "com.mysql" % "mysql-connector-j" % "9.3.0" % allTestConfig
-    val msSQLServerDriver = "com.microsoft.sqlserver" % "mssql-jdbc" % "12.10.0.jre8" % allTestConfig
-    val oracleDriver = "com.oracle.ojdbc" % "ojdbc8" % "19.3.0.0" % allTestConfig
+    val h2Driver = Compile.h2Driver
+    val postgresDriver = "org.postgresql" % "postgresql" % "42.7.6"
+    val mysqlDriver = "com.mysql" % "mysql-connector-j" % "9.3.0"
+    val msSQLServerDriver = "com.microsoft.sqlserver" % "mssql-jdbc" % "12.10.0.jre8"
+    val oracleDriver = "com.oracle.ojdbc" % "ojdbc8" % "19.3.0.0"
 
-    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback % allTestConfig
+    val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
 
     val cassandraContainer =
-      "org.testcontainers" % "cassandra" % Versions.testContainers % allTestConfig
+      "org.testcontainers" % "cassandra" % Versions.testContainers
     val postgresContainer =
-      "org.testcontainers" % "postgresql" % Versions.testContainers % allTestConfig
+      "org.testcontainers" % "postgresql" % Versions.testContainers
     val mysqlContainer =
-      "org.testcontainers" % "mysql" % Versions.testContainers % allTestConfig
+      "org.testcontainers" % "mysql" % Versions.testContainers
     val msSQLServerContainer =
-      "org.testcontainers" % "mssqlserver" % Versions.testContainers % allTestConfig
+      "org.testcontainers" % "mssqlserver" % Versions.testContainers
 
     val oracleDbContainer =
-      "org.testcontainers" % "oracle-xe" % Versions.testContainers % allTestConfig
+      "org.testcontainers" % "oracle-xe" % Versions.testContainers
 
     val connectorsKafkaTestkit =
-      "org.apache.pekko" %% "pekko-connectors-kafka-testkit" % Versions.connectorsKafka % allTestConfig
+      "org.apache.pekko" %% "pekko-connectors-kafka-testkit" % Versions.connectorsKafka
   }
 
   object Examples {
@@ -125,27 +125,27 @@ object Dependencies {
       // pekko-persistence-query is only needed for OffsetSerialization and to provide a typed EventEnvelope that
       // references the Offset type from pekko-persistence.
       Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit,
-      Test.logback,
-      Test.scalatest)
+      Test.pekkoTypedTestkit % "test",
+      Test.logback % "test",
+      Test.scalatest % "test")
 
   val coreTest =
     deps ++= Seq(
-      Test.pekkoTypedTestkit,
-      Test.pekkoStreamTestkit,
-      Test.scalatest,
-      Test.scalatestJUnit,
-      Test.junit,
-      Test.logback)
+      Test.pekkoTypedTestkit % "test",
+      Test.pekkoStreamTestkit % "test",
+      Test.scalatest % "test",
+      Test.scalatestJUnit % "test",
+      Test.junit % "test",
+      Test.logback % "test")
 
   val testKit =
     deps ++= Seq(
       Compile.pekkoTypedTestkit,
       Compile.pekkoStreamTestkit,
-      Test.scalatest,
-      Test.scalatestJUnit,
-      Test.junit,
-      Test.logback)
+      Test.scalatest % "test",
+      Test.scalatestJUnit % "test",
+      Test.junit % "test",
+      Test.logback % "test")
 
   val eventsourced =
     deps ++= Seq(Compile.pekkoPersistenceQuery, TestNonIt.persistenceTestkit, TestNonIt.scalatest, TestNonIt.logback)
@@ -156,56 +156,59 @@ object Dependencies {
   val jdbc =
     deps ++= Seq(
       Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit,
-      Test.h2Driver,
-      Test.postgresDriver,
-      Test.postgresContainer,
-      Test.mysqlDriver,
-      Test.mysqlContainer,
-      Test.msSQLServerDriver,
-      Test.msSQLServerContainer,
-      Test.oracleDriver,
-      Test.oracleDbContainer,
-      Test.logback)
+      Test.pekkoTypedTestkit % "test",
+      Test.h2Driver % "test",
+      Test.postgresDriver % "test",
+      Test.postgresContainer % "test",
+      Test.mysqlDriver % "test",
+      Test.mysqlContainer % "test",
+      Test.msSQLServerDriver % "test",
+      Test.msSQLServerContainer % "test",
+      Test.oracleDriver % "test",
+      Test.oracleDbContainer % "test",
+      Test.logback % "test")
 
   val slick =
     deps ++= Seq(
       Compile.slick,
       Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit,
-      Test.h2Driver,
-      Test.postgresDriver,
-      Test.postgresContainer,
-      Test.mysqlDriver,
-      Test.mysqlContainer,
-      Test.msSQLServerDriver,
-      Test.msSQLServerContainer,
-      Test.oracleDriver,
-      Test.oracleDbContainer,
-      Test.logback)
+      Test.pekkoTypedTestkit % "test",
+      Test.h2Driver % "test",
+      Test.postgresDriver % "test",
+      Test.postgresContainer % "test",
+      Test.mysqlDriver % "test",
+      Test.mysqlContainer % "test",
+      Test.msSQLServerDriver % "test",
+      Test.msSQLServerContainer % "test",
+      Test.oracleDriver % "test",
+      Test.oracleDbContainer % "test",
+      Test.logback % "test")
 
   val cassandra =
     deps ++= Seq(
       Compile.connectorsCassandra,
       Compile.pekkoPersistenceQuery,
-      Test.pekkoTypedTestkit,
-      Test.logback,
-      Test.cassandraContainer,
-      Test.scalatestJUnit)
+      Test.pekkoTypedTestkit % "test",
+      Test.logback % "test",
+      Test.cassandraContainer % "test",
+      Test.scalatest % "test",
+      Test.scalatestJUnit % "test")
 
   val kafka =
     deps ++= Seq(
       Compile.connectorsKafka,
-      Compile.jackson)
+      Compile.jackson,
+      Test.scalatest % "test",
+      Test.logback % "test")
 
   val kafkaTest =
     deps ++= Seq(
-      Test.scalatest,
-      Test.pekkoTypedTestkit,
-      Test.pekkoStreamTestkit,
-      Test.connectorsKafkaTestkit,
-      Test.logback,
-      Test.scalatestJUnit)
+      Test.scalatest % "test",
+      Test.pekkoTypedTestkit % "test",
+      Test.pekkoStreamTestkit % "test",
+      Test.connectorsKafkaTestkit % "test",
+      Test.logback % "test",
+      Test.scalatestJUnit % "test")
 
   val examples =
     deps ++= Seq(
@@ -214,8 +217,8 @@ object Dependencies {
       Examples.pekkoPersistenceCassandra,
       Examples.pekkoPersistenceJdbc,
       Examples.hibernate,
-      Test.h2Driver,
-      Test.pekkoTypedTestkit,
-      Test.logback,
-      Test.cassandraContainer)
+      Test.h2Driver % Test.allTestConfig,
+      Test.pekkoTypedTestkit % Test.allTestConfig,
+      Test.logback % Test.allTestConfig,
+      Test.cassandraContainer % Test.allTestConfig)
 }

@@ -13,6 +13,15 @@
 
 package org.apache.pekko.projection.cassandra;
 
+import static org.junit.Assert.assertEquals;
+
+import java.time.Duration;
+import java.util.Arrays;
+import java.util.List;
+import java.util.UUID;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
 import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
@@ -33,8 +42,8 @@ import org.apache.pekko.projection.cassandra.javadsl.CassandraProjection;
 import org.apache.pekko.projection.javadsl.ActorHandler;
 import org.apache.pekko.projection.javadsl.Handler;
 import org.apache.pekko.projection.javadsl.SourceProvider;
-import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
+import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
 import org.apache.pekko.stream.javadsl.Source;
@@ -42,16 +51,6 @@ import org.apache.pekko.util.FutureConverters;
 import org.junit.*;
 import org.scalatestplus.junit.JUnitSuite;
 import scala.concurrent.Await;
-
-import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-import java.util.UUID;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-
-import static org.junit.Assert.assertEquals;
 
 public class CassandraProjectionTest extends JUnitSuite {
   @ClassRule public static final TestKitJunitResource testKit = new TestKitJunitResource();
@@ -109,16 +108,20 @@ public class CassandraProjectionTest extends JUnitSuite {
   }
 
   public static SourceProvider<Long, Envelope> sourceProvider(String entityId) {
-    Source<Envelope, NotUsed> envelopes = Source.from(Arrays.asList(
-      new Envelope(entityId, 1, "abc"),
-      new Envelope(entityId, 2, "def"),
-      new Envelope(entityId, 3, "ghi"),
-      new Envelope(entityId, 4, "jkl"),
-      new Envelope(entityId, 5, "mno"),
-      new Envelope(entityId, 6, "pqr")));
+    Source<Envelope, NotUsed> envelopes =
+        Source.from(
+            Arrays.asList(
+                new Envelope(entityId, 1, "abc"),
+                new Envelope(entityId, 2, "def"),
+                new Envelope(entityId, 3, "ghi"),
+                new Envelope(entityId, 4, "jkl"),
+                new Envelope(entityId, 5, "mno"),
+                new Envelope(entityId, 6, "pqr")));
 
-    TestSourceProvider<Long, Envelope> sourceProvider = TestSourceProvider.create(envelopes, env -> env.offset)
-      .withStartSourceFrom((Long lastProcessedOffset, Long offset) -> offset <= lastProcessedOffset);
+    TestSourceProvider<Long, Envelope> sourceProvider =
+        TestSourceProvider.create(envelopes, env -> env.offset)
+            .withStartSourceFrom(
+                (Long lastProcessedOffset, Long offset) -> offset <= lastProcessedOffset);
 
     return sourceProvider;
   }

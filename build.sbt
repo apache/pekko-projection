@@ -19,10 +19,7 @@ ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
 lazy val core =
   Project(id = "core", base = file("core"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.core)
     .settings(AutomaticModuleName.settings("pekko.projection.core"))
     .settings(name := "pekko-projection-core")
@@ -30,23 +27,16 @@ lazy val core =
 
 lazy val coreTest =
   Project(id = "core-test", base = file("core-test"))
-    .configs(IntegrationTest)
-    .settings(headerSettings(IntegrationTest))
     .disablePlugins(MimaPlugin)
-    .settings(Defaults.itSettings)
     .settings(Dependencies.coreTest)
-    .settings(
-      name := "pekko-projection-core-test")
+    .settings(name := "pekko-projection-core-test")
     .settings(publish / skip := true)
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
 lazy val testkit =
   Project(id = "testkit", base = file("testkit"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.testKit)
     .settings(AutomaticModuleName.settings("pekko.projection.testkit"))
     .settings(name := "pekko-projection-testkit")
@@ -55,10 +45,7 @@ lazy val testkit =
 // provides offset storage backed by a JDBC table
 lazy val jdbc =
   Project(id = "jdbc", base = file("jdbc"))
-    .configs(IntegrationTest.extend(Test))
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.jdbc)
     .settings(AutomaticModuleName.settings("pekko.projection.jdbc"))
     .settings(name := "pekko-projection-jdbc")
@@ -66,13 +53,22 @@ lazy val jdbc =
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
 
+lazy val jdbcIntTest =
+  Project(id = "jdbc-int-test", base = file("jdbc-int-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.jdbc)
+    .settings(
+      name := "pekko-projection-jdbc-int-test",
+      publish / skip := true,
+      Test / parallelExecution := false)
+    .dependsOn(jdbc % "test->test")
+    .dependsOn(coreTest % "test->test")
+    .dependsOn(testkit % Test)
+
 // provides offset storage backed by a JDBC (Slick) table
 lazy val slick =
   Project(id = "slick", base = file("slick"))
-    .configs(IntegrationTest.extend(Test))
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(
       // Transitive dependency `scala-reflect` to avoid `NoClassDefFoundError`.
       // See: https://github.com/slick/slick/issues/2933
@@ -90,22 +86,40 @@ lazy val slick =
     .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
 
+lazy val slickIntTest =
+  Project(id = "slick-int-test", base = file("slick-int-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.slick)
+    .settings(
+      name := "pekko-projection-slick-int-test",
+      versionScheme := None,
+      publish / skip := true,
+      Test / parallelExecution := false)
+    .dependsOn(slick % "test->test")
+    .dependsOn(core)
+    .dependsOn(coreTest % "test->test")
+    .dependsOn(testkit % Test)
+
 // provides offset storage backed by a Cassandra table
 lazy val cassandra =
   Project(id = "cassandra", base = file("cassandra"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.cassandra)
     .settings(AutomaticModuleName.settings("pekko.projection.cassandra"))
     .settings(name := "pekko-projection-cassandra")
     .dependsOn(core)
-    // strictly speaking it is not needed to have test->test here.
-    // Cassandra module doesn't have tests, only integration tests
-    // however, without it the generated pom.xml doesn't get this test dependencies
-    .dependsOn(coreTest % "test->test;it->test")
-    .dependsOn(testkit % "test->compile;it->compile")
+
+lazy val cassandraTest =
+  Project(id = "cassandra-test", base = file("cassandra-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.cassandra)
+    .settings(name := "pekko-projection-cassandra-test")
+    .settings(publish / skip := true)
+    .settings(Test / parallelExecution := false)
+    .dependsOn(core)
+    .dependsOn(cassandra)
+    .dependsOn(coreTest % "test->test")
+    .dependsOn(testkit % Test)
 
 // provides source providers for pekko-persistence-query
 lazy val eventsourced =
@@ -125,26 +139,22 @@ lazy val kafka =
     .settings(AutomaticModuleName.settings("pekko.projection.kafka"))
     .settings(name := "pekko-projection-kafka")
     .dependsOn(core)
+    .dependsOn(testkit % "test")
 
 lazy val kafkaTest =
   Project(id = "kafka-test", base = file("kafka-test"))
-    .configs(IntegrationTest)
-    .enablePlugins(ReproducibleBuildsPlugin)
     .disablePlugins(MimaPlugin)
-    .settings(headerSettings(IntegrationTest))
-    .settings(Defaults.itSettings)
     .settings(Dependencies.kafkaTest)
     .settings(
       name := "pekko-projection-kafka-test",
       publish / skip := true)
-    .dependsOn(kafka)
-    .dependsOn(testkit % Test)
-    .dependsOn(slick % "test->test;it->it")
+    .dependsOn(kafka % "test->test")
+    .dependsOn(slick % "compile;test->test")
+    .dependsOn(testkit % "test")
 
 // provides source providers for durable state changes
 lazy val `durable-state` =
   Project(id = "durable-state", base = file("durable-state"))
-    .configs(IntegrationTest)
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.state)
     .settings(AutomaticModuleName.settings("pekko.projection.durable-state"))
@@ -164,10 +174,10 @@ lazy val examples = project
   .settings(Dependencies.examples)
   .dependsOn(slick % "test->test")
   .dependsOn(jdbc % "test->test")
-  .dependsOn(cassandra % "test->test;test->it")
+  .dependsOn(cassandraTest % "test->test")
   .dependsOn(eventsourced)
   .dependsOn(`durable-state`)
-  .dependsOn(kafkaTest % "test->test")
+  .dependsOn(kafka % "test->test")
   .dependsOn(testkit % Test)
   .settings(publish / skip := true, scalacOptions += "-feature", javacOptions += "-parameters")
 
@@ -223,7 +233,7 @@ lazy val billOfMaterials = Project("bill-of-materials", file("bill-of-materials"
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(userProjects: _*)
-  .aggregate(billOfMaterials, coreTest, kafkaTest, examples, docs)
+  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, jdbcIntTest, slickIntTest, examples, docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")
