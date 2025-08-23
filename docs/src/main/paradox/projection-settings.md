@@ -5,10 +5,10 @@ A Projection is a background process that continuously consume event envelopes f
 By default, the backoff configuration defined in the reference configuration is used. Those values can be overriden in the `application.conf` file or programatically as shown below.
 
 Scala
-:  @@snip [CassandraProjectionDocExample.scala](/integtration-examples/src/test/scala/docs/cassandra/CassandraProjectionDocExample.scala) { #projection-imports #projection-settings }
+:  @@snip [CassandraProjectionDocExample.scala](/integration-examples/src/test/scala/docs/cassandra/CassandraProjectionDocExample.scala) { #projection-imports #projection-settings }
 
 Java
-:  @@snip [CassandraProjectionDocExample.java](/integtration-examples/src/test/java/jdocs/cassandra/CassandraProjectionDocExample.java) { #projection-imports  #projection-settings }
+:  @@snip [CassandraProjectionDocExample.java](/integration-examples/src/test/java/jdocs/cassandra/CassandraProjectionDocExample.java) { #projection-imports  #projection-settings }
 
 ## Configuration
 
