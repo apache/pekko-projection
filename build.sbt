@@ -166,11 +166,8 @@ lazy val userProjects: Seq[ProjectReference] = List[ProjectReference](
   core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, testkit)
 
 lazy val examples = project
-  .configs(IntegrationTest.extend(Test))
-  .settings(headerSettings(IntegrationTest))
   .enablePlugins(ReproducibleBuildsPlugin)
   .disablePlugins(MimaPlugin)
-  .settings(Defaults.itSettings)
   .settings(Dependencies.examples)
   .dependsOn(slick % "test->test")
   .dependsOn(jdbc % "test->test")
@@ -180,6 +177,23 @@ lazy val examples = project
   .dependsOn(kafka % "test->test")
   .dependsOn(testkit % Test)
   .settings(publish / skip := true, scalacOptions += "-feature", javacOptions += "-parameters")
+
+lazy val integrationExamples = Project("integration-examples", file("integration-examples"))
+  .enablePlugins(ReproducibleBuildsPlugin)
+  .disablePlugins(MimaPlugin)
+  .settings(Dependencies.examples)
+  .dependsOn(slick % "test->test")
+  .dependsOn(jdbc % "test->test")
+  .dependsOn(cassandraTest % "test->test")
+  .dependsOn(eventsourced)
+  .dependsOn(`durable-state`)
+  .dependsOn(kafka % "test->test")
+  .dependsOn(examples % "test->test")
+  .dependsOn(testkit % Test)
+  .settings(publish / skip := true,
+    scalacOptions += "-feature",
+    javacOptions += "-parameters",
+    Test / parallelExecution := false)
 
 lazy val docs = project
   .enablePlugins(PekkoParadoxPlugin, ParadoxPlugin, ParadoxSitePlugin, PreprocessPlugin)
@@ -233,7 +247,8 @@ lazy val billOfMaterials = Project("bill-of-materials", file("bill-of-materials"
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(userProjects: _*)
-  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, jdbcIntTest, slickIntTest, examples, docs)
+  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, jdbcIntTest, slickIntTest, examples,
+    integrationExamples, docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")

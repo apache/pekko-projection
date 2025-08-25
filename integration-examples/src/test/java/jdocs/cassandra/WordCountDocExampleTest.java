@@ -13,11 +13,16 @@
 
 package jdocs.cassandra;
 
+import static jdocs.cassandra.WordCountDocExample.*;
+import static jdocs.cassandra.WordCountDocExample.IllstrateActorLoadingInitialState.WordCountActorHandler;
+import static jdocs.cassandra.WordCountDocExample.IllstrateActorLoadingInitialState.WordCountProcessor;
+import static jdocs.cassandra.WordCountDocExample.IllustrateStatefulHandlerLoadingInitialState.WordCountHandler;
+import static org.junit.Assert.assertEquals;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
 import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
 import org.apache.pekko.actor.typed.ActorSystem;
@@ -35,12 +40,6 @@ import org.junit.Rule;
 import org.junit.Test;
 import org.scalatestplus.junit.JUnitSuite;
 import scala.concurrent.Await;
-
-import static jdocs.cassandra.WordCountDocExample.*;
-import static jdocs.cassandra.WordCountDocExample.IllustrateStatefulHandlerLoadingInitialState.WordCountHandler;
-import static jdocs.cassandra.WordCountDocExample.IllstrateActorLoadingInitialState.WordCountActorHandler;
-import static jdocs.cassandra.WordCountDocExample.IllstrateActorLoadingInitialState.WordCountProcessor;
-import static org.junit.Assert.assertEquals;
 
 public class WordCountDocExampleTest extends JUnitSuite {
   @ClassRule public static final TestKitJunitResource testKit = new TestKitJunitResource();
