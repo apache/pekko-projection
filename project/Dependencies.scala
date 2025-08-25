@@ -70,8 +70,6 @@ object Dependencies {
   }
 
   object Test {
-    val allTestConfig = "test,it"
-
     val pekkoTypedTestkit = Compile.pekkoTypedTestkit
     val pekkoStreamTestkit = Compile.pekkoStreamTestkit
     val persistenceTestkit = "org.apache.pekko" %% "pekko-persistence-testkit" % Versions.pekko % "test"
@@ -217,8 +215,8 @@ object Dependencies {
       Examples.pekkoPersistenceCassandra,
       Examples.pekkoPersistenceJdbc,
       Examples.hibernate,
-      Test.h2Driver % Test.allTestConfig,
-      Test.pekkoTypedTestkit % Test.allTestConfig,
-      Test.logback % Test.allTestConfig,
-      Test.cassandraContainer % Test.allTestConfig)
+      Test.h2Driver % "test",
+      Test.pekkoTypedTestkit % "test",
+      Test.logback % "test",
+      Test.cassandraContainer % "test")
 }
