@@ -21,6 +21,7 @@ import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko
+import org.scalatest.Inspectors.forEvery
 import pekko.Done
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
@@ -162,66 +163,97 @@ class EventSourcedProviderSpec
       .expectNoMessage()
   }
 
-  "Should provide different events" - {
-    "by tags" - {
-      "for different tags" in {
-        val persistenceId1 = "a-id-1"
-        val persistenceId2 = "a-id-2"
-        val tag1 = "a-tag-1"
-        val tag2 = "a-tag-2"
+  "Should " - {
+    "provide different events" - {
+      "by tags" - {
+        "for different tags" in {
+          val persistenceId1 = "a-id-1"
+          val persistenceId2 = "a-id-2"
+          val tag1 = "a-tag-1"
+          val tag2 = "a-tag-2"
 
-        setup(persistenceId1, Set(tag1))
-        setup(persistenceId2, Set(tag2))
+          setup(persistenceId1, Set(tag1))
+          setup(persistenceId2, Set(tag2))
 
-        assertTag(tag1, Seq(s"$persistenceId1-event-1", s"$persistenceId1-event-2", s"$persistenceId1-event-3"))
-        assertTag(tag2, Seq(s"$persistenceId2-event-1", s"$persistenceId2-event-2", s"$persistenceId2-event-3"))
+          assertTag(tag1, Seq(s"$persistenceId1-event-1", s"$persistenceId1-event-2", s"$persistenceId1-event-3"))
+          assertTag(tag2, Seq(s"$persistenceId2-event-1", s"$persistenceId2-event-2", s"$persistenceId2-event-3"))
+        }
+
+        "for different journals" in {
+          val persistenceId1 = "b-id-1"
+          val tag1 = "b-tag-1"
+          val journal1 = "b-journal-1"
+          val journal2 = "b-journal-2"
+
+          setup(persistenceId1, Set(tag1), Some(journal1))
+          setup(persistenceId1, Set(tag1), Some(journal2))
+
+          val expectedEvents = Seq(s"$persistenceId1-event-1", s"$persistenceId1-event-2", s"$persistenceId1-event-3")
+          assertTag(tag1, expectedEvents.map(_ + s"-$journal1"), Some(journal1))
+          assertTag(tag1, expectedEvents.map(_ + s"-$journal2"), Some(journal2))
+        }
       }
 
-      "for different journals" in {
-        val persistenceId1 = "b-id-1"
-        val tag1 = "b-tag-1"
-        val journal1 = "b-journal-1"
-        val journal2 = "b-journal-2"
+      "by slices" - {
+        "for different slices" in {
+          val persistenceId1 = makeFullPersistenceId("c-id-1")
+          val persistenceId2 = makeFullPersistenceId("c-id-2")
 
-        setup(persistenceId1, Set(tag1), Some(journal1))
-        setup(persistenceId1, Set(tag1), Some(journal2))
+          val slice1 = persistence.sliceForPersistenceId(persistenceId1)
+          val slice2 = persistence.sliceForPersistenceId(persistenceId2)
+          slice1 should not be slice2
 
-        val expectedEvents = Seq(s"$persistenceId1-event-1", s"$persistenceId1-event-2", s"$persistenceId1-event-3")
-        assertTag(tag1, expectedEvents.map(_ + s"-$journal1"), Some(journal1))
-        assertTag(tag1, expectedEvents.map(_ + s"-$journal2"), Some(journal2))
+          setup(persistenceId1)
+          setup(persistenceId2)
+
+          val expectedEvents1 = Seq(s"$persistenceId1-event-1", s"$persistenceId1-event-2", s"$persistenceId1-event-3")
+          val expectedEvents2 = Seq(s"$persistenceId2-event-1", s"$persistenceId2-event-2", s"$persistenceId2-event-3")
+          assertSlices(0, numberOfSlices - 1, expectedEvents1 ++ expectedEvents2)
+          assertSlices(slice1, slice1, expectedEvents1)
+          assertSlices(slice2, slice2, expectedEvents2)
+        }
+
+        "for different journals" in {
+          val persistenceId1 = makeFullPersistenceId("d-id-1")
+          val journal1 = "d-journal-1"
+          val journal2 = "d-journal-2"
+
+          setup(persistenceId1, maybeJournal = Some(journal1))
+          setup(persistenceId1, maybeJournal = Some(journal2))
+
+          val expectedEvents = Seq(s"$persistenceId1-event-1", s"$persistenceId1-event-2", s"$persistenceId1-event-3")
+          assertSlices(0, numberOfSlices - 1, expectedEvents.map(_ + s"-$journal1"), maybeJournal = Some(journal1))
+          assertSlices(0, numberOfSlices - 1, expectedEvents.map(_ + s"-$journal2"), maybeJournal = Some(journal2))
+        }
       }
     }
 
-    "by slices" - {
-      "for different slices" in {
-        val persistenceId1 = makeFullPersistenceId("c-id-1")
-        val persistenceId2 = makeFullPersistenceId("c-id-2")
+    "for different journals" - {
+      val persistenceId1 = makeFullPersistenceId("d-id-1")
+      val journal1 = "d-journal-1"
+      val journal2 = "d-journal-2"
+      val journals = Seq(journal1, journal2)
 
-        val slice1 = persistence.sliceForPersistenceId(persistenceId1)
-        val slice2 = persistence.sliceForPersistenceId(persistenceId2)
-        slice1 should not be slice2
-
-        setup(persistenceId1)
-        setup(persistenceId2)
-
-        val expectedEvents1 = Seq(s"$persistenceId1-event-1", s"$persistenceId1-event-2", s"$persistenceId1-event-3")
-        val expectedEvents2 = Seq(s"$persistenceId2-event-1", s"$persistenceId2-event-2", s"$persistenceId2-event-3")
-        assertSlices(0, numberOfSlices - 1, expectedEvents1 ++ expectedEvents2)
-        assertSlices(slice1, slice1, expectedEvents1)
-        assertSlices(slice2, slice2, expectedEvents2)
+      "return slice for persistence id" in {
+        forEvery(journals) { journal =>
+          EventSourcedProvider.sliceForPersistenceId(
+            system,
+            s"$journal.query",
+            journalConfig(journal),
+            persistenceId1
+          ) shouldBe 594
+        }
       }
 
-      "for different journals" in {
-        val persistenceId1 = makeFullPersistenceId("d-id-1")
-        val journal1 = "d-journal-1"
-        val journal2 = "d-journal-2"
-
-        setup(persistenceId1, maybeJournal = Some(journal1))
-        setup(persistenceId1, maybeJournal = Some(journal2))
-
-        val expectedEvents = Seq(s"$persistenceId1-event-1", s"$persistenceId1-event-2", s"$persistenceId1-event-3")
-        assertSlices(0, numberOfSlices - 1, expectedEvents.map(_ + s"-$journal1"), maybeJournal = Some(journal1))
-        assertSlices(0, numberOfSlices - 1, expectedEvents.map(_ + s"-$journal2"), maybeJournal = Some(journal2))
+      "return slices ranges" in {
+        forEvery(journals) { journal =>
+          EventSourcedProvider.sliceRanges(
+            system,
+            s"$journal.query",
+            journalConfig(journal),
+            1
+          ) shouldBe Seq(0 until numberOfSlices)
+        }
       }
     }
   }

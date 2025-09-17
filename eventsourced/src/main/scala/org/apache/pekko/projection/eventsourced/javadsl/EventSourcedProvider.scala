@@ -146,12 +146,31 @@ object EventSourcedProvider {
       .getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId)
       .sliceForPersistenceId(persistenceId)
 
+  def sliceForPersistenceId(
+      system: ActorSystem[_],
+      readJournalPluginId: String,
+      readJournalConfig: Config,
+      persistenceId: String
+  ): Int =
+    PersistenceQuery(system)
+      .getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId, readJournalConfig)
+      .sliceForPersistenceId(persistenceId)
+
   def sliceRanges(
       system: ActorSystem[_],
       readJournalPluginId: String,
       numberOfRanges: Int): java.util.List[Pair[Integer, Integer]] =
     PersistenceQuery(system)
       .getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId)
+      .sliceRanges(numberOfRanges)
+
+  def sliceRanges(
+      system: ActorSystem[_],
+      readJournalPluginId: String,
+      readJournalConfig: Config,
+      numberOfRanges: Int): java.util.List[Pair[Integer, Integer]] =
+    PersistenceQuery(system)
+      .getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId, readJournalConfig)
       .sliceRanges(numberOfRanges)
 
   /**
