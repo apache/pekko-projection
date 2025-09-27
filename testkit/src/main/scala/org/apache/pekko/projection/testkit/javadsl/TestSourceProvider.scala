@@ -19,7 +19,8 @@ import pekko.annotation.ApiMayChange
 import pekko.projection.OffsetVerification
 import pekko.projection.javadsl.VerifiableSourceProvider
 import pekko.projection.testkit.internal.TestSourceProviderImpl
-import pekko.util.FunctionConverters._
+
+import scala.jdk.FunctionConverters._
 
 @ApiMayChange
 object TestSourceProvider {

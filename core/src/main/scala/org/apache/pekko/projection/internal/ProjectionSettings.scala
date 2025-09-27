@@ -15,6 +15,7 @@ package org.apache.pekko.projection.internal
 
 import scala.concurrent.duration.FiniteDuration
 import scala.concurrent.duration._
+import scala.jdk.DurationConverters._
 
 import org.apache.pekko
 import pekko.actor.typed.ActorSystem
@@ -22,7 +23,6 @@ import pekko.annotation.InternalApi
 import pekko.projection.HandlerRecoveryStrategy
 import pekko.projection.Projection
 import pekko.stream.RestartSettings
-import pekko.util.JavaDurationConverters._
 import com.typesafe.config.Config
 
 /**
@@ -112,7 +112,7 @@ private object RecoveryStrategyConfig {
       minBackoff: java.time.Duration,
       maxBackoff: java.time.Duration,
       randomFactor: Double): ProjectionImpl =
-    withRestartBackoffSettings(RestartSettings(minBackoff.asScala, maxBackoff.asScala, randomFactor))
+    withRestartBackoffSettings(RestartSettings(minBackoff.toScala, maxBackoff.toScala, randomFactor))
 
   def withRestartBackoff(
       minBackoff: java.time.Duration,
@@ -120,16 +120,16 @@ private object RecoveryStrategyConfig {
       randomFactor: Double,
       maxRestarts: Int): ProjectionImpl =
     withRestartBackoffSettings(
-      RestartSettings(minBackoff.asScala, maxBackoff.asScala, randomFactor).withMaxRestarts(maxRestarts, minBackoff))
+      RestartSettings(minBackoff.toScala, maxBackoff.toScala, randomFactor).withMaxRestarts(maxRestarts, minBackoff.toScala))
 
   def withSaveOffset(afterEnvelopes: Int, afterDuration: FiniteDuration): ProjectionImpl
 
   def withSaveOffset(afterEnvelopes: Int, afterDuration: java.time.Duration): ProjectionImpl =
-    withSaveOffset(afterEnvelopes, afterDuration.asScala)
+    withSaveOffset(afterEnvelopes, afterDuration.toScala)
 
   def withGroup(groupAfterEnvelopes: Int, groupAfterDuration: FiniteDuration): ProjectionImpl
 
   def withGroup(groupAfterEnvelopes: Int, groupAfterDuration: java.time.Duration): ProjectionImpl =
-    withGroup(groupAfterEnvelopes, groupAfterDuration.asScala)
+    withGroup(groupAfterEnvelopes, groupAfterDuration.toScala)
 
 }
