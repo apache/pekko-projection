@@ -22,7 +22,6 @@ import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
-
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
 import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
@@ -50,7 +49,6 @@ import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegi
 import org.apache.pekko.stream.javadsl.Source;
 import org.junit.*;
 import org.scalatestplus.junit.JUnitSuite;
-
 import scala.concurrent.Await;
 import scala.jdk.javaapi.FutureConverters;
 

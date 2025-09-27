@@ -22,7 +22,6 @@ import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
 import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
@@ -45,7 +44,6 @@ import org.junit.ClassRule;
 import org.junit.ComparisonFailure;
 import org.junit.Test;
 import org.scalatestplus.junit.JUnitSuite;
-
 import scala.Option;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
