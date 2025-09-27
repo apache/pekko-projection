@@ -19,6 +19,7 @@ import java.util.UUID
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
+import scala.jdk.FutureConverters._
 import scala.util.Try
 
 import org.apache.pekko
@@ -33,7 +34,6 @@ import pekko.projection.cassandra.internal.CassandraOffsetStore
 import pekko.projection.internal.ManagementState
 import pekko.projection.testkit.internal.TestClock
 import pekko.stream.connectors.cassandra.scaladsl.CassandraSessionRegistry
-import pekko.util.FutureConverters._
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class CassandraOffsetStoreSpec

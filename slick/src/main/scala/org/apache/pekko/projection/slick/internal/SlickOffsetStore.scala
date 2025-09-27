@@ -15,14 +15,12 @@ package org.apache.pekko.projection.slick.internal
 
 import java.time.Clock
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 import org.apache.pekko
 import pekko.Done
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.InternalApi
-import pekko.dispatch.ExecutionContexts
 import pekko.projection.MergeableOffset
 import pekko.projection.ProjectionId
 import pekko.projection.internal.ManagementState
@@ -181,7 +179,7 @@ import slick.jdbc.JdbcProfile
         })
     }
     databaseConfig.db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO))
-      .map(_ => Done)(ExecutionContexts.parasitic)
+      .map(_ => Done)(ExecutionContext.parasitic)
   }
 
   def dropIfExists(): Future[Done] = {
@@ -198,7 +196,7 @@ import slick.jdbc.JdbcProfile
       }
     }
     databaseConfig.db.run(DBIO.seq(prepareSchemaDBIO, prepareManagementSchemaDBIO))
-      .map(_ => Done)(ExecutionContexts.parasitic)
+      .map(_ => Done)(ExecutionContext.parasitic)
   }
 
   def readManagementState(projectionId: ProjectionId)(
@@ -219,6 +217,6 @@ import slick.jdbc.JdbcProfile
     val action =
       managementTable.insertOrUpdate(ManagementStateRow(projectionId.name, projectionId.key, paused, millisSinceEpoch))
 
-    databaseConfig.db.run(action).map(_ => Done)(ExecutionContexts.parasitic)
+    databaseConfig.db.run(action).map(_ => Done)(ExecutionContext.parasitic)
   }
 }

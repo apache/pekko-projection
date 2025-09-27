@@ -17,7 +17,10 @@ import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.jdk.FunctionConverters._
+import scala.jdk.FutureConverters._
+import scala.jdk.OptionConverters._
 
 import org.apache.pekko
 import pekko.NotUsed
@@ -25,9 +28,6 @@ import pekko.annotation.InternalApi
 import pekko.projection.OffsetVerification
 import pekko.projection.testkit.scaladsl.TestSourceProvider
 import pekko.stream.scaladsl.Source
-import pekko.util.FunctionConverters._
-import pekko.util.FutureConverters._
-import pekko.util.OptionConverters._
 
 /**
  * INTERNAL API
@@ -87,7 +87,7 @@ private[projection] class TestSourceProviderImpl[Offset, Envelope] private[proje
   }
 
   override def source(offset: () => Future[Option[Offset]]): Future[Source[Envelope, NotUsed]] = {
-    implicit val ec = pekko.dispatch.ExecutionContexts.parasitic
+    implicit val ec = ExecutionContext.parasitic
     val src =
       if (allowCompletion) sourceEvents
       else sourceEvents.concat(Source.maybe)
@@ -99,7 +99,7 @@ private[projection] class TestSourceProviderImpl[Offset, Envelope] private[proje
 
   override def source(offset: Supplier[CompletionStage[Optional[Offset]]])
       : CompletionStage[pekko.stream.javadsl.Source[Envelope, NotUsed]] = {
-    implicit val ec = pekko.dispatch.ExecutionContexts.parasitic
+    implicit val ec = ExecutionContext.parasitic
     source(() => offset.get().asScala.map(_.toScala)).map(_.asJava).asJava
   }
 

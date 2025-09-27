@@ -21,6 +21,8 @@ import java.util.function.Supplier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.jdk.FutureConverters._
+
 import com.typesafe.config.Config
 import org.apache.pekko
 import pekko.NotUsed
@@ -40,7 +42,6 @@ import pekko.projection.eventsourced.EventEnvelope
 import pekko.projection.javadsl
 import pekko.projection.javadsl.SourceProvider
 import pekko.stream.javadsl.Source
-import pekko.util.FutureConverters._
 
 @ApiMayChange
 object EventSourcedProvider {

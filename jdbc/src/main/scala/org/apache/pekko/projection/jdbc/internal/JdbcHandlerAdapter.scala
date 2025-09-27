@@ -14,12 +14,13 @@
 package org.apache.pekko.projection.jdbc.internal
 
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
+
 import org.apache.pekko
 import pekko.annotation.InternalApi
 import pekko.projection.jdbc.JdbcSession
 import pekko.projection.jdbc.javadsl
 import pekko.projection.jdbc.scaladsl
-import pekko.util.ccompat.JavaConverters._
 
 /**
  * INTERNAL API: Adapter from javadsl.JdbcHandler to scaladsl.JdbcHandler

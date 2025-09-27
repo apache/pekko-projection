@@ -13,7 +13,10 @@
 
 package org.apache.pekko.projection.testkit.internal
 
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
+import scala.jdk.OptionConverters._
 
 import org.apache.pekko
 import pekko.Done
@@ -21,9 +24,6 @@ import pekko.annotation.InternalApi
 import pekko.projection.ProjectionId
 import pekko.projection.internal.ManagementState
 import pekko.projection.testkit.scaladsl.TestOffsetStore
-import pekko.util.ccompat.JavaConverters._
-import pekko.util.OptionConverters._
-import pekko.util.FutureConverters._
 
 @InternalApi private[projection] class TestOffsetStoreAdapter[Offset](
     delegate: pekko.projection.testkit.javadsl.TestOffsetStore[Offset])
@@ -34,7 +34,7 @@ import pekko.util.FutureConverters._
   override def allOffsets(): List[(ProjectionId, Offset)] = delegate.allOffsets().asScala.map(_.toScala).toList
 
   override def readOffsets(): Future[Option[Offset]] = {
-    implicit val ec = pekko.dispatch.ExecutionContexts.parasitic
+    implicit val ec = ExecutionContext.parasitic
     delegate.readOffsets().asScala.map(_.toScala)
   }
 
@@ -42,7 +42,7 @@ import pekko.util.FutureConverters._
     delegate.saveOffset(projectionId, offset).asScala
 
   override def readManagementState(projectionId: ProjectionId): Future[Option[ManagementState]] = {
-    implicit val ec = pekko.dispatch.ExecutionContexts.parasitic
+    implicit val ec = ExecutionContext.parasitic
     delegate.readManagementState(projectionId).asScala.map(_.toScala)
   }
 

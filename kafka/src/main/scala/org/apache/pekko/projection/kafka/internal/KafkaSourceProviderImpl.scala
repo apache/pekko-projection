@@ -20,6 +20,8 @@ import java.util.function.Supplier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.jdk.FutureConverters._
+import scala.jdk.OptionConverters._
 
 import org.apache.pekko
 import pekko.NotUsed
@@ -40,8 +42,6 @@ import pekko.projection.kafka.KafkaOffsets.keyToPartition
 import pekko.projection.scaladsl
 import pekko.stream.scaladsl.Keep
 import pekko.stream.scaladsl.Source
-import pekko.util.FutureConverters._
-import pekko.util.OptionConverters._
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
 import org.apache.kafka.common.record.TimestampType

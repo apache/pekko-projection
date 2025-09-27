@@ -17,6 +17,8 @@ import java.util.Optional
 import java.util.concurrent.CompletionStage
 
 import scala.concurrent.ExecutionContext
+import scala.jdk.FutureConverters._
+import scala.jdk.OptionConverters._
 
 import org.apache.pekko
 import pekko.Done
@@ -24,8 +26,6 @@ import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange
 import pekko.projection.ProjectionId
 import pekko.projection.scaladsl
-import pekko.util.FutureConverters._
-import pekko.util.OptionConverters._
 
 @ApiMayChange object ProjectionManagement {
   def get(system: ActorSystem[_]): ProjectionManagement = new ProjectionManagement(system)

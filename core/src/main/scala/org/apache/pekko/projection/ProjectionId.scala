@@ -14,10 +14,10 @@
 package org.apache.pekko.projection
 
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 
 import org.apache.pekko
 import pekko.annotation.ApiMayChange
-import pekko.util.ccompat.JavaConverters._
 
 @ApiMayChange
 object ProjectionId {
