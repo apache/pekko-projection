@@ -19,6 +19,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.TimeoutException
 import scala.concurrent.duration.FiniteDuration
+import scala.jdk.DurationConverters._
 
 import org.apache.pekko
 import pekko.Done
@@ -31,7 +32,6 @@ import pekko.actor.typed.scaladsl.AskPattern._
 import pekko.annotation.ApiMayChange
 import pekko.projection.ProjectionBehavior
 import pekko.projection.ProjectionId
-import pekko.util.JavaDurationConverters._
 import pekko.util.Timeout
 
 @ApiMayChange object ProjectionManagement extends ExtensionId[ProjectionManagement] {
@@ -43,10 +43,10 @@ import pekko.util.Timeout
 @ApiMayChange class ProjectionManagement(system: ActorSystem[_]) extends Extension {
   private implicit val sys: ActorSystem[_] = system
   private implicit val askTimeout: Timeout = {
-    system.settings.config.getDuration("pekko.projection.management.ask-timeout").asScala
+    system.settings.config.getDuration("pekko.projection.management.ask-timeout").toScala
   }
   private val operationTimeout: FiniteDuration =
-    system.settings.config.getDuration("pekko.projection.management.operation-timeout").asScala
+    system.settings.config.getDuration("pekko.projection.management.operation-timeout").toScala
   private val retryAttempts: Int = math.max(1, (operationTimeout / askTimeout.duration).toInt)
   private implicit val ec: ExecutionContext = system.executionContext
 

@@ -24,7 +24,8 @@ import pekko.japi.function.Procedure
 import pekko.projection.Projection
 import pekko.projection.testkit.scaladsl
 import pekko.stream.testkit.TestSubscriber
-import pekko.util.JavaDurationConverters._
+
+import scala.jdk.DurationConverters._
 
 @ApiMayChange
 object ProjectionTestKit {
@@ -69,7 +70,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param assertFunction - a function that exercises the test assertions
    */
   def run(projection: Projection[_], max: Duration, assertFunction: Effect): Unit =
-    delegate.run(projection, max.asScala)(assertFunction.apply())
+    delegate.run(projection, max.toScala)(assertFunction.apply())
 
   /**
    * Run a Projection and assert its projected data using the passed assert function,
@@ -89,7 +90,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param assertFunction - a function that exercises the test assertions
    */
   def run(projection: Projection[_], max: Duration, interval: Duration, assertFunction: Effect): Unit =
-    delegate.run(projection, max.asScala, interval.asScala)(assertFunction.apply())
+    delegate.run(projection, max.toScala, interval.toScala)(assertFunction.apply())
 
   /**
    * Run a Projection with an attached `TestSubscriber.Probe` allowing
