@@ -120,7 +120,8 @@ private object RecoveryStrategyConfig {
       randomFactor: Double,
       maxRestarts: Int): ProjectionImpl =
     withRestartBackoffSettings(
-      RestartSettings(minBackoff.toScala, maxBackoff.toScala, randomFactor).withMaxRestarts(maxRestarts, minBackoff.toScala))
+      RestartSettings(minBackoff.toScala, maxBackoff.toScala, randomFactor).withMaxRestarts(maxRestarts,
+        minBackoff.toScala))
 
   def withSaveOffset(afterEnvelopes: Int, afterDuration: FiniteDuration): ProjectionImpl
 
