@@ -24,6 +24,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 import scala.concurrent.duration._
+import scala.jdk.FutureConverters._
 
 import org.apache.pekko
 import pekko.Done
@@ -60,7 +61,6 @@ import pekko.stream.scaladsl.Source
 import pekko.stream.testkit.TestPublisher
 import pekko.stream.testkit.TestSubscriber
 import pekko.stream.testkit.scaladsl.TestSource
-import pekko.util.FutureConverters._
 import org.scalatest.wordspec.AnyWordSpecLike
 
 object CassandraProjectionSpec {

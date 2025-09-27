@@ -19,6 +19,7 @@ import java.util.function.Supplier
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.jdk.FutureConverters._
 
 import org.apache.pekko
 import pekko.NotUsed
@@ -39,7 +40,6 @@ import pekko.projection.BySlicesSourceProvider
 import pekko.projection.javadsl
 import pekko.projection.javadsl.SourceProvider
 import pekko.stream.javadsl.Source
-import pekko.util.FutureConverters._
 
 /**
  * API may change

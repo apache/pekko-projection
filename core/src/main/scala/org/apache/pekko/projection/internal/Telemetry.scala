@@ -16,6 +16,7 @@ package org.apache.pekko.projection.internal
 import java.util
 
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 
 import org.apache.pekko
 import pekko.NotUsed
@@ -23,7 +24,6 @@ import pekko.actor.typed.ActorSystem
 import pekko.annotation.InternalApi
 import pekko.annotation.InternalStableApi
 import pekko.projection.ProjectionId
-import pekko.util.ccompat.JavaConverters._
 
 /**
  * Service Provider Interface (SPI) for collecting metrics from projections.

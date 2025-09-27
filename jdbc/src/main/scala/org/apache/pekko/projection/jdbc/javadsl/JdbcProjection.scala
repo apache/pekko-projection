@@ -16,6 +16,8 @@ package org.apache.pekko.projection.jdbc.javadsl
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 
+import scala.jdk.FutureConverters._
+
 import org.apache.pekko
 import pekko.Done
 import pekko.actor.typed.ActorSystem
@@ -42,7 +44,6 @@ import pekko.projection.jdbc.internal.GroupedJdbcHandlerAdapter
 import pekko.projection.jdbc.internal.JdbcHandlerAdapter
 import pekko.projection.jdbc.internal.JdbcProjectionImpl
 import pekko.stream.javadsl.FlowWithContext
-import pekko.util.FutureConverters._
 
 @ApiMayChange
 object JdbcProjection {

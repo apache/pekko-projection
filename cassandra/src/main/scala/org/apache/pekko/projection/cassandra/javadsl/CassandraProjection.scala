@@ -155,7 +155,7 @@ object CassandraProjection {
    * before the system is started.
    */
   def createTablesIfNotExists(system: ActorSystem[_]): CompletionStage[Done] = {
-    import pekko.util.FutureConverters._
+    import scala.jdk.FutureConverters._
     val offsetStore = new CassandraOffsetStore(system)
     offsetStore.createKeyspaceAndTable().asJava
   }

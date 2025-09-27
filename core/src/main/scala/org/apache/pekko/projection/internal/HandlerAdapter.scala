@@ -15,14 +15,14 @@ package org.apache.pekko.projection.internal
 
 import scala.collection.immutable
 import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
 
 import org.apache.pekko
 import pekko.Done
 import pekko.annotation.InternalApi
 import pekko.projection.javadsl
 import pekko.projection.scaladsl
-import pekko.util.ccompat.JavaConverters._
-import pekko.util.FutureConverters._
 
 /**
  * INTERNAL API
