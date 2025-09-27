@@ -111,6 +111,7 @@ object EventSourcedProvider {
       .readJournalFor[EventsBySliceQuery](readJournalPluginId)
       .sliceForPersistenceId(persistenceId)
 
+  /** @since 2.0.0 */
   def sliceForPersistenceId(
       system: ActorSystem[_],
       readJournalPluginId: String,
@@ -123,6 +124,7 @@ object EventSourcedProvider {
   def sliceRanges(system: ActorSystem[_], readJournalPluginId: String, numberOfRanges: Int): immutable.Seq[Range] =
     PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId).sliceRanges(numberOfRanges)
 
+  /** @since 2.0.0 */
   def sliceRanges(
       system: ActorSystem[_],
       readJournalPluginId: String,

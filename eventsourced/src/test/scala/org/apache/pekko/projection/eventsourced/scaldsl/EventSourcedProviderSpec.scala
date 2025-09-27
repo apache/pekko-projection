@@ -21,7 +21,6 @@ import scala.collection.immutable.Seq
 import scala.concurrent.Future
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko
-import org.scalatest.Inspectors.forEvery
 import pekko.Done
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
@@ -35,6 +34,7 @@ import pekko.persistence.typed.scaladsl.Effect
 import pekko.persistence.typed.scaladsl.EventSourcedBehavior
 import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
 import pekko.stream.testkit.scaladsl.TestSink
+import org.scalatest.Inspectors.forEvery
 import org.scalatest.freespec.AnyFreeSpecLike
 
 object EventSourcedProviderSpec {

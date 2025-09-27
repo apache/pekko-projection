@@ -146,6 +146,7 @@ object EventSourcedProvider {
       .getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId)
       .sliceForPersistenceId(persistenceId)
 
+  /** @since 2.0.0 */
   def sliceForPersistenceId(
       system: ActorSystem[_],
       readJournalPluginId: String,
@@ -164,6 +165,7 @@ object EventSourcedProvider {
       .getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId)
       .sliceRanges(numberOfRanges)
 
+  /** @since 2.0.0 */
   def sliceRanges(
       system: ActorSystem[_],
       readJournalPluginId: String,
