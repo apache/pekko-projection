@@ -15,7 +15,7 @@ addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")
 addSbtPlugin("net.bzzt" % "sbt-reproducible-builds" % "0.32")
 addSbtPlugin("com.github.pjfanning" % "sbt-pekko-build" % "0.4.5")
 addSbtPlugin("com.github.pjfanning" % "sbt-source-dist" % "0.1.12")
-addSbtPlugin("com.github.sbt" % "sbt-license-report" % "1.8.0")
+addSbtPlugin("com.github.sbt" % "sbt-license-report" % "1.9.0")
 
 // Documentation
 addSbtPlugin("org.apache.pekko" % "pekko-sbt-paradox" % "1.0.1")
