@@ -295,21 +295,10 @@ object JdbcProjection {
       system: ActorSystem[_]): CompletionStage[Done] =
     JdbcProjectionImpl.createOffsetStore(() => sessionFactory.get())(system).createIfNotExists().asJava
 
-  @deprecated("Renamed to createTablesIfNotExists", "1.2.0")
-  def createOffsetTableIfNotExists[S <: JdbcSession](
-      sessionFactory: Supplier[S],
-      system: ActorSystem[_]): CompletionStage[Done] =
-    createTablesIfNotExists(sessionFactory, system)
-
   /**
    * For testing purposes the projection offset and management tables can be dropped programmatically.
    */
   def dropTablesIfExists[S <: JdbcSession](sessionFactory: Supplier[S], system: ActorSystem[_]): CompletionStage[Done] =
     JdbcProjectionImpl.createOffsetStore(() => sessionFactory.get())(system).dropIfExists().asJava
 
-  @deprecated("Renamed to dropTablesIfExists", "1.2.0")
-  def dropOffsetTableIfExists[S <: JdbcSession](
-      sessionFactory: Supplier[S],
-      system: ActorSystem[_]): CompletionStage[Done] =
-    dropTablesIfExists(sessionFactory, system)
 }
