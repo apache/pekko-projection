@@ -34,7 +34,7 @@ object Dependencies {
     val junit = "4.13.2"
     val h2Driver = "2.4.240"
     val jackson = "2.17.3" // this should match the version of jackson used by pekko-serialization-jackson
-    val logback = "1.3.15"
+    val logback = "1.5.18"
   }
 
   object Compile {
