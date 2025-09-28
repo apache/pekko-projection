@@ -161,8 +161,4 @@ object CassandraProjection {
     offsetStore.createKeyspaceAndTable()
   }
 
-  @deprecated("Renamed to createTablesIfNotExists", "1.2.0")
-  def createOffsetTableIfNotExists()(implicit system: ActorSystem[_]): Future[Done] =
-    createTablesIfNotExists()
-
 }

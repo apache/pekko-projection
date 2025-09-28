@@ -159,8 +159,4 @@ object CassandraProjection {
     val offsetStore = new CassandraOffsetStore(system)
     offsetStore.createKeyspaceAndTable().asJava
   }
-
-  @deprecated("Renamed to createTablesIfNotExists", "1.2.0")
-  def createOffsetTableIfNotExists(system: ActorSystem[_]): CompletionStage[Done] =
-    createTablesIfNotExists(system)
 }
