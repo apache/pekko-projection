@@ -111,8 +111,28 @@ object EventSourcedProvider {
       .readJournalFor[EventsBySliceQuery](readJournalPluginId)
       .sliceForPersistenceId(persistenceId)
 
+  /** @since 2.0.0 */
+  def sliceForPersistenceId(
+      system: ActorSystem[_],
+      readJournalPluginId: String,
+      readJournalConfig: Config,
+      persistenceId: String): Int =
+    PersistenceQuery(system)
+      .readJournalFor[EventsBySliceQuery](readJournalPluginId, readJournalConfig)
+      .sliceForPersistenceId(persistenceId)
+
   def sliceRanges(system: ActorSystem[_], readJournalPluginId: String, numberOfRanges: Int): immutable.Seq[Range] =
     PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId).sliceRanges(numberOfRanges)
+
+  /** @since 2.0.0 */
+  def sliceRanges(
+      system: ActorSystem[_],
+      readJournalPluginId: String,
+      readJournalConfig: Config,
+      numberOfRanges: Int): immutable.Seq[Range] =
+    PersistenceQuery(system)
+      .readJournalFor[EventsBySliceQuery](readJournalPluginId, readJournalConfig)
+      .sliceRanges(numberOfRanges)
 
   private class EventsBySlicesSourceProvider[Event](
       eventsBySlicesQuery: EventsBySliceQuery,
