@@ -80,7 +80,7 @@ object Dependencies {
     val h2Driver = Compile.h2Driver
     val postgresDriver = "org.postgresql" % "postgresql" % "42.7.8"
     val mysqlDriver = "com.mysql" % "mysql-connector-j" % "9.4.0"
-    val msSQLServerDriver = "com.microsoft.sqlserver" % "mssql-jdbc" % "13.2.0.jre11"
+    val msSQLServerDriver = "com.microsoft.sqlserver" % "mssql-jdbc" % "13.2.1.jre11"
     val oracleDriver = "com.oracle.ojdbc" % "ojdbc8" % "19.3.0.0"
 
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
