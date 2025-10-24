@@ -23,10 +23,10 @@ import com.typesafe.config.ConfigFactory
 import org.scalatest.Tag
 import org.testcontainers.containers.JdbcDatabaseContainer
 import org.testcontainers.containers.MSSQLServerContainer
-import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.OracleContainer
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy
+import org.testcontainers.mysql.MySQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 object SlickContainerOffsetStoreSpec {
 
