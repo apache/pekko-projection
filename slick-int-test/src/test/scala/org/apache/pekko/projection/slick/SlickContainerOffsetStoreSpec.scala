@@ -111,7 +111,7 @@ object SlickContainerOffsetStoreSpec {
     val container = initContainer(new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04"))
 
     override protected def initContainer(container: JdbcDatabaseContainer[_]): JdbcDatabaseContainer[_] = {
-      container.asInstanceOf[MSSQLServerContainer[_]].acceptLicense()
+      container.asInstanceOf[MSSQLServerContainer].acceptLicense()
       container.withUrlParam("integratedSecurity", "false")
       container.withUrlParam("encrypt", "false")
       super.initContainer(container)

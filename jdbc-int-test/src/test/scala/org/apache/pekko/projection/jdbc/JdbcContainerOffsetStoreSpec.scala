@@ -108,7 +108,7 @@ object JdbcContainerOffsetStoreSpec {
     val name = "MS SQL Server Database"
     override val tag: Tag = TestTags.FlakyDb
     override def newContainer(): JdbcDatabaseContainer[_] = {
-      val container: MSSQLServerContainer[_] =
+      val container =
         new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04")
       container.acceptLicense()
       container.withInitScript("db/default-init.sql")
