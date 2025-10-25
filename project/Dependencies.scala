@@ -30,7 +30,7 @@ object Dependencies {
     val connectorsKafka = PekkoConnectorsKafkaDependency.version
     val slick = "3.6.1"
     val scalaTest = "3.2.19"
-    val testContainers = "1.21.3"
+    val testContainers = "2.0.1"
     val junit = "4.13.2"
     val h2Driver = "2.4.240"
     val jackson = "2.20.0" // this should match the version of jackson used by pekko-serialization-jackson
@@ -86,16 +86,16 @@ object Dependencies {
     val logback = "ch.qos.logback" % "logback-classic" % Versions.logback
 
     val cassandraContainer =
-      "org.testcontainers" % "cassandra" % Versions.testContainers
+      "org.testcontainers" % "testcontainers-cassandra" % Versions.testContainers
     val postgresContainer =
-      "org.testcontainers" % "postgresql" % Versions.testContainers
+      "org.testcontainers" % "testcontainers-postgresql" % Versions.testContainers
     val mysqlContainer =
-      "org.testcontainers" % "mysql" % Versions.testContainers
+      "org.testcontainers" % "testcontainers-mysql" % Versions.testContainers
     val msSQLServerContainer =
-      "org.testcontainers" % "mssqlserver" % Versions.testContainers
+      "org.testcontainers" % "testcontainers-mssqlserver" % Versions.testContainers
 
     val oracleDbContainer =
-      "org.testcontainers" % "oracle-xe" % Versions.testContainers
+      "org.testcontainers" % "testcontainers-oracle-xe" % Versions.testContainers
 
     val connectorsKafkaTestkit =
       "org.apache.pekko" %% "pekko-connectors-kafka-testkit" % Versions.connectorsKafka

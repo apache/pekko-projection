@@ -26,8 +26,12 @@ import pekko.projection.jdbc.internal.OracleDialect
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.scalatest.Tag
-import org.testcontainers.containers._
+import org.testcontainers.containers.JdbcDatabaseContainer
+import org.testcontainers.containers.OracleContainer
 import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy
+import org.testcontainers.mssqlserver.MSSQLServerContainer
+import org.testcontainers.mysql.MySQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 object JdbcContainerOffsetStoreSpec {
 
@@ -78,7 +82,7 @@ object JdbcContainerOffsetStoreSpec {
   object PostgresSpecConfig extends ContainerJdbcSpecConfig("postgres-dialect") {
     val name = "Postgres Database"
     override def newContainer(): JdbcDatabaseContainer[_] =
-      new PostgreSQLContainer("postgres:13.1").withInitScript("db/default-init.sql")
+      new PostgreSQLContainer("postgres:18.0").withInitScript("db/default-init.sql")
   }
   object PostgresLegacySchemaSpecConfig extends ContainerJdbcSpecConfig("postgres-dialect") {
     val name = "Postgres Database"
@@ -91,20 +95,20 @@ object JdbcContainerOffsetStoreSpec {
         """))
 
     override def newContainer(): JdbcDatabaseContainer[_] =
-      new PostgreSQLContainer("postgres:13.1").withInitScript("db/default-init.sql")
+      new PostgreSQLContainer("postgres:18.0").withInitScript("db/default-init.sql")
   }
 
   object MySQLSpecConfig extends ContainerJdbcSpecConfig("mysql-dialect") {
     val name = "MySQL Database"
     override def newContainer(): JdbcDatabaseContainer[_] =
-      new MySQLContainer("mysql:8.0.22").withDatabaseName(schemaName)
+      new MySQLContainer("mysql:9.5.0").withDatabaseName(schemaName)
   }
 
   object MSSQLServerSpecConfig extends ContainerJdbcSpecConfig("mssql-dialect") {
     val name = "MS SQL Server Database"
     override val tag: Tag = TestTags.FlakyDb
     override def newContainer(): JdbcDatabaseContainer[_] = {
-      val container: MSSQLServerContainer[_] =
+      val container =
         new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04")
       container.acceptLicense()
       container.withInitScript("db/default-init.sql")

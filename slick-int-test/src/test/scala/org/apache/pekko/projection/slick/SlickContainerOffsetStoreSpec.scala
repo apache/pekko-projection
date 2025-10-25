@@ -22,11 +22,11 @@ import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.scalatest.Tag
 import org.testcontainers.containers.JdbcDatabaseContainer
-import org.testcontainers.containers.MSSQLServerContainer
-import org.testcontainers.containers.MySQLContainer
 import org.testcontainers.containers.OracleContainer
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy
+import org.testcontainers.mssqlserver.MSSQLServerContainer
+import org.testcontainers.mysql.MySQLContainer
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 object SlickContainerOffsetStoreSpec {
 
@@ -65,7 +65,7 @@ object SlickContainerOffsetStoreSpec {
   class PostgresSpecConfig extends ContainerJdbcSpecConfig {
 
     val name = "Postgres Database"
-    val container = initContainer(new PostgreSQLContainer("postgres:13.1"))
+    val container = initContainer(new PostgreSQLContainer("postgres:18.0"))
 
     override def config: Config =
       super.config.withFallback(ConfigFactory.parseString("""
@@ -79,7 +79,7 @@ object SlickContainerOffsetStoreSpec {
   class PostgresLegacySchemaSpecConfig extends ContainerJdbcSpecConfig {
 
     val name = "Postgres Database"
-    val container = initContainer(new PostgreSQLContainer("postgres:13.1"))
+    val container = initContainer(new PostgreSQLContainer("postgres:18.0"))
 
     override def config: Config =
       ConfigFactory.parseString("""
@@ -94,7 +94,7 @@ object SlickContainerOffsetStoreSpec {
   class MySQLSpecConfig extends ContainerJdbcSpecConfig {
 
     val name = "MySQL Database"
-    val container = initContainer(new MySQLContainer("mysql:8.0.22"))
+    val container = initContainer(new MySQLContainer("mysql:9.5.0"))
 
     override def config: Config =
       super.config.withFallback(ConfigFactory.parseString("""
@@ -111,7 +111,7 @@ object SlickContainerOffsetStoreSpec {
     val container = initContainer(new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04"))
 
     override protected def initContainer(container: JdbcDatabaseContainer[_]): JdbcDatabaseContainer[_] = {
-      container.asInstanceOf[MSSQLServerContainer[_]].acceptLicense()
+      container.asInstanceOf[MSSQLServerContainer].acceptLicense()
       container.withUrlParam("integratedSecurity", "false")
       container.withUrlParam("encrypt", "false")
       super.initContainer(container)
