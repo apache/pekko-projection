@@ -92,7 +92,7 @@ import slick.jdbc.JdbcProfile
     val results = databaseConfig.db.run(action)
 
     results.map {
-      case Nil => None
+      case Nil                              => None
       case reps if reps.forall(_.mergeable) =>
         Some(fromStorageRepresentation[MergeableOffset[_], Offset](MultipleOffsets(reps.toList)).asInstanceOf[Offset])
       case reps =>
@@ -107,7 +107,7 @@ import slick.jdbc.JdbcProfile
   def saveOffset[Offset](projectionId: ProjectionId, offset: Offset): slick.dbio.DBIO[_] = {
     val millisSinceEpoch = clock.instant().toEpochMilli
     toStorageRepresentation(projectionId, offset) match {
-      case offset: SingleOffset => newRow(offset, millisSinceEpoch)
+      case offset: SingleOffset  => newRow(offset, millisSinceEpoch)
       case MultipleOffsets(reps) =>
         val actions = reps.map(rep => newRow(rep, millisSinceEpoch))
         DBIO.sequence(actions)

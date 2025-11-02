@@ -56,7 +56,7 @@ import pekko.serialization.SerializerWithStringManifest
     case _: SetOffset[_]     => SetOffsetManifest
     case _: IsPaused         => IsPausedManifest
     case _: SetPaused        => SetPausedManifest
-    case _ =>
+    case _                   =>
       throw new IllegalArgumentException(s"Can't serialize object of type ${o.getClass} in [${getClass.getName}]")
   }
 
@@ -66,7 +66,7 @@ import pekko.serialization.SerializerWithStringManifest
     case m: SetOffset[_]     => setOffsetToBinary(m)
     case m: IsPaused         => isPausedToBinary(m)
     case m: SetPaused        => setPausedToBinary(m)
-    case _ =>
+    case _                   =>
       throw new IllegalArgumentException(s"Cannot serialize object of type [${o.getClass.getName}]")
   }
 
@@ -133,7 +133,7 @@ import pekko.serialization.SerializerWithStringManifest
     case SetOffsetManifest     => setOffsetFromBinary(bytes)
     case IsPausedManifest      => isPausedFromBinary(bytes)
     case SetPausedManifest     => setPausedFromBinary(bytes)
-    case _ =>
+    case _                     =>
       throw new NotSerializableException(
         s"Unimplemented deserialization of message with manifest [$manifest] in [${getClass.getName}]")
   }

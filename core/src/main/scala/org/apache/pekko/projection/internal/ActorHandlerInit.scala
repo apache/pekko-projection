@@ -35,7 +35,7 @@ import pekko.annotation.InternalApi
   final private[projection] def getActor(): ActorRef[T] = {
     actor match {
       case Some(ref) => ref
-      case None =>
+      case None      =>
         throw new IllegalStateException(
           "Actor not started, please report issue at " +
           "https://github.com/apache/pekko-projection/issues")

@@ -37,7 +37,7 @@ object KafkaOffsets {
 
   def keyToPartition(key: String): TopicPartition = key match {
     case RegexTp(topic, partition) => new TopicPartition(topic, partition.toInt)
-    case _ =>
+    case _                         =>
       throw new IllegalArgumentException(s"Row entry name ($key) must match pattern: ${RegexTp.pattern.toString}")
   }
 

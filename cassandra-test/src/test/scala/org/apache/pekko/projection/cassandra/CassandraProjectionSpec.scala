@@ -911,7 +911,7 @@ class CassandraProjectionSpec
       }
       def handler: LifecycleHandler = _handler match {
         case Some(h) => h
-        case None =>
+        case None    =>
           handlerProbe.awaitAssert {
             _handler.get
           }

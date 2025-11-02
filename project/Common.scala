@@ -73,7 +73,7 @@ object Common extends AutoPlugin {
     mimaPreviousArtifacts := {
       moduleName.value match {
         case name if name.endsWith("-tests") => Set.empty
-        case _ =>
+        case _                               =>
           Set(
             organization.value %% moduleName.value % mimaCompareVersion)
       }

@@ -51,7 +51,7 @@ case class JdbcSettings(config: Config, executionContext: ExecutionContext) {
       case "mysql-dialect"    => MySQLDialect(schema, table, managementTable)
       case "mssql-dialect"    => MSSQLServerDialect(schema, table, managementTable)
       case "oracle-dialect"   => OracleDialect(schema, table, managementTable)
-      case unknown =>
+      case unknown            =>
         throw new IllegalArgumentException(
           s"Unknown dialect type: [$unknown]. Check settings 'pekko.projection.jdbc.dialect'")
     }

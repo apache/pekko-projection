@@ -114,7 +114,7 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
         remaining: List[(String, immutable.Seq[ProjectionContextImpl[Offset, Envelope]])],
         n: Int): Future[Done] = {
       remaining match {
-        case Nil => Future.successful(Done)
+        case Nil                  => Future.successful(Done)
         case (key, batch) :: tail =>
           op(key, batch).flatMap { _ =>
             if (n % logProgressEvery == 0)
@@ -428,7 +428,7 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
           sourceProvider match {
             case vsp: VerifiableSourceProvider[Offset, Envelope] =>
               vsp.verifyOffset(context.offset) match {
-                case VerificationSuccess => true
+                case VerificationSuccess         => true
                 case VerificationFailure(reason) =>
                   logger.warning(
                     "Source provider instructed projection to skip offset [{}] with reason: {}",

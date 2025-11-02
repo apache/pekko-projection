@@ -92,7 +92,7 @@ object SlickProjection {
               case vsp: VerifiableSourceProvider[Offset, Envelope] =>
                 processedDBIO.flatMap { action =>
                   vsp.verifyOffset(offset) match {
-                    case VerificationSuccess => slick.dbio.DBIO.successful(action)
+                    case VerificationSuccess         => slick.dbio.DBIO.successful(action)
                     case VerificationFailure(reason) =>
                       logger.warning(
                         "The offset failed source provider verification after the envelope was processed. " +
@@ -251,7 +251,7 @@ object SlickProjection {
               case vsp: VerifiableSourceProvider[Offset, Envelope] =>
                 processedDBIO.flatMap { action =>
                   vsp.verifyOffset(lastOffset) match {
-                    case VerificationSuccess => slick.dbio.DBIO.successful(action)
+                    case VerificationSuccess         => slick.dbio.DBIO.successful(action)
                     case VerificationFailure(reason) =>
                       logger.warning(
                         "The offset failed source provider verification after the envelope was processed. " +
