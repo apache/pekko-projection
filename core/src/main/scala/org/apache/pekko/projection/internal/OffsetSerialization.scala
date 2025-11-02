@@ -58,7 +58,7 @@ import pekko.serialization.Serializers
   def fromStorageRepresentation[Offset, Inner](rep: StorageRepresentation): Offset = {
     val offset: Offset = rep match {
       case SingleOffset(_, manifest, offsetStr, _) => fromStorageRepresentation[Offset](offsetStr, manifest)
-      case MultipleOffsets(reps) =>
+      case MultipleOffsets(reps)                   =>
         val offsets: Map[String, Inner] = reps.map {
           case SingleOffset(id, manifest, offsetStr, _) =>
             id.key -> fromStorageRepresentation[Inner](offsetStr, manifest)
@@ -79,7 +79,7 @@ import pekko.serialization.Serializers
       case IntManifest           => offsetStr.toInt
       case SequenceManifest      => query.Offset.sequence(offsetStr.toLong)
       case TimeBasedUUIDManifest => query.Offset.timeBasedUUID(UUID.fromString(offsetStr))
-      case _ =>
+      case _                     =>
         val parts = manifest.split(':')
         val serializerId = parts(0).toInt
         val serializerManifest = parts(1)
@@ -101,7 +101,7 @@ import pekko.serialization.Serializers
       case i: Int                   => SingleOffset(id, IntManifest, i.toString, mergeable)
       case seq: query.Sequence      => SingleOffset(id, SequenceManifest, seq.value.toString, mergeable)
       case tbu: query.TimeBasedUUID => SingleOffset(id, TimeBasedUUIDManifest, tbu.value.toString, mergeable)
-      case mrg: MergeableOffset[_] =>
+      case mrg: MergeableOffset[_]  =>
         val list = mrg.entries.map {
           case (key, innerOffset) =>
             toStorageRepresentation(ProjectionId(id.name, key), innerOffset, mergeable = true)

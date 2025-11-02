@@ -598,7 +598,7 @@ class SlickProjectionSpec
                 case e: Envelope =>
                   val o = e.offset
                   acc.get(e.offset) match {
-                    case Some(state) if state.envReceived => fail(s"Envelope was already received for offset $o")
+                    case Some(state) if state.envReceived      => fail(s"Envelope was already received for offset $o")
                     case Some(state) if state.verifyCount >= 2 =>
                       fail(s"Envelope has already been verified at least twice for offset $o")
                     case None        => fail(s"Envelope has not been verified yet for offset $o")
@@ -1355,7 +1355,7 @@ class SlickProjectionSpec
       }
       def handler: LifecycleHandler = _handler match {
         case Some(h) => h
-        case None =>
+        case None    =>
           handlerProbe.awaitAssert {
             _handler.get
           }

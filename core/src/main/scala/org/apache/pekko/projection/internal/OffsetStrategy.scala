@@ -83,7 +83,7 @@ private[projection] sealed abstract class FunctionHandlerStrategy[Envelope](hand
   def handler(): Handler[Envelope] = {
     _handler match {
       case Some(h: Handler[Any] @unchecked) if !_recreateHandlerOnNextAccess => h
-      case _ =>
+      case _                                                                 =>
         createHandler()
         _recreateHandlerOnNextAccess = false
         _handler.get

@@ -60,7 +60,7 @@ import pekko.annotation.ApiMayChange
     val newState = state.value match {
       case Some(Success(_)) => state
       case Some(Failure(_)) => initialState()
-      case None =>
+      case None             =>
         throw new IllegalStateException(
           "Process called before previous Future completed. " +
           "Did you share the same handler instance between several Projection instances? " +
