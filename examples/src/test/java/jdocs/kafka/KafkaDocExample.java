@@ -71,7 +71,7 @@ import org.apache.pekko.projection.ProjectionContext;
 
 import jdocs.jdbc.HibernateJdbcSession;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 
 public interface KafkaDocExample {
 

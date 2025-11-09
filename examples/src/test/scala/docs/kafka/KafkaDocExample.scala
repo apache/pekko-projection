@@ -13,59 +13,45 @@
 
 package docs.kafka
 
-import java.lang.{ Long => JLong }
-
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.duration._
-
+import com.typesafe.config.{ Config, ConfigFactory }
+import jakarta.persistence.EntityManager
+import jdocs.jdbc.{ HibernateJdbcSession, HibernateSessionFactory }
 import org.apache.pekko
-import pekko.Done
-import pekko.NotUsed
-import pekko.actor.typed.ActorSystem
-import pekko.actor.typed.Behavior
-import pekko.actor.typed.scaladsl.Behaviors
-import pekko.actor.typed.scaladsl.LoggerOps
-import pekko.projection.MergeableOffset
-import pekko.projection.Projection
-import pekko.projection.ProjectionBehavior
-import pekko.projection.ProjectionId
-import pekko.projection.jdbc.scaladsl.JdbcHandler
-import pekko.projection.jdbc.scaladsl.JdbcProjection
-import pekko.projection.kafka.scaladsl.KafkaSourceProvider
-import pekko.projection.scaladsl.Handler
-import pekko.projection.scaladsl.SourceProvider
-import pekko.stream.scaladsl.Source
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
-import javax.persistence.EntityManager
-import jdocs.jdbc.HibernateJdbcSession
-import jdocs.jdbc.HibernateSessionFactory
+import org.apache.pekko.{ Done, NotUsed }
+import org.apache.pekko.actor.typed.{ ActorSystem, Behavior }
+import org.apache.pekko.actor.typed.scaladsl.{ Behaviors, LoggerOps }
+import org.apache.pekko.projection.{ MergeableOffset, Projection, ProjectionBehavior, ProjectionId }
+import org.apache.pekko.projection.jdbc.scaladsl.{ JdbcHandler, JdbcProjection }
+import org.apache.pekko.projection.kafka.scaladsl.KafkaSourceProvider
+import org.apache.pekko.projection.scaladsl.{ Handler, SourceProvider }
+import org.apache.pekko.stream.scaladsl.Source
 import org.slf4j.LoggerFactory
+
+import java.lang.{ Long => JLong }
+import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.duration._
 
 // #imports-producer
 import org.apache.kafka.common.serialization.StringSerializer
-import org.apache.pekko
-import pekko.kafka.ProducerSettings
+import org.apache.pekko.kafka.ProducerSettings
 // #imports-producer
 
 //#imports
-import org.apache.pekko.kafka.ConsumerSettings
-import org.apache.kafka.clients.consumer.ConsumerConfig
-import org.apache.kafka.clients.consumer.ConsumerRecord
+import org.apache.kafka.clients.consumer.{ ConsumerConfig, ConsumerRecord }
 import org.apache.kafka.common.serialization.StringDeserializer
+import org.apache.pekko.kafka.ConsumerSettings
 //#imports
 
 // #sendProducer
-import pekko.kafka.scaladsl.SendProducer
+import org.apache.pekko.kafka.scaladsl.SendProducer
 // #sendProducer
 
 // #producerFlow
 import org.apache.kafka.clients.producer.ProducerRecord
-import pekko.kafka.ProducerMessage
-import pekko.kafka.scaladsl.Producer
-import pekko.stream.scaladsl.FlowWithContext
-import pekko.projection.ProjectionContext
+import org.apache.pekko.kafka.ProducerMessage
+import org.apache.pekko.kafka.scaladsl.Producer
+import org.apache.pekko.projection.ProjectionContext
+import org.apache.pekko.stream.scaladsl.FlowWithContext
 
 // #producerFlow
 
