@@ -17,8 +17,8 @@ import org.apache.pekko.japi.function.Function;
 import org.apache.pekko.projection.jdbc.JdbcSession;
 // #hibernate-session-imports
 import org.hibernate.Session;
-import javax.persistence.EntityManager;
-import javax.persistence.EntityTransaction;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityTransaction;
 import java.sql.Connection;
 import java.sql.SQLException;
 
