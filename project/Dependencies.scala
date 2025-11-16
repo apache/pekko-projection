@@ -30,7 +30,7 @@ object Dependencies {
     val connectorsKafka = PekkoConnectorsKafkaDependency.version
     val slick = "3.6.1"
     val scalaTest = "3.2.19"
-    val testContainers = "2.0.1"
+    val testContainers = "2.0.2"
     val junit = "4.13.2"
     val h2Driver = "2.4.240"
     val jackson = "2.20.1" // this should match the version of jackson used by pekko-serialization-jackson
