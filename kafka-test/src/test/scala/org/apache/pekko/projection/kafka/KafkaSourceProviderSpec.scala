@@ -41,7 +41,7 @@ class KafkaSourceProviderSpec extends KafkaSpecBase {
           Future.successful(Option(MergeableOffset(Map(KafkaOffsets.partitionToKey(topic, 0) -> JLong.valueOf(5L)))))
       val probe = Source
         .futureSource(provider.source(readOffsetsHandler))
-        .runWith(TestSink.probe)
+        .runWith(TestSink())
 
       probe.request(1)
       val first = probe.expectNext()
@@ -61,7 +61,7 @@ class KafkaSourceProviderSpec extends KafkaSpecBase {
       val readOffsetsHandler = () => Future.successful(None)
       val probe = Source
         .futureSource(provider.source(readOffsetsHandler))
-        .runWith(TestSink.probe)
+        .runWith(TestSink())
 
       probe.request(1)
       val first = probe.expectNext()
