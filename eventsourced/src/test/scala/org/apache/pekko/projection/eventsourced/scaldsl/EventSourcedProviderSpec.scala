@@ -124,7 +124,7 @@ class EventSourcedProviderSpec
       .source(() => Future.successful(Some(NoOffset)))
       .futureValue
       .map(_.event)
-      .runWith(TestSink.probe)
+      .runWith(TestSink())
       .request(expectedEvents.size)
       .expectNextN(expectedEvents)
       .request(1)
@@ -156,7 +156,7 @@ class EventSourcedProviderSpec
       .source(() => Future.successful(Some(NoOffset)))
       .futureValue
       .map(_.event)
-      .runWith(TestSink.probe)
+      .runWith(TestSink())
       .request(expectedEvents.size)
       .expectNextN(expectedEvents)
       .request(1)
