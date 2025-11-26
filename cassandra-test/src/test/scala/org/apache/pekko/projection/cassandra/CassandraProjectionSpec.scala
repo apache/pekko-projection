@@ -348,7 +348,7 @@ class CassandraProjectionSpec
 
       import pekko.actor.typed.scaladsl.adapter._
       val sourceProbe = new AtomicReference[TestPublisher.Probe[Envelope]]()
-      val source = TestSource.probe[Envelope](system.toClassic).mapMaterializedValue { probe =>
+      val source = TestSource[Envelope]()(system.toClassic).mapMaterializedValue { probe =>
         sourceProbe.set(probe)
         NotUsed
       }
@@ -388,7 +388,7 @@ class CassandraProjectionSpec
 
       import pekko.actor.typed.scaladsl.adapter._
       val sourceProbe = new AtomicReference[TestPublisher.Probe[Envelope]]()
-      val source = TestSource.probe[Envelope](system.toClassic).mapMaterializedValue { probe =>
+      val source = TestSource[Envelope]()(system.toClassic).mapMaterializedValue { probe =>
         sourceProbe.set(probe)
         NotUsed
       }
