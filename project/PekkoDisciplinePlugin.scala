@@ -39,17 +39,8 @@ object PekkoDisciplinePlugin extends AutoPlugin {
         Test / scalacOptions --= testUndicipline,
         Compile / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
           case Some((2, 13)) =>
-            disciplineScalacOptions -- Set(
-              "-Ywarn-inaccessible",
-              "-Ywarn-infer-any",
-              "-Ywarn-nullary-override",
-              "-Ywarn-nullary-unit",
-              "-Ywarn-unused:_",
-              "-Ypartial-unification",
-              "-Yno-adapted-args") ++ Set(
+            disciplineScalacOptions ++ Set(
               "-Xlint:-strict-unsealed-patmat")
-          case Some((2, 12)) =>
-            disciplineScalacOptions
           case _ =>
             Nil
         }).toSeq,
@@ -76,16 +67,8 @@ object PekkoDisciplinePlugin extends AutoPlugin {
   val disciplineScalacOptions = Set(
     "-Xfatal-warnings",
     "-feature",
-    "-Yno-adapted-args",
     "-deprecation",
     "-Xlint",
     "-Ywarn-dead-code",
-    "-Ywarn-inaccessible",
-    "-Ywarn-infer-any",
-    "-Ywarn-nullary-override",
-    "-Ywarn-nullary-unit",
-    "-Ywarn-unused:_",
-    "-Ypartial-unification",
     "-Ywarn-extra-implicit")
-
 }
