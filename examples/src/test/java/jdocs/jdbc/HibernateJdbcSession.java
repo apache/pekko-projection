@@ -13,14 +13,14 @@
 
 package jdocs.jdbc;
 
-import org.apache.pekko.japi.function.Function;
-import org.apache.pekko.projection.jdbc.JdbcSession;
-// #hibernate-session-imports
-import org.hibernate.Session;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityTransaction;
 import java.sql.Connection;
 import java.sql.SQLException;
+import org.apache.pekko.japi.function.Function;
+import org.apache.pekko.projection.jdbc.JdbcSession;
+// #hibernate-session-imports
+import org.hibernate.Session;
 
 // #hibernate-session-imports
 
