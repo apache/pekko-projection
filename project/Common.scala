@@ -56,11 +56,12 @@ object Common extends AutoPlugin {
       "-doc-source-url", {
         val branch = if (isSnapshot.value) "main" else s"v${version.value}"
         s"https://github.com/apache/pekko-projection/tree/${branch}€{FILE_PATH_EXT}#L€{FILE_LINE}"
-      }) ++ (if (scalaBinaryVersion.value.startsWith("3")) {
-               Seq("-skip-packages:org.apache.pekko.pattern")
-             } else {
-               Seq("-skip-packages", "org.apache.pekko.pattern")
-             }),
+      }) ++
+    (if (scalaBinaryVersion.value.startsWith("3")) {
+       Seq("-skip-packages:org.apache.pekko.pattern")
+     } else {
+       Seq("-skip-packages", "org.apache.pekko.pattern")
+     }),
     autoAPIMappings := true,
     apiURL := Some(url(s"https://pekko.apache.org/api/pekko-projection/${projectInfoVersion.value}")),
     // show full stack traces and test case durations

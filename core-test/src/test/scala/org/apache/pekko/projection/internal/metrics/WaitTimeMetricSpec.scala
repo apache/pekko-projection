@@ -59,7 +59,9 @@ class WaitTimeMetricAtLeastOnceSpec extends WaitTimeMetricSpec {
           SingleHandlerStrategy(single))
 
         runInternal(tt.projectionState) {
-          instruments.creationTimestampInvocations.get should be >= (1 + 1 + 1 + 1 + 2 + 2 + 3 + 4 + 5 + 6)
+          instruments.creationTimestampInvocations.get should
+          be >=
+            (1 + 1 + 1 + 1 + 2 + 2 + 3 + 4 + 5 + 6)
           instruments.lastCreationTimestamp.get should be < System.currentTimeMillis()
         }
       }

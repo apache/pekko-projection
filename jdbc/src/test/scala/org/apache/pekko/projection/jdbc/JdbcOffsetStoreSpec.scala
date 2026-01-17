@@ -301,7 +301,8 @@ abstract class JdbcOffsetStoreSpec(specConfig: JdbcSpecConfig)
       }
     }
 
-    s"save and retrieve offsets of type pekko.persistence.query.TimeBasedUUID [$dialectLabel]" taggedAs (specConfig.tag) in {
+    s"save and retrieve offsets of type pekko.persistence.query.TimeBasedUUID [$dialectLabel]" taggedAs
+    (specConfig.tag) in {
 
       val projectionId = genRandomProjectionId()
 
