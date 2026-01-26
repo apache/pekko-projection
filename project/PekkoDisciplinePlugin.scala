@@ -37,13 +37,14 @@ object PekkoDisciplinePlugin extends AutoPlugin {
           else Seq.empty
         ),
         Test / scalacOptions --= testUndicipline,
-        Compile / scalacOptions ++= (CrossVersion.partialVersion(scalaVersion.value) match {
-          case Some((2, 13)) =>
-            disciplineScalacOptions ++ Set(
-              "-Xlint:-strict-unsealed-patmat")
-          case _ =>
-            Nil
-        }).toSeq,
+        Compile / scalacOptions ++=
+          (CrossVersion.partialVersion(scalaVersion.value) match {
+            case Some((2, 13)) =>
+              disciplineScalacOptions ++ Set(
+                "-Xlint:-strict-unsealed-patmat")
+            case _ =>
+              Nil
+          }).toSeq,
         // Discipline is not needed for the docs compilation run (which uses
         // different compiler phases from the regular run), and in particular
         // '-Ywarn-unused:explicits' is an issue

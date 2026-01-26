@@ -33,8 +33,8 @@ object Dependencies {
     val testContainers = "2.0.3"
     val junit = "4.13.2"
     val h2Driver = "2.4.240"
-    val jackson = "2.20.1" // this should match the version of jackson used by pekko-serialization-jackson
-    val logback = "1.5.24"
+    val jackson = "2.20.2" // this should match the version of jackson used by pekko-serialization-jackson
+    val logback = "1.5.25"
   }
 
   object Compile {
@@ -78,7 +78,7 @@ object Dependencies {
     val junit = "junit" % "junit" % Versions.junit
 
     val h2Driver = Compile.h2Driver
-    val postgresDriver = "org.postgresql" % "postgresql" % "42.7.8"
+    val postgresDriver = "org.postgresql" % "postgresql" % "42.7.9"
     val mysqlDriver = "com.mysql" % "mysql-connector-j" % "9.5.0"
     val msSQLServerDriver = "com.microsoft.sqlserver" % "mssql-jdbc" % "13.2.1.jre11"
     val oracleDriver = "com.oracle.ojdbc" % "ojdbc8" % "19.3.0.0"
@@ -102,7 +102,7 @@ object Dependencies {
   }
 
   object Examples {
-    val hibernate = "org.hibernate" % "hibernate-core" % "7.2.0.Final"
+    val hibernate = "org.hibernate" % "hibernate-core" % "7.2.1.Final"
 
     val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
     val pekkoClusterShardingTyped = "org.apache.pekko" %% "pekko-cluster-sharding-typed" % Versions.pekko
