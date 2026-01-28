@@ -33,7 +33,7 @@ object Dependencies {
     val testContainers = "2.0.3"
     val junit = "4.13.2"
     val h2Driver = "2.4.240"
-    val jackson = "2.20.2" // this should match the version of jackson used by pekko-serialization-jackson
+    val jackson = "2.21.0" // this should match the version of jackson used by pekko-serialization-jackson
     val logback = "1.5.26"
   }
 
@@ -102,7 +102,7 @@ object Dependencies {
   }
 
   object Examples {
-    val hibernate = "org.hibernate" % "hibernate-core" % "7.2.1.Final"
+    val hibernate = "org.hibernate" % "hibernate-core" % "7.2.2.Final"
 
     val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
     val pekkoClusterShardingTyped = "org.apache.pekko" %% "pekko-cluster-sharding-typed" % Versions.pekko
