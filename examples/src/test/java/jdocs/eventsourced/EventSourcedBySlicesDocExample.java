@@ -14,7 +14,6 @@
 package jdocs.eventsourced;
 
 import java.util.List;
-
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.actor.typed.javadsl.Behaviors;
 // #eventsBySlicesSourceProvider
