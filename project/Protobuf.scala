@@ -36,7 +36,7 @@ object Protobuf {
     outputPaths := Seq((Compile / sourceDirectory).value, (Test / sourceDirectory).value).map(_ / "java"),
     importPath := None,
     protoc := "protoc",
-    protocVersion := "3.25.6",
+    protocVersion := "33.4",
     generate := {
       val sourceDirs = paths.value
       val targetDirs = outputPaths.value
