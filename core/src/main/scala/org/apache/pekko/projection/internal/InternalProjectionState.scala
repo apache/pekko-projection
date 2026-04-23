@@ -200,7 +200,7 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
 
         case f: FlowHandlerStrategy[Envelope @unchecked] =>
           val flow =
-            f.flowCtx.asFlow.watchTermination() {
+            f.flowCtx.asFlow.watchTermination {
               case (_, futDone) =>
                 futDone.recoverWith {
                   case t =>
@@ -470,7 +470,7 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
       src: Source[Done, NotUsed],
       handlerLifecycle: HandlerLifecycle): Source[Done, Future[Done]] = {
     src
-      .watchTermination() { (_, futDone) =>
+      .watchTermination { (_, futDone) =>
         handlerStrategy.recreateHandlerOnNextAccess()
         futDone
           .andThen { case _ => handlerLifecycle.tryStop() }
