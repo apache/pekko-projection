@@ -27,11 +27,10 @@ import pekko.persistence.query
 import pekko.projection.MergeableOffset
 import pekko.projection.ProjectionId
 import pekko.serialization.SerializerWithStringManifest
-import pekko.util.unused
 import org.scalatest.wordspec.AnyWordSpecLike
 
 object OffsetSerializationSpec {
-  class TestSerializer(@unused system: ExtendedActorSystem) extends SerializerWithStringManifest {
+  class TestSerializer(system: ExtendedActorSystem) extends SerializerWithStringManifest {
     def identifier: Int = 9999
 
     def manifest(o: AnyRef): String =
