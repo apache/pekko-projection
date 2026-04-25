@@ -105,7 +105,7 @@ import org.apache.kafka.common.record.TimestampType
           control = Some(m)
           m
         }
-        .watchTermination()(Keep.right)
+        .watchTermination(Keep.right)
         .mapMaterializedValue { terminated =>
           terminated.onComplete(_ => metadataClient.stop())
           NotUsed

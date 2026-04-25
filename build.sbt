@@ -14,6 +14,7 @@ ThisBuild / versionScheme := Some(VersionScheme.SemVerSpec)
 sourceDistName := "apache-pekko-projection"
 sourceDistIncubating := false
 
+ThisBuild / evictionErrorLevel := Level.Info
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 
