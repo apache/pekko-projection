@@ -13,9 +13,10 @@
 
 package org.apache.pekko.projection.grpc.consumer
 
-import org.apache.pekko.actor.ExtendedActorSystem
-import org.apache.pekko.persistence.query.ReadJournalProvider
-import org.apache.pekko.projection.grpc.internal.ProtoAnySerialization
+import org.apache.pekko
+import pekko.actor.ExtendedActorSystem
+import pekko.persistence.query.ReadJournalProvider
+import pekko.projection.grpc.internal.ProtoAnySerialization
 import com.typesafe.config.Config
 
 /**

@@ -13,10 +13,11 @@
 
 package org.apache.pekko.projection.grpc.internal
 
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.projection.grpc.internal.ProtoAnySerialization.PekkoSerializationTypeUrlPrefix
-import org.apache.pekko.projection.grpc.internal.proto.TestEvent
+import org.apache.pekko
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.projection.grpc.internal.ProtoAnySerialization.PekkoSerializationTypeUrlPrefix
+import pekko.projection.grpc.internal.proto.TestEvent
 import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike

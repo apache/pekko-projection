@@ -13,7 +13,8 @@
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
-import org.apache.pekko.annotation.ApiMayChange
+import org.apache.pekko
+import pekko.annotation.ApiMayChange
 
 import java.util.Optional
 import java.util.concurrent.CompletionStage
@@ -22,7 +23,7 @@ import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 import scala.reflect.ClassTag
-import org.apache.pekko.projection.grpc.producer.scaladsl
+import pekko.projection.grpc.producer.scaladsl
 
 @ApiMayChange
 object Transformation {

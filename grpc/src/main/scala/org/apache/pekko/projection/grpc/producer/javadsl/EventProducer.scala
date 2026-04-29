@@ -21,16 +21,17 @@ import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 import scala.concurrent.{ ExecutionContext, Future }
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.grpc.internal.JavaMetadataImpl
-import org.apache.pekko.grpc.scaladsl.{ Metadata => ScalaMetadata }
-import org.apache.pekko.http.javadsl.model.HttpRequest
-import org.apache.pekko.http.javadsl.model.HttpResponse
-import org.apache.pekko.japi.function.{ Function => JapiFunction }
-import org.apache.pekko.projection.grpc.internal.EventProducerServiceImpl
-import org.apache.pekko.projection.grpc.internal.proto.EventProducerServicePowerApiHandler
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.ApiMayChange
+import pekko.grpc.internal.JavaMetadataImpl
+import pekko.grpc.scaladsl.{ Metadata => ScalaMetadata }
+import pekko.http.javadsl.model.HttpRequest
+import pekko.http.javadsl.model.HttpResponse
+import pekko.japi.function.{ Function => JapiFunction }
+import pekko.projection.grpc.internal.EventProducerServiceImpl
+import pekko.projection.grpc.internal.proto.EventProducerServicePowerApiHandler
 import scala.jdk.CollectionConverters._
 
 /**

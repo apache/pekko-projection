@@ -13,8 +13,9 @@
 
 package org.apache.pekko.projection.grpc.producer
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.ApiMayChange
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.ApiMayChange
 import com.typesafe.config.Config
 
 @ApiMayChange

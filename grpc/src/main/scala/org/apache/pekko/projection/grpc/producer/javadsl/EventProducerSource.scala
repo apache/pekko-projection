@@ -13,8 +13,9 @@
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.projection.grpc.producer.EventProducerSettings
+import org.apache.pekko
+import pekko.annotation.ApiMayChange
+import pekko.projection.grpc.producer.EventProducerSettings
 
 /**
  * @param entityType The internal entity type name

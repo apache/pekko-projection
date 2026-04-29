@@ -13,9 +13,10 @@
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
-import org.apache.pekko.Done
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.grpc.javadsl.Metadata
+import org.apache.pekko
+import pekko.Done
+import pekko.annotation.ApiMayChange
+import pekko.grpc.javadsl.Metadata
 
 import java.util.concurrent.CompletionStage
 

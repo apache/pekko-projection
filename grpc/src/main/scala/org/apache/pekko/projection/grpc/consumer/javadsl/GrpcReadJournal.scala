@@ -22,22 +22,23 @@ import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 
-import org.apache.pekko.Done
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.ClassicActorSystemProvider
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.japi.Pair
-import org.apache.pekko.persistence.query.Offset
-import org.apache.pekko.persistence.query.javadsl.ReadJournal
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.javadsl.EventTimestampQuery
-import org.apache.pekko.persistence.query.typed.javadsl.EventsBySliceQuery
-import org.apache.pekko.persistence.query.typed.javadsl.LoadEventQuery
-import org.apache.pekko.projection.grpc.consumer.GrpcQuerySettings
-import org.apache.pekko.projection.grpc.consumer.scaladsl
-import org.apache.pekko.projection.grpc.internal.ProtoAnySerialization
-import org.apache.pekko.stream.javadsl.Source
+import org.apache.pekko
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.ClassicActorSystemProvider
+import pekko.annotation.ApiMayChange
+import pekko.grpc.GrpcClientSettings
+import pekko.japi.Pair
+import pekko.persistence.query.Offset
+import pekko.persistence.query.javadsl.ReadJournal
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.javadsl.EventTimestampQuery
+import pekko.persistence.query.typed.javadsl.EventsBySliceQuery
+import pekko.persistence.query.typed.javadsl.LoadEventQuery
+import pekko.projection.grpc.consumer.GrpcQuerySettings
+import pekko.projection.grpc.consumer.scaladsl
+import pekko.projection.grpc.internal.ProtoAnySerialization
+import pekko.stream.javadsl.Source
 import com.google.protobuf.Descriptors
 
 @ApiMayChange
