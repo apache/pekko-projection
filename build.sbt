@@ -169,6 +169,7 @@ lazy val `durable-state` =
 lazy val grpc =
   Project(id = "grpc", base = file("grpc"))
     .enablePlugins(ReproducibleBuildsPlugin, PekkoGrpcPlugin)
+    .disablePlugins(MimaPlugin) // new in 2.0.0
     .settings(Dependencies.grpc)
     .settings(AutomaticModuleName.settings("pekko.projection.grpc"))
     .settings(
