@@ -50,11 +50,9 @@ object EventSourcedProvider {
       system: ActorSystem[_],
       readJournalPluginId: String,
       tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
-
     val eventsByTagQuery =
       PersistenceQuery(system).getReadJournalFor(classOf[EventsByTagQuery], readJournalPluginId)
-
-    new EventsByTagSourceProvider(system, eventsByTagQuery, tag)
+    eventsByTag(system, eventsByTagQuery, tag)
   }
 
   def eventsByTag[Event](
@@ -62,10 +60,15 @@ object EventSourcedProvider {
       readJournalPluginId: String,
       readJournalConfig: Config,
       tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
-
     val eventsByTagQuery =
       PersistenceQuery(system).getReadJournalFor(classOf[EventsByTagQuery], readJournalPluginId, readJournalConfig)
+    eventsByTag(system, eventsByTagQuery, tag)
+  }
 
+  def eventsByTag[Event](
+      system: ActorSystem[_],
+      eventsByTagQuery: EventsByTagQuery,
+      tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
     new EventsByTagSourceProvider(system, eventsByTagQuery, tag)
   }
 
@@ -101,21 +104,9 @@ object EventSourcedProvider {
       entityType: String,
       minSlice: Int,
       maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
-
     val eventsBySlicesQuery =
       PersistenceQuery(system).getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId)
-
-    if (!eventsBySlicesQuery.isInstanceOf[EventTimestampQuery])
-      throw new IllegalArgumentException(
-        s"[${eventsBySlicesQuery.getClass.getName}] with readJournalPluginId " +
-        s"[$readJournalPluginId] must implement [${classOf[EventTimestampQuery].getName}]")
-
-    if (!eventsBySlicesQuery.isInstanceOf[LoadEventQuery])
-      throw new IllegalArgumentException(
-        s"[${eventsBySlicesQuery.getClass.getName}] with readJournalPluginId " +
-        s"[$readJournalPluginId] must implement [${classOf[LoadEventQuery].getName}]")
-
-    new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+    eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice)
   }
 
   def eventsBySlices[Event](
@@ -125,20 +116,17 @@ object EventSourcedProvider {
       entityType: String,
       minSlice: Int,
       maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
-
     val eventsBySlicesQuery =
       PersistenceQuery(system).getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId, readJournalConfig)
+    eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice)
+  }
 
-    if (!eventsBySlicesQuery.isInstanceOf[EventTimestampQuery])
-      throw new IllegalArgumentException(
-        s"[${eventsBySlicesQuery.getClass.getName}] with readJournalPluginId " +
-        s"[$readJournalPluginId] must implement [${classOf[EventTimestampQuery].getName}]")
-
-    if (!eventsBySlicesQuery.isInstanceOf[LoadEventQuery])
-      throw new IllegalArgumentException(
-        s"[${eventsBySlicesQuery.getClass.getName}] with readJournalPluginId " +
-        s"[$readJournalPluginId] must implement [${classOf[LoadEventQuery].getName}]")
-
+  def eventsBySlices[Event](
+      system: ActorSystem[_],
+      eventsBySlicesQuery: EventsBySliceQuery,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
     new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
   }
 
