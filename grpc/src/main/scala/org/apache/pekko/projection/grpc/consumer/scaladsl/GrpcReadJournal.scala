@@ -19,45 +19,47 @@ import java.util.concurrent.TimeUnit
 import scala.collection.immutable
 import scala.concurrent.Future
 
-import org.apache.pekko.Done
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.ClassicActorSystemProvider
-import org.apache.pekko.actor.ExtendedActorSystem
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.actor.typed.scaladsl.adapter._
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.grpc.scaladsl.BytesEntry
-import org.apache.pekko.grpc.scaladsl.SingleResponseRequestBuilder
-import org.apache.pekko.grpc.scaladsl.StreamResponseRequestBuilder
-import org.apache.pekko.grpc.scaladsl.StringEntry
-import org.apache.pekko.persistence.Persistence
-import org.apache.pekko.persistence.query.NoOffset
-import org.apache.pekko.persistence.query.Offset
-import org.apache.pekko.persistence.query.TimestampOffset
-import org.apache.pekko.persistence.query.scaladsl._
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import org.apache.pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
-import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.grpc.consumer.GrpcQuerySettings
-import org.apache.pekko.projection.grpc.consumer.scaladsl
-import org.apache.pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal.withChannelBuilderOverrides
-import org.apache.pekko.projection.grpc.internal.ProtoAnySerialization
-import org.apache.pekko.projection.grpc.internal.proto
-import org.apache.pekko.projection.grpc.internal.proto.Event
-import org.apache.pekko.projection.grpc.internal.proto.EventProducerServiceClient
-import org.apache.pekko.projection.grpc.internal.proto.EventTimestampRequest
-import org.apache.pekko.projection.grpc.internal.proto.FilteredEvent
-import org.apache.pekko.projection.grpc.internal.proto.InitReq
-import org.apache.pekko.projection.grpc.internal.proto.LoadEventRequest
-import org.apache.pekko.projection.grpc.internal.proto.LoadEventResponse
-import org.apache.pekko.projection.grpc.internal.proto.PersistenceIdSeqNr
-import org.apache.pekko.projection.grpc.internal.proto.StreamIn
-import org.apache.pekko.projection.grpc.internal.proto.StreamOut
-import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.ClassicActorSystemProvider
+import pekko.actor.ExtendedActorSystem
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.actor.typed.scaladsl.adapter._
+import pekko.annotation.ApiMayChange
+import pekko.annotation.InternalApi
+import pekko.grpc.GrpcClientSettings
+import pekko.grpc.scaladsl.BytesEntry
+import pekko.grpc.scaladsl.SingleResponseRequestBuilder
+import pekko.grpc.scaladsl.StreamResponseRequestBuilder
+import pekko.grpc.scaladsl.StringEntry
+import pekko.persistence.Persistence
+import pekko.persistence.query.NoOffset
+import pekko.persistence.query.Offset
+import pekko.persistence.query.TimestampOffset
+import pekko.persistence.query.scaladsl._
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
+import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.grpc.consumer.GrpcQuerySettings
+import pekko.projection.grpc.consumer.scaladsl
+import pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal.withChannelBuilderOverrides
+import pekko.projection.grpc.internal.ProtoAnySerialization
+import pekko.projection.grpc.internal.proto
+import pekko.projection.grpc.internal.proto.Event
+import pekko.projection.grpc.internal.proto.EventProducerServiceClient
+import pekko.projection.grpc.internal.proto.EventTimestampRequest
+import pekko.projection.grpc.internal.proto.FilteredEvent
+import pekko.projection.grpc.internal.proto.InitReq
+import pekko.projection.grpc.internal.proto.LoadEventRequest
+import pekko.projection.grpc.internal.proto.LoadEventResponse
+import pekko.projection.grpc.internal.proto.PersistenceIdSeqNr
+import pekko.projection.grpc.internal.proto.StreamIn
+import pekko.projection.grpc.internal.proto.StreamOut
+import pekko.stream.scaladsl.Source
 import com.google.protobuf.Descriptors
 import com.google.protobuf.timestamp.Timestamp
 import com.typesafe.config.Config
@@ -159,7 +161,7 @@ final class GrpcReadJournal private (
   def this(system: ExtendedActorSystem, config: Config, cfgPath: String) =
     this(system, config, cfgPath, ProtoAnySerialization.Prefer.Scala)
 
-  private implicit val typedSystem = system.toTyped
+  private implicit val typedSystem: ActorSystem[_] = system.toTyped
   private val persistenceExt = Persistence(system)
 
   private val client = EventProducerServiceClient(clientSettings)
