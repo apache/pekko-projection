@@ -42,6 +42,7 @@ object Dependencies {
     val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekko
     val pekkoProtobufV3 = "org.apache.pekko" %% "pekko-protobuf-v3" % Versions.pekko
     val pekkoPersistenceQuery = "org.apache.pekko" %% "pekko-persistence-query" % Versions.pekko
+    val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
     val pekkoGrpcRuntime = "org.apache.pekko" %% "pekko-grpc-runtime" % "2.0.0-M1"
 
     // TestKit in compile scope for ProjectionTestKit
@@ -105,7 +106,6 @@ object Dependencies {
   object Examples {
     val hibernate = "org.hibernate" % "hibernate-core" % "7.3.3.Final"
 
-    val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
     val pekkoClusterShardingTyped = "org.apache.pekko" %% "pekko-cluster-sharding-typed" % Versions.pekko
     val pekkoPersistenceCassandra =
       "org.apache.pekko" %% "pekko-persistence-cassandra" % Versions.pekkoPersistenceCassandra
@@ -203,6 +203,7 @@ object Dependencies {
     deps ++= Seq(
       Compile.pekkoGrpcRuntime,
       Compile.pekkoPersistenceQuery,
+      Compile.pekkoPersistenceTyped,
       Test.pekkoTypedTestkit % "test",
       Test.pekkoStreamTestkit % "test",
       Test.logback % "test",
@@ -219,7 +220,7 @@ object Dependencies {
 
   val examples =
     deps ++= Seq(
-      Examples.pekkoPersistenceTyped,
+      Compile.pekkoPersistenceTyped,
       Examples.pekkoClusterShardingTyped,
       Examples.pekkoPersistenceCassandra,
       Examples.pekkoPersistenceJdbc,

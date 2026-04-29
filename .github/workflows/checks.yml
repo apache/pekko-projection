@@ -76,7 +76,7 @@ jobs:
       - name: Cache Coursier cache
         uses: coursier/cache-action@90c37294538be80a558fd665531fcdc2b467b475 # v8.1.0
 
-      - name: Cross Compile all code with fatal warnings for Java 11
+      - name: Cross Compile all code with fatal warnings
         run: sbt "clean ; +Test/compile"
 
   check-docs:
