@@ -194,7 +194,7 @@ class EventProducerServiceSpec
       // will be filtered by the transformation
       val env2 = createEnvelope(streamId2, pid, 2L, "e-2*")
       testPublisher.sendNext(env2)
-      val env3 = createEnvelope(streamId2, pid, 2L, "e-2")
+      val env3 = createEnvelope(streamId2, pid, 3L, "e-2")
       testPublisher.sendNext(env3)
 
       val out1 = probe.expectNext()
