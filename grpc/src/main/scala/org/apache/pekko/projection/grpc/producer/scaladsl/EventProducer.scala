@@ -131,7 +131,7 @@ object EventProducer {
     require(
       streamIds.size == sources.size,
       s"EventProducerSource set contains duplicate stream id, each stream id must be unique, all stream ids: [${streamIds
-        .mkString(", ")}]")
+          .mkString(", ")}]")
 
     val queryPluginsIds = sources.groupBy { eps =>
       require(
@@ -161,7 +161,6 @@ trait EventProducerInterceptor {
   /**
    * Let's requests through if method returns, can fail request by throwing asynchronously failing the returned
    * future with a [[org.apache.pekko.grpc.GrpcServiceException]]
-   *
    */
   def intercept(streamId: String, requestMetadata: Metadata): Future[Done]
 

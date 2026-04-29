@@ -52,11 +52,10 @@ final class Transformation private (private[grpc] val delegate: scaladsl.EventPr
 
   def registerAsyncOrElseMapper(f: AnyRef => CompletionStage[Optional[AnyRef]]): Transformation = {
     new Transformation(
-      delegate.registerAsyncOrElseMapper(
-        event =>
-          f.apply(event.asInstanceOf[AnyRef])
-            .asScala
-            .map(_.toScala)(ExecutionContexts.parasitic)))
+      delegate.registerAsyncOrElseMapper(event =>
+        f.apply(event.asInstanceOf[AnyRef])
+          .asScala
+          .map(_.toScala)(ExecutionContexts.parasitic)))
   }
 
   def registerOrElseMapper(f: AnyRef => Optional[AnyRef]): Transformation = {

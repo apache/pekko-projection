@@ -9,17 +9,16 @@
 
 package org.apache.pekko.projection.grpc.producer.javadsl;
 
+import java.util.Collections;
+import java.util.Optional;
+import java.util.Set;
+import java.util.concurrent.CompletionStage;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.actor.typed.javadsl.Behaviors;
 import org.apache.pekko.http.javadsl.model.HttpRequest;
 import org.apache.pekko.http.javadsl.model.HttpResponse;
 import org.apache.pekko.japi.function.Function;
 import org.apache.pekko.projection.grpc.producer.EventProducerSettings;
-
-import java.util.Collections;
-import java.util.Optional;
-import java.util.Set;
-import java.util.concurrent.CompletionStage;
 
 public class ProducerCompileTest {
 
@@ -34,7 +33,8 @@ public class ProducerCompileTest {
         Transformation.identity()
             .registerMapper(SomeEvent.class, e -> Optional.of(e))
             .registerAsyncMapper(
-                SomeEvent.class, e -> java.util.concurrent.CompletableFuture.completedFuture(Optional.of(e)));
+                SomeEvent.class,
+                e -> java.util.concurrent.CompletableFuture.completedFuture(Optional.of(e)));
 
     EventProducerSource source =
         new EventProducerSource("entityType", "streamId", transformation, settings);
@@ -46,6 +46,11 @@ public class ProducerCompileTest {
 
     Function<HttpRequest, CompletionStage<HttpResponse>> handlerWithInterceptor =
         EventProducer.grpcServiceHandler(
-            system, sources, Optional.of((streamId, meta) -> java.util.concurrent.CompletableFuture.completedFuture(org.apache.pekko.Done.getInstance())));
+            system,
+            sources,
+            Optional.of(
+                (streamId, meta) ->
+                    java.util.concurrent.CompletableFuture.completedFuture(
+                        org.apache.pekko.Done.getInstance())));
   }
 }

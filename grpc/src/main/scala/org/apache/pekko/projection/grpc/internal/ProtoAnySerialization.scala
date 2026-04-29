@@ -131,8 +131,8 @@ import scalapb.options.Scalapb
         ScalaPbAny(ProtoAnyTypeUrl, scalaPbAny.toByteString)
       case pbAny: PbAny if pbAny.getTypeUrl.startsWith(GoogleTypeUrlPrefix) =>
         ScalaPbAny(ProtoAnyTypeUrl, pbAny.toByteString)
-      case scalaPbAny: ScalaPbAny => scalaPbAny
-      case pbAny: PbAny           => ScalaPbAny.fromJavaProto(pbAny)
+      case scalaPbAny: ScalaPbAny        => scalaPbAny
+      case pbAny: PbAny                  => ScalaPbAny.fromJavaProto(pbAny)
       case msg: scalapb.GeneratedMessage =>
         encode(msg)
       case msg: GeneratedMessageV3 =>

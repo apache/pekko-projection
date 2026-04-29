@@ -348,7 +348,7 @@ final class GrpcReadJournal private (
       .map(_.timestamp.map(_.asJavaInstant))
   }
 
-  //LoadEventQuery
+  // LoadEventQuery
   override def loadEnvelope[Evt](persistenceId: String, sequenceNr: Long): Future[EventEnvelope[Evt]] = {
     log.traceN(
       "Loading event from [{}] persistenceId [{}] with seqNr [{}]",

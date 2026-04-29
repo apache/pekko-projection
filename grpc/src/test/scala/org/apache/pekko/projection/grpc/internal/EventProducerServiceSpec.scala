@@ -215,17 +215,18 @@ class EventProducerServiceSpec
 
     "intercept and fail requests" in {
       val interceptedProducerService =
-        new EventProducerServiceImpl(system, queries, eventProducerSources, Some(new EventProducerInterceptor {
-          def intercept(streamId: String, requestMetadata: Metadata): Future[Done] = {
-            if (streamId == "nono-direct")
-              throw new GrpcServiceException(Status.PERMISSION_DENIED.withDescription("nono-direct"))
-            else if (requestMetadata.getText("nono-meta-direct").isDefined)
-              throw new GrpcServiceException(Status.PERMISSION_DENIED.withDescription("nono-meta-direct"))
-            else if (streamId == "nono-async")
-              Future.failed(new GrpcServiceException(Status.PERMISSION_DENIED.withDescription("nono-async")))
-            else Future.successful(Done)
-          }
-        }))
+        new EventProducerServiceImpl(system, queries, eventProducerSources,
+          Some(new EventProducerInterceptor {
+            def intercept(streamId: String, requestMetadata: Metadata): Future[Done] = {
+              if (streamId == "nono-direct")
+                throw new GrpcServiceException(Status.PERMISSION_DENIED.withDescription("nono-direct"))
+              else if (requestMetadata.getText("nono-meta-direct").isDefined)
+                throw new GrpcServiceException(Status.PERMISSION_DENIED.withDescription("nono-meta-direct"))
+              else if (streamId == "nono-async")
+                Future.failed(new GrpcServiceException(Status.PERMISSION_DENIED.withDescription("nono-async")))
+              else Future.successful(Done)
+            }
+          }))
 
       def assertGrpcStatusDenied(
           fail: Throwable,
@@ -233,7 +234,7 @@ class EventProducerServiceSpec
           status: Status = Status.PERMISSION_DENIED) = {
         fail shouldBe a[GrpcServiceException]
         fail.asInstanceOf[GrpcServiceException].status.getCode shouldBe (status.getCode)
-        fail.asInstanceOf[GrpcServiceException].status.getDescription shouldBe (expectedDescription)
+        fail.asInstanceOf[GrpcServiceException].status.getDescription shouldBe expectedDescription
       }
 
       val directStreamIdFail = interceptedProducerService
