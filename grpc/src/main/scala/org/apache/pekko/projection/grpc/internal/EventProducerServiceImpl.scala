@@ -53,8 +53,6 @@ import io.grpc.Status
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
-import scala.annotation.nowarn
-
 /**
  * INTERNAL API
  */
@@ -127,7 +125,6 @@ import scala.annotation.nowarn
     }
   }
 
-  @nowarn("msg=never used")
   private def runEventsBySlices(
       init: InitReq,
       nextReq: Source[StreamIn, NotUsed],
