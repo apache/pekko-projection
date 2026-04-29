@@ -14,6 +14,7 @@ import java.util
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 
+import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 
@@ -21,7 +22,6 @@ import org.apache.pekko.Done
 import org.apache.pekko.NotUsed
 import org.apache.pekko.actor.ClassicActorSystemProvider
 import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.dispatch.ExecutionContexts
 import org.apache.pekko.grpc.GrpcClientSettings
 import org.apache.pekko.japi.Pair
 import org.apache.pekko.persistence.query.Offset
@@ -105,7 +105,7 @@ class GrpcReadJournal(delegate: scaladsl.GrpcReadJournal)
   override def timestampOf(persistenceId: String, sequenceNr: Long): CompletionStage[Optional[Instant]] =
     delegate
       .timestampOf(persistenceId, sequenceNr)
-      .map(_.toJava)(ExecutionContexts.parasitic)
+      .map(_.toJava)(ExecutionContext.parasitic)
       .asJava
 
   override def loadEnvelope[Event](persistenceId: String, sequenceNr: Long): CompletionStage[EventEnvelope[Event]] =

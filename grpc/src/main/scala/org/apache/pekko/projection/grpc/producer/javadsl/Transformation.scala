@@ -14,10 +14,10 @@ import org.apache.pekko.annotation.ApiMayChange
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunction }
+import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 import scala.reflect.ClassTag
-import org.apache.pekko.dispatch.ExecutionContexts
 import org.apache.pekko.projection.grpc.producer.scaladsl
 
 @ApiMayChange
@@ -42,7 +42,7 @@ final class Transformation private (private[grpc] val delegate: scaladsl.EventPr
       f: JFunction[A, CompletionStage[Optional[B]]]): Transformation = {
     implicit val ct: ClassTag[A] = ClassTag(inputEventClass)
     new Transformation(
-      delegate.registerAsyncMapper[A, B](event => f.apply(event).asScala.map(_.toScala)(ExecutionContexts.parasitic)))
+      delegate.registerAsyncMapper[A, B](event => f.apply(event).asScala.map(_.toScala)(ExecutionContext.parasitic)))
   }
 
   def registerMapper[A, B](inputEventClass: Class[A], f: JFunction[A, Optional[B]]): Transformation = {
@@ -55,7 +55,7 @@ final class Transformation private (private[grpc] val delegate: scaladsl.EventPr
       delegate.registerAsyncOrElseMapper(event =>
         f.apply(event.asInstanceOf[AnyRef])
           .asScala
-          .map(_.toScala)(ExecutionContexts.parasitic)))
+          .map(_.toScala)(ExecutionContext.parasitic)))
   }
 
   def registerOrElseMapper(f: AnyRef => Optional[AnyRef]): Transformation = {

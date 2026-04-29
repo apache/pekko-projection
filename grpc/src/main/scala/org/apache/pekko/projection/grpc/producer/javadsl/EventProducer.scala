@@ -15,12 +15,11 @@ import java.util.concurrent.CompletionStage
 
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
-import scala.concurrent.Future
+import scala.concurrent.{ ExecutionContext, Future }
 
 import org.apache.pekko.Done
 import org.apache.pekko.actor.typed.ActorSystem
 import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.dispatch.ExecutionContexts
 import org.apache.pekko.grpc.internal.JavaMetadataImpl
 import org.apache.pekko.grpc.scaladsl.{ Metadata => ScalaMetadata }
 import org.apache.pekko.http.javadsl.model.HttpRequest
@@ -81,7 +80,7 @@ object EventProducer {
     new JapiFunction[HttpRequest, CompletionStage[HttpResponse]] {
       override def apply(request: HttpRequest): CompletionStage[HttpResponse] =
         handler(request.asInstanceOf[org.apache.pekko.http.scaladsl.model.HttpRequest])
-          .map(_.asInstanceOf[HttpResponse])(ExecutionContexts.parasitic)
+          .map(_.asInstanceOf[HttpResponse])(ExecutionContext.parasitic)
           .asJava
     }
   }
