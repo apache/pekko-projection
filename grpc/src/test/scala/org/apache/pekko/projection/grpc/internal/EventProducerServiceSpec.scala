@@ -13,44 +13,46 @@
 
 package org.apache.pekko.projection.grpc.internal
 
-import org.apache.pekko.Done
-
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
 import scala.collection.immutable
 import scala.concurrent.Future
 import scala.concurrent.Promise
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.grpc.GrpcServiceException
-import org.apache.pekko.grpc.scaladsl.Metadata
-import org.apache.pekko.grpc.scaladsl.MetadataBuilder
-import org.apache.pekko.persistence.Persistence
-import org.apache.pekko.persistence.query.Offset
-import org.apache.pekko.persistence.query.TimestampOffset
-import org.apache.pekko.persistence.query.scaladsl.ReadJournal
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.grpc.internal.proto.EventTimestampRequest
-import org.apache.pekko.projection.grpc.internal.proto.InitReq
-import org.apache.pekko.projection.grpc.internal.proto.LoadEventRequest
-import org.apache.pekko.projection.grpc.internal.proto.StreamIn
-import org.apache.pekko.projection.grpc.internal.proto.StreamOut
-import org.apache.pekko.projection.grpc.producer.EventProducerSettings
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
-import org.apache.pekko.stream.scaladsl.Keep
-import org.apache.pekko.stream.scaladsl.Sink
-import org.apache.pekko.stream.scaladsl.Source
-import org.apache.pekko.stream.testkit.TestPublisher
-import org.apache.pekko.stream.testkit.TestSubscriber
-import org.apache.pekko.stream.testkit.scaladsl.TestSink
-import org.apache.pekko.stream.testkit.scaladsl.TestSource
-import org.apache.pekko.testkit.SocketUtil
+
+import org.apache.pekko
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorSystem
+import pekko.grpc.GrpcServiceException
+import pekko.grpc.scaladsl.Metadata
+import pekko.grpc.scaladsl.MetadataBuilder
+import pekko.persistence.Persistence
+import pekko.persistence.query.Offset
+import pekko.persistence.query.TimestampOffset
+import pekko.persistence.query.scaladsl.ReadJournal
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.grpc.internal.proto.EventTimestampRequest
+import pekko.projection.grpc.internal.proto.InitReq
+import pekko.projection.grpc.internal.proto.LoadEventRequest
+import pekko.projection.grpc.internal.proto.StreamIn
+import pekko.projection.grpc.internal.proto.StreamOut
+import pekko.projection.grpc.producer.EventProducerSettings
+import pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
+import pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
+import pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
+import pekko.stream.scaladsl.Keep
+import pekko.stream.scaladsl.Sink
+import pekko.stream.scaladsl.Source
+import pekko.stream.testkit.TestPublisher
+import pekko.stream.testkit.TestSubscriber
+import pekko.stream.testkit.scaladsl.TestSink
+import pekko.stream.testkit.scaladsl.TestSource
+import pekko.testkit.SocketUtil
+
 import com.typesafe.config.ConfigFactory
 import io.grpc.Status
 import org.scalatest.matchers.should.Matchers
@@ -103,7 +105,7 @@ class EventProducerServiceSpec
     with LogCapturing {
   import EventProducerServiceSpec._
 
-  private implicit val sys = system.classicSystem
+  private implicit val sys: pekko.actor.ActorSystem = system.classicSystem
 
   private val eventsBySlicesQuery1 = new TestEventsBySliceQuery
   private val eventsBySlicesQuery2 = new TestEventsBySliceQuery
