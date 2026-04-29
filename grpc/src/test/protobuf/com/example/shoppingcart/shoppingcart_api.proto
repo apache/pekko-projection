@@ -1,0 +1,23 @@
+// Protocol Buffers definition for shoppingcart example
+syntax = "proto3";
+
+option java_package = "com.example.shoppingcart.proto";
+option java_multiple_files = true;
+
+package com.example.shoppingcart;
+
+message ItemAdded {
+  string cart_id = 1;
+  string item_id = 2;
+  int32 quantity = 3;
+}
+
+message ItemQuantityAdjusted {
+  string cart_id = 1;
+  string item_id = 2;
+  int32 quantity = 3;
+}
+
+message CheckedOut {
+  string cart_id = 1;
+}

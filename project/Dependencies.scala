@@ -42,6 +42,7 @@ object Dependencies {
     val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekko
     val pekkoProtobufV3 = "org.apache.pekko" %% "pekko-protobuf-v3" % Versions.pekko
     val pekkoPersistenceQuery = "org.apache.pekko" %% "pekko-persistence-query" % Versions.pekko
+    val pekkoGrpcRuntime = "org.apache.pekko" %% "pekko-grpc-runtime" % "2.0.0-M1"
 
     // TestKit in compile scope for ProjectionTestKit
     val pekkoTypedTestkit = "org.apache.pekko" %% "pekko-actor-testkit-typed" % Versions.pekko
@@ -197,6 +198,15 @@ object Dependencies {
       Compile.jackson,
       Test.scalatest % "test",
       Test.logback % "test")
+
+  val grpc =
+    deps ++= Seq(
+      Compile.pekkoGrpcRuntime,
+      Compile.pekkoPersistenceQuery,
+      Test.pekkoTypedTestkit % "test",
+      Test.pekkoStreamTestkit % "test",
+      Test.logback % "test",
+      Test.scalatest % "test")
 
   val kafkaTest =
     deps ++= Seq(
