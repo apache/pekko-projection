@@ -71,6 +71,7 @@ object Dependencies {
   }
 
   object Test {
+    val pekkoSerializationJackson = "org.apache.pekko" %% "pekko-serialization-jackson" % Versions.pekko % "test"
     val pekkoTypedTestkit = Compile.pekkoTypedTestkit
     val pekkoStreamTestkit = Compile.pekkoStreamTestkit
     val persistenceTestkit = "org.apache.pekko" %% "pekko-persistence-testkit" % Versions.pekko % "test"
@@ -204,6 +205,7 @@ object Dependencies {
       Compile.pekkoGrpcRuntime,
       Compile.pekkoPersistenceQuery,
       Compile.pekkoPersistenceTyped,
+      Test.pekkoSerializationJackson,
       Test.pekkoTypedTestkit % "test",
       Test.pekkoStreamTestkit % "test",
       Test.logback % "test",
