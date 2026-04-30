@@ -25,10 +25,10 @@ import com.typesafe.config.Config
  */
 final class GrpcReadJournalProvider(system: ExtendedActorSystem, config: Config, cfgPath: String)
     extends ReadJournalProvider {
-  override val scaladslReadJournal: scaladsl.GrpcReadJournal =
+  override def scaladslReadJournal(): scaladsl.GrpcReadJournal =
     new scaladsl.GrpcReadJournal(system, config, cfgPath)
 
-  override val javadslReadJournal: javadsl.GrpcReadJournal =
+  override def javadslReadJournal(): javadsl.GrpcReadJournal =
     new javadsl.GrpcReadJournal(
       new scaladsl.GrpcReadJournal(system, config, cfgPath, ProtoAnySerialization.Prefer.Java))
 }
