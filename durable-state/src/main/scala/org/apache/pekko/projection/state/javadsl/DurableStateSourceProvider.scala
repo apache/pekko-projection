@@ -29,6 +29,7 @@ import pekko.annotation.InternalApi
 import pekko.japi.Pair
 import pekko.persistence.query.NoOffset
 import pekko.persistence.query.Offset
+import pekko.persistence.query.DeletedDurableState
 import pekko.persistence.query.DurableStateChange
 import pekko.persistence.query.UpdatedDurableState
 import pekko.persistence.query.javadsl.DurableStateStoreQuery
@@ -79,7 +80,7 @@ object DurableStateSourceProvider {
     override def extractCreationTime(stateChange: DurableStateChange[A]): Long =
       stateChange match {
         case u: UpdatedDurableState[_] => u.timestamp
-        case _                         => 0L // FIXME handle DeletedDurableState when that is added
+        case d: DeletedDurableState[_] => d.timestamp
       }
   }
 
@@ -138,10 +139,7 @@ object DurableStateSourceProvider {
     override def extractCreationTime(stateChange: DurableStateChange[A]): Long =
       stateChange match {
         case u: UpdatedDurableState[_] => u.timestamp
-        case other                     =>
-          // FIXME case DeletedDurableState when that is added
-          throw new IllegalArgumentException(
-            s"DurableStateChange [${other.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/pekko-persistence-r2dbc/issues")
+        case d: DeletedDurableState[_] => d.timestamp
       }
 
     override def getObject(persistenceId: String): CompletionStage[GetObjectResult[A]] =
