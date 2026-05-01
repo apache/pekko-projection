@@ -42,11 +42,9 @@ object EventSourcedProvider {
       system: ActorSystem[_],
       readJournalPluginId: String,
       tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
-
     val eventsByTagQuery =
       PersistenceQuery(system).readJournalFor[EventsByTagQuery](readJournalPluginId)
-
-    new EventsByTagSourceProvider(eventsByTagQuery, tag, system)
+    eventsByTag(system, eventsByTagQuery, tag)
   }
 
   def eventsByTag[Event](
@@ -54,10 +52,15 @@ object EventSourcedProvider {
       readJournalPluginId: String,
       readJournalConfig: Config,
       tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
-
     val eventsByTagQuery =
       PersistenceQuery(system).readJournalFor[EventsByTagQuery](readJournalPluginId, readJournalConfig)
+    eventsByTag(system, eventsByTagQuery, tag)
+  }
 
+  def eventsByTag[Event](
+      system: ActorSystem[_],
+      eventsByTagQuery: EventsByTagQuery,
+      tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
     new EventsByTagSourceProvider(eventsByTagQuery, tag, system)
   }
 
@@ -89,8 +92,7 @@ object EventSourcedProvider {
       maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
     val eventsBySlicesQuery =
       PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId)
-
-    new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+    eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice)
   }
 
   def eventsBySlices[Event](
@@ -102,7 +104,15 @@ object EventSourcedProvider {
       maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
     val eventsBySlicesQuery =
       PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId, readJournalConfig)
+    eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice)
+  }
 
+  def eventsBySlices[Event](
+      system: ActorSystem[_],
+      eventsBySlicesQuery: EventsBySliceQuery,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
     new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
   }
 

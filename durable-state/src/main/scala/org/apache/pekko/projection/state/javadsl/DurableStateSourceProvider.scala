@@ -54,7 +54,13 @@ object DurableStateSourceProvider {
     val durableStateStoreQuery =
       DurableStateStoreRegistry(system)
         .getDurableStateStoreFor[DurableStateStoreQuery[A]](classOf[DurableStateStoreQuery[A]], pluginId)
+    changesByTag(system, durableStateStoreQuery, tag)
+  }
 
+  def changesByTag[A](
+      system: ActorSystem[_],
+      durableStateStoreQuery: DurableStateStoreQuery[A],
+      tag: String): SourceProvider[Offset, DurableStateChange[A]] = {
     new DurableStateStoreQuerySourceProvider(durableStateStoreQuery, tag, system)
   }
 
@@ -90,11 +96,18 @@ object DurableStateSourceProvider {
       entityType: String,
       minSlice: Int,
       maxSlice: Int): SourceProvider[Offset, DurableStateChange[A]] = {
-
     val durableStateStoreQuery =
       DurableStateStoreRegistry(system)
         .getDurableStateStoreFor(classOf[DurableStateStoreBySliceQuery[A]], durableStateStoreQueryPluginId)
+    changesBySlices(system, durableStateStoreQuery, entityType, minSlice, maxSlice)
+  }
 
+  def changesBySlices[A](
+      system: ActorSystem[_],
+      durableStateStoreQuery: DurableStateStoreBySliceQuery[A],
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int): SourceProvider[Offset, DurableStateChange[A]] = {
     new DurableStateBySlicesSourceProvider(durableStateStoreQuery, entityType, minSlice, maxSlice, system)
   }
 
