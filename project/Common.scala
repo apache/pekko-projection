@@ -16,6 +16,7 @@ import sbt._
 import sbt.plugins.JvmPlugin
 import com.typesafe.tools.mima.plugin.MimaKeys._
 import sbtdynver.DynVerPlugin
+import com.github.sbt.JavaFormatterPlugin.autoImport.javafmtSortImports
 
 object Common extends AutoPlugin {
 
@@ -63,6 +64,7 @@ object Common extends AutoPlugin {
        Seq("-skip-packages", "org.apache.pekko.pattern")
      }),
     autoAPIMappings := true,
+    javafmtSortImports := false,
     apiURL := Some(url(s"https://pekko.apache.org/api/pekko-projection/${projectInfoVersion.value}")),
     // show full stack traces and test case durations
     Test / testOptions += Tests.Argument(TestFrameworks.ScalaTest, "-oDF"),
