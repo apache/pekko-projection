@@ -18,7 +18,6 @@ import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.actor.typed.SupervisorStrategy;
 import org.apache.pekko.actor.typed.javadsl.AskPattern;
 import org.apache.pekko.actor.typed.javadsl.StashBuffer;
-import org.apache.pekko.projection.cassandra.CassandraProjectionTest;
 import org.apache.pekko.projection.javadsl.ActorHandler;
 import org.apache.pekko.projection.javadsl.StatefulHandler;
 
@@ -80,6 +79,7 @@ public interface WordCountDocExample {
 
     CompletionStage<Done> save(String id, String word, int count);
   }
+
   // #repository
 
   public class CassandraWordCountRepository implements WordCountRepository {
@@ -174,6 +174,7 @@ public interface WordCountDocExample {
       return 0L;
     }
   }
+
   // #sourceProvider
 
   interface IllustrateVariables {
@@ -309,6 +310,7 @@ public interface WordCountDocExample {
             });
       }
     }
+
     // #actorHandler
 
     // #behaviorLoadingInitialState

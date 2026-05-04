@@ -106,6 +106,7 @@ public interface KafkaDocExample {
       state.put(word, newCount);
     }
   }
+
   // #handler
 
   // #wordSource
@@ -153,6 +154,7 @@ public interface KafkaDocExample {
       return 0L;
     }
   }
+
   // #wordSource
 
   // #wordPublisher
@@ -187,6 +189,7 @@ public interface KafkaDocExample {
       return done;
     }
   }
+
   // #wordPublisher
 
   static SourceProvider<MergeableOffset<Long>, ConsumerRecord<String, String>>
@@ -247,12 +250,14 @@ public interface KafkaDocExample {
       wordRepository.increment(session.entityManager, word);
     }
   }
+
   // #exactly-once-jdbc-handler
 
   // #repository
   interface WordRepository {
     void increment(EntityManager entityManager, String word);
   }
+
   // #repository
 
   static void IllustrateSendingToKafka() {

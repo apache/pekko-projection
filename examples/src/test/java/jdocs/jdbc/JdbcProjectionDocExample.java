@@ -64,6 +64,7 @@ class JdbcProjectionDocExample {
   interface OrderRepository {
     void save(EntityManager entityManager, Order order);
   }
+
   // #repository
 
   @SuppressWarnings("Convert2Lambda")
@@ -108,6 +109,7 @@ class JdbcProjectionDocExample {
       connection.close();
     }
   }
+
   // #jdbc-session
 
   // #handler
@@ -133,6 +135,7 @@ class JdbcProjectionDocExample {
       }
     }
   }
+
   // #handler
 
   // #grouped-handler
@@ -162,6 +165,7 @@ class JdbcProjectionDocExample {
       }
     }
   }
+
   // #grouped-handler
 
   ActorSystem<Void> system = ActorSystem.create(Behaviors.empty(), "Example");
@@ -169,6 +173,7 @@ class JdbcProjectionDocExample {
   // #sourceProvider
   SourceProvider<Offset, EventEnvelope<ShoppingCart.Event>> sourceProvider =
       EventSourcedProvider.eventsByTag(system, CassandraReadJournal.Identifier(), "carts-1");
+
   // #sourceProvider
 
   {
