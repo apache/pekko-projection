@@ -8,7 +8,7 @@
  */
 
 addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.0")
-addSbtPlugin("com.github.sbt" % "sbt-java-formatter" % "0.11.0")
+addSbtPlugin("com.github.sbt" % "sbt-java-formatter" % "0.12.0")
 addSbtPlugin("com.github.sbt" % "sbt-header" % "5.11.0")
 
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.1.1")

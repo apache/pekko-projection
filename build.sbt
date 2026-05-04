@@ -16,6 +16,7 @@ sourceDistIncubating := false
 
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
+ThisBuild / javafmtFormatterCompatibleJavaVersion := 17
 
 lazy val core =
   Project(id = "core", base = file("core"))
