@@ -100,6 +100,7 @@ public interface CassandraProjectionDocExample {
       }
     }
   }
+
   // #handler
 
   // #grouped-handler
@@ -124,6 +125,7 @@ public interface CassandraProjectionDocExample {
       return CompletableFuture.completedFuture(Done.getInstance());
     }
   }
+
   // #grouped-handler
 
   public static void illustrateAtLeastOnce() {
@@ -266,6 +268,7 @@ public interface CassandraProjectionDocExample {
     SourceProvider<Offset, EventEnvelope<ShoppingCart.Event>> sourceProvider(String tag) {
       return EventSourcedProvider.eventsByTag(system, CassandraReadJournal.Identifier(), tag);
     }
+
     // #running-source-provider
 
     // #running-projection
@@ -277,6 +280,7 @@ public interface CassandraProjectionDocExample {
               ProjectionId.of("shopping-carts", tag), sourceProvider(tag), ShoppingCartHandler::new)
           .withSaveOffset(saveOffsetAfterEnvelopes, saveOffsetAfterDuration);
     }
+
     // #running-projection
 
     public IllustrateRunningWithShardedDaemon() {
@@ -334,7 +338,7 @@ public interface CassandraProjectionDocExample {
         ClusterSingleton.get(system)
             .init(
                 SingletonActor.of(
-                    ProjectionBehavior.create(projection1), projection1.projectionId().id())
+                        ProjectionBehavior.create(projection1), projection1.projectionId().id())
                     .withStopMessage(ProjectionBehavior.stopMessage()));
     // #running-with-singleton
   }
@@ -406,8 +410,7 @@ public interface CassandraProjectionDocExample {
     // #is-paused
 
     ProjectionId projectionId = ProjectionId.of("shopping-carts", "carts-1");
-    CompletionStage<Boolean> paused =
-        ProjectionManagement.get(system).isPaused(projectionId);
+    CompletionStage<Boolean> paused = ProjectionManagement.get(system).isPaused(projectionId);
     // #is-paused
   }
 
@@ -419,7 +422,8 @@ public interface CassandraProjectionDocExample {
     ProjectionManagement mgmt = ProjectionManagement.get(system);
     CompletionStage<Done> pauseDone = mgmt.pause(projectionId);
     CompletionStage<Done> migrationDone = pauseDone.thenCompose(notUsed -> someDataMigration());
-    CompletionStage<Done> resumeDone = migrationDone.thenCompose(notUsed -> mgmt.resume(projectionId));
+    CompletionStage<Done> resumeDone =
+        migrationDone.thenCompose(notUsed -> mgmt.resume(projectionId));
     // #pause-resume
   }
 

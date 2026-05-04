@@ -41,7 +41,6 @@ import java.util.stream.Stream;
 // #testkit-duration
 
 // #testkit-assertion-import
-import static org.junit.Assert.assertEquals;
 
 // #testkit-assertion-import
 

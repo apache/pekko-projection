@@ -35,6 +35,7 @@ import org.apache.pekko.projection.cassandra.javadsl.CassandraProjection;
 import org.apache.pekko.projection.javadsl.AtLeastOnceProjection;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
+
 // #guideProjectionImports
 
 // #guideSetup
