@@ -22,20 +22,25 @@ import scala.concurrent.Future
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko
 import pekko.Done
+import pekko.NotUsed
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorRef
 import pekko.persistence.Persistence
 import pekko.persistence.query.NoOffset
+import pekko.persistence.query.Offset
 import pekko.persistence.query.PersistenceQuery
 import pekko.persistence.query.scaladsl.EventsByTagQuery
+import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
 import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
+import pekko.persistence.query.typed.scaladsl.LoadEventQuery
 import pekko.persistence.testkit.PersistenceTestKitPlugin
 import pekko.persistence.testkit.query.scaladsl.PersistenceTestKitReadJournal
 import pekko.persistence.typed.PersistenceId
 import pekko.persistence.typed.scaladsl.Effect
 import pekko.persistence.typed.scaladsl.EventSourcedBehavior
 import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+import pekko.stream.scaladsl.Source
 import pekko.stream.testkit.scaladsl.TestSink
 import org.scalatest.Inspectors.forEvery
 import org.scalatest.freespec.AnyFreeSpecLike
@@ -199,11 +204,15 @@ class EventSourcedProviderSpec
         "using direct query instance" in {
           val persistenceId = "e-id-1"
           val tag = "e-tag-1"
+          val journal = "e-journal-1"
 
-          setup(persistenceId, Set(tag))
+          // Write events to a custom journal — if the implementation ignores the
+          // passed query instance and reads from the default journal instead,
+          // these events will not be found and the test will fail
+          setup(persistenceId, Set(tag), Some(journal))
 
           val eventsByTagQuery =
-            PersistenceQuery(system).readJournalFor[EventsByTagQuery](PersistenceTestKitReadJournal.Identifier)
+            PersistenceQuery(system).readJournalFor[EventsByTagQuery](s"$journal.query", journalConfig(journal))
           EventSourcedProvider
             .eventsByTag[String](system, eventsByTagQuery, tag)
             .source(() => Future.successful(Some(NoOffset)))
@@ -211,7 +220,9 @@ class EventSourcedProviderSpec
             .map(_.event)
             .runWith(TestSink())
             .request(3)
-            .expectNextN(Seq(s"$persistenceId-event-1", s"$persistenceId-event-2", s"$persistenceId-event-3"))
+            .expectNextN(
+              Seq(s"$persistenceId-event-1-$journal", s"$persistenceId-event-2-$journal",
+                s"$persistenceId-event-3-$journal"))
             .request(1)
             .expectNoMessage()
         }
@@ -251,12 +262,16 @@ class EventSourcedProviderSpec
 
         "using direct query instance" in {
           val persistenceId = makeFullPersistenceId("f-id-1")
+          val journal = "f-journal-1"
           val slice = persistence.sliceForPersistenceId(persistenceId)
 
-          setup(persistenceId)
+          // Write events to a custom journal — if the implementation ignores the
+          // passed query instance and reads from the default journal instead,
+          // these events will not be found and the test will fail
+          setup(persistenceId, maybeJournal = Some(journal))
 
           val eventsBySlicesQuery =
-            PersistenceQuery(system).readJournalFor[EventsBySliceQuery](PersistenceTestKitReadJournal.Identifier)
+            PersistenceQuery(system).readJournalFor[EventsBySliceQuery](s"$journal.query", journalConfig(journal))
           EventSourcedProvider
             .eventsBySlices[String](system, eventsBySlicesQuery, entityType, slice, slice)
             .source(() => Future.successful(Some(NoOffset)))
@@ -264,7 +279,9 @@ class EventSourcedProviderSpec
             .map(_.event)
             .runWith(TestSink())
             .request(3)
-            .expectNextN(Seq(s"$persistenceId-event-1", s"$persistenceId-event-2", s"$persistenceId-event-3"))
+            .expectNextN(
+              Seq(s"$persistenceId-event-1-$journal", s"$persistenceId-event-2-$journal",
+                s"$persistenceId-event-3-$journal"))
             .request(1)
             .expectNoMessage()
         }
@@ -315,6 +332,55 @@ class EventSourcedProviderSpec
           PersistenceTestKitReadJournal.Identifier,
           1
         ) shouldBe Seq(0 until numberOfSlices)
+      }
+    }
+
+    "negative tests" - {
+      // A minimal EventsBySliceQuery that does NOT implement EventTimestampQuery or
+      // LoadEventQuery, used to trigger the failure paths in EventsBySlicesSourceProvider
+      def minimalEventsBySliceQuery(): EventsBySliceQuery = {
+        val delegate =
+          PersistenceQuery(system).readJournalFor[EventsBySliceQuery](PersistenceTestKitReadJournal.Identifier)
+        new EventsBySliceQuery {
+          override def eventsBySlices[Event](
+              entityType: String,
+              minSlice: Int,
+              maxSlice: Int,
+              offset: Offset): Source[pekko.persistence.query.typed.EventEnvelope[Event], NotUsed] =
+            delegate.eventsBySlices(entityType, minSlice, maxSlice, offset)
+          override def sliceForPersistenceId(persistenceId: String): Int =
+            delegate.sliceForPersistenceId(persistenceId)
+          override def sliceRanges(numberOfRanges: Int): Seq[Range] =
+            delegate.sliceRanges(numberOfRanges)
+        }
+      }
+
+      "fail with IllegalStateException on timestampOf when query does not implement EventTimestampQuery" in {
+        val provider = EventSourcedProvider.eventsBySlices[String](
+          system,
+          minimalEventsBySliceQuery(),
+          entityType,
+          0,
+          numberOfSlices - 1)
+        provider
+          .asInstanceOf[EventTimestampQuery]
+          .timestampOf("pid-neg-1", 1L)
+          .failed
+          .futureValue shouldBe an[IllegalStateException]
+      }
+
+      "fail with IllegalStateException on loadEnvelope when query does not implement LoadEventQuery" in {
+        val provider = EventSourcedProvider.eventsBySlices[String](
+          system,
+          minimalEventsBySliceQuery(),
+          entityType,
+          0,
+          numberOfSlices - 1)
+        provider
+          .asInstanceOf[LoadEventQuery]
+          .loadEnvelope[String]("pid-neg-2", 1L)
+          .failed
+          .futureValue shouldBe an[IllegalStateException]
       }
     }
   }
