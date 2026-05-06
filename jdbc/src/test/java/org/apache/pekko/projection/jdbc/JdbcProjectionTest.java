@@ -217,11 +217,12 @@ public class JdbcProjectionTest extends JUnitSuite {
       StringBuffer buffer, CountDownLatch latch, Predicate<Long> failPredicate) {
     return JdbcHandler.fromFunction(
         (PureJdbcSession session, Envelope envelope) -> {
-          latch.countDown();
           if (failPredicate.test(envelope.offset)) {
+            latch.countDown();
             throw new RuntimeException(failMessage(envelope.offset));
           } else {
             buffer.append(envelope.message).append("|");
+            latch.countDown();
           }
         });
   }
