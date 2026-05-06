@@ -24,6 +24,7 @@ object Dependencies {
 
   object Versions {
     val pekko = PekkoCoreDependency.version
+    val pekkoGrpc = "2.0.0-M1"
     val pekkoPersistenceJdbc = "2.0.0-M1"
     val pekkoPersistenceCassandra = "1.1.0"
     val connectors = PekkoConnectorsDependency.version
@@ -43,7 +44,7 @@ object Dependencies {
     val pekkoProtobufV3 = "org.apache.pekko" %% "pekko-protobuf-v3" % Versions.pekko
     val pekkoPersistenceQuery = "org.apache.pekko" %% "pekko-persistence-query" % Versions.pekko
     val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
-    val pekkoGrpcRuntime = "org.apache.pekko" %% "pekko-grpc-runtime" % "2.0.0-M1"
+    val pekkoGrpcRuntime = "org.apache.pekko" %% "pekko-grpc-runtime" % Versions.pekkoGrpc
 
     // TestKit in compile scope for ProjectionTestKit
     val pekkoTypedTestkit = "org.apache.pekko" %% "pekko-actor-testkit-typed" % Versions.pekko
