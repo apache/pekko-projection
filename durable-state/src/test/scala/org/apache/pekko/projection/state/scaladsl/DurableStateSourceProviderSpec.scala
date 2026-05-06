@@ -289,7 +289,8 @@ class DurableStateSourceProviderSpec
       val emptyTag = "tag-with-no-records"
 
       val sourceProvider =
-        DurableStateSourceProvider.changesByTag[Record](system, PersistenceTestKitDurableStateStore.Identifier, emptyTag)
+        DurableStateSourceProvider.changesByTag[Record](system, PersistenceTestKitDurableStateStore.Identifier,
+          emptyTag)
 
       whenReady(sourceProvider.source(() => Future.successful[Option[Offset]](None))) { source =>
         source
