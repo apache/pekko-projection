@@ -13,9 +13,6 @@
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
-import org.apache.pekko
-import pekko.annotation.ApiMayChange
-
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunction }
@@ -23,6 +20,9 @@ import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 import scala.reflect.ClassTag
+
+import org.apache.pekko
+import pekko.annotation.ApiMayChange
 import pekko.projection.grpc.producer.scaladsl
 
 @ApiMayChange
