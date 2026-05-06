@@ -27,6 +27,9 @@ import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorRef
 import pekko.persistence.Persistence
 import pekko.persistence.query.NoOffset
+import pekko.persistence.query.PersistenceQuery
+import pekko.persistence.query.scaladsl.EventsByTagQuery
+import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
 import pekko.persistence.testkit.PersistenceTestKitPlugin
 import pekko.persistence.testkit.query.scaladsl.PersistenceTestKitReadJournal
 import pekko.persistence.typed.PersistenceId
@@ -192,6 +195,26 @@ class EventSourcedProviderSpec
           assertTag(tag1, expectedEvents.map(_ + s"-$journal1"), Some(journal1))
           assertTag(tag1, expectedEvents.map(_ + s"-$journal2"), Some(journal2))
         }
+
+        "using direct query instance" in {
+          val persistenceId = "e-id-1"
+          val tag = "e-tag-1"
+
+          setup(persistenceId, Set(tag))
+
+          val eventsByTagQuery =
+            PersistenceQuery(system).readJournalFor[EventsByTagQuery](PersistenceTestKitReadJournal.Identifier)
+          EventSourcedProvider
+            .eventsByTag[String](system, eventsByTagQuery, tag)
+            .source(() => Future.successful(Some(NoOffset)))
+            .futureValue
+            .map(_.event)
+            .runWith(TestSink())
+            .request(3)
+            .expectNextN(Seq(s"$persistenceId-event-1", s"$persistenceId-event-2", s"$persistenceId-event-3"))
+            .request(1)
+            .expectNoMessage()
+        }
       }
 
       "by slices" - {
@@ -225,6 +248,26 @@ class EventSourcedProviderSpec
           assertSlices(0, numberOfSlices - 1, expectedEvents.map(_ + s"-$journal1"), maybeJournal = Some(journal1))
           assertSlices(0, numberOfSlices - 1, expectedEvents.map(_ + s"-$journal2"), maybeJournal = Some(journal2))
         }
+
+        "using direct query instance" in {
+          val persistenceId = makeFullPersistenceId("f-id-1")
+          val slice = persistence.sliceForPersistenceId(persistenceId)
+
+          setup(persistenceId)
+
+          val eventsBySlicesQuery =
+            PersistenceQuery(system).readJournalFor[EventsBySliceQuery](PersistenceTestKitReadJournal.Identifier)
+          EventSourcedProvider
+            .eventsBySlices[String](system, eventsBySlicesQuery, entityType, slice, slice)
+            .source(() => Future.successful(Some(NoOffset)))
+            .futureValue
+            .map(_.event)
+            .runWith(TestSink())
+            .request(3)
+            .expectNextN(Seq(s"$persistenceId-event-1", s"$persistenceId-event-2", s"$persistenceId-event-3"))
+            .request(1)
+            .expectNoMessage()
+        }
       }
     }
 
@@ -254,6 +297,24 @@ class EventSourcedProviderSpec
             1
           ) shouldBe Seq(0 until numberOfSlices)
         }
+      }
+    }
+
+    "using the default plugin" - {
+      "return slice for persistence id" in {
+        EventSourcedProvider.sliceForPersistenceId(
+          system,
+          PersistenceTestKitReadJournal.Identifier,
+          makeFullPersistenceId("d-id-1")
+        ) shouldBe 594
+      }
+
+      "return slice ranges" in {
+        EventSourcedProvider.sliceRanges(
+          system,
+          PersistenceTestKitReadJournal.Identifier,
+          1
+        ) shouldBe Seq(0 until numberOfSlices)
       }
     }
   }
