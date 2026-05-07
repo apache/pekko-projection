@@ -62,7 +62,7 @@ The gRPC connection to the producer is defined in the [consumer configuration](#
 
 The [R2dbcProjection](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/projection.html) has support for storing the offset in a relational database using R2DBC.
 
-The above example is using the [ShardedDaemonProcess](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html) to distribute the instances of the Projection across the cluster.
+One approach is to use the [ShardedDaemonProcess](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html) to distribute the instances of the Projection across the cluster.
 There are alternative ways of running the `ProjectionBehavior` as described in @ref:[Running a Projection](running.md)
 
 How to implement the `EventHandler` and choose between different processing semantics is described in the [R2dbcProjection documentation](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/projection.html).
@@ -70,7 +70,7 @@ How to implement the `EventHandler` and choose between different processing sema
 ### gRPC client lifecycle
 
 When creating the @apidoc[GrpcReadJournal] a gRPC client is created for the target producer. The same `GrpcReadJournal` 
-instance and its gRPC client should be shared for the same target producer. The code examples above will share the instance
+instance and its gRPC client should be shared for the same target producer. The code examples will share the instance
 between different Projection instances running in the same `ActorSystem`. The gRPC clients will automatically be 
 closed when the `ActorSystem` is terminated.
 
@@ -87,8 +87,7 @@ are registered when creating the `EventProducer` service.
 
 To omit an event the transformation function can return @scala[`None`]@java[`Optional.empty()`].
 
-That `EventProducer` service is started in a Pekko gRPC server. This example illustrates how to combine the
-`EventProducer` service with other gRPC services.
+That `EventProducer` service is started in a Pekko gRPC server.
 
 ## Access control
 
