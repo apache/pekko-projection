@@ -4,16 +4,16 @@
 
 This example requires a Cassandra database to run. 
 If you do not have a Cassandra database then you can run one locally as a Docker container.
-To run a Cassandra database locally you can use [`docker-compose`](https://docs.docker.com/compose/) to run the [`docker-compose.yaml`](https://raw.githubusercontent.com/apache/pekko-projection/main/docker-compose.yml) found in the Projections project root.
+To run a Cassandra database locally you can use [`docker compose`](https://docs.docker.com/compose/) to run the [`docker-compose.yml`](https://raw.githubusercontent.com/apache/pekko-projection/main/docker-compose.yml) found in the Projections project root.
 The `docker-compose.yml` file references the latest [Cassandra Docker Image](https://hub.docker.com/_/cassandra).
 
 Change directory to the directory of the `docker-compose.yml` file and manage a Cassandra container with the following commands.
 
 | Action                   | Docker Command |
 |--------------------------|----------------|
-| Run                      | `docker-compose --project-name getting-started up -d cassandra` |
-| Stop                     | `docker-compose --project-name getting-started stop` |
-| Delete container state   | `docker-compose --project-name getting-started rm -f` |
+| Run                      | `docker compose --project-name getting-started up -d cassandra` |
+| Stop                     | `docker compose --project-name getting-started stop` |
+| Delete container state   | `docker compose --project-name getting-started rm -f` |
 | CQL shell (when running) | `docker run -it --network getting-started_default --rm cassandra cqlsh cassandra` |
 
 To use a different Cassandra database update the [Cassandra driver's contact-points configuration](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/configuration.html#contact-points-configuration) found in `./examples/src/resources/guide-shopping-cart-app.conf`.
