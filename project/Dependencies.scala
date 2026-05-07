@@ -218,6 +218,7 @@ object Dependencies {
       "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc % "test",
       "org.apache.pekko" %% "pekko-projection-r2dbc" % Versions.pekkoPersistenceR2dbc % "test",
       "org.postgresql" % "r2dbc-postgresql" % "1.1.1.RELEASE" % "test",
+      Test.postgresDriver % "test",
       Test.pekkoSerializationJackson,
       Test.pekkoTypedTestkit % "test",
       Test.postgresContainer % "test",
