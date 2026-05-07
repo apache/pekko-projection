@@ -215,14 +215,14 @@ object Dependencies {
 
   val grpcIntTest =
     deps ++= Seq(
-      "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc % Test,
-      "org.apache.pekko" %% "pekko-projection-r2dbc" % Versions.pekkoPersistenceR2dbc % Test,
-      "org.postgresql" % "r2dbc-postgresql" % "1.0.7.RELEASE" % Test,
+      "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc % "test",
+      "org.apache.pekko" %% "pekko-projection-r2dbc" % Versions.pekkoPersistenceR2dbc % "test",
+      "org.postgresql" % "r2dbc-postgresql" % "1.0.7.RELEASE" % "test",
       Test.pekkoSerializationJackson,
-      Test.pekkoTypedTestkit % Test,
-      Test.postgresContainer % Test,
-      Test.logback % Test,
-      Test.scalatest % Test)
+      Test.pekkoTypedTestkit % "test",
+      Test.postgresContainer % "test",
+      Test.logback % "test",
+      Test.scalatest % "test")
 
   val kafkaTest =
     deps ++= Seq(
