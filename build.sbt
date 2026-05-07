@@ -179,6 +179,19 @@ lazy val grpc =
     .dependsOn(eventsourced)
     .dependsOn(testkit % Test)
 
+lazy val grpcIntTest =
+  Project(id = "grpc-int-test", base = file("grpc-int-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.grpcIntTest)
+    .settings(
+      name := "pekko-projection-grpc-int-test",
+      publish / skip := true,
+      Test / parallelExecution := false,
+      evictionErrorLevel := Level.Info)
+    .dependsOn(grpc % "test->test;test->compile")
+    .dependsOn(eventsourced % Test)
+    .dependsOn(testkit % Test)
+
 lazy val userProjects: Seq[ProjectReference] = List[ProjectReference](
   core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, grpc, testkit)
 
@@ -264,7 +277,7 @@ lazy val billOfMaterials = Project("bill-of-materials", file("bill-of-materials"
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(userProjects: _*)
-  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, jdbcIntTest, slickIntTest, examples,
+  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, jdbcIntTest, slickIntTest, grpcIntTest, examples,
     integrationExamples, docs)
   .settings(
     publish / skip := true,

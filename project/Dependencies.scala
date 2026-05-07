@@ -26,6 +26,7 @@ object Dependencies {
     val pekko = PekkoCoreDependency.version
     val pekkoGrpc = org.apache.pekko.grpc.gen.BuildInfo.version
     val pekkoPersistenceJdbc = "2.0.0-M1"
+    val pekkoPersistenceR2dbc = "1.1.0"
     val pekkoPersistenceCassandra = "1.1.0"
     val connectors = PekkoConnectorsDependency.version
     val connectorsKafka = PekkoConnectorsKafkaDependency.version
@@ -211,6 +212,17 @@ object Dependencies {
       Test.pekkoStreamTestkit % "test",
       Test.logback % "test",
       Test.scalatest % "test")
+
+  val grpcIntTest =
+    deps ++= Seq(
+      "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc % Test,
+      "org.apache.pekko" %% "pekko-projection-r2dbc" % Versions.pekkoPersistenceR2dbc % Test,
+      "org.postgresql" % "r2dbc-postgresql" % "1.0.7.RELEASE" % Test,
+      Test.pekkoSerializationJackson,
+      Test.pekkoTypedTestkit % Test,
+      Test.postgresContainer % Test,
+      Test.logback % Test,
+      Test.scalatest % Test)
 
   val kafkaTest =
     deps ++= Seq(
