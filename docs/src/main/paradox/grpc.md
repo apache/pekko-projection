@@ -38,14 +38,14 @@ To use the gRPC module of Apache Pekko Projections add the following dependency 
 
 Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
-@@project-info{ projectId="pekko-projection-grpc" }
+@@project-info{ projectId="grpc" }
 
 
 ### Transitive dependencies
 
 The table below shows `pekko-projection-grpc`'s direct dependencies, and the second tab shows all libraries it depends on transitively.
 
-@@dependencies{ projectId="pekko-projection-grpc" }
+@@dependencies{ projectId="grpc" }
 
 ## Consumer
 
@@ -128,7 +128,7 @@ The `client` section in the configuration defines where the producer is running.
 
 The following can be overridden in your `application.conf` for the Projection specific settings:
 
-@@snip [reference.conf](/pekko-projection-grpc/src/main/resources/reference.conf) {}
+@@snip [reference.conf](/grpc/src/main/resources/reference.conf) {}
 
 ### Connecting to more than one producer
 
