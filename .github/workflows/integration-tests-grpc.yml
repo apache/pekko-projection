@@ -1,0 +1,63 @@
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# license agreements; and to You under the Apache License, version 2.0:
+#
+#   https://www.apache.org/licenses/LICENSE-2.0
+#
+# This file is part of the Apache Pekko project, which was derived from Akka.
+#
+
+name: Integration Tests for gRPC
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+    tags-ignore: [ v.* ]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    name: Build and Test Integration for gRPC
+    runs-on: ubuntu-22.04
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { java-version: 17, scala-version: 2.13,  sbt-opts: '' }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@90c37294538be80a558fd665531fcdc2b467b475 # v8.1.0
+
+      - name: Setup JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: temurin
+
+      - name: Install sbt
+        uses: sbt/setup-sbt@508b753e53cb6095967669e0911487d2b9bc9f41 # v1.1.22
+
+      - name: Run all integration tests with default Scala and Java ${{ matrix.java-version }}
+        run: sbt "grpc-int-test/test" ${{ matrix.extraOpts }}
+        env: # Disable Ryuk resource reaper since we always spin up fresh VMs
+          TESTCONTAINERS_RYUK_DISABLED: true
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;

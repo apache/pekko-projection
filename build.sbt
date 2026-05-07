@@ -186,8 +186,7 @@ lazy val grpcIntTest =
     .settings(
       name := "pekko-projection-grpc-int-test",
       publish / skip := true,
-      Test / parallelExecution := false,
-      evictionErrorLevel := Level.Info)
+      Test / parallelExecution := false)
     .dependsOn(grpc % "test->test;test->compile")
     .dependsOn(eventsourced % Test)
     .dependsOn(testkit % Test)
