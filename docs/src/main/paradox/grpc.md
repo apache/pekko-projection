@@ -2,7 +2,7 @@
 
 Apache Pekko Projection gRPC can be used for implementing asynchronous event based service-to-service communication.
 It provides an implementation of a Pekko Projection that uses
-@extref:[Pekko gRPC](pekko-grpc:index.html) as underlying transport between event producer and consumer.
+[Pekko gRPC](https://pekko.apache.org/docs/pekko-grpc/current/index.html) as underlying transport between event producer and consumer.
 
 @@@ warning
 
@@ -60,12 +60,12 @@ and not from configuration via `GrpcReadJournalProvider` when using Protobuf ser
 
 The gRPC connection to the producer is defined in the [consumer configuration](#consumer-configuration).
 
-The @extref:[R2dbcProjection](pekko-persistence-r2dbc:projection.html) has support for storing the offset in a relational database using R2DBC.
+The [R2dbcProjection](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/projection.html) has support for storing the offset in a relational database using R2DBC.
 
-The above example is using the @extref:[ShardedDaemonProcess](pekko:typed/cluster-sharded-daemon-process.html) to distribute the instances of the Projection across the cluster.
+The above example is using the [ShardedDaemonProcess](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html) to distribute the instances of the Projection across the cluster.
 There are alternative ways of running the `ProjectionBehavior` as described in @ref:[Running a Projection](running.md)
 
-How to implement the `EventHandler` and choose between different processing semantics is described in the @extref:[R2dbcProjection documentation](pekko-persistence-r2dbc:projection.html).
+How to implement the `EventHandler` and choose between different processing semantics is described in the [R2dbcProjection documentation](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/projection.html).
 
 ### gRPC client lifecycle
 
@@ -106,7 +106,7 @@ gRPC request metadata for each incoming request and can return a suitable error 
 
 ### Lower latency
 
-See @extref:[Publish events for lower latency of eventsBySlices](pekko-persistence-r2dbc:query.html#publish-events-for-lower-latency-of-eventsbyslices)
+See [Publish events for lower latency of eventsBySlices](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/query.html#publish-events-for-lower-latency-of-eventsbyslices)
 for low latency use cases.
 
 ### Scalability limitations
@@ -123,7 +123,7 @@ probably reading at the tail of the same event stream.
 
 ### Consumer configuration
 
-The `client` section in the configuration defines where the producer is running. It is a @extref:[Pekko gRPC configuration](pekko-grpc:configuration.html#by-configuration) with several connection options.
+The `client` section in the configuration defines where the producer is running. It is a [Pekko gRPC configuration](https://pekko.apache.org/docs/pekko-grpc/current/client/configuration.html#by-configuration) with several connection options.
 
 ### Reference configuration
 
