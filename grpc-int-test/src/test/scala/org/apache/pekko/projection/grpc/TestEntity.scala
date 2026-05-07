@@ -33,7 +33,8 @@ object TestEntity {
     Behaviors.setup { context =>
       EventSourcedBehavior[Command, Any, String](
         persistenceId = pid,
-        "", { (_, command) =>
+        "",
+        { (_, command) =>
           command match {
             case command: Persist =>
               context.log.debugN(
