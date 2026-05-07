@@ -16,13 +16,13 @@ package org.apache.pekko.projection.grpc
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.apache.pekko.testkit.SocketUtil
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 class TestContainerConf {
   val grpcPort: Int = SocketUtil.temporaryServerAddress("127.0.0.1").getPort
 
-  private val container: PostgreSQLContainer[_] = new PostgreSQLContainer("postgres:13.1")
+  private val container: PostgreSQLContainer[_] = new PostgreSQLContainer("postgres:18.0")
   container.withInitScript("db/default-init.sql")
   container.withStartupCheckStrategy(new IsRunningStartupCheckStrategy)
   container.withStartupAttempts(5)
