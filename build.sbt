@@ -278,8 +278,7 @@ lazy val billOfMaterials = Project("bill-of-materials", file("bill-of-materials"
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(userProjects: _*)
-  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, jdbcIntTest, slickIntTest, grpcIntTest, examples,
-    integrationExamples, docs)
+  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, examples, integrationExamples, docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")
