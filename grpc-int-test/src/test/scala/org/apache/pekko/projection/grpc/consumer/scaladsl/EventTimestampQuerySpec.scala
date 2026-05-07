@@ -111,7 +111,7 @@ class EventTimestampQuerySpec(testContainerConf: TestContainerConf)
       val timestampB =
         grpcReadJournal.timestampOf(pid.id, sequenceNr = 2L).futureValue.get
       JDuration
-        .between(timestampA, Instant.now())
+        .between(timestampB, Instant.now())
         .toMillis should (be >= 0L and be <= 3000L)
 
       if (timestampB != timestampA)
