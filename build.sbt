@@ -186,7 +186,9 @@ lazy val grpcIntTest =
     .settings(
       name := "pekko-projection-grpc-int-test",
       publish / skip := true,
-      Test / parallelExecution := false)
+      Test / parallelExecution := false,
+      // we need to access snapshot jars for pekko-persistence-r2dbc
+      resolvers += Resolver.ApacheMavenSnapshotsRepo)
     .dependsOn(grpc % "test->test;test->compile")
     .dependsOn(eventsourced % Test)
     .dependsOn(testkit % Test)

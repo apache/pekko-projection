@@ -26,7 +26,7 @@ object Dependencies {
     val pekko = PekkoCoreDependency.version
     val pekkoGrpc = org.apache.pekko.grpc.gen.BuildInfo.version
     val pekkoPersistenceJdbc = "2.0.0-M1"
-    val pekkoPersistenceR2dbc = "1.1.0"
+    val pekkoPersistenceR2dbc = "2.0.0-M0+107-24334751-SNAPSHOT"
     val pekkoPersistenceCassandra = "1.1.0"
     val connectors = PekkoConnectorsDependency.version
     val connectorsKafka = PekkoConnectorsKafkaDependency.version
