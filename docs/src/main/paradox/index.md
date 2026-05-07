@@ -10,6 +10,7 @@
 * [Event Sourced](eventsourced.md)
 * [Durable State](durable-state.md)
 * [Kafka](kafka.md)
+* [gRPC](grpc.md)
 * [Cassandra](cassandra.md)
 * [JDBC](jdbc.md)
 * [Slick](slick.md)
