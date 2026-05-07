@@ -1,0 +1,11 @@
+// Protocol Buffers definition for test events in org.apache.pekko.projection.grpc
+syntax = "proto3";
+
+option java_package = "org.apache.pekko.projection.grpc.internal.proto";
+option java_multiple_files = true;
+
+package org.apache.pekko.projection.grpc.internal;
+
+message TestEvent {
+  string message = 1;
+}

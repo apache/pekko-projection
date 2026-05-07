@@ -24,6 +24,7 @@ object Dependencies {
 
   object Versions {
     val pekko = PekkoCoreDependency.version
+    val pekkoGrpc = org.apache.pekko.grpc.gen.BuildInfo.version
     val pekkoPersistenceJdbc = "2.0.0-M1"
     val pekkoPersistenceCassandra = "1.1.0"
     val connectors = PekkoConnectorsDependency.version
@@ -42,6 +43,8 @@ object Dependencies {
     val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekko
     val pekkoProtobufV3 = "org.apache.pekko" %% "pekko-protobuf-v3" % Versions.pekko
     val pekkoPersistenceQuery = "org.apache.pekko" %% "pekko-persistence-query" % Versions.pekko
+    val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
+    val pekkoGrpcRuntime = "org.apache.pekko" %% "pekko-grpc-runtime" % Versions.pekkoGrpc
 
     // TestKit in compile scope for ProjectionTestKit
     val pekkoTypedTestkit = "org.apache.pekko" %% "pekko-actor-testkit-typed" % Versions.pekko
@@ -69,6 +72,7 @@ object Dependencies {
   }
 
   object Test {
+    val pekkoSerializationJackson = "org.apache.pekko" %% "pekko-serialization-jackson" % Versions.pekko % "test"
     val pekkoTypedTestkit = Compile.pekkoTypedTestkit
     val pekkoStreamTestkit = Compile.pekkoStreamTestkit
     val persistenceTestkit = "org.apache.pekko" %% "pekko-persistence-testkit" % Versions.pekko % "test"
@@ -104,7 +108,6 @@ object Dependencies {
   object Examples {
     val hibernate = "org.hibernate" % "hibernate-core" % "7.3.3.Final"
 
-    val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
     val pekkoClusterShardingTyped = "org.apache.pekko" %% "pekko-cluster-sharding-typed" % Versions.pekko
     val pekkoPersistenceCassandra =
       "org.apache.pekko" %% "pekko-persistence-cassandra" % Versions.pekkoPersistenceCassandra
@@ -198,6 +201,17 @@ object Dependencies {
       Test.scalatest % "test",
       Test.logback % "test")
 
+  val grpc =
+    deps ++= Seq(
+      Compile.pekkoGrpcRuntime,
+      Compile.pekkoPersistenceQuery,
+      Compile.pekkoPersistenceTyped,
+      Test.pekkoSerializationJackson,
+      Test.pekkoTypedTestkit % "test",
+      Test.pekkoStreamTestkit % "test",
+      Test.logback % "test",
+      Test.scalatest % "test")
+
   val kafkaTest =
     deps ++= Seq(
       Test.scalatest % "test",
@@ -209,7 +223,7 @@ object Dependencies {
 
   val examples =
     deps ++= Seq(
-      Examples.pekkoPersistenceTyped,
+      Compile.pekkoPersistenceTyped,
       Examples.pekkoClusterShardingTyped,
       Examples.pekkoPersistenceCassandra,
       Examples.pekkoPersistenceJdbc,

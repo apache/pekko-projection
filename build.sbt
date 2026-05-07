@@ -165,8 +165,22 @@ lazy val `durable-state` =
     .dependsOn(core)
     .dependsOn(testkit % Test)
 
+// provides event producer/consumer over gRPC
+lazy val grpc =
+  Project(id = "grpc", base = file("grpc"))
+    .enablePlugins(ReproducibleBuildsPlugin, PekkoGrpcPlugin)
+    .disablePlugins(MimaPlugin) // new in 2.0.0
+    .settings(Dependencies.grpc)
+    .settings(AutomaticModuleName.settings("pekko.projection.grpc"))
+    .settings(
+      name := "pekko-projection-grpc",
+      pekkoGrpcCodeGeneratorSettings += "server_power_apis")
+    .dependsOn(core)
+    .dependsOn(eventsourced)
+    .dependsOn(testkit % Test)
+
 lazy val userProjects: Seq[ProjectReference] = List[ProjectReference](
-  core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, testkit)
+  core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, grpc, testkit)
 
 lazy val examples = project
   .enablePlugins(ReproducibleBuildsPlugin)
