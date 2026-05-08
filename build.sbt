@@ -179,6 +179,20 @@ lazy val grpc =
     .dependsOn(eventsourced)
     .dependsOn(testkit % Test)
 
+lazy val grpcIntTest =
+  Project(id = "grpc-int-test", base = file("grpc-int-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.grpcIntTest)
+    .settings(
+      name := "pekko-projection-grpc-int-test",
+      publish / skip := true,
+      Test / parallelExecution := false,
+      // we need to access snapshot jars for pekko-persistence-r2dbc
+      resolvers += Resolver.ApacheMavenSnapshotsRepo)
+    .dependsOn(grpc % "test->test;test->compile")
+    .dependsOn(eventsourced % Test)
+    .dependsOn(testkit % Test)
+
 lazy val userProjects: Seq[ProjectReference] = List[ProjectReference](
   core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, grpc, testkit)
 
@@ -264,8 +278,7 @@ lazy val billOfMaterials = Project("bill-of-materials", file("bill-of-materials"
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(userProjects: _*)
-  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, jdbcIntTest, slickIntTest, examples,
-    integrationExamples, docs)
+  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, examples, integrationExamples, docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")
