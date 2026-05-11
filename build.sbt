@@ -249,7 +249,8 @@ lazy val docs = project
       "scaladoc.pekko.base_url" -> s"https://pekko.apache.org/api/pekko/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.pekko.base_url" -> s"https://pekko.apache.org/japi/pekko/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.pekko.link_style" -> "direct",
-      "extref.pekko-grpc.base_url" -> s"https://pekko.apache.org/docs/pekko-grpc/${Dependencies.PekkoGrpcVersionInDocs}/%s",
+      "extref.pekko-grpc.base_url" ->
+      s"https://pekko.apache.org/docs/pekko-grpc/${Dependencies.PekkoGrpcVersionInDocs}/%s",
       // Java
       "javadoc.base_url" -> "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/",
       // Scala
