@@ -21,6 +21,7 @@ object Dependencies {
   val PekkoVersionInDocs = PekkoCoreDependency.default.link
   val ConnectorsVersionInDocs = PekkoConnectorsDependency.default.link
   val ConnectorsKafkaVersionInDocs = PekkoConnectorsKafkaDependency.default.link
+  val PekkoGrpcVersionInDocs = org.apache.pekko.grpc.gen.BuildInfo.version
 
   object Versions {
     val pekko = PekkoCoreDependency.version
