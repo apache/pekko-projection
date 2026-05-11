@@ -251,6 +251,8 @@ lazy val docs = project
       "javadoc.pekko.link_style" -> "direct",
       "extref.pekko-grpc.base_url" ->
       s"https://pekko.apache.org/docs/pekko-grpc/${Dependencies.PekkoGrpcVersionInDocs}/%s",
+      "scaladoc.org.apache.pekko.gprc.base_url" ->
+      s"https://pekko.apache.org/api/pekko-grpc/${Dependencies.PekkoGrpcVersionInDocs}/org/apache/pekko/gprc",
       // Java
       "javadoc.base_url" -> "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/",
       // Scala
@@ -259,7 +261,7 @@ lazy val docs = project
       "javadoc.pekko.projection.base_url" -> ""),
     paradoxGroups := Map("Language" -> Seq("Java", "Scala")),
     paradoxRoots := List("index.html", "getting-started/event-generator-app.html"),
-    // apidocRootPackage := "org.apache.pekko",
+    apidocRootPackage := "org.apache.pekko",
     Global / pekkoParadoxIncubatorNotice := None,
     Compile / paradoxMarkdownToHtml / sourceGenerators += Def.taskDyn {
       val targetFile = (Compile / paradox / sourceManaged).value / "license-report.md"
