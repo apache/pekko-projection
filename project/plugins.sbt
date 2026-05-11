@@ -7,7 +7,7 @@
  * This file is part of the Apache Pekko project, which was derived from Akka.
  */
 
-addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.0")
+addSbtPlugin("org.scalameta" % "sbt-scalafmt" % "2.6.1")
 addSbtPlugin("com.github.sbt" % "sbt-java-formatter" % "0.12.0")
 addSbtPlugin("com.github.sbt" % "sbt-header" % "5.11.0")
 
