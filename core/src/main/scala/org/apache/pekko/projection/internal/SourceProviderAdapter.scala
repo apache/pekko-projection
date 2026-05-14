@@ -24,9 +24,11 @@ import scala.jdk.OptionConverters._
 import org.apache.pekko
 import pekko.NotUsed
 import pekko.annotation.InternalApi
+import pekko.projection.BySlicesSourceProvider
 import pekko.projection.javadsl
 import pekko.projection.scaladsl
 import pekko.stream.scaladsl.Source
+import pekko.stream.javadsl.{ Source => JSource }
 
 /**
  * INTERNAL API: Adapter from javadsl.SourceProvider to scaladsl.SourceProvider
@@ -48,4 +50,28 @@ import pekko.stream.scaladsl.Source
   def extractOffset(envelope: Envelope): Offset = delegate.extractOffset(envelope)
 
   def extractCreationTime(envelope: Envelope): Long = delegate.extractCreationTime(envelope)
+}
+
+/**
+ * INTERNAL API: Adapter from scaladsl.SourceProvider with BySlicesSourceProvider to javadsl.SourceProvider with BySlicesSourceProvider
+ */
+@InternalApi private[projection] class ScalaBySlicesSourceProviderAdapter[Offset, Envelope](
+    delegate: scaladsl.SourceProvider[Offset, Envelope] with BySlicesSourceProvider)
+    extends javadsl.SourceProvider[Offset, Envelope]
+    with BySlicesSourceProvider {
+  override def source(
+      offset: Supplier[CompletionStage[Optional[Offset]]])
+      : CompletionStage[JSource[Envelope, NotUsed]] =
+    delegate
+      .source(() => offset.get().asScala.map(_.toScala)(ExecutionContext.parasitic))
+      .map(_.asJava)(ExecutionContext.parasitic)
+      .asJava
+
+  override def extractOffset(envelope: Envelope): Offset = delegate.extractOffset(envelope)
+
+  override def extractCreationTime(envelope: Envelope): Long = delegate.extractCreationTime(envelope)
+
+  def minSlice: Int = delegate.minSlice
+
+  def maxSlice: Int = delegate.maxSlice
 }
