@@ -39,6 +39,7 @@ import pekko.persistence.query.typed.javadsl.EventsBySliceQuery
 import pekko.persistence.query.typed.javadsl.LoadEventQuery
 import pekko.projection.BySlicesSourceProvider
 import pekko.projection.eventsourced.EventEnvelope
+import pekko.projection.internal.CanTriggerReplay
 import pekko.projection.javadsl
 import pekko.projection.javadsl.SourceProvider
 import pekko.stream.javadsl.Source
@@ -127,7 +128,16 @@ object EventSourcedProvider {
       entityType: String,
       minSlice: Int,
       maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
-    new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+    eventsBySlicesQuery match {
+      case query: EventsBySliceQuery with CanTriggerReplay =>
+        new EventsBySlicesSourceProvider[Event](eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+          with CanTriggerReplay {
+          private[pekko] override def triggerReplay(persistenceId: String, fromSeqNr: Long): Unit =
+            query.triggerReplay(persistenceId, fromSeqNr)
+        }
+      case _ =>
+        new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+    }
   }
 
   def sliceForPersistenceId(system: ActorSystem[_], readJournalPluginId: String, persistenceId: String): Int =
