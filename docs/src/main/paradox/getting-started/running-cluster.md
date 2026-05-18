@@ -61,21 +61,21 @@ When the app is running you will observe that the logs show events written to di
 Run the first member of your new Pekko cluster:
 
 <!-- run from repo:
-sbt "examples/test:runMain docs.guide.ShoppingCartClusterApp 2551"
-sbt "examples/test:runMain jdocs.guide.ShoppingCartClusterApp 2551"
+sbt "examples/test:runMain docs.guide.ShoppingCartClusterApp 7334"
+sbt "examples/test:runMain jdocs.guide.ShoppingCartClusterApp 7334"
 -->
 
 sbt
 :   @@@vars
 ```
-sbt "runMain docs.guide.ShoppingCartClusterApp 2551
+sbt "runMain docs.guide.ShoppingCartClusterApp 7334
 ```
 @@@
 
 Maven
 :   @@@vars
 ```
-mvn compile exec:java -Dexec.mainClass="jdocs.guide.ShoppingCartClusterApp" -Dexec.args="2551"
+mvn compile exec:java -Dexec.mainClass="jdocs.guide.ShoppingCartClusterApp" -Dexec.args="7334"
 ```
 @@@
 
@@ -116,7 +116,7 @@ Only tags `carts-1` and `carts-2` are processed by the first member.
 
 ```
 [2020-08-13 15:03:59,019] [INFO] [org.apache.pekko.cluster.sharding.DDataShardCoordinator] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-41] - Starting rebalance for shards [0]. Current shards rebalancing: [] MDC: {pekkoAddress=pekko://ShoppingCa
-rtClusterApp@127.0.0.1:2551, sourceThread=ShoppingCartClusterApp-pekko.actor.default-dispatcher-44, pekkoSource=pekko://ShoppingCartClusterApp@127.0.0.1:2551/system/sharding/sharded-daemon-process-shopping-cartsCoordinator/singleton/coordinator, 
+rtClusterApp@127.0.0.1:7334, sourceThread=ShoppingCartClusterApp-pekko.actor.default-dispatcher-44, pekkoSource=pekko://ShoppingCartClusterApp@127.0.0.1:7334/system/sharding/sharded-daemon-process-shopping-cartsCoordinator/singleton/coordinator, 
 sourceActorSystem=ShoppingCartClusterApp, akkaTimestamp=19:03:59.019UTC}                                                                                                                                                                           
 [2020-08-13 15:04:35,261] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-1) item popularity for 'skis': [1244] MDC: {}           
 [2020-08-13 15:04:36,802] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-2) item popularity for 'skis': [1246] MDC: {}           
