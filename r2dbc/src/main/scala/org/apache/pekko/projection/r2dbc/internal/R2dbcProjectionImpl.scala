@@ -168,14 +168,10 @@ private[projection] object R2dbcProjectionImpl {
   private def extractOffsetPidSeqNr[Offset, Envelope](offset: Offset, envelope: Envelope): OffsetPidSeqNr = {
     // we could define a new trait for the SourceProvider to implement this in case other (custom) envelope types are needed
     envelope match {
-      case env: EventEnvelope[_]         => OffsetPidSeqNr(offset, env.persistenceId, env.sequenceNr)
-      case chg: UpdatedDurableState[_]   => OffsetPidSeqNr(offset, chg.persistenceId, chg.revision)
-      case del: DeletedDurableState[_]   => OffsetPidSeqNr(offset, del.persistenceId, del.revision)
-      case change: DurableStateChange[_] =>
-        // in case additional types are added
-        throw new IllegalArgumentException(
-          s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/pekko-persistence-r2dbc/issues")
-      case _ => OffsetPidSeqNr(offset)
+      case env: EventEnvelope[_]       => OffsetPidSeqNr(offset, env.persistenceId, env.sequenceNr)
+      case chg: UpdatedDurableState[_] => OffsetPidSeqNr(offset, chg.persistenceId, chg.revision)
+      case del: DeletedDurableState[_] => OffsetPidSeqNr(offset, del.persistenceId, del.revision)
+      case _                           => OffsetPidSeqNr(offset)
     }
   }
 
@@ -377,7 +373,7 @@ private[projection] object R2dbcProjectionImpl {
       .via(handler)
   }
 
-  @nowarn //implicit parameters are used in the adapted handlers
+  @nowarn // implicit parameters are used in the adapted handlers
   abstract class AdaptedR2dbcHandler[E](val delegate: R2dbcHandler[E])(
       implicit
       ec: ExecutionContext,
@@ -391,7 +387,7 @@ private[projection] object R2dbcProjectionImpl {
       delegate.stop()
   }
 
-  @nowarn //implicit parameters are used in the adapted handlers
+  @nowarn // implicit parameters are used in the adapted handlers
   abstract class AdaptedHandler[E](val delegate: Handler[E])(implicit ec: ExecutionContext, system: ActorSystem[_])
       extends Handler[E] {
 
