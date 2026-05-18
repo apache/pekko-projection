@@ -46,7 +46,7 @@ object ProducerApiSample {
     val handler = ServiceHandler.concatOrNotFound(route)
     // #multi-service
 
-    val _ = Http(system).newServerAt(host, port).bind(handler)
+    val _ = Http().newServerAt(host, port).bind(handler)
   }
 
 }

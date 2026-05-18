@@ -61,13 +61,14 @@ public class ConsumerCompileTest {
         Persistence.get(system).getSliceRanges(numberOfProjectionInstances);
     String streamId = "ShoppingCart";
 
-    GrpcReadJournal eventsBySlicesQuery = GrpcReadJournal.create(
-        system,
-        GrpcQuerySettings.create(streamId),
-        GrpcClientSettings.fromConfig(
-            system.settings().config()
-                .getConfig("pekko.projection.grpc.consumer.client"), system),
-        Collections.singletonList(ShoppingcartApiProto.javaDescriptor()));
+    GrpcReadJournal eventsBySlicesQuery =
+        GrpcReadJournal.create(
+            system,
+            GrpcQuerySettings.create(streamId),
+            GrpcClientSettings.fromConfig(
+                system.settings().config().getConfig("pekko.projection.grpc.consumer.client"),
+                system),
+            Collections.singletonList(ShoppingcartApiProto.javaDescriptor()));
 
     ShardedDaemonProcess.get(system)
         .init(
@@ -77,10 +78,12 @@ public class ConsumerCompileTest {
             idx -> {
               Pair<Integer, Integer> sliceRange = sliceRanges.get(idx);
               String projectionKey =
-                  eventsBySlicesQuery.streamId() + "-" + sliceRange.first() + "-" + sliceRange.second();
+                  eventsBySlicesQuery.streamId()
+                      + "-"
+                      + sliceRange.first()
+                      + "-"
+                      + sliceRange.second();
               ProjectionId projectionId = ProjectionId.of(projectionName, projectionKey);
-
-
 
               SourceProvider<Offset, EventEnvelope<String>> sourceProvider =
                   EventSourcedProvider.eventsBySlices(
@@ -98,15 +101,14 @@ public class ConsumerCompileTest {
   }
 
   static void updateConsumerFilter(
-      ActorSystem<?> system,
-      Set<String> excludeTags,
-      Set<String> includeTags) {
-    String streamId = system.settings().config()
-        .getString("pekko.projection.grpc.consumer.stream-id");
+      ActorSystem<?> system, Set<String> excludeTags, Set<String> includeTags) {
+    String streamId =
+        system.settings().config().getString("pekko.projection.grpc.consumer.stream-id");
 
-    List<ConsumerFilter.FilterCriteria> criteria = Arrays.asList(
-        new ConsumerFilter.ExcludeTags(excludeTags),
-        new ConsumerFilter.IncludeTags(includeTags));
+    List<ConsumerFilter.FilterCriteria> criteria =
+        Arrays.asList(
+            new ConsumerFilter.ExcludeTags(excludeTags),
+            new ConsumerFilter.IncludeTags(includeTags));
 
     ConsumerFilter.get(system).ref().tell(new ConsumerFilter.UpdateFilter(streamId, criteria));
   }

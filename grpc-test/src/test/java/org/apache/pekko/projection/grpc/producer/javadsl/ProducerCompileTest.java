@@ -44,13 +44,17 @@ public class ProducerCompileTest {
             .registerMapper(
                 Integer.class, event -> Optional.of(Integer.valueOf(event * 2).toString()))
             .registerOrElseMapper(event -> Optional.of(event.toString()));
-    Transformation lowLevel = Transformation.empty().registerAsyncEnvelopeMapper(
-        Integer.class, envelope -> CompletableFuture.completedFuture(envelope.getOptionalEvent())
-    ).registerAsyncEnvelopeOrElseMapper(envelope -> CompletableFuture.completedFuture(Optional.empty()));
+    Transformation lowLevel =
+        Transformation.empty()
+            .registerAsyncEnvelopeMapper(
+                Integer.class,
+                envelope -> CompletableFuture.completedFuture(envelope.getOptionalEvent()))
+            .registerAsyncEnvelopeOrElseMapper(
+                envelope -> CompletableFuture.completedFuture(Optional.empty()));
 
     EventProducerSource source =
         new EventProducerSource(
-            "ShoppingCart", "cart", transformation, EventProducerSettings.apply(system))
+                "ShoppingCart", "cart", transformation, EventProducerSettings.apply(system))
             .withProducerFilter((EventEnvelope<Integer> env) -> env.event().doubleValue() > 0.0);
 
     Function<HttpRequest, CompletionStage<HttpResponse>> eventProducerService =
