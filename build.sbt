@@ -188,8 +188,6 @@ lazy val r2dbc =
     .settings(
       name := "pekko-projection-r2dbc")
     .dependsOn(core)
-    .dependsOn(coreTest % "test->test")
-    .dependsOn(testkit % Test)
 
 lazy val grpcIntTest =
   Project(id = "grpc-int-test", base = file("grpc-int-test"))
