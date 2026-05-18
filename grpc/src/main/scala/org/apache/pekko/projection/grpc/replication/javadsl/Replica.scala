@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.replication.javadsl
 
+import org.apache.pekko
 import pekko.annotation.ApiMayChange
 import pekko.annotation.DoNotInherit
 import pekko.grpc.GrpcClientSettings

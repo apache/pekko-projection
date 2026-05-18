@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.replication.javadsl
 
+import org.apache.pekko
 import pekko.Done
 import pekko.NotUsed
 import pekko.actor.typed.ActorSystem

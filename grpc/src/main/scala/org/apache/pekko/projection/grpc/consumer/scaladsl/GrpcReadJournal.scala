@@ -20,6 +20,7 @@ import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
+import org.apache.pekko
 import pekko.Done
 import pekko.NotUsed
 import pekko.actor.ClassicActorSystemProvider

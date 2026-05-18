@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.consumer
 
+import org.apache.pekko
 import pekko.actor.ExtendedActorSystem
 import pekko.persistence.query.ReadJournalProvider
 import pekko.projection.grpc.internal.ProtoAnySerialization

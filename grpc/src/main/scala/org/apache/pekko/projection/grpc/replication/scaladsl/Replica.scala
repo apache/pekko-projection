@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.replication.scaladsl
 
+import org.apache.pekko
 import pekko.annotation.ApiMayChange
 import pekko.grpc.GrpcClientSettings
 import pekko.persistence.typed.ReplicaId

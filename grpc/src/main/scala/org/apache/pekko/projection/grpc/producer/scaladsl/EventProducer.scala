@@ -15,6 +15,8 @@ package org.apache.pekko.projection.grpc.producer.scaladsl
 
 import scala.concurrent.Future
 import scala.reflect.ClassTag
+
+import org.apache.pekko
 import pekko.Done
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange

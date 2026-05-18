@@ -13,14 +13,15 @@
 
 package org.apache.pekko.projection.grpc.internal
 
-import scala.concurrent.duration._
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
 import scala.collection.immutable
+import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
 
+import org.apache.pekko
 import pekko.actor.typed.ActorRef
 import pekko.actor.typed.Behavior
 import pekko.actor.typed.scaladsl.ActorContext

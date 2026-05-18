@@ -21,6 +21,7 @@ import java.util.zip.GZIPOutputStream
 
 import scala.annotation.tailrec
 
+import org.apache.pekko
 import pekko.actor.ExtendedActorSystem
 import pekko.annotation.InternalApi
 import pekko.cluster.ddata.ORMap

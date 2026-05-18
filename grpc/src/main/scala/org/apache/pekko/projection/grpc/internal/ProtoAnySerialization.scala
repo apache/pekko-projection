@@ -15,14 +15,15 @@ package org.apache.pekko.projection.grpc.internal
 
 import scala.collection.concurrent.TrieMap
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
+import org.apache.pekko
 import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.annotation.InternalApi
 import pekko.serialization.SerializationExtension
 import pekko.serialization.Serializers
-import scala.jdk.CollectionConverters._
 import com.google.common.base.CaseFormat
 import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors

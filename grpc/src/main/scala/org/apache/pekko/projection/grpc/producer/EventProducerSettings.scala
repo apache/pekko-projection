@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.producer
 
+import org.apache.pekko
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange
 import com.typesafe.config.Config

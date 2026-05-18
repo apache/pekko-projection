@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
+import org.apache.pekko
 import pekko.annotation.ApiMayChange
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.projection.grpc.producer.EventProducerSettings

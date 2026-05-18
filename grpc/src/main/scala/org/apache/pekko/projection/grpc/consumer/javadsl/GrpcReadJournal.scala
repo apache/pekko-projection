@@ -13,13 +13,15 @@
 
 package org.apache.pekko.projection.grpc.consumer.javadsl
 
-import scala.concurrent.ExecutionContext
 import java.time.Instant
 import java.util
 import java.util.Optional
 import java.util.concurrent.CompletionStage
+import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
+
+import org.apache.pekko
 import pekko.Done
 import pekko.NotUsed
 import pekko.actor.ClassicActorSystemProvider

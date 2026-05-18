@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
+import org.apache.pekko
 import pekko.Done
 import pekko.annotation.ApiMayChange
 import pekko.grpc.internal.JavaMetadataImpl

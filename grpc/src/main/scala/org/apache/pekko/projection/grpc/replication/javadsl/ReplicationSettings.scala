@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.replication.javadsl
 
+import org.apache.pekko
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange
 import pekko.annotation.DoNotInherit
@@ -25,15 +26,16 @@ import pekko.persistence.typed.ReplicaId
 import pekko.projection.grpc.producer.EventProducerSettings
 import pekko.projection.grpc.producer.javadsl.EventProducerInterceptor
 import pekko.projection.grpc.replication.internal.ReplicaImpl
+import pekko.projection.grpc.replication.internal.ReplicationProjectionProviderAdapter
 import pekko.projection.grpc.replication.scaladsl.{ ReplicationSettings => SReplicationSettings }
-import scala.jdk.DurationConverters._
 import com.typesafe.config.Config
 
 import java.time.Duration
 import java.util.Optional
 import java.util.{ Set => JSet }
+
+import scala.jdk.DurationConverters._
 import scala.jdk.CollectionConverters._
-import pekko.projection.grpc.replication.internal.ReplicationProjectionProviderAdapter
 
 object ReplicationSettings {
 

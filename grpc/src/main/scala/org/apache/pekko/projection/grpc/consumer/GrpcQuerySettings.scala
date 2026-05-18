@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.consumer
 
+import org.apache.pekko
 import pekko.actor.ClassicActorSystemProvider
 import pekko.annotation.ApiMayChange
 import pekko.grpc.scaladsl.Metadata

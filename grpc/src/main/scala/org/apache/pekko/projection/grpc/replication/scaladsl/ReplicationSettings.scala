@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.replication.scaladsl
 
+import org.apache.pekko
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange
 import pekko.annotation.InternalApi
@@ -25,11 +26,11 @@ import pekko.projection.grpc.producer.EventProducerSettings
 import pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
 import pekko.projection.grpc.replication.internal.ReplicaImpl
 import pekko.projection.grpc.replication.scaladsl
-import scala.jdk.DurationConverters._
-import scala.jdk.CollectionConverters._
 import com.typesafe.config.Config
 
 import scala.concurrent.duration.FiniteDuration
+import scala.jdk.CollectionConverters._
+import scala.jdk.DurationConverters._
 import scala.reflect.ClassTag
 
 @ApiMayChange

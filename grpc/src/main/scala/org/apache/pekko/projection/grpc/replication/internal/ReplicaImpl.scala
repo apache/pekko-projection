@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.replication.internal
 
+import org.apache.pekko
 import pekko.annotation.InternalApi
 import pekko.grpc.GrpcClientSettings
 import pekko.grpc.scaladsl.Metadata

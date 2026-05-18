@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.replication.internal
 
+import org.apache.pekko
 import pekko.Done
 import pekko.NotUsed
 import pekko.actor.ExtendedActorSystem
@@ -20,6 +21,7 @@ import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.annotation.InternalApi
 import pekko.cluster.ClusterActorRefProvider
+import pekko.cluster.sharding.typed.ClusterShardingSettings
 import pekko.cluster.sharding.typed.ReplicatedEntity
 import pekko.cluster.sharding.typed.ShardedDaemonProcessSettings
 import pekko.cluster.sharding.typed.scaladsl.ClusterSharding
@@ -53,7 +55,6 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-import pekko.cluster.sharding.typed.ClusterShardingSettings
 
 /**
  * INTERNAL API

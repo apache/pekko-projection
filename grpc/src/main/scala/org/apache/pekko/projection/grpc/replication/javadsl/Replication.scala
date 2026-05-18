@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.replication.javadsl
 
+import org.apache.pekko
 import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.Behavior
 import pekko.annotation.ApiMayChange

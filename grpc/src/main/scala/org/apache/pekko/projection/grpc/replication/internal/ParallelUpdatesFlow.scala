@@ -13,9 +13,9 @@
 
 package org.apache.pekko.projection.grpc.replication.internal
 
+import org.apache.pekko
 import pekko.Done
 import pekko.annotation.InternalApi
-import scala.concurrent.ExecutionContext
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.projection.ProjectionContext
 import pekko.stream.Attributes
@@ -28,6 +28,7 @@ import pekko.stream.stage.InHandler
 import pekko.stream.stage.OutHandler
 
 import scala.collection.mutable
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Failure
 import scala.util.Success

@@ -13,7 +13,7 @@
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
-import scala.concurrent.ExecutionContext
+import org.apache.pekko
 import pekko.annotation.ApiMayChange
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.projection.grpc.producer.scaladsl
@@ -21,6 +21,8 @@ import pekko.projection.grpc.producer.scaladsl
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunction }
+
+import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 import scala.reflect.ClassTag

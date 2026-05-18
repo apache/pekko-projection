@@ -19,6 +19,7 @@ import scala.util.Success
 import scala.util.Try
 import scala.util.matching.Regex
 
+import org.apache.pekko
 import pekko.NotUsed
 import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.annotation.InternalApi
