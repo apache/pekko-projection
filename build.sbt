@@ -188,8 +188,7 @@ lazy val r2dbc =
     .settings(
       name := "pekko-projection-r2dbc")
     .dependsOn(core)
-    .dependsOn(eventsourced % Test)
-    .dependsOn(`durable-state` % Test)
+    .dependsOn(coreTest % "test->test")
     .dependsOn(testkit % Test)
 
 lazy val grpcIntTest =
@@ -203,6 +202,26 @@ lazy val grpcIntTest =
     .dependsOn(grpc % "test->test;test->compile")
     .dependsOn(eventsourced % Test)
     .dependsOn(r2dbc % Test)
+    .dependsOn(testkit % Test)
+
+lazy val r2dbcIntTest =
+  Project(id = "r2dbc-int-test", base = file("r2dbc-int-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.r2dbc)
+    .settings(
+      name := "pekko-projection-r2dbc-int-test",
+      publish / skip := true,
+      Test / parallelExecution := false,
+      // there are some compile warnings in the test code (Scala 2.13)
+      scalacOptions ++= Seq(
+        "-Wconf:msg=Implicit resolves to enclosing:s",
+        "-Wconf:msg=outer reference in this type test:s",
+        "-Wconf:cat=lint:s"))
+    .dependsOn(core)
+    .dependsOn(coreTest % "test->test")
+    .dependsOn(r2dbc % "test->test;test->compile")
+    .dependsOn(eventsourced % Test)
+    .dependsOn(`durable-state` % Test)
     .dependsOn(testkit % Test)
 
 lazy val userProjects: Seq[ProjectReference] = List[ProjectReference](
