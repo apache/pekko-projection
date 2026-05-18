@@ -8,22 +8,29 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
+import scala.concurrent.ExecutionContext
+import org.apache.pekko.annotation.ApiMayChange
+import org.apache.pekko.persistence.query.typed.EventEnvelope
+import org.apache.pekko.projection.grpc.producer.scaladsl
+
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunction }
-import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 import scala.reflect.ClassTag
 
-import org.apache.pekko
-import pekko.annotation.ApiMayChange
-import pekko.projection.grpc.producer.scaladsl
+@ApiMayChange
+@FunctionalInterface
+trait Mapper[A, B] {
+  def apply(event: A, metadata: Optional[Any]): CompletionStage[Optional[B]]
+
+}
 
 @ApiMayChange
 object Transformation {
@@ -33,14 +40,18 @@ object Transformation {
    * No transformation. Pass through each event as is.
    */
   val identity: Transformation = new Transformation(scaladsl.EventProducer.Transformation.identity)
+
 }
 
 /**
  * Transformation of events to the external (public) representation.
  * Events can be excluded by mapping them to `Optional.empty`.
+ *
+ * Not for direct construction, use [[Transformation.empty]] as starting point and register
+ * mappers to build your needed Transformation
  */
 @ApiMayChange
-final class Transformation private (private[grpc] val delegate: scaladsl.EventProducer.Transformation) {
+final class Transformation private[pekko] (private[pekko] val delegate: scaladsl.EventProducer.Transformation) {
 
   def registerAsyncMapper[A, B](
       inputEventClass: Class[A],
@@ -55,15 +66,30 @@ final class Transformation private (private[grpc] val delegate: scaladsl.EventPr
     new Transformation(delegate.registerMapper[A, B](event => f.apply(event).toScala))
   }
 
+  def registerAsyncEnvelopeMapper[A, B](
+      inputEventClass: Class[A],
+      f: JFunction[EventEnvelope[A], CompletionStage[Optional[B]]]): Transformation = {
+    implicit val ct: ClassTag[A] = ClassTag(inputEventClass)
+    new Transformation(delegate.registerAsyncEnvelopeMapper[A, B](envelope =>
+      f.apply(envelope).asScala.map(_.toScala)(ExecutionContext.parasitic)))
+  }
+
   def registerAsyncOrElseMapper(f: AnyRef => CompletionStage[Optional[AnyRef]]): Transformation = {
     new Transformation(
-      delegate.registerAsyncOrElseMapper(event =>
-        f.apply(event.asInstanceOf[AnyRef])
-          .asScala
-          .map(_.toScala)(ExecutionContext.parasitic)))
+      delegate.registerAsyncOrElseMapper(
+        event =>
+          f.apply(event.asInstanceOf[AnyRef])
+            .asScala
+            .map(_.toScala)(ExecutionContext.parasitic)))
   }
 
   def registerOrElseMapper(f: AnyRef => Optional[AnyRef]): Transformation = {
     new Transformation(delegate.registerOrElseMapper(event => f.apply(event.asInstanceOf[AnyRef]).toScala))
+  }
+
+  def registerAsyncEnvelopeOrElseMapper(
+      f: JFunction[EventEnvelope[Any], CompletionStage[Optional[Any]]]): Transformation = {
+    new Transformation(delegate.registerAsyncEnvelopeOrElseMapper(envelope =>
+      f.apply(envelope).asScala.map(_.toScala)(ExecutionContext.parasitic)))
   }
 }

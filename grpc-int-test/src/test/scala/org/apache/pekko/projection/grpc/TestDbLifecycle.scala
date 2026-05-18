@@ -8,24 +8,23 @@
  */
 
 /*
- * Copyright (C) 2009-2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2009-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc
 
-import scala.concurrent.Await
-import scala.concurrent.duration._
-
-import org.apache.pekko
-import pekko.actor.typed.ActorSystem
-import pekko.persistence.Persistence
-import pekko.persistence.r2dbc.ConnectionFactoryProvider
-import pekko.persistence.r2dbc.JournalSettings
-import pekko.persistence.r2dbc.internal.R2dbcExecutor
-import pekko.projection.r2dbc.R2dbcProjectionSettings
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.persistence.Persistence
+import org.apache.pekko.persistence.r2dbc.ConnectionFactoryProvider
+import org.apache.pekko.persistence.r2dbc.R2dbcSettings
+import org.apache.pekko.persistence.r2dbc.internal.R2dbcExecutor
+import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Suite
 import org.slf4j.LoggerFactory
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 trait TestDbLifecycle extends BeforeAndAfterAll { this: Suite =>
 
@@ -46,11 +45,11 @@ trait TestDbLifecycle extends BeforeAndAfterAll { this: Suite =>
   lazy val persistenceExt: Persistence = Persistence(typedSystem)
 
   override protected def beforeAll(): Unit = {
-    lazy val journalSettings: JournalSettings =
-      JournalSettings(typedSystem.settings.config.getConfig("pekko.persistence.r2dbc.journal"))
+    lazy val r2dbcSettings: R2dbcSettings =
+      new R2dbcSettings(typedSystem.settings.config.getConfig("pekko.persistence.r2dbc"))
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(
-        _.createStatement(s"delete from ${journalSettings.journalTableWithSchema}")),
+        _.createStatement(s"delete from ${r2dbcSettings.journalTableWithSchema}")),
       10.seconds)
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(

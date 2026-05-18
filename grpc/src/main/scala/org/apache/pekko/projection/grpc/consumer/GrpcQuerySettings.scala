@@ -8,34 +8,29 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
- */
-
-/*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.consumer
 
-import org.apache.pekko
-import pekko.actor.ClassicActorSystemProvider
-import pekko.annotation.ApiMayChange
-import pekko.grpc.scaladsl.Metadata
-import pekko.grpc.scaladsl.MetadataBuilder
-import pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal
+import org.apache.pekko.actor.ClassicActorSystemProvider
+import org.apache.pekko.annotation.ApiMayChange
+import org.apache.pekko.grpc.scaladsl.Metadata
+import org.apache.pekko.grpc.scaladsl.MetadataBuilder
+import org.apache.pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal
 import com.typesafe.config.Config
 
 @ApiMayChange
 object GrpcQuerySettings {
 
   /**
-   * Scala API: From `Config` `pekko.projection.grpc.consumer` configuration section.
+   * Scala API: From `Config` `org.apache.pekko.projection.grpc.consumer` configuration section.
    */
   def apply(system: ClassicActorSystemProvider): GrpcQuerySettings =
     apply(system.classicSystem.settings.config.getConfig(GrpcReadJournal.Identifier))
 
   /**
-   * Scala API: From `Config` corresponding to `pekko.projection.grpc.consumer` configuration section.
+   * Scala API: From `Config` corresponding to `org.apache.pekko.projection.grpc.consumer` configuration section.
    */
   def apply(config: Config): GrpcQuerySettings = {
     val streamId = config.getString("stream-id")
@@ -63,13 +58,13 @@ object GrpcQuerySettings {
   }
 
   /**
-   * Java API: From `Config` `pekko.projection.grpc.consumer` configuration section.
+   * Java API: From `Config` `org.apache.pekko.projection.grpc.consumer` configuration section.
    */
   def create(system: ClassicActorSystemProvider): GrpcQuerySettings =
     apply(system)
 
   /**
-   * Java API: From `Config` corresponding to `pekko.projection.grpc.consumer` configuration section.
+   * Java API: From `Config` corresponding to `org.apache.pekko.projection.grpc.consumer` configuration section.
    */
   def create(config: Config): GrpcQuerySettings =
     apply(config)

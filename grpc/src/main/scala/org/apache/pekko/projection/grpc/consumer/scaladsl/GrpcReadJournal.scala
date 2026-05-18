@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.consumer.scaladsl
@@ -17,49 +17,68 @@ import java.time.Instant
 import java.util.concurrent.TimeUnit
 
 import scala.collection.immutable
+import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-import org.apache.pekko
-import pekko.Done
-import pekko.NotUsed
-import pekko.actor.ClassicActorSystemProvider
-import pekko.actor.ExtendedActorSystem
-import pekko.actor.typed.ActorSystem
-import pekko.actor.typed.scaladsl.LoggerOps
-import pekko.actor.typed.scaladsl.adapter._
-import pekko.annotation.ApiMayChange
-import pekko.annotation.InternalApi
-import pekko.grpc.GrpcClientSettings
-import pekko.grpc.scaladsl.BytesEntry
-import pekko.grpc.scaladsl.SingleResponseRequestBuilder
-import pekko.grpc.scaladsl.StreamResponseRequestBuilder
-import pekko.grpc.scaladsl.StringEntry
-import pekko.persistence.Persistence
-import pekko.persistence.query.NoOffset
-import pekko.persistence.query.Offset
-import pekko.persistence.query.TimestampOffset
-import pekko.persistence.query.scaladsl._
-import pekko.persistence.query.typed.EventEnvelope
-import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
-import pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import pekko.persistence.typed.PersistenceId
-import pekko.projection.grpc.consumer.GrpcQuerySettings
-import pekko.projection.grpc.consumer.scaladsl
-import pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal.withChannelBuilderOverrides
-import pekko.projection.grpc.internal.ProtoAnySerialization
-import pekko.projection.grpc.internal.proto
-import pekko.projection.grpc.internal.proto.Event
-import pekko.projection.grpc.internal.proto.EventProducerServiceClient
-import pekko.projection.grpc.internal.proto.EventTimestampRequest
-import pekko.projection.grpc.internal.proto.FilteredEvent
-import pekko.projection.grpc.internal.proto.InitReq
-import pekko.projection.grpc.internal.proto.LoadEventRequest
-import pekko.projection.grpc.internal.proto.LoadEventResponse
-import pekko.projection.grpc.internal.proto.PersistenceIdSeqNr
-import pekko.projection.grpc.internal.proto.StreamIn
-import pekko.projection.grpc.internal.proto.StreamOut
-import pekko.stream.scaladsl.Source
+import org.apache.pekko.Done
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ClassicActorSystemProvider
+import org.apache.pekko.actor.ExtendedActorSystem
+import org.apache.pekko.actor.typed.scaladsl.LoggerOps
+import org.apache.pekko.actor.typed.scaladsl.adapter._
+import org.apache.pekko.annotation.ApiMayChange
+import org.apache.pekko.annotation.InternalApi
+import org.apache.pekko.grpc.GrpcClientSettings
+import org.apache.pekko.grpc.scaladsl.BytesEntry
+import org.apache.pekko.grpc.scaladsl.SingleResponseRequestBuilder
+import org.apache.pekko.grpc.scaladsl.StreamResponseRequestBuilder
+import org.apache.pekko.grpc.scaladsl.StringEntry
+import org.apache.pekko.persistence.Persistence
+import org.apache.pekko.persistence.query.NoOffset
+import org.apache.pekko.persistence.query.Offset
+import org.apache.pekko.persistence.query.TimestampOffset
+import org.apache.pekko.persistence.query.scaladsl._
+import org.apache.pekko.persistence.query.typed.EventEnvelope
+import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import org.apache.pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
+import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import org.apache.pekko.persistence.typed.PersistenceId
+import org.apache.pekko.projection.grpc.consumer.ConsumerFilter
+import org.apache.pekko.projection.grpc.consumer.GrpcQuerySettings
+import org.apache.pekko.projection.grpc.consumer.scaladsl
+import org.apache.pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal.withChannelBuilderOverrides
+import org.apache.pekko.projection.grpc.internal.ProtoAnySerialization
+import org.apache.pekko.projection.grpc.internal.proto
+import org.apache.pekko.projection.grpc.internal.proto.EntityIdOffset
+import org.apache.pekko.projection.grpc.internal.proto.Event
+import org.apache.pekko.projection.grpc.internal.proto.EventProducerServiceClient
+import org.apache.pekko.projection.grpc.internal.proto.EventTimestampRequest
+import org.apache.pekko.projection.grpc.internal.proto.ExcludeEntityIds
+import org.apache.pekko.projection.grpc.internal.proto.ExcludeRegexEntityIds
+import org.apache.pekko.projection.grpc.internal.proto.ExcludeTags
+import org.apache.pekko.projection.grpc.internal.proto.FilterCriteria
+import org.apache.pekko.projection.grpc.internal.proto.FilterReq
+import org.apache.pekko.projection.grpc.internal.proto.FilteredEvent
+import org.apache.pekko.projection.grpc.internal.proto.IncludeEntityIds
+import org.apache.pekko.projection.grpc.internal.proto.IncludeRegexEntityIds
+import org.apache.pekko.projection.grpc.internal.proto.IncludeTags
+import org.apache.pekko.projection.grpc.internal.proto.InitReq
+import org.apache.pekko.projection.grpc.internal.proto.LoadEventRequest
+import org.apache.pekko.projection.grpc.internal.proto.LoadEventResponse
+import org.apache.pekko.projection.grpc.internal.proto.PersistenceIdSeqNr
+import org.apache.pekko.projection.grpc.internal.proto.RemoveExcludeEntityIds
+import org.apache.pekko.projection.grpc.internal.proto.RemoveExcludeRegexEntityIds
+import org.apache.pekko.projection.grpc.internal.proto.RemoveExcludeTags
+import org.apache.pekko.projection.grpc.internal.proto.RemoveIncludeEntityIds
+import org.apache.pekko.projection.grpc.internal.proto.RemoveIncludeRegexEntityIds
+import org.apache.pekko.projection.grpc.internal.proto.RemoveIncludeTags
+import org.apache.pekko.projection.grpc.internal.proto.ReplayReq
+import org.apache.pekko.projection.grpc.internal.proto.StreamIn
+import org.apache.pekko.projection.grpc.internal.proto.StreamOut
+import org.apache.pekko.projection.internal.CanTriggerReplay
+import org.apache.pekko.stream.OverflowStrategy
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.util.Timeout
 import com.google.protobuf.Descriptors
 import com.google.protobuf.timestamp.Timestamp
 import com.typesafe.config.Config
@@ -75,7 +94,7 @@ object GrpcReadJournal {
     LoggerFactory.getLogger(classOf[GrpcReadJournal])
 
   /**
-   * Construct a gRPC read journal from configuration `pekko.projection.grpc.consumer`. The `stream-id` must
+   * Construct a gRPC read journal from configuration `org.apache.pekko.projection.grpc.consumer`. The `stream-id` must
    * be defined in the configuration.
    *
    * Note that the `protobufDescriptors` is a list of the `javaDescriptor` for the used protobuf messages. It is
@@ -90,7 +109,7 @@ object GrpcReadJournal {
 
   /**
    * Construct a gRPC read journal for the given settings and explicit `GrpcClientSettings` to control
-   * how to reach the Pekko Projection gRPC producer service (host, port etc).
+   * how to reach the Akka Projection gRPC producer service (host, port etc).
    *
    * Note that the `protobufDescriptors` is a list of the `javaDescriptor` for the used protobuf messages. It is
    * defined in the ScalaPB generated `Proto` companion object.
@@ -110,6 +129,9 @@ object GrpcReadJournal {
       clientSettings: GrpcClientSettings,
       protobufDescriptors: immutable.Seq[Descriptors.FileDescriptor],
       protobufPrefer: ProtoAnySerialization.Prefer)(implicit system: ClassicActorSystemProvider): GrpcReadJournal = {
+
+    // FIXME issue #702 This probably means that one GrpcReadJournal instance is created for each Projection instance,
+    // and therefore one grpc client for each. Is that fine or should the client be shared for same clientSettings?
 
     val protoAnySerialization =
       new ProtoAnySerialization(system.classicSystem.toTyped, protobufDescriptors, protobufPrefer)
@@ -142,7 +164,8 @@ final class GrpcReadJournal private (
     extends ReadJournal
     with EventsBySliceQuery
     with EventTimestampQuery
-    with LoadEventQuery {
+    with LoadEventQuery
+    with CanTriggerReplay {
   import GrpcReadJournal.log
 
   // When created as delegate in javadsl from `GrpcReadJournalProvider`.
@@ -161,13 +184,22 @@ final class GrpcReadJournal private (
   def this(system: ExtendedActorSystem, config: Config, cfgPath: String) =
     this(system, config, cfgPath, ProtoAnySerialization.Prefer.Scala)
 
-  private implicit val typedSystem: ActorSystem[_] = system.toTyped
+  private implicit val typedSystem: org.apache.pekko.actor.typed.ActorSystem[_] = system.toTyped
   private val persistenceExt = Persistence(system)
+
+  lazy val consumerFilter = ConsumerFilter(typedSystem)
 
   private val client = EventProducerServiceClient(clientSettings)
   private val additionalRequestHeaders = settings.additionalRequestMetadata match {
     case Some(meta) => meta.asList
     case None       => Seq.empty
+  }
+
+  @InternalApi
+  private[pekko] override def triggerReplay(persistenceId: String, fromSeqNr: Long): Unit = {
+    consumerFilter.ref ! ConsumerFilter.Replay(
+      streamId,
+      Set(ConsumerFilter.PersistenceIdOffset(persistenceId, fromSeqNr)))
   }
 
   private def addRequestHeaders[Req, Res](
@@ -243,6 +275,11 @@ final class GrpcReadJournal private (
         case _                  => offset
       })
 
+    def sliceHandledByThisStream(pid: String): Boolean = {
+      val slice = persistenceExt.sliceForPersistenceId(pid)
+      minSlice <= slice && slice <= maxSlice
+    }
+
     val protoOffset =
       offset match {
         case o: TimestampOffset =>
@@ -258,10 +295,62 @@ final class GrpcReadJournal private (
           throw new IllegalArgumentException(s"Expected TimestampOffset or NoOffset, but got [$offset]")
       }
 
-    val initReq = InitReq(streamId, minSlice, maxSlice, protoOffset)
-    val streamIn = Source
-      .single(StreamIn(StreamIn.Message.Init(initReq)))
-      .concat(Source.maybe)
+    def inReqSource(initCriteria: immutable.Seq[ConsumerFilter.FilterCriteria]): Source[StreamIn, NotUsed] =
+      Source
+        .actorRef[ConsumerFilter.SubscriberCommand](
+          completionMatcher = PartialFunction.empty,
+          failureMatcher = PartialFunction.empty,
+          bufferSize = 1024,
+          OverflowStrategy.fail)
+        .collect {
+          case ConsumerFilter.UpdateFilter(`streamId`, criteria) =>
+            val protoCriteria = toProtoFilterCriteria(criteria)
+            if (log.isDebugEnabled)
+              log.debug2("{}: Filter updated [{}]", streamId, criteria.mkString(", "))
+            StreamIn(StreamIn.Message.Filter(FilterReq(protoCriteria)))
+
+          case ConsumerFilter.Replay(`streamId`, persistenceIdOffsets) =>
+            val protoPersistenceIdOffsets = persistenceIdOffsets.collect {
+              case ConsumerFilter.PersistenceIdOffset(pid, seqNr) if sliceHandledByThisStream(pid) =>
+                PersistenceIdSeqNr(pid, seqNr)
+            }.toVector
+
+            if (log.isDebugEnabled() && protoPersistenceIdOffsets.nonEmpty)
+              log.debug2(
+                "{}: Replay triggered for [{}]",
+                streamId,
+                protoPersistenceIdOffsets.map(offset => offset.persistenceId -> offset.seqNr).mkString(", "))
+
+            StreamIn(StreamIn.Message.Replay(ReplayReq(protoPersistenceIdOffsets)))
+        }
+        .mapMaterializedValue { ref =>
+          consumerFilter.ref ! ConsumerFilter.Subscribe(streamId, initCriteria, ref)
+          NotUsed
+        }
+
+    val initFilter = {
+      import org.apache.pekko.actor.typed.scaladsl.AskPattern._
+      import scala.concurrent.duration._
+      implicit val askTimeout: Timeout = 10.seconds
+      consumerFilter.ref.ask[ConsumerFilter.CurrentFilter](ConsumerFilter.GetFilter(streamId, _))
+    }
+
+    val streamIn: Source[StreamIn, NotUsed] = {
+      implicit val ec: ExecutionContext = typedSystem.executionContext
+      Source
+        .futureSource {
+          initFilter.map { filter =>
+            val protoCriteria = toProtoFilterCriteria(filter.criteria)
+            val initReq = InitReq(streamId, minSlice, maxSlice, protoOffset, protoCriteria)
+
+            Source
+              .single(StreamIn(StreamIn.Message.Init(initReq)))
+              .concat(inReqSource(filter.criteria))
+          }
+        }
+        .mapMaterializedValue(_ => NotUsed)
+    }
+
     val streamOut: Source[StreamOut, NotUsed] =
       addRequestHeaders(client.eventsBySlices())
         .invoke(streamIn)
@@ -274,28 +363,62 @@ final class GrpcReadJournal private (
       case StreamOut(StreamOut.Message.Event(event), _) =>
         if (log.isTraceEnabled)
           log.traceN(
-            "Received {}event from [{}] persistenceId [{}] with seqNr [{}], offset [{}]",
-            if (event.payload.isEmpty) "backtracking " else "",
+            "Received event from [{}] persistenceId [{}] with seqNr [{}], offset [{}], source [{}]",
             clientSettings.serviceName,
             event.persistenceId,
             event.seqNr,
-            timestampOffset(event.offset.get).timestamp)
+            timestampOffset(event.offset.get).timestamp,
+            event.source)
 
         eventToEnvelope(event, streamId)
 
       case StreamOut(StreamOut.Message.FilteredEvent(filteredEvent), _) =>
         if (log.isTraceEnabled)
           log.traceN(
-            "Received filtered event from [{}] persistenceId [{}] with seqNr [{}], offset [{}]",
+            "Received filtered event from [{}] persistenceId [{}] with seqNr [{}], offset [{}], source [{}]",
             clientSettings.serviceName,
             filteredEvent.persistenceId,
             filteredEvent.seqNr,
-            timestampOffset(filteredEvent.offset.get).timestamp)
+            timestampOffset(filteredEvent.offset.get).timestamp,
+            filteredEvent.source)
 
         filteredEventToEnvelope(filteredEvent, streamId)
 
       case other =>
         throw new IllegalArgumentException(s"Unexpected StreamOut [${other.message.getClass.getName}]")
+    }
+  }
+
+  private def toProtoFilterCriteria(criteria: immutable.Seq[ConsumerFilter.FilterCriteria]): Seq[FilterCriteria] = {
+    criteria.map {
+      case ConsumerFilter.ExcludeTags(tags) =>
+        FilterCriteria(FilterCriteria.Message.ExcludeTags(ExcludeTags(tags.toVector)))
+      case ConsumerFilter.RemoveExcludeTags(tags) =>
+        FilterCriteria(FilterCriteria.Message.RemoveExcludeTags(RemoveExcludeTags(tags.toVector)))
+      case ConsumerFilter.IncludeTags(tags) =>
+        FilterCriteria(FilterCriteria.Message.IncludeTags(IncludeTags(tags.toVector)))
+      case ConsumerFilter.RemoveIncludeTags(tags) =>
+        FilterCriteria(FilterCriteria.Message.RemoveIncludeTags(RemoveIncludeTags(tags.toVector)))
+      case ConsumerFilter.IncludeEntityIds(entityOffsets) =>
+        FilterCriteria(FilterCriteria.Message.IncludeEntityIds(IncludeEntityIds(entityOffsets.map {
+          case ConsumerFilter.EntityIdOffset(entityId, seqNr) => EntityIdOffset(entityId, seqNr)
+        }.toVector)))
+      case ConsumerFilter.RemoveIncludeEntityIds(entityIds) =>
+        FilterCriteria(FilterCriteria.Message.RemoveIncludeEntityIds(RemoveIncludeEntityIds(entityIds.toVector)))
+      case ConsumerFilter.ExcludeEntityIds(entityIds) =>
+        FilterCriteria(FilterCriteria.Message.ExcludeEntityIds(ExcludeEntityIds(entityIds.toVector)))
+      case ConsumerFilter.RemoveExcludeEntityIds(entityIds) =>
+        FilterCriteria(FilterCriteria.Message.RemoveExcludeEntityIds(RemoveExcludeEntityIds(entityIds.toVector)))
+      case ConsumerFilter.ExcludeRegexEntityIds(matching) =>
+        FilterCriteria(FilterCriteria.Message.ExcludeMatchingEntityIds(ExcludeRegexEntityIds(matching.toVector)))
+      case ConsumerFilter.IncludeRegexEntityIds(matching) =>
+        FilterCriteria(FilterCriteria.Message.IncludeMatchingEntityIds(IncludeRegexEntityIds(matching.toVector)))
+      case ConsumerFilter.RemoveExcludeRegexEntityIds(matching) =>
+        FilterCriteria(
+          FilterCriteria.Message.RemoveExcludeMatchingEntityIds(RemoveExcludeRegexEntityIds(matching.toVector)))
+      case ConsumerFilter.RemoveIncludeRegexEntityIds(matching) =>
+        FilterCriteria(
+          FilterCriteria.Message.RemoveIncludeMatchingEntityIds(RemoveIncludeRegexEntityIds(matching.toVector)))
     }
   }
 
@@ -309,35 +432,38 @@ final class GrpcReadJournal private (
     val evt =
       event.payload.map(protoAnySerialization.deserialize(_).asInstanceOf[Evt])
 
+    val metadata: Option[Any] = event.metadata.map(protoAnySerialization.deserialize)
+
     new EventEnvelope(
       eventOffset,
       event.persistenceId,
       event.seqNr,
       evt,
       eventOffset.timestamp.toEpochMilli,
-      eventMetadata = None,
+      eventMetadata = metadata,
       PersistenceId.extractEntityType(event.persistenceId),
-      event.slice)
+      event.slice,
+      filtered = false,
+      source = event.source,
+      tags = event.tags.toSet)
   }
 
   private def filteredEventToEnvelope[Evt](filteredEvent: FilteredEvent, entityType: String): EventEnvelope[Evt] = {
     val eventOffset = timestampOffset(filteredEvent.offset.get)
-
-    // Note that envelope is marked with NotUsed in the eventMetadata. That is handled by the R2dbcProjection
-    // implementation to skip the envelope and still store the offset.
     new EventEnvelope(
       eventOffset,
       filteredEvent.persistenceId,
       filteredEvent.seqNr,
       None,
       eventOffset.timestamp.toEpochMilli,
-      eventMetadata = Some(NotUsed),
+      eventMetadata = None,
       entityType,
-      filteredEvent.slice)
+      filteredEvent.slice,
+      filtered = true,
+      source = filteredEvent.source)
   }
 
-  private def timestampOffset(
-      protoOffset: org.apache.pekko.projection.grpc.internal.proto.Offset): TimestampOffset = {
+  private def timestampOffset(protoOffset: org.apache.pekko.projection.grpc.internal.proto.Offset): TimestampOffset = {
     val timestamp = protoOffset.timestamp.get.asJavaInstant
     val seen = protoOffset.seen.map {
       case PersistenceIdSeqNr(pid, seqNr, _) =>
@@ -354,7 +480,7 @@ final class GrpcReadJournal private (
       .map(_.timestamp.map(_.asJavaInstant))
   }
 
-  // LoadEventQuery
+  //LoadEventQuery
   override def loadEnvelope[Evt](persistenceId: String, sequenceNr: Long): Future[EventEnvelope[Evt]] = {
     log.traceN(
       "Loading event from [{}] persistenceId [{}] with seqNr [{}]",

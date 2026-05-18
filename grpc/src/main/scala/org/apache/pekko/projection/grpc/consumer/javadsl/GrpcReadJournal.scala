@@ -8,37 +8,36 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.consumer.javadsl
 
+import scala.concurrent.ExecutionContext
 import java.time.Instant
 import java.util
 import java.util.Optional
 import java.util.concurrent.CompletionStage
-
-import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
-
-import org.apache.pekko
-import pekko.Done
-import pekko.NotUsed
-import pekko.actor.ClassicActorSystemProvider
-import pekko.annotation.ApiMayChange
-import pekko.grpc.GrpcClientSettings
-import pekko.japi.Pair
-import pekko.persistence.query.Offset
-import pekko.persistence.query.javadsl.ReadJournal
-import pekko.persistence.query.typed.EventEnvelope
-import pekko.persistence.query.typed.javadsl.EventTimestampQuery
-import pekko.persistence.query.typed.javadsl.EventsBySliceQuery
-import pekko.persistence.query.typed.javadsl.LoadEventQuery
-import pekko.projection.grpc.consumer.GrpcQuerySettings
-import pekko.projection.grpc.consumer.scaladsl
-import pekko.projection.grpc.internal.ProtoAnySerialization
-import pekko.stream.javadsl.Source
+import org.apache.pekko.Done
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.ClassicActorSystemProvider
+import org.apache.pekko.annotation.ApiMayChange
+import org.apache.pekko.annotation.InternalApi
+import org.apache.pekko.grpc.GrpcClientSettings
+import org.apache.pekko.japi.Pair
+import org.apache.pekko.persistence.query.Offset
+import org.apache.pekko.persistence.query.javadsl.ReadJournal
+import org.apache.pekko.persistence.query.typed.EventEnvelope
+import org.apache.pekko.persistence.query.typed.javadsl.EventTimestampQuery
+import org.apache.pekko.persistence.query.typed.javadsl.EventsBySliceQuery
+import org.apache.pekko.persistence.query.typed.javadsl.LoadEventQuery
+import org.apache.pekko.projection.grpc.consumer.GrpcQuerySettings
+import org.apache.pekko.projection.grpc.consumer.scaladsl
+import org.apache.pekko.projection.grpc.internal.ProtoAnySerialization
+import org.apache.pekko.projection.internal.CanTriggerReplay
+import org.apache.pekko.stream.javadsl.Source
 import com.google.protobuf.Descriptors
 
 @ApiMayChange
@@ -46,7 +45,7 @@ object GrpcReadJournal {
   val Identifier: String = scaladsl.GrpcReadJournal.Identifier
 
   /**
-   * Construct a gRPC read journal from configuration `pekko.projection.grpc.consumer`. The `stream-id` must
+   * Construct a gRPC read journal from configuration `org.apache.pekko.projection.grpc.consumer`. The `stream-id` must
    * be defined in the configuration.
    */
   def create(
@@ -60,7 +59,7 @@ object GrpcReadJournal {
 
   /**
    * Construct a gRPC read journal for the given stream-id and explicit `GrpcClientSettings` to control
-   * how to reach the Pekko Projection gRPC producer service (host, port etc).
+   * how to reach the Akka Projection gRPC producer service (host, port etc).
    */
   def create(
       system: ClassicActorSystemProvider,
@@ -80,7 +79,8 @@ class GrpcReadJournal(delegate: scaladsl.GrpcReadJournal)
     extends ReadJournal
     with EventsBySliceQuery
     with EventTimestampQuery
-    with LoadEventQuery {
+    with LoadEventQuery
+    with CanTriggerReplay {
 
   /**
    * The identifier of the stream to consume, which is exposed by the producing/publishing side.
@@ -88,6 +88,10 @@ class GrpcReadJournal(delegate: scaladsl.GrpcReadJournal)
    */
   def streamId(): String =
     delegate.streamId
+
+  @InternalApi
+  private[pekko] override def triggerReplay(persistenceId: String, fromSeqNr: Long): Unit =
+    delegate.triggerReplay(persistenceId, fromSeqNr)
 
   override def eventsBySlices[Event](
       entityType: String,

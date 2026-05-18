@@ -8,38 +8,37 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.consumer.scaladsl
+
+import org.apache.pekko.Done
+import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
+import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.grpc.GrpcClientSettings
+import org.apache.pekko.grpc.scaladsl.ServiceHandler
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.HttpRequest
+import org.apache.pekko.http.scaladsl.model.HttpResponse
+import org.apache.pekko.projection.grpc.TestContainerConf
+import org.apache.pekko.projection.grpc.TestData
+import org.apache.pekko.projection.grpc.TestDbLifecycle
+import org.apache.pekko.projection.grpc.TestEntity
+import org.apache.pekko.projection.grpc.consumer.GrpcQuerySettings
+import org.apache.pekko.projection.grpc.producer.EventProducerSettings
+import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer
+import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
+import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
+import org.scalatest.BeforeAndAfterAll
+import org.scalatest.wordspec.AnyWordSpecLike
 
 import java.time.Instant
 import java.time.{ Duration => JDuration }
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
-
-import org.apache.pekko
-import pekko.Done
-import pekko.actor.testkit.typed.scaladsl.LogCapturing
-import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import pekko.actor.typed.ActorSystem
-import pekko.grpc.GrpcClientSettings
-import pekko.grpc.scaladsl.ServiceHandler
-import pekko.http.scaladsl.Http
-import pekko.http.scaladsl.model.HttpRequest
-import pekko.http.scaladsl.model.HttpResponse
-import pekko.projection.grpc.TestContainerConf
-import pekko.projection.grpc.TestData
-import pekko.projection.grpc.TestDbLifecycle
-import pekko.projection.grpc.TestEntity
-import pekko.projection.grpc.consumer.GrpcQuerySettings
-import pekko.projection.grpc.producer.EventProducerSettings
-import pekko.projection.grpc.producer.scaladsl.EventProducer
-import pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
-import pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.wordspec.AnyWordSpecLike
 
 class EventTimestampQuerySpec(testContainerConf: TestContainerConf)
     extends ScalaTestWithActorTestKit(testContainerConf.config)
@@ -111,7 +110,7 @@ class EventTimestampQuerySpec(testContainerConf: TestContainerConf)
       val timestampB =
         grpcReadJournal.timestampOf(pid.id, sequenceNr = 2L).futureValue.get
       JDuration
-        .between(timestampB, Instant.now())
+        .between(timestampA, Instant.now())
         .toMillis should (be >= 0L and be <= 3000L)
 
       if (timestampB != timestampA)

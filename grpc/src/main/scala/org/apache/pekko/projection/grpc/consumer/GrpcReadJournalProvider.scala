@@ -8,27 +8,30 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.consumer
 
-import org.apache.pekko
-import pekko.actor.ExtendedActorSystem
-import pekko.persistence.query.ReadJournalProvider
-import pekko.projection.grpc.internal.ProtoAnySerialization
+import org.apache.pekko.actor.ExtendedActorSystem
+import org.apache.pekko.persistence.query.ReadJournalProvider
+import org.apache.pekko.projection.grpc.internal.ProtoAnySerialization
 import com.typesafe.config.Config
 
 /**
- * Note that `GrpcReadJournal` should be created with the `GrpcReadJournal` `apply` / `create` factory method
+ * Note that `GrpcReadJournal`` should be created with the `GrpcReadJournal`` `apply` / `create` factory method
  * and not from configuration via `GrpcReadJournalProvider` when using Protobuf serialization.
  */
 final class GrpcReadJournalProvider(system: ExtendedActorSystem, config: Config, cfgPath: String)
     extends ReadJournalProvider {
-  override def scaladslReadJournal(): scaladsl.GrpcReadJournal =
+
+  private lazy val scaladslReadJournalInstance: scaladsl.GrpcReadJournal =
     new scaladsl.GrpcReadJournal(system, config, cfgPath)
 
-  override def javadslReadJournal(): javadsl.GrpcReadJournal =
-    new javadsl.GrpcReadJournal(
-      new scaladsl.GrpcReadJournal(system, config, cfgPath, ProtoAnySerialization.Prefer.Java))
+  override def scaladslReadJournal(): scaladsl.GrpcReadJournal = scaladslReadJournalInstance
+
+  private lazy val javadslReadJournalInstance = new javadsl.GrpcReadJournal(
+    new scaladsl.GrpcReadJournal(system, config, cfgPath, ProtoAnySerialization.Prefer.Java))
+
+  override def javadslReadJournal(): javadsl.GrpcReadJournal = javadslReadJournalInstance
 }

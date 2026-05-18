@@ -8,54 +8,55 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc
 
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.duration._
-
-import org.apache.pekko
-import pekko.Done
-import pekko.actor.testkit.typed.scaladsl.LogCapturing
-import pekko.actor.testkit.typed.scaladsl.LoggingTestKit
-import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import pekko.actor.typed.ActorRef
-import pekko.actor.typed.ActorSystem
-import pekko.actor.typed.scaladsl.LoggerOps
-import pekko.grpc.GrpcClientSettings
-import pekko.grpc.GrpcServiceException
-import pekko.grpc.scaladsl.Metadata
-import pekko.grpc.scaladsl.MetadataBuilder
-import pekko.grpc.scaladsl.ServiceHandler
-import pekko.http.scaladsl.Http
-import pekko.http.scaladsl.model.HttpRequest
-import pekko.http.scaladsl.model.HttpResponse
-import pekko.persistence.query.typed.EventEnvelope
-import pekko.persistence.typed.PersistenceId
-import pekko.projection.ProjectionBehavior
-import pekko.projection.ProjectionId
-import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
-import pekko.projection.grpc.consumer.GrpcQuerySettings
-import pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal
-import pekko.projection.grpc.producer.EventProducerSettings
-import pekko.projection.grpc.producer.scaladsl.EventProducer
-import pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
-import pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
-import pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
-import pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import pekko.projection.r2dbc.scaladsl.R2dbcSession
-import pekko.projection.scaladsl.Handler
-import pekko.testkit.SocketUtil
+import org.apache.pekko.Done
+import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
+import org.apache.pekko.actor.testkit.typed.scaladsl.LoggingTestKit
+import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import org.apache.pekko.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.actor.typed.scaladsl.LoggerOps
+import org.apache.pekko.grpc.GrpcClientSettings
+import org.apache.pekko.grpc.GrpcServiceException
+import org.apache.pekko.grpc.scaladsl.Metadata
+import org.apache.pekko.grpc.scaladsl.MetadataBuilder
+import org.apache.pekko.grpc.scaladsl.ServiceHandler
+import org.apache.pekko.http.scaladsl.Http
+import org.apache.pekko.http.scaladsl.model.HttpRequest
+import org.apache.pekko.http.scaladsl.model.HttpResponse
+import org.apache.pekko.persistence.query.typed.EventEnvelope
+import org.apache.pekko.persistence.typed.PersistenceId
+import org.apache.pekko.projection.ProjectionBehavior
+import org.apache.pekko.projection.ProjectionId
+import org.apache.pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+import org.apache.pekko.projection.grpc.consumer.GrpcQuerySettings
+import org.apache.pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal
+import org.apache.pekko.projection.grpc.producer.EventProducerSettings
+import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer
+import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
+import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
+import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
+import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
+import org.apache.pekko.projection.scaladsl.Handler
+import org.apache.pekko.testkit.SocketUtil
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import io.grpc.Status
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
+import org.slf4j.event.Level
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.duration._
+
+import org.apache.pekko.projection.grpc.consumer.ConsumerFilter
 
 object IntegrationSpec {
 
@@ -63,20 +64,21 @@ object IntegrationSpec {
 
   val config: Config = ConfigFactory
     .parseString(s"""
-    pekko.http.server.preview.enable-http2 = on
-    pekko.persistence.r2dbc {
+    org.apache.pekko.loglevel = DEBUG
+    org.apache.pekko.http.server.preview.enable-http2 = on
+    org.apache.pekko.persistence.r2dbc {
       query {
         refresh-interval = 500 millis
         # reducing this to have quicker test, triggers backtracking earlier
         backtracking.behind-current-time = 3 seconds
       }
     }
-    pekko.projection.grpc {
+    org.apache.pekko.projection.grpc {
       producer {
         query-plugin-id = "pekko.persistence.r2dbc.query"
       }
     }
-    pekko.actor.testkit.typed.filter-leeway = 10s
+    org.apache.pekko.actor.testkit.typed.filter-leeway = 10s
     """)
 
   final case class Processed(projectionId: ProjectionId, envelope: EventEnvelope[String])
@@ -116,7 +118,7 @@ class IntegrationSpec(testContainerConf: TestContainerConf)
 
   override def typedSystem: ActorSystem[_] = system
   private implicit val ec: ExecutionContext = system.executionContext
-  private val numberOfTests = 4
+  private val numberOfTests = 6
 
   // needs to be unique per test case and known up front for setting up the producer
   case class TestSource(entityType: String, streamId: String, pid: PersistenceId)
@@ -318,17 +320,19 @@ class IntegrationSpec(testContainerConf: TestContainerConf)
       entity ! TestEntity.Ping(replyProbe.ref)
       replyProbe.receiveMessage()
 
-      def expectedLogMessage(seqNr: Long): String =
-        s"Received backtracking event from [127.0.0.1] persistenceId [${pid.id}] with seqNr [$seqNr]"
       val projection =
-        LoggingTestKit.trace(expectedLogMessage(1)).expect {
-          LoggingTestKit.trace(expectedLogMessage(2)).expect {
-            LoggingTestKit.trace(expectedLogMessage(3)).expect {
-              // start the projection
-              spawnExactlyOnceProjection()
-            }
+        LoggingTestKit
+          .custom { event =>
+            event.level == Level.TRACE && event.message.matches(
+              s"""Received event from \\[127.0.0.1] persistenceId \\[${pid.id
+                .replace("|", "\\|")}] with seqNr \\[[123]].*""") && event.message
+              .endsWith("source [BT]")
           }
-        }
+          .withOccurrences(3)
+          .expect {
+            // start the projection
+            spawnExactlyOnceProjection()
+          }
 
       processedProbe.receiveMessage().envelope.event shouldBe "A"
       processedProbe.receiveMessage().envelope.event shouldBe "B"
@@ -338,6 +342,119 @@ class IntegrationSpec(testContainerConf: TestContainerConf)
       projection ! ProjectionBehavior.Stop
       entity ! TestEntity.Stop(replyProbe.ref)
 
+      processedProbe.expectTerminated(projection)
+      processedProbe.expectTerminated(entity)
+    }
+
+    "dynamically filter entity ids" in new TestFixture {
+      entity ! TestEntity.Persist("a")
+      entity ! TestEntity.Persist("b")
+      entity ! TestEntity.Ping(replyProbe.ref)
+      replyProbe.receiveMessage()
+
+      // start the projection
+      val projection = spawnAtLeastOnceProjection()
+
+      val processedA = processedProbe.receiveMessage()
+      processedA.envelope.persistenceId shouldBe pid.id
+      processedA.envelope.sequenceNr shouldBe 1L
+      processedA.envelope.event shouldBe "A"
+
+      val processedB = processedProbe.receiveMessage()
+      processedB.envelope.persistenceId shouldBe pid.id
+      processedB.envelope.sequenceNr shouldBe 2L
+      processedB.envelope.event shouldBe "B"
+
+      val consumerFilter = ConsumerFilter(system).ref
+      // look for log message to ensure that filter has propagated to producer side before continuing
+      LoggingTestKit.debug(s"Stream [$streamId (0-1023)]: Filter update requested").expect {
+        consumerFilter ! ConsumerFilter.UpdateFilter(streamId, List(ConsumerFilter.ExcludeEntityIds(Set(pid.entityId))))
+      }
+
+      entity ! TestEntity.Persist("c")
+      processedProbe.expectNoMessage(1.second)
+
+      // look for log message to ensure that filter has propagated to producer side before continuing
+      LoggingTestKit.debug(s"Stream [$streamId (0-1023)]: Filter update requested").expect {
+        consumerFilter ! ConsumerFilter.UpdateFilter(
+          streamId,
+          List(ConsumerFilter.IncludeEntityIds(Set(ConsumerFilter.EntityIdOffset(pid.entityId, 0L)))))
+      }
+
+      entity ! TestEntity.Persist("d")
+
+      // D first rejected because expecting seqNr 3 (c) first
+      // C received via backtracking (or other duplicate), but FIXME this is probably racy
+      val processedC = processedProbe.receiveMessage()
+      processedC.envelope.persistenceId shouldBe pid.id
+      processedC.envelope.sequenceNr shouldBe 3L
+      processedC.envelope.event shouldBe "C"
+
+      val processedD = processedProbe.receiveMessage()
+      processedD.envelope.persistenceId shouldBe pid.id
+      processedD.envelope.sequenceNr shouldBe 4L
+      processedD.envelope.event shouldBe "D"
+
+      // remove filter
+      // look for log message to ensure that filter has propagated to producer side before continuing
+      LoggingTestKit.debug(s"Stream [$streamId (0-1023)]: Filter update requested").expect {
+        consumerFilter ! ConsumerFilter
+          .UpdateFilter(streamId, List(ConsumerFilter.RemoveIncludeEntityIds(Set(pid.entityId))))
+      }
+
+      entity ! TestEntity.Persist("e")
+      processedProbe.expectNoMessage(1.second)
+
+      projection ! ProjectionBehavior.Stop
+      entity ! TestEntity.Stop(replyProbe.ref)
+      processedProbe.expectTerminated(projection)
+      processedProbe.expectTerminated(entity)
+    }
+
+    "dynamically replay events" in new TestFixture {
+      entity ! TestEntity.Persist("a")
+      entity ! TestEntity.Persist("b")
+      entity ! TestEntity.Ping(replyProbe.ref)
+      replyProbe.receiveMessage()
+
+      // start the projection
+      val projection = spawnAtLeastOnceProjection()
+
+      val processedA = processedProbe.receiveMessage()
+      processedA.envelope.persistenceId shouldBe pid.id
+      processedA.envelope.sequenceNr shouldBe 1L
+      processedA.envelope.event shouldBe "A"
+
+      val processedB = processedProbe.receiveMessage()
+      processedB.envelope.persistenceId shouldBe pid.id
+      processedB.envelope.sequenceNr shouldBe 2L
+      processedB.envelope.event shouldBe "B"
+
+      val consumerFilter = ConsumerFilter(system).ref
+      // look for log message to ensure that filter has propagated to producer side before continuing
+      LoggingTestKit.debug(s"Stream [$streamId (0-1023)]: Replay requested").expect {
+        consumerFilter ! ConsumerFilter.Replay(streamId, Set(ConsumerFilter.PersistenceIdOffset(pid.id, 2L)))
+      }
+
+      entity ! TestEntity.Persist("c")
+      entity ! TestEntity.Persist("d")
+
+      // this doesn't really verify that a replay occurred since same events are propagated the ordinary way
+      val processedC = processedProbe.receiveMessage()
+      processedC.envelope.persistenceId shouldBe pid.id
+      processedC.envelope.sequenceNr shouldBe 3L
+      processedC.envelope.event shouldBe "C"
+
+      val processedD = processedProbe.receiveMessage()
+      processedD.envelope.persistenceId shouldBe pid.id
+      processedD.envelope.sequenceNr shouldBe 4L
+      processedD.envelope.event shouldBe "D"
+
+      // no duplicates
+      processedProbe.expectNoMessage()
+
+      projection ! ProjectionBehavior.Stop
+      entity ! TestEntity.Stop(replyProbe.ref)
       processedProbe.expectTerminated(projection)
       processedProbe.expectTerminated(entity)
     }

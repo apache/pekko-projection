@@ -8,16 +8,16 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc
 
-import java.util.UUID
-import java.util.concurrent.atomic.AtomicLong
-
 import org.apache.pekko.persistence.typed.PersistenceId
 import org.apache.pekko.projection.ProjectionId
+
+import java.util.UUID
+import java.util.concurrent.atomic.AtomicLong
 
 object TestData {
   private val start =

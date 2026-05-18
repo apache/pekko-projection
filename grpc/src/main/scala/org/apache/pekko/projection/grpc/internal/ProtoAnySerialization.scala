@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.internal
@@ -17,12 +17,11 @@ import scala.collection.concurrent.TrieMap
 import scala.collection.immutable
 import scala.util.Try
 
-import org.apache.pekko
-import pekko.actor.typed.ActorSystem
-import pekko.actor.typed.scaladsl.LoggerOps
-import pekko.annotation.InternalApi
-import pekko.serialization.SerializationExtension
-import pekko.serialization.Serializers
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.actor.typed.scaladsl.LoggerOps
+import org.apache.pekko.annotation.InternalApi
+import org.apache.pekko.serialization.SerializationExtension
+import org.apache.pekko.serialization.Serializers
 import scala.jdk.CollectionConverters._
 import com.google.common.base.CaseFormat
 import com.google.protobuf.ByteString
@@ -43,8 +42,8 @@ import scalapb.options.Scalapb
  */
 @InternalApi private[pekko] object ProtoAnySerialization {
   final val GoogleTypeUrlPrefix = "type.googleapis.com/"
-  final val PekkoSerializationTypeUrlPrefix = "ser.pekko.io/"
-  final val PekkoTypeUrlManifestSeparator = ':'
+  final val AkkaSerializationTypeUrlPrefix = "ser.org.apache.pekko.io/"
+  final val AkkaTypeUrlManifestSeparator = ':'
   private final val ProtoAnyTypeUrl = GoogleTypeUrlPrefix + "google.protobuf.Any"
 
   private val log = LoggerFactory.getLogger(classOf[ProtoAnySerialization])
@@ -136,23 +135,23 @@ import scalapb.options.Scalapb
         ScalaPbAny(ProtoAnyTypeUrl, scalaPbAny.toByteString)
       case pbAny: PbAny if pbAny.getTypeUrl.startsWith(GoogleTypeUrlPrefix) =>
         ScalaPbAny(ProtoAnyTypeUrl, pbAny.toByteString)
-      case scalaPbAny: ScalaPbAny        => scalaPbAny
-      case pbAny: PbAny                  => ScalaPbAny.fromJavaProto(pbAny)
+      case scalaPbAny: ScalaPbAny => scalaPbAny
+      case pbAny: PbAny           => ScalaPbAny.fromJavaProto(pbAny)
       case msg: scalapb.GeneratedMessage =>
         encode(msg)
       case msg: GeneratedMessageV3 =>
         encode(msg)
       case other =>
-        // fallback to Pekko serialization
+        // fallback to Akka serialization
         val otherAnyRef = other.asInstanceOf[AnyRef]
         val bytes = serialization.serialize(otherAnyRef).get
         val serializer = serialization.findSerializerFor(otherAnyRef)
         val manifest = Serializers.manifestFor(serializer, otherAnyRef)
         val id = serializer.identifier
         val typeUrl =
-          if (manifest.isEmpty) s"$PekkoSerializationTypeUrlPrefix$id"
+          if (manifest.isEmpty) s"$AkkaSerializationTypeUrlPrefix$id"
           else
-            s"$PekkoSerializationTypeUrlPrefix$id$PekkoTypeUrlManifestSeparator$manifest"
+            s"$AkkaSerializationTypeUrlPrefix$id$AkkaTypeUrlManifestSeparator$manifest"
 
         ScalaPbAny(typeUrl, ByteString.copyFrom(bytes))
     }
@@ -167,10 +166,10 @@ import scalapb.options.Scalapb
         PbAny.parseFrom(scalaPbAny.value)
     } else if (typeUrl.startsWith(GoogleTypeUrlPrefix)) {
       decodeMessage(scalaPbAny)
-    } else if (typeUrl.startsWith(PekkoSerializationTypeUrlPrefix)) {
+    } else if (typeUrl.startsWith(AkkaSerializationTypeUrlPrefix)) {
       val idAndManifest =
-        typeUrl.substring(PekkoSerializationTypeUrlPrefix.length)
-      val i = idAndManifest.indexOf(PekkoTypeUrlManifestSeparator)
+        typeUrl.substring(AkkaSerializationTypeUrlPrefix.length)
+      val i = idAndManifest.indexOf(AkkaTypeUrlManifestSeparator)
       val (id, manifest) =
         if (i == -1)
           idAndManifest.toInt -> ""
@@ -266,7 +265,7 @@ import scalapb.options.Scalapb
       else ""
 
     // flat package could be overridden on the command line, so attempt to load both possibilities if it's not
-    // explicitly set
+    // explicitly setclassLoader.loadClass(className)
     val possibleBaseNames =
       if (scalaOptions.hasFlatPackage) {
         if (scalaOptions.getFlatPackage) Seq("")
@@ -353,7 +352,7 @@ import scalapb.options.Scalapb
         typeName
       case _ =>
         log.warn2(
-          "Message type [{}] does not have a url prefix, it should have one that matches the type url prefix [{}]",
+          "Message type [{}] does not have a url prefix, it should have one that matchers the type url prefix [{}]",
           typeUrl,
           GoogleTypeUrlPrefix)
         typeUrl

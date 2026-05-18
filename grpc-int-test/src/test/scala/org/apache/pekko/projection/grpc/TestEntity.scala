@@ -8,20 +8,19 @@
  */
 
 /*
- * Copyright (C) 2009-2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2009-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc
 
-import org.apache.pekko
-import pekko.Done
-import pekko.actor.typed.ActorRef
-import pekko.actor.typed.Behavior
-import pekko.actor.typed.scaladsl.Behaviors
-import pekko.actor.typed.scaladsl.LoggerOps
-import pekko.persistence.typed.PersistenceId
-import pekko.persistence.typed.scaladsl.Effect
-import pekko.persistence.typed.scaladsl.EventSourcedBehavior
+import org.apache.pekko.Done
+import org.apache.pekko.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.Behavior
+import org.apache.pekko.actor.typed.scaladsl.Behaviors
+import org.apache.pekko.actor.typed.scaladsl.LoggerOps
+import org.apache.pekko.persistence.typed.PersistenceId
+import org.apache.pekko.persistence.typed.scaladsl.Effect
+import org.apache.pekko.persistence.typed.scaladsl.EventSourcedBehavior
 
 object TestEntity {
   sealed trait Command
@@ -33,8 +32,7 @@ object TestEntity {
     Behaviors.setup { context =>
       EventSourcedBehavior[Command, Any, String](
         persistenceId = pid,
-        "",
-        { (_, command) =>
+        "", { (_, command) =>
           command match {
             case command: Persist =>
               context.log.debugN(

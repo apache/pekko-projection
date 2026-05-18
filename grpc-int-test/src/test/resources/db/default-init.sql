@@ -1,4 +1,4 @@
--- Note: duplicated from ddl-scripts to be available on test classpath
+-- Note: duplicated from akka-projection-grpc/ddl-scripts to be available on IT test classpath
 CREATE TABLE IF NOT EXISTS event_journal(
   slice INT NOT NULL,
   entity_type VARCHAR(255) NOT NULL,
@@ -61,8 +61,8 @@ CREATE INDEX IF NOT EXISTS durable_state_slice_idx ON durable_state(slice, entit
 
 -- Primitive offset types are stored in this table.
 -- If only timestamp based offsets are used this table is optional.
--- Configure pekko.projection.r2dbc.offset-store.offset-table="" if the table is not created.
-CREATE TABLE IF NOT EXISTS projection_offset_store (
+-- Configure akka.projection.r2dbc.offset-store.offset-table="" if the table is not created.
+CREATE TABLE IF NOT EXISTS akka_projection_offset_store (
   projection_name VARCHAR(255) NOT NULL,
   projection_key VARCHAR(255) NOT NULL,
   current_offset VARCHAR(255) NOT NULL,
@@ -73,7 +73,7 @@ CREATE TABLE IF NOT EXISTS projection_offset_store (
 );
 
 -- Timestamp based offsets are stored in this table.
-CREATE TABLE IF NOT EXISTS projection_timestamp_offset_store (
+CREATE TABLE IF NOT EXISTS akka_projection_timestamp_offset_store (
   projection_name VARCHAR(255) NOT NULL,
   projection_key VARCHAR(255) NOT NULL,
   slice INT NOT NULL,
@@ -87,10 +87,53 @@ CREATE TABLE IF NOT EXISTS projection_timestamp_offset_store (
   PRIMARY KEY(slice, projection_name, timestamp_offset, persistence_id, seq_nr)
 );
 
-CREATE TABLE IF NOT EXISTS projection_management (
+CREATE TABLE IF NOT EXISTS akka_projection_management (
   projection_name VARCHAR(255) NOT NULL,
   projection_key VARCHAR(255) NOT NULL,
   paused BOOLEAN NOT NULL,
   last_updated BIGINT NOT NULL,
   PRIMARY KEY(projection_name, projection_key)
+);
+
+-- For Replicated Event Sourcing over gRPC tests
+CREATE TABLE IF NOT EXISTS akka_projection_timestamp_offset_store_DCA (
+    projection_name VARCHAR(255) NOT NULL,
+    projection_key VARCHAR(255) NOT NULL,
+    slice INT NOT NULL,
+    persistence_id VARCHAR(255) NOT NULL,
+    seq_nr BIGINT NOT NULL,
+    -- timestamp_offset is the db_timestamp of the original event
+    timestamp_offset timestamp with time zone NOT NULL,
+    -- timestamp_consumed is when the offset was stored
+    -- the consumer lag is timestamp_consumed - timestamp_offset
+    timestamp_consumed timestamp with time zone NOT NULL,
+    PRIMARY KEY(slice, projection_name, timestamp_offset, persistence_id, seq_nr)
+);
+
+CREATE TABLE IF NOT EXISTS akka_projection_timestamp_offset_store_DCB (
+    projection_name VARCHAR(255) NOT NULL,
+    projection_key VARCHAR(255) NOT NULL,
+    slice INT NOT NULL,
+    persistence_id VARCHAR(255) NOT NULL,
+    seq_nr BIGINT NOT NULL,
+    -- timestamp_offset is the db_timestamp of the original event
+    timestamp_offset timestamp with time zone NOT NULL,
+    -- timestamp_consumed is when the offset was stored
+    -- the consumer lag is timestamp_consumed - timestamp_offset
+    timestamp_consumed timestamp with time zone NOT NULL,
+    PRIMARY KEY(slice, projection_name, timestamp_offset, persistence_id, seq_nr)
+);
+
+CREATE TABLE IF NOT EXISTS akka_projection_timestamp_offset_store_DCC (
+    projection_name VARCHAR(255) NOT NULL,
+    projection_key VARCHAR(255) NOT NULL,
+    slice INT NOT NULL,
+    persistence_id VARCHAR(255) NOT NULL,
+    seq_nr BIGINT NOT NULL,
+    -- timestamp_offset is the db_timestamp of the original event
+    timestamp_offset timestamp with time zone NOT NULL,
+    -- timestamp_consumed is when the offset was stored
+    -- the consumer lag is timestamp_consumed - timestamp_offset
+    timestamp_consumed timestamp with time zone NOT NULL,
+    PRIMARY KEY(slice, projection_name, timestamp_offset, persistence_id, seq_nr)
 );
