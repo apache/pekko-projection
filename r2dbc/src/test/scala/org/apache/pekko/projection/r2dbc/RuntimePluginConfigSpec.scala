@@ -28,21 +28,17 @@ import scala.concurrent.duration.DurationInt
 
 import org.apache.pekko
 import pekko.Done
-import pekko.actor.ExtendedActorSystem
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.testkit.typed.scaladsl.TestProbe
 import pekko.actor.typed.ActorRef
-import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.Behavior
-import pekko.actor.typed.scaladsl.adapter._
 import pekko.persistence.Persistence
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.r2dbc.ConnectionFactoryProvider
 import pekko.persistence.r2dbc.JournalSettings
 import pekko.persistence.r2dbc.SnapshotSettings
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
-import pekko.persistence.r2dbc.state.scaladsl.R2dbcDurableStateStore
 import pekko.persistence.typed.PersistenceId
 import pekko.persistence.typed.scaladsl.Effect
 import pekko.persistence.typed.scaladsl.EventSourcedBehavior
