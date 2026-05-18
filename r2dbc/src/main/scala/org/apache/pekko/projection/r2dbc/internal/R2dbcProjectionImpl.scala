@@ -377,7 +377,7 @@ private[projection] object R2dbcProjectionImpl {
       .via(handler)
   }
 
-  @nowarn("cat=unused")
+  @nowarn //implicit parameters are used in the adapted handlers
   abstract class AdaptedR2dbcHandler[E](val delegate: R2dbcHandler[E])(
       implicit
       ec: ExecutionContext,
@@ -391,7 +391,7 @@ private[projection] object R2dbcProjectionImpl {
       delegate.stop()
   }
 
-  @nowarn("cat=unused")
+  @nowarn //implicit parameters are used in the adapted handlers
   abstract class AdaptedHandler[E](val delegate: Handler[E])(implicit ec: ExecutionContext, system: ActorSystem[_])
       extends Handler[E] {
 

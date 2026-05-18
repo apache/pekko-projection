@@ -565,7 +565,7 @@ private[projection] class R2dbcOffsetStore(
             case Some(r) => r.seqNr < inflightSeqNr
             case None    => true
           }
-        case _ => true
+        case null => true
       }
     if (newInflight.size >= 10000) {
       throw new IllegalStateException(
