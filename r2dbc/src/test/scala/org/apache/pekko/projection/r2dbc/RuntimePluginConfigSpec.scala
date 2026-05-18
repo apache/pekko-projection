@@ -25,21 +25,28 @@ import scala.collection.immutable.ListSet
 import scala.concurrent.Await
 import scala.concurrent.Future
 import scala.concurrent.duration.DurationInt
-import com.typesafe.config.Config
-import com.typesafe.config.ConfigFactory
+
 import org.apache.pekko
 import pekko.Done
+import pekko.actor.ExtendedActorSystem
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.testkit.typed.scaladsl.TestProbe
 import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Behavior
+import pekko.actor.typed.scaladsl.adapter._
 import pekko.persistence.Persistence
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.r2dbc.ConnectionFactoryProvider
 import pekko.persistence.r2dbc.JournalSettings
 import pekko.persistence.r2dbc.SnapshotSettings
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
-import pekko.persistence.r2dbc.journal.RuntimePluginConfigSpec._
+import pekko.persistence.r2dbc.state.scaladsl.R2dbcDurableStateStore
+import pekko.persistence.typed.PersistenceId
+import pekko.persistence.typed.scaladsl.Effect
+import pekko.persistence.typed.scaladsl.EventSourcedBehavior
+import pekko.persistence.typed.scaladsl.RetentionCriteria
 import pekko.projection.ProjectionBehavior
 import pekko.projection.ProjectionContext
 import pekko.projection.ProjectionId
@@ -49,16 +56,79 @@ import pekko.projection.r2dbc.scaladsl.R2dbcProjection
 import pekko.projection.r2dbc.scaladsl.R2dbcSession
 import pekko.projection.scaladsl.Handler
 import pekko.stream.scaladsl.FlowWithContext
+
+import com.typesafe.config.Config
+import com.typesafe.config.ConfigFactory
 import org.scalatest.BeforeAndAfterEach
 import org.scalatest.Inside
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
+
+object RuntimePluginConfigSpec {
+
+  trait EventSourced {
+    import EventSourced._
+
+    def configKey: String
+    def database: String
+
+    lazy val unresolvedConfig = ConfigFactory
+      .parseString(
+        s"""
+              $configKey = $${pekko.persistence.r2dbc}
+              $configKey = {
+                connection-factory {
+                  database = "$database"
+                }
+
+                journal.$configKey.connection-factory = $${$configKey.connection-factory}
+                journal.use-connection-factory = "$configKey.connection-factory"
+                query.$configKey.connection-factory = $${$configKey.connection-factory}
+                query.use-connection-factory = "$configKey.connection-factory"
+                snapshot.$configKey.connection-factory = $${$configKey.connection-factory}
+                snapshot.use-connection-factory = "$configKey.connection-factory"
+              }
+              """
+      )
+
+    lazy val config: Config = ConfigFactory.load(unresolvedConfig.withFallback(TestConfig.unresolvedConfig))
+
+    def apply(persistenceId: String): Behavior[Command] =
+      EventSourcedBehavior[Command, String, String](
+        PersistenceId.ofUniqueId(persistenceId),
+        "",
+        (state, cmd) =>
+          cmd match {
+            case Save(text, replyTo) =>
+              Effect.persist(text).thenRun(_ => replyTo ! Done)
+            case ShowMeWhatYouGot(replyTo) =>
+              replyTo ! state
+              Effect.none
+            case Stop =>
+              Effect.stop()
+          },
+        (state, evt) => Seq(state, evt).filter(_.nonEmpty).mkString("|"))
+        .withRetention(RetentionCriteria.snapshotEvery(1, Int.MaxValue))
+        .withJournalPluginId(s"$configKey.journal")
+        .withJournalPluginConfig(Some(config))
+        .withSnapshotPluginId(s"$configKey.snapshot")
+        .withSnapshotPluginConfig(Some(config))
+  }
+  object EventSourced {
+    sealed trait Command
+    case class Save(text: String, replyTo: ActorRef[Done]) extends Command
+    case class ShowMeWhatYouGot(replyTo: ActorRef[String]) extends Command
+    case object Stop extends Command
+  }
+}
 
 class RuntimePluginConfigSpec extends ScalaTestWithActorTestKit(TestConfig.config)
     with AnyWordSpecLike
     with BeforeAndAfterEach
     with LogCapturing
     with Inside {
+
+  import RuntimePluginConfigSpec._
 
   private lazy val eventSourced1 = new EventSourced {
     override def configKey: String = "plugin1"
