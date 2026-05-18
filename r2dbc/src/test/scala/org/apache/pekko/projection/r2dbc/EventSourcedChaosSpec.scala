@@ -110,7 +110,7 @@ class EventSourcedChaosSpec
   import EventSourcedEndToEndSpec._
 
   override def typedSystem: ActorSystem[_] = system
- 
+
   private val settings = R2dbcProjectionSettings(testKit.system)
   private val log = LoggerFactory.getLogger(getClass)
 

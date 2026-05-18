@@ -17,12 +17,14 @@ import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
+import scala.annotation.nowarn
 import scala.annotation.tailrec
 import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
+
 import org.apache.pekko
 import pekko.Done
 import pekko.NotUsed
@@ -180,6 +182,7 @@ object R2dbcProjectionSpec {
   }
 }
 
+@nowarn
 class R2dbcProjectionSpec
     extends ScalaTestWithActorTestKit(TestConfig.config)
     with AnyWordSpecLike

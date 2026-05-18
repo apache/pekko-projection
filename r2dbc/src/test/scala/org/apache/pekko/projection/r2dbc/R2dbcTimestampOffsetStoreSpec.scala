@@ -17,7 +17,6 @@ import java.time.Instant
 import java.time.{ Duration => JDuration }
 import java.util.UUID
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 import org.apache.pekko
@@ -140,8 +139,6 @@ class R2dbcTimestampOffsetStoreSpec
       state,
       TimestampOffset(timestamp, timestamp.plusMillis(1000), Map(pid -> revision)),
       timestamp.toEpochMilli)
-
-  private implicit val ec: ExecutionContext = system.executionContext
 
   "The R2dbcOffsetStore for TimestampOffset" must {
 

@@ -25,6 +25,7 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
+
 import org.apache.pekko
 import pekko.Done
 import pekko.NotUsed
@@ -209,11 +210,6 @@ class R2dbcTimestampOffsetProjectionSpec
   private def projectedValueShouldBe(expected: String)(implicit entityId: String) = {
     val opt = withRepo(_.findById(entityId)).futureValue.map(_.text)
     opt shouldBe Some(expected)
-  }
-
-  private def projectedValueShouldBeEmpty()(implicit entityId: String) = {
-    val opt = withRepo(_.findById(entityId)).futureValue.map(_.text)
-    opt shouldBe None
   }
 
   // TODO: extract this to some utility

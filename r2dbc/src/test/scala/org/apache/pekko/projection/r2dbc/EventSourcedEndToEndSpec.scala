@@ -16,10 +16,9 @@ package org.apache.pekko.projection.r2dbc
 import java.time.Instant
 import java.util.UUID
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import org.apache.pekko.persistence.r2dbc.QuerySettings
+
 import org.apache.pekko
 import pekko.Done
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
@@ -30,6 +29,7 @@ import pekko.actor.typed.Behavior
 import pekko.actor.typed.scaladsl.Behaviors
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.r2dbc.Dialect
+import pekko.persistence.r2dbc.QuerySettings
 import pekko.persistence.r2dbc.internal.PayloadCodec
 import pekko.persistence.r2dbc.internal.PayloadCodec.RichStatement
 import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
@@ -139,7 +139,6 @@ class EventSourcedEndToEndSpec
   import EventSourcedEndToEndSpec._
 
   override def typedSystem: ActorSystem[_] = system
-  private implicit val ec: ExecutionContext = system.executionContext
 
   private val log = LoggerFactory.getLogger(getClass)
 
