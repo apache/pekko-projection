@@ -156,7 +156,7 @@ class ProtoAnySerializationSpec extends ScalaTestWithActorTestKit with AnyWordSp
       val serializer = akkaSerialization.findSerializerFor(event)
       // no manifest for String serializer
       pbAny.typeUrl shouldBe s"ser.org.apache.pekko.io/${serializer.identifier}:${Serializers
-        .manifestFor(serializer, event)}"
+          .manifestFor(serializer, event)}"
 
       val deserializedEvent = serializationJava.deserialize(pbAny)
       deserializedEvent shouldBe event

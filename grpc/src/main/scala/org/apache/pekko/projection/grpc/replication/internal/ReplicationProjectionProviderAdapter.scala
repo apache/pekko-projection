@@ -42,7 +42,7 @@ private[pekko] object ReplicationProjectionProviderAdapter {
         system: ActorSystem[_]) =>
       val providerWithSlices = sourceProvider match {
         case withSlices: SSourceProvider[Offset, EventEnvelope[AnyRef]] with BySlicesSourceProvider => withSlices
-        case noSlices =>
+        case noSlices                                                                               =>
           throw new IllegalArgumentException(
             s"The source provider is required to implement org.apache.pekko.projection.BySlicesSourceProvider but ${noSlices.getClass} does not")
       }

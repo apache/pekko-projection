@@ -303,9 +303,12 @@ import org.slf4j.LoggerFactory
         .union(includeEntityOffsets.modifiedByNodes)
 
     override def needPruningFrom(removedNode: UniqueAddress): Boolean =
-      excludeTags.needPruningFrom(removedNode) || includeTags.needPruningFrom(removedNode) || excludeRegexEntityIds
-        .needPruningFrom(removedNode) || includeRegexEntityIds.needPruningFrom(removedNode) || excludeEntityIds
-        .needPruningFrom(removedNode) || includeEntityOffsets
+      excludeTags.needPruningFrom(removedNode) || includeTags.needPruningFrom(removedNode) ||
+      excludeRegexEntityIds
+        .needPruningFrom(removedNode) || includeRegexEntityIds.needPruningFrom(removedNode) ||
+      excludeEntityIds
+        .needPruningFrom(removedNode) ||
+      includeEntityOffsets
         .needPruningFrom(removedNode)
 
     override def prune(removedNode: UniqueAddress, collapseInto: UniqueAddress): State =

@@ -59,7 +59,7 @@ object GrpcReadJournal {
 
   /**
    * Construct a gRPC read journal for the given stream-id and explicit `GrpcClientSettings` to control
-   * how to reach the Akka Projection gRPC producer service (host, port etc).
+   * how to reach the Pekko Projection gRPC producer service (host, port etc).
    */
   def create(
       system: ClassicActorSystemProvider,

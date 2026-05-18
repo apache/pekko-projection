@@ -109,7 +109,7 @@ object GrpcReadJournal {
 
   /**
    * Construct a gRPC read journal for the given settings and explicit `GrpcClientSettings` to control
-   * how to reach the Akka Projection gRPC producer service (host, port etc).
+   * how to reach the Pekko Projection gRPC producer service (host, port etc).
    *
    * Note that the `protobufDescriptors` is a list of the `javaDescriptor` for the used protobuf messages. It is
    * defined in the ScalaPB generated `Proto` companion object.
@@ -480,7 +480,7 @@ final class GrpcReadJournal private (
       .map(_.timestamp.map(_.asJavaInstant))
   }
 
-  //LoadEventQuery
+  // LoadEventQuery
   override def loadEnvelope[Evt](persistenceId: String, sequenceNr: Long): Future[EventEnvelope[Evt]] = {
     log.traceN(
       "Loading event from [{}] persistenceId [{}] with seqNr [{}]",

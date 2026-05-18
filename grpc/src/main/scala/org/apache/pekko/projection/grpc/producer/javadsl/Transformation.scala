@@ -76,11 +76,10 @@ final class Transformation private[pekko] (private[pekko] val delegate: scaladsl
 
   def registerAsyncOrElseMapper(f: AnyRef => CompletionStage[Optional[AnyRef]]): Transformation = {
     new Transformation(
-      delegate.registerAsyncOrElseMapper(
-        event =>
-          f.apply(event.asInstanceOf[AnyRef])
-            .asScala
-            .map(_.toScala)(ExecutionContext.parasitic)))
+      delegate.registerAsyncOrElseMapper(event =>
+        f.apply(event.asInstanceOf[AnyRef])
+          .asScala
+          .map(_.toScala)(ExecutionContext.parasitic)))
   }
 
   def registerOrElseMapper(f: AnyRef => Optional[AnyRef]): Transformation = {

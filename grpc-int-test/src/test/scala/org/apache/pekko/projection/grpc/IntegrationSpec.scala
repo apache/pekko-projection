@@ -326,7 +326,8 @@ class IntegrationSpec(testContainerConf: TestContainerConf)
           .custom { event =>
             event.level == Level.TRACE && event.message.matches(
               s"""Received event from \\[127.0.0.1] persistenceId \\[${pid.id
-                .replace("|", "\\|")}] with seqNr \\[[123]].*""") && event.message
+                  .replace("|", "\\|")}] with seqNr \\[[123]].*""") &&
+            event.message
               .endsWith("source [BT]")
           }
           .withOccurrences(3)
@@ -399,7 +400,8 @@ class IntegrationSpec(testContainerConf: TestContainerConf)
       // remove filter
       // look for log message to ensure that filter has propagated to producer side before continuing
       LoggingTestKit.debug(s"Stream [$streamId (0-1023)]: Filter update requested").expect {
-        consumerFilter ! ConsumerFilter
+        consumerFilter !
+        ConsumerFilter
           .UpdateFilter(streamId, List(ConsumerFilter.RemoveIncludeEntityIds(Set(pid.entityId))))
       }
 

@@ -58,31 +58,31 @@ object ReplicationIntegrationSpec {
 
   private def config(dc: ReplicaId): Config =
     ConfigFactory.parseString(s"""
-       org.apache.pekko.actor.provider = cluster
-       org.apache.pekko.actor {
+       pekko.actor.provider = cluster
+       pekko.actor {
          serialization-bindings {
            "${classOf[replication.ReplicationIntegrationSpec].getName}$$LWWHelloWorld$$Event" = jackson-json
          }
        }
-       org.apache.pekko.http.server.preview.enable-http2 = on
-       org.apache.pekko.persistence.r2dbc {
+       pekko.http.server.preview.enable-http2 = on
+       pekko.persistence.r2dbc {
           query {
             refresh-interval = 500 millis
             # reducing this to have quicker test, triggers backtracking earlier
             backtracking.behind-current-time = 3 seconds
           }
         }
-        org.apache.pekko.projection.grpc {
+        pekko.projection.grpc {
           producer {
             query-plugin-id = "pekko.persistence.r2dbc.query"
           }
         }
-        org.apache.pekko.projection.r2dbc.offset-store {
+        pekko.projection.r2dbc.offset-store {
           timestamp-offset-table = "projection_timestamp_offset_store_${dc.id}"
         }
-        org.apache.pekko.remote.artery.canonical.host = "127.0.0.1"
-        org.apache.pekko.remote.artery.canonical.port = 0
-        org.apache.pekko.actor.testkit.typed {
+        pekko.remote.artery.canonical.host = "127.0.0.1"
+        pekko.remote.artery.canonical.port = 0
+        pekko.actor.testkit.typed {
           filter-leeway = 10s
           system-shutdown-default = 30s
         }
@@ -114,7 +114,8 @@ object ReplicationIntegrationSpec {
       replicatedBehaviors.setup { replicationContext =>
         EventSourcedBehavior[Command, Event, State](
           replicationContext.persistenceId,
-          State.initial, {
+          State.initial,
+          {
             case (State(greeting, _), Get(replyTo)) =>
               replyTo ! greeting
               Effect.none
@@ -125,7 +126,8 @@ object ReplicationIntegrationSpec {
                     greeting,
                     state.timestamp.increase(replicationContext.currentTimeMillis(), replicationContext.replicaId)))
                 .thenRun((_: State) => replyTo ! Done)
-          }, {
+          },
+          {
             case (currentState, GreetingChanged(newGreeting, newTimestamp)) =>
               if (newTimestamp.isAfter(currentState.timestamp))
                 State(newGreeting, newTimestamp)
@@ -268,10 +270,10 @@ class ReplicationIntegrationSpec(testContainerConf: TestContainerConf)
                     .entityRefFor(entityTypeKey, entityId)
 
                   probe.awaitAssert({
-                    entityRef
-                      .ask(LWWHelloWorld.Get.apply)
-                      .futureValue should ===(s"hello 1 from ${dc.id}")
-                  }, 10.seconds)
+                      entityRef
+                        .ask(LWWHelloWorld.Get.apply)
+                        .futureValue should ===(s"hello 1 from ${dc.id}")
+                    }, 10.seconds)
                 }
               }
             }
@@ -310,7 +312,7 @@ class ReplicationIntegrationSpec(testContainerConf: TestContainerConf)
                     entityRef
                       .ask(LWWHelloWorld.Get.apply)
                       .futureValue
-                  }.toSet should have size (1)
+                  }.toSet should have size 1
                 }
               }
             },

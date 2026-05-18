@@ -49,20 +49,20 @@ import scalapb.GeneratedMessage
   override def manifest(obj: AnyRef): String = obj match {
     case _: DdataConsumerFilterStore.State             => ConsumerFilterStoreStateManifest
     case _: DdataConsumerFilterStore.ConsumerFilterKey => ConsumerFilterKeyManifest
-    case _ =>
+    case _                                             =>
       throw new IllegalArgumentException(s"Can't serialize object of type ${obj.getClass} in [${getClass.getName}]")
   }
 
   override def toBinary(obj: AnyRef): Array[Byte] = obj match {
     case state: DdataConsumerFilterStore.State           => compress(stateToProto(state))
     case key: DdataConsumerFilterStore.ConsumerFilterKey => replicatedDataSerializer.keyIdToBinary(key.id)
-    case _ =>
+    case _                                               =>
       throw new IllegalArgumentException(s"Can't serialize object of type ${obj.getClass} in [${getClass.getName}]")
   }
 
   override def fromBinary(bytes: Array[Byte], manifest: String): AnyRef = manifest match {
     case ConsumerFilterStoreStateManifest => stateFromBinary(decompress(bytes))
-    case ConsumerFilterKeyManifest =>
+    case ConsumerFilterKeyManifest        =>
       DdataConsumerFilterStore.ConsumerFilterKey(replicatedDataSerializer.keyIdFromBinary(bytes))
     case _ =>
       throw new NotSerializableException(
@@ -158,7 +158,7 @@ import scalapb.GeneratedMessage
 
     @tailrec def readChunk(): Unit = in.read(buffer) match {
       case -1 => ()
-      case n =>
+      case n  =>
         out.write(buffer, 0, n)
         readChunk()
     }

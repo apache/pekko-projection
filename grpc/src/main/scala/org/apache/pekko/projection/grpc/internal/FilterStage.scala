@@ -121,7 +121,7 @@ import org.slf4j.LoggerFactory
         matchesRegexEntityIds(includeRegexEntityIds.values)
 
       if (env.tags.intersect(excludeTags).nonEmpty || excludePersistenceIds.contains(pid) ||
-          matchesExcludeRegexEntityIds) {
+        matchesExcludeRegexEntityIds) {
         env.tags.intersect(includeTags).nonEmpty || includePersistenceIds.contains(pid) || matchesIncludeRegexEntityIds
       } else {
         true
@@ -268,7 +268,7 @@ import org.slf4j.LoggerFactory
 
       private def replicaIdHandledByThisStream(pid: String): Boolean = {
         replicaId match {
-          case None => true
+          case None     => true
           case Some(id) =>
             !ReplicationId.isReplicationId(pid) || ReplicationId.fromString(pid).replicaId == id
         }
@@ -316,10 +316,10 @@ import org.slf4j.LoggerFactory
         persistenceIdOffsets.foreach { offset =>
           if (offset.seqNr >= 1)
             replay(offset)
-        // FIXME seqNr 0 would be to support a mode where we only deliver events after the include filter
-        // change. In that case we must have a way to signal to the R2dbcOffsetStore that the
-        // first seqNr of that new pid is ok to pass through even though it isn't 1
-        // and the offset store doesn't know about previous seqNr.
+          // FIXME seqNr 0 would be to support a mode where we only deliver events after the include filter
+          // change. In that case we must have a way to signal to the R2dbcOffsetStore that the
+          // first seqNr of that new pid is ok to pass through even though it isn't 1
+          // and the offset store doesn't know about previous seqNr.
         }
       }
 
@@ -429,18 +429,20 @@ import org.slf4j.LoggerFactory
           }
         })
 
-      setHandler(outNotUsed, new OutHandler {
-        override def onPull(): Unit = {
-          pull(inReq)
-        }
-      })
+      setHandler(outNotUsed,
+        new OutHandler {
+          override def onPull(): Unit = {
+            pull(inReq)
+          }
+        })
 
-      setHandler(outEnv, new OutHandler {
-        override def onPull(): Unit = {
-          log.trace("Stream [{}]: onPull outEnv", logPrefix)
-          pullInEnvOrReplay()
-        }
-      })
+      setHandler(outEnv,
+        new OutHandler {
+          override def onPull(): Unit = {
+            log.trace("Stream [{}]: onPull outEnv", logPrefix)
+            pullInEnvOrReplay()
+          }
+        })
     }
 
 }

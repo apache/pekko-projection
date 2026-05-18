@@ -95,15 +95,16 @@ private[pekko] final class ParallelUpdatesFlow[T](parallelism: Int)(f: EventEnve
         }
       })
 
-    setHandler(out, new OutHandler {
-      override def onPull(): Unit = {
-        if (inFlight.nonEmpty && inFlight.head.completed) {
-          emitHeadIfPossible()
-        } else {
-          pullNextIfPossible()
+    setHandler(out,
+      new OutHandler {
+        override def onPull(): Unit = {
+          if (inFlight.nonEmpty && inFlight.head.completed) {
+            emitHeadIfPossible()
+          } else {
+            pullNextIfPossible()
+          }
         }
-      }
-    })
+      })
 
     private def processElement(holder: Holder[T]): Unit = {
       f(holder.envelope)

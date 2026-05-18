@@ -270,7 +270,7 @@ class EventProducerServiceSpec
           status: Status = Status.PERMISSION_DENIED) = {
         fail shouldBe a[GrpcServiceException]
         fail.asInstanceOf[GrpcServiceException].status.getCode shouldBe (status.getCode)
-        fail.asInstanceOf[GrpcServiceException].status.getDescription shouldBe (expectedDescription)
+        fail.asInstanceOf[GrpcServiceException].status.getDescription shouldBe expectedDescription
       }
 
       val directStreamIdFail = interceptedProducerService

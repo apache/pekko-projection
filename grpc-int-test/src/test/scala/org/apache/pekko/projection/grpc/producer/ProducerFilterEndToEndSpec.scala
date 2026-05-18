@@ -54,22 +54,22 @@ object ProducerFilterEndToEndSpec {
 
   val config: Config = ConfigFactory
     .parseString(s"""
-    org.apache.pekko.actor.allow-java-serialization = on
-    org.apache.pekko.http.server.preview.enable-http2 = on
-    org.apache.pekko.persistence.r2dbc.journal.publish-events = false
-    org.apache.pekko.persistence.r2dbc {
+    pekko.actor.allow-java-serialization = on
+    pekko.http.server.preview.enable-http2 = on
+    pekko.persistence.r2dbc.journal.publish-events = false
+    pekko.persistence.r2dbc {
       query {
         refresh-interval = 500 millis
         # reducing this to have quicker test, triggers backtracking earlier
         backtracking.behind-current-time = 3 seconds
       }
     }
-    org.apache.pekko.projection.grpc {
+    pekko.projection.grpc {
       producer {
         query-plugin-id = "pekko.persistence.r2dbc.query"
       }
     }
-    org.apache.pekko.actor.testkit.typed.filter-leeway = 10s
+    pekko.actor.testkit.typed.filter-leeway = 10s
     """)
 
   private case class Processed(envelope: EventEnvelope[String])
@@ -80,7 +80,8 @@ object ProducerFilterEndToEndSpec {
     def apply(id: String): Behavior[Command] =
       EventSourcedBehavior[Command, String, Set[String]](
         PersistenceId(entityType, id),
-        Set.empty[String], {
+        Set.empty[String],
+        {
           case (_, Command(text, replyTo)) =>
             Effect.persist(text).thenRun(_ => replyTo ! Done)
         },

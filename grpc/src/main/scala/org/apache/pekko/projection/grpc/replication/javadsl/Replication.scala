@@ -51,14 +51,14 @@ trait Replication[Command] {
 
   /**
    * If combining multiple entity types replicated, or combining with direct usage of
-   * Akka Projection gRPC you will have to use the EventProducerService of each of them
+   * Pekko Projection gRPC you will have to use the EventProducerService of each of them
    * in a set passed to EventProducer.grpcServiceHandler to create a single gRPC endpoint
    */
   def eventProducerService: EventProducerSource
 
   /**
    * If only replicating one Replicated Event Sourced Entity and not using
-   * Akka Projection gRPC this endpoint factory can be used to get a partial function
+   * Pekko Projection gRPC this endpoint factory can be used to get a partial function
    * that can be served/bound with an Akka HTTP/2 server
    */
   def createSingleServiceHandler(): JFunction[HttpRequest, CompletionStage[HttpResponse]]
@@ -112,20 +112,20 @@ object Replication {
         settings.configureEntity
           .apply(
             Entity.of(
-              settings.entityTypeKey, { (entityContext: EntityContext[Command]) =>
+              settings.entityTypeKey,
+              { (entityContext: EntityContext[Command]) =>
                 val replicationId =
                   ReplicationId(entityContext.getEntityTypeKey.name, entityContext.getEntityId, settings.selfReplicaId)
-                replicatedBehaviorFactory.apply(
-                  factory =>
-                    ReplicatedEventSourcing.externalReplication(
-                      replicationId,
-                      scalaReplicationSettings.otherReplicas.map(_.replicaId) + settings.selfReplicaId)(
-                      replicationContext =>
-                        factory
-                          .apply(replicationContext.asInstanceOf[ReplicationContext])
-                          .createEventSourcedBehavior()
-                          // MEH
-                          .withReplication(replicationContext.asInstanceOf[ReplicationContextImpl])))
+                replicatedBehaviorFactory.apply(factory =>
+                  ReplicatedEventSourcing.externalReplication(
+                    replicationId,
+                    scalaReplicationSettings.otherReplicas.map(_.replicaId) + settings.selfReplicaId)(
+                    replicationContext =>
+                      factory
+                        .apply(replicationContext.asInstanceOf[ReplicationContext])
+                        .createEventSourcedBehavior()
+                        // MEH
+                        .withReplication(replicationContext.asInstanceOf[ReplicationContextImpl])))
               }))
           .toScala)
 

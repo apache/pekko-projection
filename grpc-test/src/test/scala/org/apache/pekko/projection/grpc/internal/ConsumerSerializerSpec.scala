@@ -62,10 +62,12 @@ class ConsumerSerializerSpec extends ScalaTestWithActorTestKit with AnyWordSpecL
     Seq(
       "empty ConsumerFilterStore.State" -> DdataConsumerFilterStore.State.empty,
       "ConsumerFilterStore.State with filter" -> DdataConsumerFilterStore.State.empty.updated(filter1)(node1),
-      "ConsumerFilterStore.State with filter updated from two nodes" -> DdataConsumerFilterStore.State.empty
+      "ConsumerFilterStore.State with filter updated from two nodes" ->
+      DdataConsumerFilterStore.State.empty
         .updated(filter1)(node1)
         .updated(filter2)(node2),
-      "empty after updates ConsumerFilterStore.State" -> DdataConsumerFilterStore.State.empty
+      "empty after updates ConsumerFilterStore.State" ->
+      DdataConsumerFilterStore.State.empty
         .updated(filter3)(node1)
         .updated(filter4)(node1),
       "ConsumerFilterKey" -> DdataConsumerFilterStore.ConsumerFilterKey("abc")).foreach {

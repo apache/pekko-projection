@@ -60,7 +60,7 @@ class ParallelUpdatesFlowSpec extends ScalaTestWithActorTestKit with AnyWordSpec
       messages2.foreach(_._2.success(Done))
 
       sourceProbe.sendComplete()
-      resultF.futureValue should have size (8)
+      resultF.futureValue should have size 8
     }
 
     "make sure to never have more than one envelope in flight for the same persistence id" in {
@@ -86,7 +86,7 @@ class ParallelUpdatesFlowSpec extends ScalaTestWithActorTestKit with AnyWordSpec
       processProbe.receiveMessages(2).foreach(_._2.success(Done))
 
       sourceProbe.sendComplete()
-      resultF.futureValue should have size (4)
+      resultF.futureValue should have size 4
     }
 
     "handle immediate complete" in {

@@ -167,7 +167,7 @@ final class ReplicationSettings[Command] private (
   require(
     (otherReplicas.map(_.replicaId) + selfReplicaId).size == otherReplicas.size + 1,
     s"selfReplicaId and replica ids of the other replicas must be unique, duplicates found: (${otherReplicas.map(
-      _.replicaId) + selfReplicaId}")
+        _.replicaId) + selfReplicaId}")
 
   def withSelfReplicaId(selfReplicaId: ReplicaId): ReplicationSettings[Command] =
     copy(selfReplicaId = selfReplicaId)

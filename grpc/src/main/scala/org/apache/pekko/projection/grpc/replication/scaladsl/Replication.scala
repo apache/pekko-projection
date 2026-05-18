@@ -45,14 +45,14 @@ trait Replication[Command] {
 
   /**
    * If combining multiple replicated entity types, or combining with direct usage of
-   * Akka Projection gRPC, you will have to use the EventProducerService of each of them
+   * Pekko Projection gRPC, you will have to use the EventProducerService of each of them
    * in a set passed to EventProducer.grpcServiceHandler to create a single gRPC endpoint
    */
   def eventProducerService: EventProducerSource
 
   /**
    * If only replicating one Replicated Event Sourced Entity and not using
-   * Akka Projection gRPC this endpoint factory can be used to get a partial function
+   * Pekko Projection gRPC this endpoint factory can be used to get a partial function
    * that can be served/bound with an Akka HTTP/2 server
    */
   def createSingleServiceHandler: () => PartialFunction[HttpRequest, Future[HttpResponse]]

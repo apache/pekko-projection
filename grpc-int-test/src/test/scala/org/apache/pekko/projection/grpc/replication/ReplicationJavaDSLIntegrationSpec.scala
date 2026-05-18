@@ -64,31 +64,31 @@ object ReplicationJavaDSLIntegrationSpec {
 
   private def config(dc: ReplicaId): Config =
     ConfigFactory.parseString(s"""
-       org.apache.pekko.actor.provider = cluster
-       org.apache.pekko.actor {
+       pekko.actor.provider = cluster
+       pekko.actor {
          serialization-bindings {
            "${classOf[replication.ReplicationJavaDSLIntegrationSpec].getName}$$LWWHelloWorld$$Event" = jackson-json
          }
        }
-       org.apache.pekko.http.server.preview.enable-http2 = on
-       org.apache.pekko.persistence.r2dbc {
+       pekko.http.server.preview.enable-http2 = on
+       pekko.persistence.r2dbc {
           query {
             refresh-interval = 500 millis
             # reducing this to have quicker test, triggers backtracking earlier
             backtracking.behind-current-time = 3 seconds
           }
         }
-        org.apache.pekko.projection.grpc {
+        pekko.projection.grpc {
           producer {
             query-plugin-id = "pekko.persistence.r2dbc.query"
           }
         }
-        org.apache.pekko.projection.r2dbc.offset-store {
+        pekko.projection.r2dbc.offset-store {
           timestamp-offset-table = "projection_timestamp_offset_store_${dc.id}"
         }
-        org.apache.pekko.remote.artery.canonical.host = "127.0.0.1"
-        org.apache.pekko.remote.artery.canonical.port = 0
-        org.apache.pekko.actor.testkit.typed {
+        pekko.remote.artery.canonical.host = "127.0.0.1"
+        pekko.remote.artery.canonical.port = 0
+        pekko.actor.testkit.typed {
           filter-leeway = 10s
           system-shutdown-default = 30s
         }
@@ -126,12 +126,14 @@ object ReplicationJavaDSLIntegrationSpec {
       protected def commandHandler(): CommandHandler[Command, Event, State] =
         newCommandHandlerBuilder()
           .forAnyState()
-          .onCommand(classOf[Get], { (state: State, command: Get) =>
-            command.replyTo.tell(state.greeting)
-            Effect.none()
-          })
+          .onCommand(classOf[Get],
+            { (state: State, command: Get) =>
+              command.replyTo.tell(state.greeting)
+              Effect.none()
+            })
           .onCommand(
-            classOf[SetGreeting], { (state: State, command: SetGreeting) =>
+            classOf[SetGreeting],
+            { (state: State, command: SetGreeting) =>
               Effect
                 .persist(
                   GreetingChanged(
@@ -145,10 +147,11 @@ object ReplicationJavaDSLIntegrationSpec {
       protected def eventHandler(): EventHandler[State, Event] =
         newEventHandlerBuilder()
           .forAnyState()
-          .onEvent(classOf[GreetingChanged], { (currentState: State, event: GreetingChanged) =>
-            if (event.timestamp.isAfter(currentState.timestamp)) State(event.greeting, event.timestamp)
-            else currentState
-          })
+          .onEvent(classOf[GreetingChanged],
+            { (currentState: State, event: GreetingChanged) =>
+              if (event.timestamp.isAfter(currentState.timestamp)) State(event.greeting, event.timestamp)
+              else currentState
+            })
           .build()
     }
   }
@@ -296,11 +299,11 @@ class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
                     .entityRefFor(entityTypeKey, entityId)
 
                   probe.awaitAssert({
-                    entityRef
-                      .ask(LWWHelloWorld.Get.apply, Duration.ofSeconds(10))
-                      .toScala
-                      .futureValue should ===(s"hello 1 from ${dc.id}")
-                  }, 10.seconds)
+                      entityRef
+                        .ask(LWWHelloWorld.Get.apply, Duration.ofSeconds(10))
+                        .toScala
+                        .futureValue should ===(s"hello 1 from ${dc.id}")
+                    }, 10.seconds)
                 }
               }
             }

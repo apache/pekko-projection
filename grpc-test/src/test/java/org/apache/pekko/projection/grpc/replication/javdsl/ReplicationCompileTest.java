@@ -133,7 +133,7 @@ public class ReplicationCompileTest {
     allSources.add(replication.eventProducerService());
 
     // add additional EventProducerSource from other entities or
-    // Akka Projection gRPC
+    // Pekko Projection gRPC
     allSources.add(otherReplication.eventProducerService());
 
     Function<HttpRequest, CompletionStage<HttpResponse>> route =

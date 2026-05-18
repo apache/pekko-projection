@@ -69,7 +69,7 @@ import pekko.util.Timeout
     def getOrCreateStore(streamId: String): ActorRef[ConsumerFilterStore.Command] = {
       stores.get(streamId) match {
         case Some(store) => store
-        case None =>
+        case None        =>
           context.spawn(
             ConsumerFilterStore(context.system, settings, streamId, context.self),
             URLEncoder.encode(streamId, StandardCharsets.UTF_8.name))
@@ -115,7 +115,7 @@ import pekko.util.Timeout
           context
             .ask[ConsumerFilterStore.GetFilter, ConsumerFilter.CurrentFilter](store, ConsumerFilterStore.GetFilter(_)) {
               case Success(ConsumerFilter.CurrentFilter(_, criteria)) => FilterUpdated(streamId, criteria)
-              case Failure(_) =>
+              case Failure(_)                                         =>
                 context.log
                   .debug("Ask of current filter failed when subscriber for streamId [{}] registered.", streamId)
                 null // ignore, it will be ok on next update anyway

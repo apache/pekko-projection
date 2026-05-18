@@ -194,7 +194,7 @@ object EventProducer {
       system: ActorSystem[_]): Map[String, EventsBySliceQuery] = {
     queriesForStreamIds(sources, system).map {
       case (streamId, q: EventsBySliceQuery) => streamId -> q
-      case (_, other) =>
+      case (_, other)                        =>
         throw new IllegalArgumentException(s"Expected EventsBySliceQuery but was [${other.getClass.getName}]")
     }
   }
@@ -207,7 +207,7 @@ object EventProducer {
       system: ActorSystem[_]): Map[String, CurrentEventsByPersistenceIdTypedQuery] = {
     queriesForStreamIds(sources, system).map {
       case (streamId, q: CurrentEventsByPersistenceIdTypedQuery) => streamId -> q
-      case (_, other) =>
+      case (_, other)                                            =>
         throw new IllegalArgumentException(
           s"Expected CurrentEventsByPersistenceIdQuery but was [${other.getClass.getName}]")
     }
@@ -220,7 +220,7 @@ object EventProducer {
     require(
       streamIds.size == sources.size,
       s"EventProducerSource set contains duplicate stream id, each stream id must be unique, all stream ids: [${streamIds
-        .mkString(", ")}]")
+          .mkString(", ")}]")
 
     val queryPluginsIds = sources.groupBy { eps =>
       require(
@@ -250,7 +250,6 @@ trait EventProducerInterceptor {
   /**
    * Let's requests through if method returns, can fail request by throwing asynchronously failing the returned
    * future with a [[org.apache.pekko.grpc.GrpcServiceException]]
-   *
    */
   def intercept(streamId: String, requestMetadata: Metadata): Future[Done]
 

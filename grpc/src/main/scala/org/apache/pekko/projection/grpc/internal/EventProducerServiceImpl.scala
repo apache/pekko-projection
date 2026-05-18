@@ -134,7 +134,7 @@ import scala.util.Success
       val producerSource = eventProducerSourceFor(init.streamId)
 
       val offset = init.offset match {
-        case None => NoOffset
+        case None    => NoOffset
         case Some(o) =>
           val timestamp =
             o.timestamp.map(_.asJavaInstant).getOrElse(Instant.EPOCH)

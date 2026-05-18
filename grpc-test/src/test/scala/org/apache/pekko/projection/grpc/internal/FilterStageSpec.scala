@@ -320,7 +320,8 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
 
       outProbe.request(100)
       // no guarantee of order between different entityIds
-      outProbe.expectNextN(entityIds.size).map(_.persistenceId).toSet shouldBe entityIds
+      outProbe.expectNextN(entityIds.size).map(_.persistenceId).toSet shouldBe
+      entityIds
         .map(PersistenceId(entityType, _).id)
         .toSet
       outProbe.expectNoMessage()
