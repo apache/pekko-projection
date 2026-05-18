@@ -13,11 +13,11 @@
 
 package org.apache.pekko.projection.grpc.replication.javadsl
 
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.annotation.DoNotInherit
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.persistence.typed.ReplicaId
-import org.apache.pekko.projection.grpc.replication.internal.ReplicaImpl
+import pekko.annotation.ApiMayChange
+import pekko.annotation.DoNotInherit
+import pekko.grpc.GrpcClientSettings
+import pekko.persistence.typed.ReplicaId
+import pekko.projection.grpc.replication.internal.ReplicaImpl
 
 import java.util.Optional
 

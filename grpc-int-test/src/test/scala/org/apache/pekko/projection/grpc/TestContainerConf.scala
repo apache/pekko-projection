@@ -13,7 +13,8 @@
 
 package org.apache.pekko.projection.grpc
 
-import org.apache.pekko.testkit.SocketUtil
+import org.apache.pekko
+import pekko.testkit.SocketUtil
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.testcontainers.containers.PostgreSQLContainer

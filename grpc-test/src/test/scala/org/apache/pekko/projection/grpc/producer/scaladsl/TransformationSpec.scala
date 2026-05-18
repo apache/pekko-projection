@@ -13,8 +13,9 @@
 
 package org.apache.pekko.projection.grpc.producer.scaladsl
 
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
+import org.apache.pekko
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

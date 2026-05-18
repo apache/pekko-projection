@@ -20,15 +20,15 @@ import scala.annotation.tailrec
 import scala.collection.immutable
 import scala.concurrent.duration.FiniteDuration
 
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.Extension
-import org.apache.pekko.actor.typed.ExtensionId
-import org.apache.pekko.actor.typed.Props
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.persistence.typed.ReplicaId
-import org.apache.pekko.projection.grpc.internal.ConsumerFilterRegistry
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Extension
+import pekko.actor.typed.ExtensionId
+import pekko.actor.typed.Props
+import pekko.annotation.ApiMayChange
+import pekko.annotation.InternalApi
+import pekko.persistence.typed.ReplicaId
+import pekko.projection.grpc.internal.ConsumerFilterRegistry
 import scala.jdk.DurationConverters._
 import scala.jdk.CollectionConverters._
 import com.typesafe.config.Config

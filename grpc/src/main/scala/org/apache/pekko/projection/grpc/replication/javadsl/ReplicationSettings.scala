@@ -13,19 +13,19 @@
 
 package org.apache.pekko.projection.grpc.replication.javadsl
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.annotation.DoNotInherit
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.cluster.sharding.typed.ShardingEnvelope
-import org.apache.pekko.cluster.sharding.typed.javadsl.Entity
-import org.apache.pekko.cluster.sharding.typed.javadsl.EntityTypeKey
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.persistence.typed.ReplicaId
-import org.apache.pekko.projection.grpc.producer.EventProducerSettings
-import org.apache.pekko.projection.grpc.producer.javadsl.EventProducerInterceptor
-import org.apache.pekko.projection.grpc.replication.internal.ReplicaImpl
-import org.apache.pekko.projection.grpc.replication.scaladsl.{ ReplicationSettings => SReplicationSettings }
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.ApiMayChange
+import pekko.annotation.DoNotInherit
+import pekko.annotation.InternalApi
+import pekko.cluster.sharding.typed.ShardingEnvelope
+import pekko.cluster.sharding.typed.javadsl.Entity
+import pekko.cluster.sharding.typed.javadsl.EntityTypeKey
+import pekko.grpc.GrpcClientSettings
+import pekko.persistence.typed.ReplicaId
+import pekko.projection.grpc.producer.EventProducerSettings
+import pekko.projection.grpc.producer.javadsl.EventProducerInterceptor
+import pekko.projection.grpc.replication.internal.ReplicaImpl
+import pekko.projection.grpc.replication.scaladsl.{ ReplicationSettings => SReplicationSettings }
 import scala.jdk.DurationConverters._
 import com.typesafe.config.Config
 
@@ -33,7 +33,7 @@ import java.time.Duration
 import java.util.Optional
 import java.util.{ Set => JSet }
 import scala.jdk.CollectionConverters._
-import org.apache.pekko.projection.grpc.replication.internal.ReplicationProjectionProviderAdapter
+import pekko.projection.grpc.replication.internal.ReplicationProjectionProviderAdapter
 
 object ReplicationSettings {
 

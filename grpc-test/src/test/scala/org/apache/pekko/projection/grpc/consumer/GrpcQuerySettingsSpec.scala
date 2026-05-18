@@ -13,7 +13,8 @@
 
 package org.apache.pekko.projection.grpc.consumer
 
-import org.apache.pekko.grpc.scaladsl.StringEntry
+import org.apache.pekko
+import pekko.grpc.scaladsl.StringEntry
 import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike

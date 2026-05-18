@@ -21,14 +21,14 @@ import java.util.zip.GZIPOutputStream
 
 import scala.annotation.tailrec
 
-import org.apache.pekko.actor.ExtendedActorSystem
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.cluster.ddata.ORMap
-import org.apache.pekko.cluster.ddata.ORSet
-import org.apache.pekko.cluster.ddata.protobuf.ReplicatedDataSerializer
-import org.apache.pekko.cluster.ddata.protobuf.msg.{ ReplicatedDataMessages => rd }
-import org.apache.pekko.serialization.BaseSerializer
-import org.apache.pekko.serialization.SerializerWithStringManifest
+import pekko.actor.ExtendedActorSystem
+import pekko.annotation.InternalApi
+import pekko.cluster.ddata.ORMap
+import pekko.cluster.ddata.ORSet
+import pekko.cluster.ddata.protobuf.ReplicatedDataSerializer
+import pekko.cluster.ddata.protobuf.msg.{ ReplicatedDataMessages => rd }
+import pekko.serialization.BaseSerializer
+import pekko.serialization.SerializerWithStringManifest
 import com.google.protobuf.ByteString
 import com.google.protobuf.UnsafeByteOperations
 import scalapb.GeneratedMessage

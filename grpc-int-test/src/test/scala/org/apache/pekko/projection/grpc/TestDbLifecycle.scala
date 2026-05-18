@@ -13,12 +13,13 @@
 
 package org.apache.pekko.projection.grpc
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.persistence.Persistence
-import org.apache.pekko.persistence.r2dbc.ConnectionFactoryProvider
-import org.apache.pekko.persistence.r2dbc.R2dbcSettings
-import org.apache.pekko.persistence.r2dbc.internal.R2dbcExecutor
-import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.persistence.Persistence
+import pekko.persistence.r2dbc.ConnectionFactoryProvider
+import pekko.persistence.r2dbc.R2dbcSettings
+import pekko.persistence.r2dbc.internal.R2dbcExecutor
+import pekko.projection.r2dbc.R2dbcProjectionSettings
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Suite
 import org.slf4j.LoggerFactory

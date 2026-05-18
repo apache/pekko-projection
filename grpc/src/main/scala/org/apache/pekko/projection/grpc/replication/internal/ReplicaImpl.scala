@@ -13,12 +13,12 @@
 
 package org.apache.pekko.projection.grpc.replication.internal
 
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.grpc.scaladsl.Metadata
-import org.apache.pekko.persistence.typed.ReplicaId
-import org.apache.pekko.projection.grpc.replication.javadsl.{ Replica => JReplica }
-import org.apache.pekko.projection.grpc.replication.scaladsl.{ Replica => SReplica }
+import pekko.annotation.InternalApi
+import pekko.grpc.GrpcClientSettings
+import pekko.grpc.scaladsl.Metadata
+import pekko.persistence.typed.ReplicaId
+import pekko.projection.grpc.replication.javadsl.{ Replica => JReplica }
+import pekko.projection.grpc.replication.scaladsl.{ Replica => SReplica }
 
 import java.util.Optional
 import scala.jdk.OptionConverters._

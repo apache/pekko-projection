@@ -13,19 +13,19 @@
 
 package org.apache.pekko.projection.grpc.replication.internal
 
-import org.apache.pekko.Done
-import org.apache.pekko.annotation.InternalApi
+import pekko.Done
+import pekko.annotation.InternalApi
 import scala.concurrent.ExecutionContext
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.projection.ProjectionContext
-import org.apache.pekko.stream.Attributes
-import org.apache.pekko.stream.FlowShape
-import org.apache.pekko.stream.Inlet
-import org.apache.pekko.stream.Outlet
-import org.apache.pekko.stream.stage.GraphStage
-import org.apache.pekko.stream.stage.GraphStageLogic
-import org.apache.pekko.stream.stage.InHandler
-import org.apache.pekko.stream.stage.OutHandler
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.projection.ProjectionContext
+import pekko.stream.Attributes
+import pekko.stream.FlowShape
+import pekko.stream.Inlet
+import pekko.stream.Outlet
+import pekko.stream.stage.GraphStage
+import pekko.stream.stage.GraphStageLogic
+import pekko.stream.stage.InHandler
+import pekko.stream.stage.OutHandler
 
 import scala.collection.mutable
 import scala.concurrent.Future

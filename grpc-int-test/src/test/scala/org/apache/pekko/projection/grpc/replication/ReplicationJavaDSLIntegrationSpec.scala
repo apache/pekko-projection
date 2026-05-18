@@ -13,38 +13,39 @@
 
 package org.apache.pekko.projection.grpc.replication
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.testkit.typed.scaladsl.ActorTestKit
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.actor.typed.scaladsl.adapter.ClassicActorSystemOps
-import org.apache.pekko.cluster.MemberStatus
-import org.apache.pekko.cluster.sharding.typed.javadsl.ClusterSharding
-import org.apache.pekko.cluster.typed.Cluster
-import org.apache.pekko.cluster.typed.Join
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.http.javadsl.Http
-import org.apache.pekko.http.javadsl.ServerBinding
-import org.apache.pekko.persistence.typed.ReplicaId
-import org.apache.pekko.persistence.typed.crdt.LwwTime
-import org.apache.pekko.persistence.typed.javadsl.CommandHandler
-import org.apache.pekko.persistence.typed.javadsl.EventHandler
-import org.apache.pekko.persistence.typed.javadsl.EventSourcedBehavior
-import org.apache.pekko.persistence.typed.javadsl.ReplicationContext
-import org.apache.pekko.projection.grpc.TestContainerConf
-import org.apache.pekko.projection.grpc.TestDbLifecycle
-import org.apache.pekko.projection.grpc.producer.EventProducerSettings
-import org.apache.pekko.projection.grpc.replication
-import org.apache.pekko.projection.grpc.replication.javadsl.Replica
-import org.apache.pekko.projection.grpc.replication.javadsl.ReplicatedBehaviors
-import org.apache.pekko.projection.grpc.replication.javadsl.Replication
-import org.apache.pekko.projection.grpc.replication.javadsl.ReplicationSettings
-import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
-import org.apache.pekko.projection.r2dbc.javadsl.R2dbcReplication
-import org.apache.pekko.testkit.SocketUtil
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.testkit.typed.scaladsl.ActorTestKit
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.actor.typed.scaladsl.adapter.ClassicActorSystemOps
+import pekko.cluster.MemberStatus
+import pekko.cluster.sharding.typed.javadsl.ClusterSharding
+import pekko.cluster.typed.Cluster
+import pekko.cluster.typed.Join
+import pekko.grpc.GrpcClientSettings
+import pekko.http.javadsl.Http
+import pekko.http.javadsl.ServerBinding
+import pekko.persistence.typed.ReplicaId
+import pekko.persistence.typed.crdt.LwwTime
+import pekko.persistence.typed.javadsl.CommandHandler
+import pekko.persistence.typed.javadsl.EventHandler
+import pekko.persistence.typed.javadsl.EventSourcedBehavior
+import pekko.persistence.typed.javadsl.ReplicationContext
+import pekko.projection.grpc.TestContainerConf
+import pekko.projection.grpc.TestDbLifecycle
+import pekko.projection.grpc.producer.EventProducerSettings
+import pekko.projection.grpc.replication
+import pekko.projection.grpc.replication.javadsl.Replica
+import pekko.projection.grpc.replication.javadsl.ReplicatedBehaviors
+import pekko.projection.grpc.replication.javadsl.Replication
+import pekko.projection.grpc.replication.javadsl.ReplicationSettings
+import pekko.projection.r2dbc.R2dbcProjectionSettings
+import pekko.projection.r2dbc.javadsl.R2dbcReplication
+import pekko.testkit.SocketUtil
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.scalatest.BeforeAndAfterAll
@@ -83,7 +84,7 @@ object ReplicationJavaDSLIntegrationSpec {
           }
         }
         org.apache.pekko.projection.r2dbc.offset-store {
-          timestamp-offset-table = "akka_projection_timestamp_offset_store_${dc.id}"
+          timestamp-offset-table = "projection_timestamp_offset_store_${dc.id}"
         }
         org.apache.pekko.remote.artery.canonical.host = "127.0.0.1"
         org.apache.pekko.remote.artery.canonical.port = 0

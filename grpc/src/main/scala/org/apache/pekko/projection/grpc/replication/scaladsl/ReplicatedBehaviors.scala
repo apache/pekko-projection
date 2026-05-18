@@ -13,10 +13,10 @@
 
 package org.apache.pekko.projection.grpc.replication.scaladsl
 
-import org.apache.pekko.actor.typed.Behavior
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.persistence.typed.scaladsl.EventSourcedBehavior
-import org.apache.pekko.persistence.typed.scaladsl.ReplicationContext
+import pekko.actor.typed.Behavior
+import pekko.annotation.ApiMayChange
+import pekko.persistence.typed.scaladsl.EventSourcedBehavior
+import pekko.persistence.typed.scaladsl.ReplicationContext
 
 /**
  * Dynamically provides factory methods for creating replicated event sourced behaviors.

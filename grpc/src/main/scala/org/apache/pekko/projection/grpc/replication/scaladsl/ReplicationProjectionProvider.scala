@@ -13,17 +13,17 @@
 
 package org.apache.pekko.projection.grpc.replication.scaladsl
 
-import org.apache.pekko.Done
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.persistence.query.Offset
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.projection.ProjectionContext
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.scaladsl.AtLeastOnceFlowProjection
-import org.apache.pekko.projection.scaladsl.SourceProvider
-import org.apache.pekko.stream.scaladsl.FlowWithContext
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.ApiMayChange
+import pekko.persistence.query.Offset
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.projection.ProjectionContext
+import pekko.projection.ProjectionId
+import pekko.projection.scaladsl.AtLeastOnceFlowProjection
+import pekko.projection.scaladsl.SourceProvider
+import pekko.stream.scaladsl.FlowWithContext
 
 /**
  * Factory/function for creating the projection where offsets are kept track of for the replication streams

@@ -13,12 +13,13 @@
 
 package org.apache.pekko.projection.grpc.replication.scaladsl
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.Behavior
-import org.apache.pekko.grpc.scaladsl.ServiceHandler
-import org.apache.pekko.http.scaladsl.Http
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Behavior
+import pekko.grpc.scaladsl.ServiceHandler
+import pekko.http.scaladsl.Http
+import pekko.projection.grpc.producer.scaladsl.EventProducer
+import pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
 
 object ProducerApiSample {
 

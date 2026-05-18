@@ -21,14 +21,14 @@ import scala.collection.immutable
 import scala.util.Failure
 import scala.util.Success
 
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.Behavior
-import org.apache.pekko.actor.typed.scaladsl.ActorContext
-import org.apache.pekko.actor.typed.scaladsl.Behaviors
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.projection.grpc.consumer.ConsumerFilter
-import org.apache.pekko.projection.grpc.consumer.ConsumerFilter.ConsumerFilterSettings
-import org.apache.pekko.util.Timeout
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.Behavior
+import pekko.actor.typed.scaladsl.ActorContext
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.annotation.InternalApi
+import pekko.projection.grpc.consumer.ConsumerFilter
+import pekko.projection.grpc.consumer.ConsumerFilter.ConsumerFilterSettings
+import pekko.util.Timeout
 
 /**
  * INTERNAL API

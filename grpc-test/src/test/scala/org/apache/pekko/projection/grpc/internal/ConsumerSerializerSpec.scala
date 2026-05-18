@@ -13,15 +13,16 @@
 
 package org.apache.pekko.projection.grpc.internal
 
-import org.apache.pekko.actor.Address
-import org.apache.pekko.actor.ExtendedActorSystem
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.scaladsl.adapter._
-import org.apache.pekko.cluster.UniqueAddress
-import org.apache.pekko.cluster.ddata.SelfUniqueAddress
-import org.apache.pekko.projection.grpc.consumer.ConsumerFilter
-import org.apache.pekko.serialization.SerializationExtension
+import org.apache.pekko
+import pekko.actor.Address
+import pekko.actor.ExtendedActorSystem
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.scaladsl.adapter._
+import pekko.cluster.UniqueAddress
+import pekko.cluster.ddata.SelfUniqueAddress
+import pekko.projection.grpc.consumer.ConsumerFilter
+import pekko.serialization.SerializationExtension
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class ConsumerSerializerSpec extends ScalaTestWithActorTestKit with AnyWordSpecLike with LogCapturing {

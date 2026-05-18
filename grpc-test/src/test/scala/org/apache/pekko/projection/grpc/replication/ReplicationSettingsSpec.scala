@@ -13,13 +13,14 @@
 
 package org.apache.pekko.projection.grpc.replication
 
-import org.apache.pekko.actor.testkit.typed.scaladsl.ActorTestKit
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.scaladsl.Behaviors
-import org.apache.pekko.projection.grpc.replication.scaladsl.ReplicationProjectionProvider
-import org.apache.pekko.projection.grpc.replication.scaladsl.ReplicationSettings
-import org.apache.pekko.projection.grpc.replication.javadsl.{ ReplicationSettings => JReplicationSettings }
-import org.apache.pekko.projection.grpc.replication.javadsl.{ ReplicationProjectionProvider => JReplicationProjectionProvider }
+import org.apache.pekko
+import pekko.actor.testkit.typed.scaladsl.ActorTestKit
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.projection.grpc.replication.scaladsl.ReplicationProjectionProvider
+import pekko.projection.grpc.replication.scaladsl.ReplicationSettings
+import pekko.projection.grpc.replication.javadsl.{ ReplicationSettings => JReplicationSettings }
+import pekko.projection.grpc.replication.javadsl.{ ReplicationProjectionProvider => JReplicationProjectionProvider }
 import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

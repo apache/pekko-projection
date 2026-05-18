@@ -13,10 +13,10 @@
 
 package org.apache.pekko.projection.grpc.replication.scaladsl
 
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.persistence.typed.ReplicaId
-import org.apache.pekko.projection.grpc.replication.internal.ReplicaImpl
+import pekko.annotation.ApiMayChange
+import pekko.grpc.GrpcClientSettings
+import pekko.persistence.typed.ReplicaId
+import pekko.projection.grpc.replication.internal.ReplicaImpl
 
 object Replica {
 

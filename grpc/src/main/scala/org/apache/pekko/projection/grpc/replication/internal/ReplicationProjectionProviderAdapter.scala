@@ -13,21 +13,21 @@
 
 package org.apache.pekko.projection.grpc.replication.internal
 
-import org.apache.pekko.Done
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.persistence.query.Offset
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.projection.BySlicesSourceProvider
-import org.apache.pekko.projection.ProjectionContext
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.grpc.replication.javadsl.{ ReplicationProjectionProvider => JReplicationProjectionProvider }
-import org.apache.pekko.projection.grpc.replication.scaladsl.{ ReplicationProjectionProvider => SReplicationProjectionProvider }
-import org.apache.pekko.projection.internal.ScalaBySlicesSourceProviderAdapter
-import org.apache.pekko.projection.scaladsl.{ AtLeastOnceFlowProjection => SAtLeastOnceFlowProjection }
-import org.apache.pekko.projection.scaladsl.{ SourceProvider => SSourceProvider }
-import org.apache.pekko.stream.scaladsl.{ FlowWithContext => SFlowWithContext }
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.InternalApi
+import pekko.persistence.query.Offset
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.projection.BySlicesSourceProvider
+import pekko.projection.ProjectionContext
+import pekko.projection.ProjectionId
+import pekko.projection.grpc.replication.javadsl.{ ReplicationProjectionProvider => JReplicationProjectionProvider }
+import pekko.projection.grpc.replication.scaladsl.{ ReplicationProjectionProvider => SReplicationProjectionProvider }
+import pekko.projection.internal.ScalaBySlicesSourceProviderAdapter
+import pekko.projection.scaladsl.{ AtLeastOnceFlowProjection => SAtLeastOnceFlowProjection }
+import pekko.projection.scaladsl.{ SourceProvider => SSourceProvider }
+import pekko.stream.scaladsl.{ FlowWithContext => SFlowWithContext }
 
 /**
  * INTERNAL API

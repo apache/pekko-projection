@@ -13,29 +13,29 @@
 
 package org.apache.pekko.projection.grpc.replication.javadsl
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.Behavior
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.annotation.DoNotInherit
-import org.apache.pekko.cluster.sharding.typed.ReplicatedEntity
-import org.apache.pekko.cluster.sharding.typed.javadsl.Entity
-import org.apache.pekko.cluster.sharding.typed.javadsl.EntityContext
-import org.apache.pekko.cluster.sharding.typed.javadsl.EntityRef
-import org.apache.pekko.cluster.sharding.typed.javadsl.EntityTypeKey
-import org.apache.pekko.http.javadsl.model.HttpRequest
-import org.apache.pekko.http.javadsl.model.HttpResponse
-import org.apache.pekko.japi.function.{ Function => JFunction }
-import org.apache.pekko.persistence.typed.ReplicationId
-import org.apache.pekko.persistence.typed.internal.ReplicationContextImpl
-import org.apache.pekko.persistence.typed.javadsl.ReplicationContext
-import org.apache.pekko.persistence.typed.scaladsl.ReplicatedEventSourcing
-import org.apache.pekko.projection.grpc.producer.javadsl.EventProducer
-import org.apache.pekko.projection.grpc.producer.javadsl.EventProducerSource
-import org.apache.pekko.projection.grpc.replication.internal.ReplicationImpl
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Behavior
+import pekko.annotation.ApiMayChange
+import pekko.annotation.DoNotInherit
+import pekko.cluster.sharding.typed.ReplicatedEntity
+import pekko.cluster.sharding.typed.javadsl.Entity
+import pekko.cluster.sharding.typed.javadsl.EntityContext
+import pekko.cluster.sharding.typed.javadsl.EntityRef
+import pekko.cluster.sharding.typed.javadsl.EntityTypeKey
+import pekko.http.javadsl.model.HttpRequest
+import pekko.http.javadsl.model.HttpResponse
+import pekko.japi.function.{ Function => JFunction }
+import pekko.persistence.typed.ReplicationId
+import pekko.persistence.typed.internal.ReplicationContextImpl
+import pekko.persistence.typed.javadsl.ReplicationContext
+import pekko.persistence.typed.scaladsl.ReplicatedEventSourcing
+import pekko.projection.grpc.producer.javadsl.EventProducer
+import pekko.projection.grpc.producer.javadsl.EventProducerSource
+import pekko.projection.grpc.replication.internal.ReplicationImpl
 import java.util.concurrent.CompletionStage
 import java.util.function.Predicate
 
-import org.apache.pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.EventEnvelope
 
 /**
  * Created using [[Replication.grpcReplication]], which starts sharding with the entity and

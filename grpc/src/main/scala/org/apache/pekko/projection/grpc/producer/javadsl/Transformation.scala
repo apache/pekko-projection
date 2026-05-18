@@ -14,9 +14,9 @@
 package org.apache.pekko.projection.grpc.producer.javadsl
 
 import scala.concurrent.ExecutionContext
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.projection.grpc.producer.scaladsl
+import pekko.annotation.ApiMayChange
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.projection.grpc.producer.scaladsl
 
 import java.util.Optional
 import java.util.concurrent.CompletionStage

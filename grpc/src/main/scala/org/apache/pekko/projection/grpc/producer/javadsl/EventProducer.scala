@@ -14,13 +14,13 @@
 package org.apache.pekko.projection.grpc.producer.javadsl
 
 import scala.concurrent.ExecutionContext
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.http.javadsl.model.HttpRequest
-import org.apache.pekko.http.javadsl.model.HttpResponse
-import org.apache.pekko.japi.function.{ Function => JapiFunction }
-import org.apache.pekko.projection.grpc.internal.EventProducerServiceImpl
-import org.apache.pekko.projection.grpc.internal.proto.EventProducerServicePowerApiHandler
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.ApiMayChange
+import pekko.http.javadsl.model.HttpRequest
+import pekko.http.javadsl.model.HttpResponse
+import pekko.japi.function.{ Function => JapiFunction }
+import pekko.projection.grpc.internal.EventProducerServiceImpl
+import pekko.projection.grpc.internal.proto.EventProducerServicePowerApiHandler
 import scala.jdk.CollectionConverters._
 
 import java.util.Collections

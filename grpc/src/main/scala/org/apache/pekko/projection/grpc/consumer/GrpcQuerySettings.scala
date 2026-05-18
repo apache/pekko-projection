@@ -13,11 +13,11 @@
 
 package org.apache.pekko.projection.grpc.consumer
 
-import org.apache.pekko.actor.ClassicActorSystemProvider
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.grpc.scaladsl.Metadata
-import org.apache.pekko.grpc.scaladsl.MetadataBuilder
-import org.apache.pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal
+import pekko.actor.ClassicActorSystemProvider
+import pekko.annotation.ApiMayChange
+import pekko.grpc.scaladsl.Metadata
+import pekko.grpc.scaladsl.MetadataBuilder
+import pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal
 import com.typesafe.config.Config
 
 @ApiMayChange

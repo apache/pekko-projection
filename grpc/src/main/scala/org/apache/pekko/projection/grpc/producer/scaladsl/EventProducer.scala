@@ -15,21 +15,21 @@ package org.apache.pekko.projection.grpc.producer.scaladsl
 
 import scala.concurrent.Future
 import scala.reflect.ClassTag
-import org.apache.pekko.Done
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.grpc.scaladsl.Metadata
-import org.apache.pekko.http.scaladsl.model.HttpRequest
-import org.apache.pekko.http.scaladsl.model.HttpResponse
-import org.apache.pekko.persistence.query.PersistenceQuery
-import org.apache.pekko.persistence.query.scaladsl.ReadJournal
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.CurrentEventsByPersistenceIdTypedQuery
-import org.apache.pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
-import org.apache.pekko.projection.grpc.internal.EventProducerServiceImpl
-import org.apache.pekko.projection.grpc.internal.proto.EventProducerServicePowerApiHandler
-import org.apache.pekko.projection.grpc.producer.EventProducerSettings
-import org.apache.pekko.projection.grpc.producer.javadsl.{ Transformation => JTransformation }
+import pekko.Done
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.ApiMayChange
+import pekko.grpc.scaladsl.Metadata
+import pekko.http.scaladsl.model.HttpRequest
+import pekko.http.scaladsl.model.HttpResponse
+import pekko.persistence.query.PersistenceQuery
+import pekko.persistence.query.scaladsl.ReadJournal
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.CurrentEventsByPersistenceIdTypedQuery
+import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
+import pekko.projection.grpc.internal.EventProducerServiceImpl
+import pekko.projection.grpc.internal.proto.EventProducerServicePowerApiHandler
+import pekko.projection.grpc.producer.EventProducerSettings
+import pekko.projection.grpc.producer.javadsl.{ Transformation => JTransformation }
 
 /**
  * The event producer implementation that can be included a gRPC route in an Akka HTTP server.

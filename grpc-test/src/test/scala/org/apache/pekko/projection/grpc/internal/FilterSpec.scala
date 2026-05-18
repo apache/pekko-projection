@@ -15,10 +15,11 @@ package org.apache.pekko.projection.grpc.internal
 
 import java.time.Instant
 
-import org.apache.pekko.persistence.query.TimestampOffset
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.grpc.internal.FilterStage.Filter
+import org.apache.pekko
+import pekko.persistence.query.TimestampOffset
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.grpc.internal.FilterStage.Filter
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 

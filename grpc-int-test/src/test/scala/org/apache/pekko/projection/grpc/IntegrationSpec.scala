@@ -13,38 +13,39 @@
 
 package org.apache.pekko.projection.grpc
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.LoggingTestKit
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.grpc.GrpcServiceException
-import org.apache.pekko.grpc.scaladsl.Metadata
-import org.apache.pekko.grpc.scaladsl.MetadataBuilder
-import org.apache.pekko.grpc.scaladsl.ServiceHandler
-import org.apache.pekko.http.scaladsl.Http
-import org.apache.pekko.http.scaladsl.model.HttpRequest
-import org.apache.pekko.http.scaladsl.model.HttpResponse
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.ProjectionBehavior
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.eventsourced.scaladsl.EventSourcedProvider
-import org.apache.pekko.projection.grpc.consumer.GrpcQuerySettings
-import org.apache.pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal
-import org.apache.pekko.projection.grpc.producer.EventProducerSettings
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
-import org.apache.pekko.projection.scaladsl.Handler
-import org.apache.pekko.testkit.SocketUtil
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.LoggingTestKit
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.grpc.GrpcClientSettings
+import pekko.grpc.GrpcServiceException
+import pekko.grpc.scaladsl.Metadata
+import pekko.grpc.scaladsl.MetadataBuilder
+import pekko.grpc.scaladsl.ServiceHandler
+import pekko.http.scaladsl.Http
+import pekko.http.scaladsl.model.HttpRequest
+import pekko.http.scaladsl.model.HttpResponse
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.ProjectionBehavior
+import pekko.projection.ProjectionId
+import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+import pekko.projection.grpc.consumer.GrpcQuerySettings
+import pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal
+import pekko.projection.grpc.producer.EventProducerSettings
+import pekko.projection.grpc.producer.scaladsl.EventProducer
+import pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
+import pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
+import pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
+import pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import pekko.projection.r2dbc.scaladsl.R2dbcSession
+import pekko.projection.scaladsl.Handler
+import pekko.testkit.SocketUtil
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import io.grpc.Status
@@ -56,7 +57,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import org.apache.pekko.projection.grpc.consumer.ConsumerFilter
+import pekko.projection.grpc.consumer.ConsumerFilter
 
 object IntegrationSpec {
 

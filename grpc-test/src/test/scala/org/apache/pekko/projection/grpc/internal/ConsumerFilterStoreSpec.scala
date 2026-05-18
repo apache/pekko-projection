@@ -13,14 +13,15 @@
 
 package org.apache.pekko.projection.grpc.internal
 
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.cluster.typed.Cluster
-import org.apache.pekko.cluster.typed.Join
-import org.apache.pekko.projection.grpc.consumer.ConsumerFilter
-import org.apache.pekko.projection.grpc.consumer.ConsumerFilter.ConsumerFilterSettings
-import org.apache.pekko.projection.grpc.consumer.ConsumerFilter.CurrentFilter
+import org.apache.pekko
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorRef
+import pekko.cluster.typed.Cluster
+import pekko.cluster.typed.Join
+import pekko.projection.grpc.consumer.ConsumerFilter
+import pekko.projection.grpc.consumer.ConsumerFilter.ConsumerFilterSettings
+import pekko.projection.grpc.consumer.ConsumerFilter.CurrentFilter
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.scalatest.matchers.should.Matchers

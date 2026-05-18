@@ -13,23 +13,23 @@
 
 package org.apache.pekko.projection.grpc.replication.scaladsl
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.Behavior
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.annotation.DoNotInherit
-import org.apache.pekko.cluster.sharding.typed.ReplicatedEntity
-import org.apache.pekko.cluster.sharding.typed.scaladsl.Entity
-import org.apache.pekko.cluster.sharding.typed.scaladsl.EntityRef
-import org.apache.pekko.cluster.sharding.typed.scaladsl.EntityTypeKey
-import org.apache.pekko.http.scaladsl.model.HttpRequest
-import org.apache.pekko.http.scaladsl.model.HttpResponse
-import org.apache.pekko.persistence.typed.ReplicationId
-import org.apache.pekko.persistence.typed.scaladsl.ReplicatedEventSourcing
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
-import org.apache.pekko.projection.grpc.replication.internal.ReplicationImpl
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Behavior
+import pekko.annotation.ApiMayChange
+import pekko.annotation.DoNotInherit
+import pekko.cluster.sharding.typed.ReplicatedEntity
+import pekko.cluster.sharding.typed.scaladsl.Entity
+import pekko.cluster.sharding.typed.scaladsl.EntityRef
+import pekko.cluster.sharding.typed.scaladsl.EntityTypeKey
+import pekko.http.scaladsl.model.HttpRequest
+import pekko.http.scaladsl.model.HttpResponse
+import pekko.persistence.typed.ReplicationId
+import pekko.persistence.typed.scaladsl.ReplicatedEventSourcing
+import pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
+import pekko.projection.grpc.replication.internal.ReplicationImpl
 import scala.concurrent.Future
 
-import org.apache.pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.EventEnvelope
 
 /**
  * Created using [[Replication.grpcReplication]], which starts sharding with the entity and

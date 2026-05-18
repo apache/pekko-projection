@@ -13,8 +13,9 @@
 
 package org.apache.pekko.projection.grpc.internal
 
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.ProjectionId
+import org.apache.pekko
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.ProjectionId
 
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong

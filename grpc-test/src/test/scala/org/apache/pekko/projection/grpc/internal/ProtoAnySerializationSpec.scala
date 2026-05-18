@@ -16,13 +16,14 @@ package org.apache.pekko.projection.grpc.internal
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 
-import org.apache.pekko.actor.Address
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.projection.grpc.internal.proto.TestEvent
-import org.apache.pekko.projection.grpc.internal.proto.TestProto
-import org.apache.pekko.serialization.SerializationExtension
-import org.apache.pekko.serialization.Serializers
+import org.apache.pekko
+import pekko.actor.Address
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.projection.grpc.internal.proto.TestEvent
+import pekko.projection.grpc.internal.proto.TestProto
+import pekko.serialization.SerializationExtension
+import pekko.serialization.Serializers
 import com.example.shoppingcart.AddLineItem
 import com.example.shoppingcart.ShoppingcartApiProto
 import com.google.protobuf.ByteString

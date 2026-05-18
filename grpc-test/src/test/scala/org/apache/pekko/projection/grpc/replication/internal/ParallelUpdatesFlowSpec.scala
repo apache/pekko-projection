@@ -13,15 +13,16 @@
 
 package org.apache.pekko.projection.grpc.replication.internal
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.testkit.typed.TestException
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.projection.internal.ProjectionContextImpl
-import org.apache.pekko.stream.scaladsl.Keep
-import org.apache.pekko.stream.scaladsl.Sink
-import org.apache.pekko.stream.scaladsl.Source
-import org.apache.pekko.stream.testkit.scaladsl.TestSource
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.testkit.typed.TestException
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.projection.internal.ProjectionContextImpl
+import pekko.stream.scaladsl.Keep
+import pekko.stream.scaladsl.Sink
+import pekko.stream.scaladsl.Source
+import pekko.stream.testkit.scaladsl.TestSource
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 

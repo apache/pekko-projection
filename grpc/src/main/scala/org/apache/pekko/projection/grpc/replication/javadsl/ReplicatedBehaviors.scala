@@ -13,11 +13,11 @@
 
 package org.apache.pekko.projection.grpc.replication.javadsl
 
-import org.apache.pekko.actor.typed.Behavior
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.japi.function.{ Function => JFunction }
-import org.apache.pekko.persistence.typed.javadsl.EventSourcedBehavior
-import org.apache.pekko.persistence.typed.javadsl.ReplicationContext
+import pekko.actor.typed.Behavior
+import pekko.annotation.ApiMayChange
+import pekko.japi.function.{ Function => JFunction }
+import pekko.persistence.typed.javadsl.EventSourcedBehavior
+import pekko.persistence.typed.javadsl.ReplicationContext
 
 /**
  * Dynamically provides factory methods for creating replicated event sourced behaviors.

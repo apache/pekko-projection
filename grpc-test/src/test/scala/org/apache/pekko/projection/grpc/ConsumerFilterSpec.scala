@@ -13,7 +13,8 @@
 
 package org.apache.pekko.projection.grpc
 
-import org.apache.pekko.projection.grpc.consumer.ConsumerFilter
+import org.apache.pekko
+import pekko.projection.grpc.consumer.ConsumerFilter
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
 

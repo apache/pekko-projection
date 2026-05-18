@@ -19,37 +19,38 @@ import java.util.concurrent.atomic.AtomicInteger
 import scala.concurrent.Future
 import scala.concurrent.Promise
 
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.persistence.Persistence
-import org.apache.pekko.persistence.query.Offset
-import org.apache.pekko.persistence.query.TimestampOffset
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.CurrentEventsByPersistenceIdTypedQuery
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.persistence.typed.ReplicaId
-import org.apache.pekko.persistence.typed.ReplicationId
-import org.apache.pekko.projection.grpc.internal.proto.EntityIdOffset
-import org.apache.pekko.projection.grpc.internal.proto.ExcludeEntityIds
-import org.apache.pekko.projection.grpc.internal.proto.ExcludeRegexEntityIds
-import org.apache.pekko.projection.grpc.internal.proto.ExcludeTags
-import org.apache.pekko.projection.grpc.internal.proto.FilterCriteria
-import org.apache.pekko.projection.grpc.internal.proto.FilterReq
-import org.apache.pekko.projection.grpc.internal.proto.IncludeEntityIds
-import org.apache.pekko.projection.grpc.internal.proto.IncludeTags
-import org.apache.pekko.projection.grpc.internal.proto.PersistenceIdSeqNr
-import org.apache.pekko.projection.grpc.internal.proto.ReplayReq
-import org.apache.pekko.projection.grpc.internal.proto.StreamIn
-import org.apache.pekko.projection.grpc.producer.EventProducerSettings
-import org.apache.pekko.stream.scaladsl.BidiFlow
-import org.apache.pekko.stream.scaladsl.Flow
-import org.apache.pekko.stream.scaladsl.Keep
-import org.apache.pekko.stream.scaladsl.Sink
-import org.apache.pekko.stream.scaladsl.Source
-import org.apache.pekko.stream.testkit.TestPublisher
-import org.apache.pekko.stream.testkit.scaladsl.TestSink
-import org.apache.pekko.stream.testkit.scaladsl.TestSource
+import org.apache.pekko
+import pekko.NotUsed
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.persistence.Persistence
+import pekko.persistence.query.Offset
+import pekko.persistence.query.TimestampOffset
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.CurrentEventsByPersistenceIdTypedQuery
+import pekko.persistence.typed.PersistenceId
+import pekko.persistence.typed.ReplicaId
+import pekko.persistence.typed.ReplicationId
+import pekko.projection.grpc.internal.proto.EntityIdOffset
+import pekko.projection.grpc.internal.proto.ExcludeEntityIds
+import pekko.projection.grpc.internal.proto.ExcludeRegexEntityIds
+import pekko.projection.grpc.internal.proto.ExcludeTags
+import pekko.projection.grpc.internal.proto.FilterCriteria
+import pekko.projection.grpc.internal.proto.FilterReq
+import pekko.projection.grpc.internal.proto.IncludeEntityIds
+import pekko.projection.grpc.internal.proto.IncludeTags
+import pekko.projection.grpc.internal.proto.PersistenceIdSeqNr
+import pekko.projection.grpc.internal.proto.ReplayReq
+import pekko.projection.grpc.internal.proto.StreamIn
+import pekko.projection.grpc.producer.EventProducerSettings
+import pekko.stream.scaladsl.BidiFlow
+import pekko.stream.scaladsl.Flow
+import pekko.stream.scaladsl.Keep
+import pekko.stream.scaladsl.Sink
+import pekko.stream.scaladsl.Source
+import pekko.stream.testkit.TestPublisher
+import pekko.stream.testkit.scaladsl.TestSink
+import pekko.stream.testkit.scaladsl.TestSource
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class FilterStageSpec extends ScalaTestWithActorTestKit("""
@@ -112,7 +113,7 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
           // simulate initial delay for more realistic testing, and concurrency check
           import scala.concurrent.duration._
 
-          import org.apache.pekko.pattern.{ after => futureAfter }
+          import pekko.pattern.{ after => futureAfter }
           if (eventsByPersistenceIdConcurrency.incrementAndGet() > producerSettings.replayParallelism)
             throw new IllegalStateException("Unexpected, too many concurrent calls to currentEventsByPersistenceId")
           Source

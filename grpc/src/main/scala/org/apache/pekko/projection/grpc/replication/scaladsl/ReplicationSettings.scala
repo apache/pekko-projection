@@ -13,18 +13,18 @@
 
 package org.apache.pekko.projection.grpc.replication.scaladsl
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.cluster.sharding.typed.ShardingEnvelope
-import org.apache.pekko.cluster.sharding.typed.scaladsl.Entity
-import org.apache.pekko.cluster.sharding.typed.scaladsl.EntityTypeKey
-import org.apache.pekko.grpc.GrpcClientSettings
-import org.apache.pekko.persistence.typed.ReplicaId
-import org.apache.pekko.projection.grpc.producer.EventProducerSettings
-import org.apache.pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
-import org.apache.pekko.projection.grpc.replication.internal.ReplicaImpl
-import org.apache.pekko.projection.grpc.replication.scaladsl
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.ApiMayChange
+import pekko.annotation.InternalApi
+import pekko.cluster.sharding.typed.ShardingEnvelope
+import pekko.cluster.sharding.typed.scaladsl.Entity
+import pekko.cluster.sharding.typed.scaladsl.EntityTypeKey
+import pekko.grpc.GrpcClientSettings
+import pekko.persistence.typed.ReplicaId
+import pekko.projection.grpc.producer.EventProducerSettings
+import pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
+import pekko.projection.grpc.replication.internal.ReplicaImpl
+import pekko.projection.grpc.replication.scaladsl
 import scala.jdk.DurationConverters._
 import scala.jdk.CollectionConverters._
 import com.typesafe.config.Config
