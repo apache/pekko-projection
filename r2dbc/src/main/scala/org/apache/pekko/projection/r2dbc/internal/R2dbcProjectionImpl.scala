@@ -29,7 +29,6 @@ import pekko.annotation.InternalApi
 import pekko.event.Logging
 import pekko.event.LoggingAdapter
 import pekko.persistence.query.DeletedDurableState
-import pekko.persistence.query.DurableStateChange
 import pekko.persistence.query.UpdatedDurableState
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.query.typed.scaladsl.LoadEventQuery
