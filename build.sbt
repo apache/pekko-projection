@@ -196,7 +196,11 @@ lazy val grpcTest =
     .settings(Dependencies.grpcTest)
     .settings(
       name := "pekko-projection-grpc-test",
-      publish / skip := true)
+      publish / skip := true,
+      // following is needed by Agrona lib
+      // https://github.com/aeron-io/agrona/wiki/Change-Log#200-2024-12-17
+      Test / fork := true,
+      Test / javaOptions += "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED")
     .dependsOn(grpc % "compile;test->compile")
     .dependsOn(testkit % Test)
 
