@@ -15,6 +15,19 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
+<configuration>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>[%date{ISO8601}] [%level] [%logger] [%X{pekkoAddress}] [%marker] [%thread] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="CapturingAppender" class="org.apache.pekko.actor.testkit.typed.internal.CapturingAppender"/>
+    <logger name="org.apache.pekko.actor.testkit.typed.internal.CapturingAppenderDelegate">
+        <appender-ref ref="STDOUT"/>
+    </logger>
+
     <logger name="org.apache.pekko.projection.grpc" level="TRACE" />
     <logger name="org.apache.pekko.projection.r2dbc" level="DEBUG" />
     <logger name="org.apache.pekko.persistence.r2dbc" level="DEBUG" />
@@ -29,7 +42,7 @@
     <logger name="reactor.netty.resources" level="INFO" />
     <logger name="io.r2dbc.pool" level="INFO" />
 
-    <root level="TRACE">
+    <root level="INFO">
         <appender-ref ref="CapturingAppender"/>
     </root>
 
