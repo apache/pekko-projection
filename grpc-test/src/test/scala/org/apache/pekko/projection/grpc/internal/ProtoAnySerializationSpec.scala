@@ -150,24 +150,24 @@ class ProtoAnySerializationSpec extends ScalaTestWithActorTestKit with AnyWordSp
       TestEvent.parseFrom(deserializedEvent.value.toByteArray) shouldBe value
     }
 
-    "encode and decode with Akka serialization with string manifest" in {
-      val event = Address("akka", system.name, "localhost", 2552)
+    "encode and decode with Pekko serialization with string manifest" in {
+      val event = Address("pekko", system.name, "localhost", 7335)
       val pbAny = serializationJava.serialize(event)
       val serializer = akkaSerialization.findSerializerFor(event)
       // no manifest for String serializer
-      pbAny.typeUrl shouldBe s"ser.org.apache.pekko.io/${serializer.identifier}:${Serializers
+      pbAny.typeUrl shouldBe s"ser.pekko.io/${serializer.identifier}:${Serializers
           .manifestFor(serializer, event)}"
 
       val deserializedEvent = serializationJava.deserialize(pbAny)
       deserializedEvent shouldBe event
     }
 
-    "encode and decode with Akka serialization without string manifest" in {
+    "encode and decode with Pekko serialization without string manifest" in {
       val event = "e1"
       val pbAny = serializationJava.serialize(event)
       val serializer = akkaSerialization.findSerializerFor(event)
       // no manifest for String serializer
-      pbAny.typeUrl shouldBe s"ser.org.apache.pekko.io/${serializer.identifier}"
+      pbAny.typeUrl shouldBe s"ser.pekko.io/${serializer.identifier}"
 
       val deserializedEvent = serializationJava.deserialize(pbAny)
       deserializedEvent shouldBe event

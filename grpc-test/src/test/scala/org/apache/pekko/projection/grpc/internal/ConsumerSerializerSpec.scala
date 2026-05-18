@@ -30,8 +30,8 @@ class ConsumerSerializerSpec extends ScalaTestWithActorTestKit with AnyWordSpecL
   private val classicSystem = system.toClassic
   private val serializer = new ConsumerSerializer(classicSystem.asInstanceOf[ExtendedActorSystem])
 
-  private val node1 = SelfUniqueAddress(UniqueAddress(Address("akka", system.name, "node1", 2552), 1L))
-  private val node2 = SelfUniqueAddress(UniqueAddress(Address("akka", system.name, "node2", 2552), 2L))
+  private val node1 = SelfUniqueAddress(UniqueAddress(Address("pekko", system.name, "node1", 7335), 1L))
+  private val node2 = SelfUniqueAddress(UniqueAddress(Address("pekko", system.name, "node2", 7335), 2L))
 
   private val filter1 =
     Vector(

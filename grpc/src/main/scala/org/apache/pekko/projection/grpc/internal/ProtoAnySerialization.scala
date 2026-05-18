@@ -43,8 +43,8 @@ import scalapb.options.Scalapb
  */
 @InternalApi private[pekko] object ProtoAnySerialization {
   final val GoogleTypeUrlPrefix = "type.googleapis.com/"
-  final val AkkaSerializationTypeUrlPrefix = "ser.org.apache.pekko.io/"
-  final val AkkaTypeUrlManifestSeparator = ':'
+  final val PekkoSerializationTypeUrlPrefix = "ser.pekko.io/"
+  final val PekkoTypeUrlManifestSeparator = ':'
   private final val ProtoAnyTypeUrl = GoogleTypeUrlPrefix + "google.protobuf.Any"
 
   private val log = LoggerFactory.getLogger(classOf[ProtoAnySerialization])
@@ -143,16 +143,16 @@ import scalapb.options.Scalapb
       case msg: GeneratedMessageV3 =>
         encode(msg)
       case other =>
-        // fallback to Akka serialization
+        // fallback to Pekko serialization
         val otherAnyRef = other.asInstanceOf[AnyRef]
         val bytes = serialization.serialize(otherAnyRef).get
         val serializer = serialization.findSerializerFor(otherAnyRef)
         val manifest = Serializers.manifestFor(serializer, otherAnyRef)
         val id = serializer.identifier
         val typeUrl =
-          if (manifest.isEmpty) s"$AkkaSerializationTypeUrlPrefix$id"
+          if (manifest.isEmpty) s"$PekkoSerializationTypeUrlPrefix$id"
           else
-            s"$AkkaSerializationTypeUrlPrefix$id$AkkaTypeUrlManifestSeparator$manifest"
+            s"$PekkoSerializationTypeUrlPrefix$id$PekkoTypeUrlManifestSeparator$manifest"
 
         ScalaPbAny(typeUrl, ByteString.copyFrom(bytes))
     }
@@ -167,10 +167,10 @@ import scalapb.options.Scalapb
         PbAny.parseFrom(scalaPbAny.value)
     } else if (typeUrl.startsWith(GoogleTypeUrlPrefix)) {
       decodeMessage(scalaPbAny)
-    } else if (typeUrl.startsWith(AkkaSerializationTypeUrlPrefix)) {
+    } else if (typeUrl.startsWith(PekkoSerializationTypeUrlPrefix)) {
       val idAndManifest =
-        typeUrl.substring(AkkaSerializationTypeUrlPrefix.length)
-      val i = idAndManifest.indexOf(AkkaTypeUrlManifestSeparator)
+        typeUrl.substring(PekkoSerializationTypeUrlPrefix.length)
+      val i = idAndManifest.indexOf(PekkoTypeUrlManifestSeparator)
       val (id, manifest) =
         if (i == -1)
           idAndManifest.toInt -> ""

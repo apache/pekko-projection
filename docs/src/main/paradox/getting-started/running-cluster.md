@@ -55,7 +55,7 @@ mvn compile exec:java -Dexec.mainClass="jdocs.guide.EventGeneratorApp" -Dexec.ar
 When the app is running you will observe that the logs show events written to different tags (`carts-0`, `carts-1`, etc.), instead of just one (`shopping-cart`).
 
 ```
-[2020-08-13 15:18:58,383] [INFO] [docs.guide.EventGeneratorApp$] [] [EventGenerator-org.apache.pekko.actor.default-dispatcher-19] - id [6059e] tag [carts-1] event: ItemQuantityAdjusted(6059e,cat t-shirt,1,2) MDC: {persistencePhase=persist-evt, pekkoAddress=pekko://EventGenerator@127.0.1.1:25520, pekkoSource=pekko://EventGenerator/system/sharding/shopping-cart-event/903/6059e, sourceActorSystem=EventGenerator, persistenceId=6059e}
+[2020-08-13 15:18:58,383] [INFO] [docs.guide.EventGeneratorApp$] [] [EventGenerator-org.apache.pekko.actor.default-dispatcher-19] - id [6059e] tag [carts-1] event: ItemQuantityAdjusted(6059e,cat t-shirt,1,2) MDC: {persistencePhase=persist-evt, pekkoAddress=pekko://EventGenerator@127.0.1.1:73350, pekkoSource=pekko://EventGenerator/system/sharding/shopping-cart-event/903/6059e, sourceActorSystem=EventGenerator, persistenceId=6059e}
 ```
 
 Run the first member of your new Pekko cluster:
@@ -91,21 +91,21 @@ When the app is running you will observe that it will process all the shopping c
 Run a second member to expand the Pekko cluster member count to 2.
 
 <!-- run from repo:
-sbt "examples/test:runMain docs.guide.ShoppingCartClusterApp 2552"
-sbt "examples/test:runMain jdocs.guide.ShoppingCartClusterApp 2552"
+sbt "examples/test:runMain docs.guide.ShoppingCartClusterApp 7335"
+sbt "examples/test:runMain jdocs.guide.ShoppingCartClusterApp 7335"
 -->
 
 sbt
 :   @@@vars
 ```
-sbt "runMain docs.guide.ShoppingCartClusterApp 2552
+sbt "runMain docs.guide.ShoppingCartClusterApp 7335
 ```
 @@@
 
 Maven
 :   @@@vars
 ```
-mvn compile exec:java -Dexec.mainClass="jdocs.guide.ShoppingCartClusterApp" -Dexec.args="2552"
+mvn compile exec:java -Dexec.mainClass="jdocs.guide.ShoppingCartClusterApp" -Dexec.args="7335"
 ```
 @@@
 
