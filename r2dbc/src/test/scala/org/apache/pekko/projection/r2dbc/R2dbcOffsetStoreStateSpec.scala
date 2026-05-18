@@ -13,8 +13,6 @@
 
 package org.apache.pekko.projection.r2dbc
 
-import java.time.Instant
-
 import org.apache.pekko
 import pekko.projection.r2dbc.internal.R2dbcOffsetStore.Record
 import pekko.projection.r2dbc.internal.R2dbcOffsetStore.State

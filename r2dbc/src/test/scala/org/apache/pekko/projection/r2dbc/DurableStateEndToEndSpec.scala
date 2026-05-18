@@ -15,7 +15,6 @@ package org.apache.pekko.projection.r2dbc
 
 import java.util.UUID
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
 import org.apache.pekko
@@ -129,7 +128,6 @@ class DurableStateEndToEndSpec
   import DurableStateEndToEndSpec._
 
   override def typedSystem: ActorSystem[_] = system
-  private implicit val ec: ExecutionContext = system.executionContext
 
   private val settings = R2dbcProjectionSettings(testKit.system)
 

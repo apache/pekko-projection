@@ -16,7 +16,6 @@ package org.apache.pekko.projection.r2dbc
 import java.util.UUID
 import java.util.concurrent.ConcurrentHashMap
 
-import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.Random
@@ -111,8 +110,7 @@ class EventSourcedChaosSpec
   import EventSourcedEndToEndSpec._
 
   override def typedSystem: ActorSystem[_] = system
-  private implicit val ec: ExecutionContext = system.executionContext
-
+ 
   private val settings = R2dbcProjectionSettings(testKit.system)
   private val log = LoggerFactory.getLogger(getClass)
 

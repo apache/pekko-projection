@@ -16,7 +16,6 @@ package org.apache.pekko.projection.r2dbc
 import java.time.Instant
 import java.util.UUID
 
-import scala.concurrent.ExecutionContext
 import org.apache.pekko
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
@@ -50,8 +49,6 @@ class R2dbcOffsetStoreSpec
     R2dbcOffsetStore.fromConfig(projectionId, None, system, settings, r2dbcExecutor, clock)
 
   private val table = settings.offsetTableWithSchema
-
-  private implicit val ec: ExecutionContext = system.executionContext
 
   implicit val dialect: Dialect = settings.dialect
   def selectLastSql: String =

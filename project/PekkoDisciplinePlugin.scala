@@ -41,7 +41,9 @@ object PekkoDisciplinePlugin extends AutoPlugin {
           (CrossVersion.partialVersion(scalaVersion.value) match {
             case Some((2, 13)) =>
               disciplineScalacOptions ++ Set(
-                "-Xlint:-strict-unsealed-patmat")
+                "-Xlint:-strict-unsealed-patmat",
+                // scala/bug#7014 is a false positive compiler warning affecting r2dbc-spi jar loading
+                "-Wconf:msg=scala/bug#7014:s")
             case _ =>
               Nil
           }).toSeq,
