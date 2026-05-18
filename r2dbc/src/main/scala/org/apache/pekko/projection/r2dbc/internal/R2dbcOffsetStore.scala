@@ -620,7 +620,7 @@ private[projection] class R2dbcOffsetStore(
 
   def filterAccepted[Envelope](envelopes: immutable.Seq[Envelope]): Future[immutable.Seq[Envelope]] = {
     envelopes
-      .foldLeft(Future.successful(getInflight(), Vector.empty[Envelope])) { (acc, envelope) =>
+      .foldLeft(Future.successful((getInflight(), Vector.empty[Envelope]))) { (acc, envelope) =>
         acc.flatMap { case (inflight, filteredEnvelopes) =>
           createRecordWithOffset(envelope) match {
             case Some(recordWithOffset) =>

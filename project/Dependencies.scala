@@ -236,14 +236,13 @@ object Dependencies {
       Test.logback % "test",
       Test.scalatest % "test")
 
-
   val grpcIntTest =
     deps ++= Seq(
       Test.postgresDriver % "test",
       Test.pekkoSerializationJackson,
       Test.pekkoTypedTestkit % "test",
       Test.postgresContainer % "test",
-      Test.r2dbcPostgres % "test",
+      Test.r2dbcPostgres,
       Test.logback % "test",
       Test.scalatest % "test")
 
