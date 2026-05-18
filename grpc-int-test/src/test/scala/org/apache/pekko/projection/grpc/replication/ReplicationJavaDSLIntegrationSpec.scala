@@ -70,7 +70,7 @@ object ReplicationJavaDSLIntegrationSpec {
            "${classOf[replication.ReplicationJavaDSLIntegrationSpec].getName}$$LWWHelloWorld$$Event" = jackson-json
          }
        }
-       pekko.http.server.preview.enable-http2 = on
+       pekko.http.server.enable-http2 = on
        pekko.persistence.r2dbc {
           query {
             refresh-interval = 500 millis
@@ -160,12 +160,11 @@ object ReplicationJavaDSLIntegrationSpec {
 // A shorter version of ReplicationIntegrationSpec covering the Java DSL for bootstrapping
 class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
     extends ScalaTestWithActorTestKit(
-      org.apache.pekko.actor
-        .ActorSystem(
-          "ReplicationJavaDSLIntegrationSpecA",
-          ReplicationJavaDSLIntegrationSpec
-            .config(ReplicationJavaDSLIntegrationSpec.DCA)
-            .withFallback(testContainerConf.config))
+      pekko.actor.ActorSystem(
+        "ReplicationJavaDSLIntegrationSpecA",
+        ReplicationJavaDSLIntegrationSpec
+          .config(ReplicationJavaDSLIntegrationSpec.DCA)
+          .withFallback(testContainerConf.config))
         .toTyped)
     with AnyWordSpecLike
     with TestDbLifecycle
@@ -181,15 +180,13 @@ class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
 
   private val systems = Seq[ActorSystem[_]](
     typedSystem,
-    org.apache.pekko.actor
-      .ActorSystem(
-        "ReplicationJavaDSLIntegrationSpecB",
-        ReplicationJavaDSLIntegrationSpec.config(DCB).withFallback(testContainerConf.config))
+    pekko.actor.ActorSystem(
+      "ReplicationJavaDSLIntegrationSpecB",
+      ReplicationJavaDSLIntegrationSpec.config(DCB).withFallback(testContainerConf.config))
       .toTyped,
-    org.apache.pekko.actor
-      .ActorSystem(
-        "ReplicationJavaDSLIntegrationSpecC",
-        ReplicationJavaDSLIntegrationSpec.config(DCC).withFallback(testContainerConf.config))
+    pekko.actor.ActorSystem(
+      "ReplicationJavaDSLIntegrationSpecC",
+      ReplicationJavaDSLIntegrationSpec.config(DCC).withFallback(testContainerConf.config))
       .toTyped)
 
   private val grpcPorts = SocketUtil.temporaryServerAddresses(systems.size, "127.0.0.1").map(_.getPort)

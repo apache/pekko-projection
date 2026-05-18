@@ -116,7 +116,7 @@ class DdataConsumerFilterStoreSpec
     extends ConsumerFilterStoreSpec(
       "DdataConsumerFilterStore",
       ConfigFactory.parseString("""
-    org.apache.pekko.actor {
+    pekko.actor {
       provider = cluster
       remote.artery {
         canonical.host = "127.0.0.1"

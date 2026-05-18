@@ -64,7 +64,7 @@ object ReplicationIntegrationSpec {
            "${classOf[replication.ReplicationIntegrationSpec].getName}$$LWWHelloWorld$$Event" = jackson-json
          }
        }
-       pekko.http.server.preview.enable-http2 = on
+       pekko.http.server.enable-http2 = on
        pekko.persistence.r2dbc {
           query {
             refresh-interval = 500 millis
@@ -139,12 +139,11 @@ object ReplicationIntegrationSpec {
 
 class ReplicationIntegrationSpec(testContainerConf: TestContainerConf)
     extends ScalaTestWithActorTestKit(
-      org.apache.pekko.actor
-        .ActorSystem(
-          "ReplicationIntegrationSpecA",
-          ReplicationIntegrationSpec
-            .config(ReplicationIntegrationSpec.DCA)
-            .withFallback(testContainerConf.config))
+      pekko.actor.ActorSystem(
+        "ReplicationIntegrationSpecA",
+        ReplicationIntegrationSpec
+          .config(ReplicationIntegrationSpec.DCA)
+          .withFallback(testContainerConf.config))
         .toTyped)
     with AnyWordSpecLike
     with TestDbLifecycle
@@ -160,15 +159,13 @@ class ReplicationIntegrationSpec(testContainerConf: TestContainerConf)
 
   private val systems = Seq[ActorSystem[_]](
     typedSystem,
-    org.apache.pekko.actor
-      .ActorSystem(
-        "ReplicationIntegrationSpecB",
-        ReplicationIntegrationSpec.config(DCB).withFallback(testContainerConf.config))
+    pekko.actor.ActorSystem(
+      "ReplicationIntegrationSpecB",
+      ReplicationIntegrationSpec.config(DCB).withFallback(testContainerConf.config))
       .toTyped,
-    org.apache.pekko.actor
-      .ActorSystem(
-        "ReplicationIntegrationSpecC",
-        ReplicationIntegrationSpec.config(DCC).withFallback(testContainerConf.config))
+    pekko.actor.ActorSystem(
+      "ReplicationIntegrationSpecC",
+      ReplicationIntegrationSpec.config(DCC).withFallback(testContainerConf.config))
       .toTyped)
 
   private val grpcPorts = SocketUtil.temporaryServerAddresses(systems.size, "127.0.0.1").map(_.getPort)

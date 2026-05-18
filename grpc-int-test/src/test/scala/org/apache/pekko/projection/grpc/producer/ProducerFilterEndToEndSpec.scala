@@ -55,7 +55,7 @@ object ProducerFilterEndToEndSpec {
   val config: Config = ConfigFactory
     .parseString(s"""
     pekko.actor.allow-java-serialization = on
-    pekko.http.server.preview.enable-http2 = on
+    pekko.http.server.enable-http2 = on
     pekko.persistence.r2dbc.journal.publish-events = false
     pekko.persistence.r2dbc {
       query {

@@ -54,7 +54,7 @@ import pekko.stream.testkit.scaladsl.TestSource
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class FilterStageSpec extends ScalaTestWithActorTestKit("""
-    org.apache.pekko.loglevel = DEBUG
+    pekko.loglevel = DEBUG
     """) with AnyWordSpecLike with LogCapturing {
   private val entityType = "EntityA"
   private val streamId = "EntityAStream"

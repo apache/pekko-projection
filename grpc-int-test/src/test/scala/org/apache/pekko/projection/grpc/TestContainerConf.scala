@@ -32,7 +32,7 @@ class TestContainerConf {
   def config: Config =
     ConfigFactory
       .parseString(s"""
-     org.apache.pekko.http.server.preview.enable-http2 = on
+     org.apache.pekko.http.server.enable-http2 = on
      org.apache.pekko.projection.grpc {
        consumer.client {
          host = "127.0.0.1"

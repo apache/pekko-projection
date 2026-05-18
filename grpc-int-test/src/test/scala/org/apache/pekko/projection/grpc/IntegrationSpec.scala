@@ -65,21 +65,21 @@ object IntegrationSpec {
 
   val config: Config = ConfigFactory
     .parseString(s"""
-    org.apache.pekko.loglevel = DEBUG
-    org.apache.pekko.http.server.preview.enable-http2 = on
-    org.apache.pekko.persistence.r2dbc {
+    pekko.loglevel = DEBUG
+    pekko.http.server.enable-http2 = on
+    pekko.persistence.r2dbc {
       query {
         refresh-interval = 500 millis
         # reducing this to have quicker test, triggers backtracking earlier
         backtracking.behind-current-time = 3 seconds
       }
     }
-    org.apache.pekko.projection.grpc {
+    pekko.projection.grpc {
       producer {
         query-plugin-id = "pekko.persistence.r2dbc.query"
       }
     }
-    org.apache.pekko.actor.testkit.typed.filter-leeway = 10s
+    pekko.actor.testkit.typed.filter-leeway = 10s
     """)
 
   final case class Processed(projectionId: ProjectionId, envelope: EventEnvelope[String])

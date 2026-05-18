@@ -105,7 +105,7 @@ class EventProducerServiceSpec
     with LogCapturing {
   import EventProducerServiceSpec._
 
-  private implicit val sys: org.apache.pekko.actor.ActorSystem = system.classicSystem
+  private implicit val sys: pekko.actor.ActorSystem = system.classicSystem
 
   private val eventsBySlicesQuery1 = new TestEventsBySliceQuery
   private val eventsBySlicesQuery2 = new TestEventsBySliceQuery

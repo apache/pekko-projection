@@ -55,7 +55,6 @@ import org.slf4j.LoggerFactory
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-
 /**
  * INTERNAL API
  */

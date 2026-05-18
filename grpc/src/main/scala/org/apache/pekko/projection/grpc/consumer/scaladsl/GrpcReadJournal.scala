@@ -185,7 +185,7 @@ final class GrpcReadJournal private (
   def this(system: ExtendedActorSystem, config: Config, cfgPath: String) =
     this(system, config, cfgPath, ProtoAnySerialization.Prefer.Scala)
 
-  private implicit val typedSystem: org.apache.pekko.actor.typed.ActorSystem[_] = system.toTyped
+  private implicit val typedSystem: pekko.actor.typed.ActorSystem[_] = system.toTyped
   private val persistenceExt = Persistence(system)
 
   lazy val consumerFilter = ConsumerFilter(typedSystem)
