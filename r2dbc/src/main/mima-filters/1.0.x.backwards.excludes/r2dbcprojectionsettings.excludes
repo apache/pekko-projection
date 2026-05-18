@@ -1,0 +1,51 @@
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+
+# Converting case class to class
+ProblemFilters.exclude[MissingTypesProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.this")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.canEqual")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.productArity")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.productPrefix")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.productElement")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.productElementName")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.productElementNames")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.productIterator")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$1")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$2")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$3")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$4")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$5")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$6")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$7")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$8")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$9")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.copy$default$10")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._1")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._2")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._3")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._4")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._5")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._6")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._7")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._8")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._9")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings._10")
+ProblemFilters.exclude[MissingTypesProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings$")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.unapply")
+ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings.fromProduct")
