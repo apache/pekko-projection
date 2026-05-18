@@ -260,7 +260,7 @@ class IntegrationSpec(testContainerConf: TestContainerConf)
       replyProbe.receiveMessage()
 
       // start the projection
-      val projection = spawnExactlyOnceProjection()
+      val projection = spawnAtLeastOnceProjection()
 
       val processedA = processedProbe.receiveMessage()
       processedA.envelope.persistenceId shouldBe pid.id
