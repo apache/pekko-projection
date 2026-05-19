@@ -25,8 +25,8 @@ object Dependencies {
   object Versions {
     val pekko = PekkoCoreDependency.version
     val pekkoGrpc = org.apache.pekko.grpc.gen.BuildInfo.version
-    val pekkoPersistenceJdbc = "2.0.0-M1"
-    val pekkoPersistenceR2dbc = "2.0.0-M0+109-880ba593-SNAPSHOT"
+    val pekkoPersistenceJdbc = PekkoPersistenceJDBCDependency.version
+    val pekkoPersistenceR2dbc = PekkoPersistenceR2DBCDependency.version
     val pekkoPersistenceCassandra = "1.1.0"
     val connectors = PekkoConnectorsDependency.version
     val connectorsKafka = PekkoConnectorsKafkaDependency.version
@@ -62,6 +62,11 @@ object Dependencies {
 
     // not really used in lib code, but in example and test
     val h2Driver = "com.h2database" % "h2" % Versions.h2Driver
+
+    val r2dbcSpi = "io.r2dbc" % "r2dbc-spi" % "1.0.0.RELEASE"
+    val r2dbcPool = "io.r2dbc" % "r2dbc-pool" % "1.0.2.RELEASE"
+    val r2dbcPostgres = "org.postgresql" % "r2dbc-postgresql" % "1.1.1.RELEASE"
+    val r2dbcMysql = "io.asyncer" % "r2dbc-mysql" % "1.4.2"
   }
 
   object TestNonIt {
@@ -105,6 +110,8 @@ object Dependencies {
 
     val connectorsKafkaTestkit =
       "org.apache.pekko" %% "pekko-connectors-kafka-testkit" % Versions.connectorsKafka
+
+    val r2dbcPostgres = Compile.r2dbcPostgres % "test"
   }
 
   object Examples {
@@ -215,15 +222,27 @@ object Dependencies {
       Test.logback % "test",
       Test.scalatest % "test")
 
+  val r2dbc =
+    deps ++= Seq(
+      "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc,
+      Compile.pekkoPersistenceQuery,
+      Compile.r2dbcSpi,
+      Compile.r2dbcPool,
+      Compile.r2dbcPostgres % "provided,test",
+      Compile.r2dbcMysql % "provided,test",
+      Test.pekkoSerializationJackson,
+      Test.pekkoTypedTestkit % "test",
+      Test.pekkoStreamTestkit % "test",
+      Test.logback % "test",
+      Test.scalatest % "test")
+
   val grpcIntTest =
     deps ++= Seq(
-      "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc % "test",
-      "org.apache.pekko" %% "pekko-projection-r2dbc" % Versions.pekkoPersistenceR2dbc % "test",
-      "org.postgresql" % "r2dbc-postgresql" % "1.1.1.RELEASE" % "test",
       Test.postgresDriver % "test",
       Test.pekkoSerializationJackson,
       Test.pekkoTypedTestkit % "test",
       Test.postgresContainer % "test",
+      Test.r2dbcPostgres,
       Test.logback % "test",
       Test.scalatest % "test")
 

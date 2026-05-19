@@ -179,6 +179,16 @@ lazy val grpc =
     .dependsOn(eventsourced)
     .dependsOn(testkit % Test)
 
+// provides offset storage backed by a R2DBC table
+lazy val r2dbc =
+  Project(id = "r2dbc", base = file("r2dbc"))
+    .enablePlugins(ReproducibleBuildsPlugin)
+    .settings(Dependencies.r2dbc)
+    .settings(AutomaticModuleName.settings("pekko.projection.r2dbc"))
+    .settings(
+      name := "pekko-projection-r2dbc")
+    .dependsOn(core)
+
 lazy val grpcIntTest =
   Project(id = "grpc-int-test", base = file("grpc-int-test"))
     .disablePlugins(MimaPlugin)
@@ -186,15 +196,34 @@ lazy val grpcIntTest =
     .settings(
       name := "pekko-projection-grpc-int-test",
       publish / skip := true,
-      Test / parallelExecution := false,
-      // we need to access snapshot jars for pekko-persistence-r2dbc
-      resolvers += Resolver.ApacheMavenSnapshotsRepo)
+      Test / parallelExecution := false)
     .dependsOn(grpc % "test->test;test->compile")
     .dependsOn(eventsourced % Test)
+    .dependsOn(r2dbc % Test)
+    .dependsOn(testkit % Test)
+
+lazy val r2dbcIntTest =
+  Project(id = "r2dbc-int-test", base = file("r2dbc-int-test"))
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.r2dbc)
+    .settings(
+      name := "pekko-projection-r2dbc-int-test",
+      publish / skip := true,
+      Test / parallelExecution := false,
+      // there are some compile warnings in the test code (Scala 2.13)
+      scalacOptions ++= Seq(
+        "-Wconf:msg=Implicit resolves to enclosing:s",
+        "-Wconf:msg=outer reference in this type test:s",
+        "-Wconf:cat=lint:s"))
+    .dependsOn(core)
+    .dependsOn(coreTest % "test->test")
+    .dependsOn(r2dbc % "test->test;test->compile")
+    .dependsOn(eventsourced % Test)
+    .dependsOn(`durable-state` % Test)
     .dependsOn(testkit % Test)
 
 lazy val userProjects: Seq[ProjectReference] = List[ProjectReference](
-  core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, grpc, testkit)
+  core, jdbc, slick, cassandra, eventsourced, kafka, `durable-state`, r2dbc, grpc, testkit)
 
 lazy val examples = project
   .enablePlugins(ReproducibleBuildsPlugin)
