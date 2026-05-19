@@ -51,6 +51,23 @@ object R2dbcProjectionSettings {
     )
   }
 
+  /**
+   * Java API
+   * @since 2.0.0
+   */
+  def create(config: Config): R2dbcProjectionSettings =
+    apply(config)
+
+  /**
+   * Java API: Load configuration from `pekko.projection.r2dbc`.
+   * @since 2.0.0
+   */
+  def create(system: ActorSystem[_]): R2dbcProjectionSettings =
+    apply(system)
+
+  /**
+   * Scala API: Load configuration from `pekko.projection.r2dbc`.
+   */
   def apply(system: ActorSystem[_]): R2dbcProjectionSettings =
     apply(system.settings.config.getConfig(DefaultConfigPath))
 
