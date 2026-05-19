@@ -1,0 +1,9 @@
+services:
+  postgres-db:
+    image: postgres:latest
+    container_name: docker-postgres-db-1
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
