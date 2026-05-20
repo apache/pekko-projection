@@ -252,8 +252,7 @@ class IntegrationSpec(testContainerConf: TestContainerConf)
       processedProbe.expectTerminated(entity)
     }
 
-    // https://github.com/apache/pekko-projection/issues/482 is open to fix this
-    "filter out events" ignore new TestFixture {
+    "filter out events" in new TestFixture {
       entity ! TestEntity.Persist("a")
       entity ! TestEntity.Persist("b*")
       entity ! TestEntity.Persist("c")
