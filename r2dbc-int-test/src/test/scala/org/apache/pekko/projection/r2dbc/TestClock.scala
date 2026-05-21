@@ -32,7 +32,7 @@ object TestClock {
 /**
  * Clock for testing purpose, which is truncated to a resolution (milliseconds or microseconds).
  *
- * The reason for truncating to the resolution is that Postgres timestamps has the resolution of microseconds but some
+ * The reason for truncating to the resolution is that Postgres timestamps have the resolution of microseconds but some
  * OS/JDK (Linux/JDK17) has Instant resolution of nanoseconds.
  */
 @InternalApi private[projection] class TestClock(resolution: TemporalUnit) extends Clock {
