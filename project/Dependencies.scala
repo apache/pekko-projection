@@ -80,6 +80,7 @@ object Dependencies {
 
   object Test {
     val pekkoDiscovery = "org.apache.pekko" %% "pekko-discovery" % Versions.pekko % "test"
+    val pekkoDistributedData = "org.apache.pekko" %% "pekko-distributed-data" % Versions.pekko % "test"
     val pekkoSerializationJackson = "org.apache.pekko" %% "pekko-serialization-jackson" % Versions.pekko % "test"
     val pekkoTypedTestkit = Compile.pekkoTypedTestkit
     val pekkoStreamTestkit = Compile.pekkoStreamTestkit
@@ -266,6 +267,7 @@ object Dependencies {
       Compile.r2dbcMysql % "test",
       Test.pekkoSerializationJackson,
       Test.pekkoDiscovery,
+      Test.pekkoDistributedData,
       Test.pekkoTypedTestkit % "test",
       Test.pekkoStreamTestkit % "test",
       Test.logback % "test",
