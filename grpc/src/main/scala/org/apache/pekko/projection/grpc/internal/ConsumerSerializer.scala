@@ -142,7 +142,7 @@ import scalapb.GeneratedMessage
     DdataConsumerFilterStore.SeqNrMap(underlying)
   }
 
-  // copied from Akka
+  // copied from Pekko
   private def compress(msg: GeneratedMessage): Array[Byte] = {
     val bos = new ByteArrayOutputStream(CompressionBufferSize)
     val zip = new GZIPOutputStream(bos)
@@ -151,7 +151,7 @@ import scalapb.GeneratedMessage
     bos.toByteArray
   }
 
-  // copied from Akka
+  // copied from Pekko
   private def decompress(bytes: Array[Byte]): Array[Byte] = {
     val in = new GZIPInputStream(new ByteArrayInputStream(bytes))
     val out = new ByteArrayOutputStream()

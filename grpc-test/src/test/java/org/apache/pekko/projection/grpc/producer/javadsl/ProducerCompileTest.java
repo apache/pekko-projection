@@ -20,13 +20,13 @@ import org.apache.pekko.http.javadsl.ServerBinding;
 import org.apache.pekko.http.javadsl.model.HttpRequest;
 import org.apache.pekko.http.javadsl.model.HttpResponse;
 import org.apache.pekko.japi.function.Function;
+import org.apache.pekko.persistence.query.typed.EventEnvelope;
 import org.apache.pekko.projection.grpc.producer.EventProducerSettings;
 
 import java.util.Collections;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import org.apache.pekko.persistence.query.typed.EventEnvelope;
 
 public class ProducerCompileTest {
   public static void start(ActorSystem<?> system) {

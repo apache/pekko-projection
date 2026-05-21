@@ -81,7 +81,7 @@ import org.slf4j.LoggerFactory
   }
 
   /**
-   * akka-cluster-typed dependency is optional so we create the DdataConsumerFilterStore with reflection
+   * pekko-cluster-typed dependency is optional so we create the DdataConsumerFilterStore with reflection
    */
   def createDdataConsumerFilterStore(
       system: ActorSystem[_],

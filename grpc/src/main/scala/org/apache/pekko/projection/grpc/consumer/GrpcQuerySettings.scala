@@ -25,13 +25,13 @@ import com.typesafe.config.Config
 object GrpcQuerySettings {
 
   /**
-   * Scala API: From `Config` `org.apache.pekko.projection.grpc.consumer` configuration section.
+   * Scala API: From `Config` `pekko.projection.grpc.consumer` configuration section.
    */
   def apply(system: ClassicActorSystemProvider): GrpcQuerySettings =
     apply(system.classicSystem.settings.config.getConfig(GrpcReadJournal.Identifier))
 
   /**
-   * Scala API: From `Config` corresponding to `org.apache.pekko.projection.grpc.consumer` configuration section.
+   * Scala API: From `Config` corresponding to `pekko.projection.grpc.consumer` configuration section.
    */
   def apply(config: Config): GrpcQuerySettings = {
     val streamId = config.getString("stream-id")
@@ -59,13 +59,13 @@ object GrpcQuerySettings {
   }
 
   /**
-   * Java API: From `Config` `org.apache.pekko.projection.grpc.consumer` configuration section.
+   * Java API: From `Config` `pekko.projection.grpc.consumer` configuration section.
    */
   def create(system: ClassicActorSystemProvider): GrpcQuerySettings =
     apply(system)
 
   /**
-   * Java API: From `Config` corresponding to `org.apache.pekko.projection.grpc.consumer` configuration section.
+   * Java API: From `Config` corresponding to `pekko.projection.grpc.consumer` configuration section.
    */
   def create(config: Config): GrpcQuerySettings =
     apply(config)

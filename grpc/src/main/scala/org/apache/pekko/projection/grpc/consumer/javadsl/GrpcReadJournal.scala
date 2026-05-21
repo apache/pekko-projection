@@ -47,7 +47,7 @@ object GrpcReadJournal {
   val Identifier: String = scaladsl.GrpcReadJournal.Identifier
 
   /**
-   * Construct a gRPC read journal from configuration `org.apache.pekko.projection.grpc.consumer`. The `stream-id` must
+   * Construct a gRPC read journal from configuration `pekko.projection.grpc.consumer`. The `stream-id` must
    * be defined in the configuration.
    */
   def create(
