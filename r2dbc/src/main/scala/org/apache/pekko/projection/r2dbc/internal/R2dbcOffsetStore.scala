@@ -218,7 +218,6 @@ private[projection] class R2dbcOffsetStore(
   private val persistenceExt = Persistence(system)
 
   private val evictWindow = settings.timeWindow.plus(settings.evictInterval)
-  private val evictKeepNumberOfEntriesThreshold = (settings.keepNumberOfEntries * 1.1).toInt
 
   private val offsetSerialization = new OffsetSerialization(system)
   import offsetSerialization.fromStorageRepresentation
@@ -442,7 +441,7 @@ private[projection] class R2dbcOffsetStore(
       .withConnection("save offset") { conn =>
         saveOffsetInTx(conn, offset)
       }
-      .map(_ => Done)(ExecutionContexts.parasitic)
+      .map(_ => Done)(ExecutionContext.parasitic)
   }
 
   /**
@@ -466,7 +465,7 @@ private[projection] class R2dbcOffsetStore(
       .withConnection("save offsets") { conn =>
         saveOffsetsInTx(conn, offsets)
       }
-      .map(_ => Done)(ExecutionContexts.parasitic)
+      .map(_ => Done)(ExecutionContext.parasitic)
   }
 
   def saveOffsetsInTx(conn: Connection, offsets: immutable.IndexedSeq[OffsetPidSeqNr]): Future[Done] = {
@@ -636,7 +635,7 @@ private[projection] class R2dbcOffsetStore(
       case MultipleOffsets(many) => many.map(upsertStmt).toVector
     }
 
-    R2dbcExecutor.updateInTx(statements).map(_ => Done)(ExecutionContexts.parasitic)
+    R2dbcExecutor.updateInTx(statements).map(_ => Done)(ExecutionContext.parasitic)
   }
 
   /**
@@ -925,14 +924,14 @@ private[projection] class R2dbcOffsetStore(
               insertTimestampOffsetInTx(conn, records)
             }
           }
-          .map(_ => Done)(ExecutionContexts.parasitic)
+          .map(_ => Done)(ExecutionContext.parasitic)
 
       case _ =>
         r2dbcExecutor
           .withConnection("set offset") { conn =>
             savePrimitiveOffsetInTx(conn, offset)
           }
-          .map(_ => Done)(ExecutionContexts.parasitic)
+          .map(_ => Done)(ExecutionContext.parasitic)
     }
   }
 
