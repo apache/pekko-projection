@@ -17,13 +17,13 @@ import org.apache.pekko
 import pekko.testkit.SocketUtil
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.testcontainers.containers.PostgreSQLContainer
 import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy
+import org.testcontainers.postgresql.PostgreSQLContainer
 
 class TestContainerConf {
   val grpcPort: Int = SocketUtil.temporaryServerAddress("127.0.0.1").getPort
 
-  private val container: PostgreSQLContainer[_] = new PostgreSQLContainer("postgres:13.1")
+  private val container: PostgreSQLContainer[_] = new PostgreSQLContainer("postgres:18.4")
   container.withInitScript("db/default-init.sql")
   container.withStartupCheckStrategy(new IsRunningStartupCheckStrategy)
   container.withStartupAttempts(5)
@@ -32,8 +32,8 @@ class TestContainerConf {
   def config: Config =
     ConfigFactory
       .parseString(s"""
-     org.apache.pekko.http.server.enable-http2 = on
-     org.apache.pekko.projection.grpc {
+     pekko.http.server.enable-http2 = on
+     pekko.projection.grpc {
        consumer.client {
          host = "127.0.0.1"
          port = $grpcPort
@@ -43,7 +43,7 @@ class TestContainerConf {
          query-plugin-id = "pekko.persistence.r2dbc.query"
        }
      }
-     org.apache.pekko.persistence.r2dbc {
+     pekko.persistence.r2dbc {
        # yugabyte or postgres
        dialect = "postgres"
        connection-factory {
