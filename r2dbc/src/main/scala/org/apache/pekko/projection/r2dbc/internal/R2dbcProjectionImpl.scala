@@ -30,7 +30,6 @@ import pekko.annotation.InternalApi
 import pekko.event.Logging
 import pekko.event.LoggingAdapter
 import pekko.persistence.query.DeletedDurableState
-import pekko.persistence.query.DurableStateChange
 import pekko.persistence.query.UpdatedDurableState
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.query.typed.scaladsl.LoadEventQuery
@@ -176,10 +175,6 @@ private[projection] object R2dbcProjectionImpl {
       case env: EventEnvelope[_]         => OffsetPidSeqNr(offset, env.persistenceId, env.sequenceNr)
       case chg: UpdatedDurableState[_]   => OffsetPidSeqNr(offset, chg.persistenceId, chg.revision)
       case del: DeletedDurableState[_]   => OffsetPidSeqNr(offset, del.persistenceId, del.revision)
-      case change: DurableStateChange[_] =>
-        // in case additional types are added
-        throw new IllegalArgumentException(
-          s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/pekko-persistence-r2dbc/issues")
       case _ => OffsetPidSeqNr(offset)
     }
   }
