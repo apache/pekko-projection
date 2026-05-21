@@ -253,9 +253,19 @@ object Dependencies {
       Compile.pekkoPersistenceQuery,
       Compile.r2dbcSpi,
       Compile.r2dbcPool,
-      Compile.r2dbcPostgres % "provided,test",
-      Compile.r2dbcMysql % "provided,test",
+      Compile.r2dbcPostgres % "provided",
+      Compile.r2dbcMysql % "provided")
+
+  val r2dbcIntTest =
+    deps ++= Seq(
+      "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc,
+      Compile.pekkoPersistenceQuery,
+      Compile.r2dbcSpi,
+      Compile.r2dbcPool,
+      Compile.r2dbcPostgres % "test",
+      Compile.r2dbcMysql % "test",
       Test.pekkoSerializationJackson,
+      Test.pekkoDiscovery,
       Test.pekkoTypedTestkit % "test",
       Test.pekkoStreamTestkit % "test",
       Test.logback % "test",
