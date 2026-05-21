@@ -287,33 +287,33 @@ class R2dbcTimestampOffsetProjectionSpec
     val startTime = TestClock.nowMicros().instant()
 
     Vector(
-      createEnvelope(pid1, 1, startTime, s"e1-1"),
-      createEnvelope(pid1, 2, startTime.plusMillis(1), s"e1-2"),
-      createEnvelope(pid2, 1, startTime.plusMillis(2), s"e2-1"),
-      createEnvelope(pid1, 3, startTime.plusMillis(4), s"e1-3"),
+      createEnvelope(pid1, 1, startTime, "e1-1"),
+      createEnvelope(pid1, 2, startTime.plusMillis(1), "e1-2"),
+      createEnvelope(pid2, 1, startTime.plusMillis(2), "e2-1"),
+      createEnvelope(pid1, 3, startTime.plusMillis(4), "e1-3"),
       // pid1-3 is emitted before pid2-2 even though pid2-2 timestamp is earlier,
       // from backtracking query previous events are emitted again, including the missing pid2-2
-      createEnvelope(pid1, 1, startTime, s"e1-1"),
-      createEnvelope(pid1, 2, startTime.plusMillis(1), s"e1-2"),
-      createEnvelope(pid2, 1, startTime.plusMillis(2), s"e2-1"),
+      createEnvelope(pid1, 1, startTime, "e1-1"),
+      createEnvelope(pid1, 2, startTime.plusMillis(1), "e1-2"),
+      createEnvelope(pid2, 1, startTime.plusMillis(2), "e2-1"),
       // now it pid2-2 is included
-      createEnvelope(pid2, 2, startTime.plusMillis(3), s"e2-2"),
-      createEnvelope(pid1, 3, startTime.plusMillis(4), s"e1-3"),
+      createEnvelope(pid2, 2, startTime.plusMillis(3), "e2-2"),
+      createEnvelope(pid1, 3, startTime.plusMillis(4), "e1-3"),
       // and then some normal again
-      createEnvelope(pid1, 4, startTime.plusMillis(5), s"e1-4"),
-      createEnvelope(pid2, 3, startTime.plusMillis(6), s"e2-3"))
+      createEnvelope(pid1, 4, startTime.plusMillis(5), "e1-4"),
+      createEnvelope(pid2, 3, startTime.plusMillis(6), "e2-3"))
   }
 
   def createEnvelopesUnknownSequenceNumbers(startTime: Instant, pid1: Pid, pid2: Pid): Vector[EventEnvelope[String]] = {
     Vector(
-      createEnvelope(pid1, 1, startTime, s"e1-1"),
-      createEnvelope(pid1, 2, startTime.plusMillis(1), s"e1-2"),
-      createEnvelope(pid2, 1, startTime.plusMillis(2), s"e2-1"),
+      createEnvelope(pid1, 1, startTime, "e1-1"),
+      createEnvelope(pid1, 2, startTime.plusMillis(1), "e1-2"),
+      createEnvelope(pid2, 1, startTime.plusMillis(2), "e2-1"),
       // pid2 seqNr 2 missing, will reject 3
-      createEnvelope(pid2, 3, startTime.plusMillis(4), s"e2-3"),
-      createEnvelope(pid1, 3, startTime.plusMillis(5), s"e1-3"),
+      createEnvelope(pid2, 3, startTime.plusMillis(4), "e2-3"),
+      createEnvelope(pid1, 3, startTime.plusMillis(5), "e1-3"),
       // pid1 seqNr 4 missing, will reject 5
-      createEnvelope(pid1, 5, startTime.plusMillis(7), s"e1-5"))
+      createEnvelope(pid1, 5, startTime.plusMillis(7), "e1-5"))
   }
 
   def createEnvelopesBacktrackingUnknownSequenceNumbers(
@@ -322,14 +322,14 @@ class R2dbcTimestampOffsetProjectionSpec
       pid2: Pid): Vector[EventEnvelope[String]] = {
     Vector(
       // may also contain some duplicates
-      createEnvelope(pid1, 2, startTime.plusMillis(1), s"e1-2"),
-      createEnvelope(pid2, 2, startTime.plusMillis(3), s"e2-2"),
-      createEnvelope(pid2, 3, startTime.plusMillis(4), s"e2-3"),
-      createEnvelope(pid1, 3, startTime.plusMillis(5), s"e1-3"),
-      createEnvelope(pid1, 4, startTime.plusMillis(6), s"e1-4"),
-      createEnvelope(pid1, 5, startTime.plusMillis(7), s"e1-5"),
-      createEnvelope(pid2, 4, startTime.plusMillis(8), s"e2-4"),
-      createEnvelope(pid1, 6, startTime.plusMillis(9), s"e1-6"))
+      createEnvelope(pid1, 2, startTime.plusMillis(1), "e1-2"),
+      createEnvelope(pid2, 2, startTime.plusMillis(3), "e2-2"),
+      createEnvelope(pid2, 3, startTime.plusMillis(4), "e2-3"),
+      createEnvelope(pid1, 3, startTime.plusMillis(5), "e1-3"),
+      createEnvelope(pid1, 4, startTime.plusMillis(6), "e1-4"),
+      createEnvelope(pid1, 5, startTime.plusMillis(7), "e1-5"),
+      createEnvelope(pid2, 4, startTime.plusMillis(8), "e2-4"),
+      createEnvelope(pid1, 6, startTime.plusMillis(9), "e1-6"))
   }
 
   def groupedHandler(probe: ActorRef[String]): R2dbcHandler[immutable.Seq[EventEnvelope[String]]] = {
