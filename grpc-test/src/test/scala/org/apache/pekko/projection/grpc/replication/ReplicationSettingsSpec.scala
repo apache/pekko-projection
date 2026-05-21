@@ -40,7 +40,7 @@ class ReplicationSettingsSpec extends AnyWordSpec with Matchers {
          // #config
          my-replicated-entity {
            # which of the replicas this node belongs to, should be the same
-           # across the nodes of each replica Akka cluster.
+           # across the nodes of each replica Pekko cluster.
            self-replica-id = dca
            # Pick it up from an environment variable to re-use the same config
            # without changes across replicas
@@ -60,7 +60,7 @@ class ReplicationSettingsSpec extends AnyWordSpec with Matchers {
                # Number of replication streams/projections to start to consume events
                # from this replica
                number-of-consumers = 4
-               # Akka gRPC client config block for how to reach this replica
+               # Pekko gRPC client config block for how to reach this replica
                # from the other replicas, note that binding the server/publishing
                # endpoint of each replica is done separately, in code.
                grpc.client {

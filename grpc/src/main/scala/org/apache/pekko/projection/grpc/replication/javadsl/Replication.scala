@@ -60,7 +60,7 @@ trait Replication[Command] {
   /**
    * If only replicating one Replicated Event Sourced Entity and not using
    * Pekko Projection gRPC this endpoint factory can be used to get a partial function
-   * that can be served/bound with an Akka HTTP/2 server
+   * that can be served/bound with a Pekko HTTP/2 server
    */
   def createSingleServiceHandler(): JFunction[HttpRequest, CompletionStage[HttpResponse]]
 

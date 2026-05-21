@@ -51,13 +51,13 @@ private[pekko] final case class ReplicaImpl(
     copy(grpcClientSettings = grpcClientSettings)
 
   /**
-   * Scala API: Metadata to include in the requests to the remote Akka gRPC projection endpoint
+   * Scala API: Metadata to include in the requests to the remote Pekko gRPC projection endpoint
    */
   def withAdditionalQueryRequestMetadata(metadata: org.apache.pekko.grpc.scaladsl.Metadata): ReplicaImpl =
     copy(additionalQueryRequestMetadata = Some(metadata))
 
   /**
-   * Java API: Metadata to include in the requests to the remote Akka gRPC projection endpoint
+   * Java API: Metadata to include in the requests to the remote Pekko gRPC projection endpoint
    */
   def withAdditionalQueryRequestMetadata(metadata: org.apache.pekko.grpc.javadsl.Metadata): ReplicaImpl =
     copy(additionalQueryRequestMetadata = Some(metadata.asScala))

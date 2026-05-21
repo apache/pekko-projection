@@ -32,13 +32,13 @@ import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 
 /**
- * The event producer implementation that can be included a gRPC route in an Akka HTTP server.
+ * The event producer implementation that can be included a gRPC route in a Pekko HTTP server.
  */
 @ApiMayChange
 object EventProducer {
 
   /**
-   * The gRPC route that can be included in an Akka HTTP server.
+   * The gRPC route that can be included in a Pekko HTTP server.
    *
    * @param source The source that should be available from this event producer
    */
@@ -48,7 +48,7 @@ object EventProducer {
     grpcServiceHandler(system, Collections.singleton(source))
 
   /**
-   * The gRPC route that can be included in an Akka HTTP server.
+   * The gRPC route that can be included in a Pekko HTTP server.
    *
    * @param sources All sources that should be available from this event producer
    */
@@ -58,7 +58,7 @@ object EventProducer {
     grpcServiceHandler(system, sources, Optional.empty())
 
   /**
-   * The gRPC route that can be included in an Akka HTTP server.
+   * The gRPC route that can be included in a Pekko HTTP server.
    *
    * @param sources All sources that should be available from this event producer
    * @param interceptor An optional request interceptor applied to each request to the service

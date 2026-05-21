@@ -61,7 +61,7 @@ trait Replica {
   def withGrpcClientSettings(grpcClientSettings: GrpcClientSettings): Replica
 
   /**
-   * Metadata to include in the requests to the remote Akka gRPC projection endpoint
+   * Metadata to include in the requests to the remote Pekko gRPC projection endpoint
    */
   def withAdditionalQueryRequestMetadata(metadata: org.apache.pekko.grpc.javadsl.Metadata): Replica
 

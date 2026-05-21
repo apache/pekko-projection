@@ -47,7 +47,7 @@ private[pekko] final class EventProducerInterceptorAdapter(interceptor: EventPro
     interceptor
       .intercept(
         streamId,
-        // FIXME: Akka gRPC internal class, add public API for Scala to Java metadata there
+        // FIXME: Pekko gRPC internal class, add public API for Scala to Java metadata there
         new JavaMetadataImpl(requestMetadata))
       .asScala
 }

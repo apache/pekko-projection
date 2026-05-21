@@ -83,7 +83,7 @@ object ReplicationSettings {
 
   /**
    * Create settings from config, the system config is expected to contain a block with the entity type key name.
-   * Each replica is further expected to have a top level config entry 'org.apache.pekko.grpc.client.[replica-id]' with Akka gRPC
+   * Each replica is further expected to have a top level config entry 'pekko.grpc.client.[replica-id]' with Pekko gRPC
    * client config for reaching the replica from the other replicas.
    */
   def create[Command](

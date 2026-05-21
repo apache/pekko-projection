@@ -34,7 +34,7 @@ import pekko.projection.grpc.producer.EventProducerSettings
 import pekko.projection.grpc.producer.javadsl.{ Transformation => JTransformation }
 
 /**
- * The event producer implementation that can be included a gRPC route in an Akka HTTP server.
+ * The event producer implementation that can be included a gRPC route in a Pekko HTTP server.
  */
 @ApiMayChange
 object EventProducer {
@@ -153,14 +153,14 @@ object EventProducer {
   }
 
   /**
-   * The gRPC route that can be included in an Akka HTTP server.
+   * The gRPC route that can be included in a Pekko HTTP server.
    */
   def grpcServiceHandler(source: EventProducerSource)(
       implicit system: ActorSystem[_]): PartialFunction[HttpRequest, scala.concurrent.Future[HttpResponse]] =
     grpcServiceHandler(Set(source))
 
   /**
-   * The gRPC route that can be included in an Akka HTTP server.
+   * The gRPC route that can be included in a Pekko HTTP server.
    *
    * @param sources All sources that should be available from this event producer
    */
@@ -171,7 +171,7 @@ object EventProducer {
   }
 
   /**
-   * The gRPC route that can be included in an Akka HTTP server.
+   * The gRPC route that can be included in a Pekko HTTP server.
    *
    * @param sources All sources that should be available from this event producer
    * @param interceptor An optional request interceptor applied to each request to the service
