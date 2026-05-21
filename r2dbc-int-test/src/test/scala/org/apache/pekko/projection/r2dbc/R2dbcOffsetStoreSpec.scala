@@ -138,7 +138,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(randOffset)
     }
 
-    "save and retrieve offsets of type akka.persistence.query.Sequence" in {
+    "save and retrieve offsets of type pekko.persistence.query.Sequence" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -150,7 +150,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(seqOffset)
     }
 
-    "save and retrieve offsets of type akka.persistence.query.TimeBasedUUID" in {
+    "save and retrieve offsets of type pekko.persistence.query.TimeBasedUUID" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
