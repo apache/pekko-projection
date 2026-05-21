@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -17,7 +17,6 @@ import java.util.UUID
 import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
-import scala.annotation.nowarn
 import scala.annotation.tailrec
 import scala.collection.immutable
 import scala.concurrent.Await
@@ -25,39 +24,37 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import org.apache.pekko
-import pekko.Done
-import pekko.NotUsed
-import pekko.actor.testkit.typed.TestException
-import pekko.actor.testkit.typed.scaladsl.LogCapturing
-import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import pekko.actor.typed.ActorRef
-import pekko.actor.typed.ActorSystem
-import pekko.persistence.r2dbc.Dialect
-import pekko.persistence.r2dbc.internal.R2dbcExecutor
-import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
-import pekko.projection.HandlerRecoveryStrategy
-import pekko.projection.OffsetVerification
-import pekko.projection.OffsetVerification.VerificationFailure
-import pekko.projection.OffsetVerification.VerificationSuccess
-import pekko.projection.ProjectionBehavior
-import pekko.projection.ProjectionContext
-import pekko.projection.ProjectionId
-import pekko.projection.TestStatusObserver
-import pekko.projection.r2dbc.internal.R2dbcOffsetStore
-import pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import pekko.projection.r2dbc.scaladsl.R2dbcSession
-import pekko.projection.scaladsl.Handler
-import pekko.projection.scaladsl.ProjectionManagement
-import pekko.projection.scaladsl.SourceProvider
-import pekko.projection.testkit.scaladsl.ProjectionTestKit
-import pekko.projection.testkit.scaladsl.TestSourceProvider
-import pekko.stream.scaladsl.FlowWithContext
-import pekko.stream.scaladsl.Source
-import pekko.stream.testkit.TestPublisher
-import pekko.stream.testkit.TestSubscriber
-import pekko.stream.testkit.scaladsl.TestSource
+import org.apache.pekko.Done
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.testkit.typed.TestException
+import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
+import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import org.apache.pekko.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.persistence.r2dbc.internal.Sql.Interpolation
+import org.apache.pekko.persistence.r2dbc.internal.R2dbcExecutor
+import org.apache.pekko.projection.HandlerRecoveryStrategy
+import org.apache.pekko.projection.OffsetVerification
+import org.apache.pekko.projection.OffsetVerification.VerificationFailure
+import org.apache.pekko.projection.OffsetVerification.VerificationSuccess
+import org.apache.pekko.projection.ProjectionBehavior
+import org.apache.pekko.projection.ProjectionContext
+import org.apache.pekko.projection.ProjectionId
+import org.apache.pekko.projection.TestStatusObserver
+import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore
+import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
+import org.apache.pekko.projection.scaladsl.Handler
+import org.apache.pekko.projection.scaladsl.ProjectionManagement
+import org.apache.pekko.projection.scaladsl.SourceProvider
+import org.apache.pekko.projection.testkit.scaladsl.ProjectionTestKit
+import org.apache.pekko.projection.testkit.scaladsl.TestSourceProvider
+import org.apache.pekko.stream.scaladsl.FlowWithContext
+import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko.stream.testkit.TestPublisher
+import org.apache.pekko.stream.testkit.TestSubscriber
+import org.apache.pekko.stream.testkit.scaladsl.TestSource
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
 
@@ -99,20 +96,17 @@ object R2dbcProjectionSpec {
     val table = "projection_spec_model"
 
     val createTableSql: String =
-      s"""|CREATE table IF NOT EXISTS $table (
+      s"""|CREATE table IF NOT EXISTS "$table" (
           |  id VARCHAR(255) NOT NULL,
           |  concatenated VARCHAR(255) NOT NULL,
           |  PRIMARY KEY(id)
           |);""".stripMargin
   }
 
-  final case class TestRepository(session: R2dbcSession, settings: R2dbcProjectionSettings)(
-      implicit ec: ExecutionContext, system: ActorSystem[_]) {
+  final case class TestRepository(session: R2dbcSession)(implicit ec: ExecutionContext, system: ActorSystem[_]) {
     import TestRepository.table
 
     private val logger = LoggerFactory.getLogger(this.getClass)
-
-    implicit private val dialect: Dialect = settings.dialect
 
     def concatToText(id: String, payload: String): Future[Done] = {
       val savedStrOpt = findById(id)
@@ -139,23 +133,14 @@ object R2dbcProjectionSpec {
     private def upsert(concatStr: ConcatStr): Future[Done] = {
       logger.debug("TestRepository.upsert: [{}]", concatStr)
 
-      val stmtSql = dialect match {
-        case Dialect.Postgres | Dialect.Yugabyte =>
-          sql"""
-          INSERT INTO $table (id, concatenated)  VALUES (?, ?)
+      val stmtSql =
+        sql"""
+          INSERT INTO "$table" (id, concatenated)  VALUES (?, ?)
           ON CONFLICT (id)
           DO UPDATE SET
             id = excluded.id,
             concatenated = excluded.concatenated
          """
-        case Dialect.MySQL =>
-          sql"""
-          INSERT INTO $table (id, concatenated)  VALUES (?, ?) AS excluded
-          ON DUPLICATE KEY UPDATE
-            id = excluded.id,
-            concatenated = excluded.concatenated
-         """
-      }
       val stmt = session
         .createStatement(stmtSql)
         .bind(0, concatStr.id)
@@ -182,7 +167,6 @@ object R2dbcProjectionSpec {
   }
 }
 
-@nowarn
 class R2dbcProjectionSpec
     extends ScalaTestWithActorTestKit(TestConfig.config)
     with AnyWordSpecLike
@@ -197,17 +181,15 @@ class R2dbcProjectionSpec
   private val logger = LoggerFactory.getLogger(getClass)
   private val settings = R2dbcProjectionSettings(testKit.system)
   private def createOffsetStore(projectionId: ProjectionId): R2dbcOffsetStore =
-    R2dbcOffsetStore.fromConfig(projectionId, None, system, settings, r2dbcExecutor)
+    new R2dbcOffsetStore(projectionId, None, system, settings, r2dbcExecutor)
   private val projectionTestKit = ProjectionTestKit(system)
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
 
-    Await.result(
-      r2dbcExecutor.executeDdl("beforeAll createTable") { conn =>
-        conn.createStatement(TestRepository.createTableSql)
-      },
-      10.seconds)
+    Await.result(r2dbcExecutor.executeDdl("beforeAll createTable") { conn =>
+      conn.createStatement(TestRepository.createTableSql)
+    }, 10.seconds)
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(_.createStatement(s"delete from ${TestRepository.table}")),
       10.seconds)
@@ -260,7 +242,7 @@ class R2dbcProjectionSpec
   private def withRepo[R](fun: TestRepository => Future[R]): Future[R] = {
     r2dbcExecutor.withConnection("test") { conn =>
       val session = new R2dbcSession(conn)
-      fun(TestRepository(session, settings))
+      fun(TestRepository(session))
     }
   }
 
@@ -275,7 +257,7 @@ class R2dbcProjectionSpec
         throw TestException(concatHandlerFail4Msg + s" after $attempts attempts")
       } else {
         logger.debug("handling {}", envelope)
-        TestRepository(session, settings).concatToText(envelope.id, envelope.message)
+        TestRepository(session).concatToText(envelope.id, envelope.message)
       }
     }
   }
@@ -283,9 +265,9 @@ class R2dbcProjectionSpec
   "A R2DBC exactly-once projection" must {
 
     "persist projection and offset in the same write operation (transactional)" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val projection =
         R2dbcProjection.exactlyOnce(
@@ -302,9 +284,9 @@ class R2dbcProjectionSpec
     }
 
     "skip failing events when using RecoveryStrategy.skip" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val bogusEventHandler = new ConcatHandler(_ == 4)
 
@@ -325,9 +307,9 @@ class R2dbcProjectionSpec
     }
 
     "store offset for failing events when using RecoveryStrategy.skip" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val bogusEventHandler = new ConcatHandler(_ == 6)
 
@@ -348,9 +330,9 @@ class R2dbcProjectionSpec
     }
 
     "skip failing events after retrying when using RecoveryStrategy.retryAndSkip" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val bogusEventHandler = new ConcatHandler(_ == 4)
 
@@ -395,9 +377,9 @@ class R2dbcProjectionSpec
     }
 
     "fail after retrying when using RecoveryStrategy.retryAndFail" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val bogusEventHandler = new ConcatHandler(_ == 4)
 
@@ -422,9 +404,9 @@ class R2dbcProjectionSpec
     }
 
     "restart from previous offset - fail with throwing an exception" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       def exactlyOnceProjection(failWhenOffset: Long => Boolean = _ => false) = {
         R2dbcProjection.exactlyOnce(
@@ -450,13 +432,13 @@ class R2dbcProjectionSpec
     }
 
     "restart from previous offset - fail with bad insert on user code" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val bogusEventHandler = new R2dbcHandler[Envelope] {
         override def process(session: R2dbcSession, envelope: Envelope): Future[Done] = {
-          val repo = TestRepository(session, settings)
+          val repo = TestRepository(session)
           if (envelope.offset == 4L) repo.updateWithNullValue(envelope.id)
           else repo.concatToText(envelope.id, envelope.message)
         }
@@ -488,9 +470,9 @@ class R2dbcProjectionSpec
 
     "verify offsets before and after processing an envelope" in {
 
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       case class ProbeMessage(str: String, offset: Long)
       val verificationProbe = createTestProbe[ProbeMessage]("verification")
@@ -507,7 +489,7 @@ class R2dbcProjectionSpec
           verificationProbe.receiveMessage().offset shouldEqual envelope.offset
           processProbe.ref ! ProbeMessage("process", envelope.offset)
 
-          TestRepository(session, settings).concatToText(envelope.id, envelope.message)
+          TestRepository(session).concatToText(envelope.id, envelope.message)
         }
       }
 
@@ -530,9 +512,9 @@ class R2dbcProjectionSpec
     }
 
     "skip record if offset verification fails before processing envelope" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       val testVerification = (offset: Long) => {
         if (offset == 3L)
@@ -556,9 +538,9 @@ class R2dbcProjectionSpec
     }
 
     "skip record if offset verification fails after processing envelope" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       val testVerification = (offset: Long) => {
         if (offset == 3L)
@@ -584,9 +566,9 @@ class R2dbcProjectionSpec
 
   "A R2DBC grouped projection" must {
     "persist projection and offset in the same write operation (transactional)" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val handlerCalled = "called"
       val handlerProbe = createTestProbe[String]("calls-to-handler")
@@ -603,7 +585,7 @@ class R2dbcProjectionSpec
                 if (envelopes.isEmpty)
                   Future.successful(Done)
                 else {
-                  val repo = TestRepository(session, settings)
+                  val repo = TestRepository(session)
                   val id = envelopes.head.id
                   repo.findById(id).flatMap { existing =>
                     val newConcatStr = envelopes.foldLeft(existing.getOrElse(ConcatStr(id, ""))) { (acc, env) =>
@@ -627,9 +609,9 @@ class R2dbcProjectionSpec
     }
 
     "handle grouped async projection and store offset" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val result = new StringBuffer()
 
@@ -663,9 +645,9 @@ class R2dbcProjectionSpec
   "A R2DBC at-least-once projection" must {
 
     "persist projection and offset" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val projection =
         R2dbcProjection.atLeastOnce(
@@ -684,9 +666,9 @@ class R2dbcProjectionSpec
     }
 
     "skip failing events when using RecoveryStrategy.skip, save after 1" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val projection =
         R2dbcProjection
@@ -708,9 +690,9 @@ class R2dbcProjectionSpec
     }
 
     "skip failing events when using RecoveryStrategy.skip, save after 2" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val projection =
         R2dbcProjection
@@ -732,9 +714,9 @@ class R2dbcProjectionSpec
     }
 
     "restart from previous offset - handler throwing an exception, save after 1" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       def atLeastOnceProjection(failWhenOffset: Long => Boolean = _ => false) =
         R2dbcProjection
@@ -777,9 +759,9 @@ class R2dbcProjectionSpec
     }
 
     "restart from previous offset - handler throwing an exception, save after 2" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       offsetStore.readOffset[Long]().futureValue shouldBe empty
 
@@ -828,13 +810,12 @@ class R2dbcProjectionSpec
     }
 
     "save offset after number of elements" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
-      import pekko.actor.typed.scaladsl.adapter._
       val sourceProbe = new AtomicReference[TestPublisher.Probe[Envelope]]()
-      val source = TestSource[Envelope]()(system.toClassic).mapMaterializedValue { probe =>
+      val source = TestSource[Envelope]().mapMaterializedValue { probe =>
         sourceProbe.set(probe)
         NotUsed
       }
@@ -849,6 +830,7 @@ class R2dbcProjectionSpec
           .withSaveOffset(10, 1.minute)
 
       projectionTestKit.runWithTestSink(projection) { sinkProbe =>
+
         eventually {
           sourceProbe.get should not be null
         }
@@ -873,13 +855,12 @@ class R2dbcProjectionSpec
     }
 
     "save offset after idle duration" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
-      import pekko.actor.typed.scaladsl.adapter._
       val sourceProbe = new AtomicReference[TestPublisher.Probe[Envelope]]()
-      val source = TestSource[Envelope]()(system.toClassic).mapMaterializedValue { probe =>
+      val source = TestSource[Envelope]().mapMaterializedValue { probe =>
         sourceProbe.set(probe)
         NotUsed
       }
@@ -894,6 +875,7 @@ class R2dbcProjectionSpec
           .withSaveOffset(10, 2.seconds)
 
       projectionTestKit.runWithTestSink(projection) { sinkProbe =>
+
         eventually {
           sourceProbe.get should not be null
         }
@@ -919,9 +901,9 @@ class R2dbcProjectionSpec
     }
 
     "verify offsets before processing an envelope" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
       val verifiedProbe = createTestProbe[Long]()
 
       val testVerification = (offset: Long) => {
@@ -940,7 +922,7 @@ class R2dbcProjectionSpec
             handler = () =>
               R2dbcHandler[Envelope] { (session, envelope) =>
                 verifiedProbe.expectMessage(envelope.offset)
-                TestRepository(session, settings).concatToText(envelope.id, envelope.message)
+                TestRepository(session).concatToText(envelope.id, envelope.message)
               })
 
       projectionTestKit.run(projection) {
@@ -949,9 +931,9 @@ class R2dbcProjectionSpec
     }
 
     "skip record if offset verification fails before processing envelope" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       val testVerification = (offset: Long) => {
         if (offset == 3L)
@@ -976,9 +958,9 @@ class R2dbcProjectionSpec
     }
 
     "handle async projection and store offset" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val result = new StringBuffer()
 
@@ -1009,9 +991,9 @@ class R2dbcProjectionSpec
   "A R2DBC flow projection" must {
 
     "persist projection and offset" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       offsetShouldBeEmpty()
 
@@ -1087,9 +1069,9 @@ class R2dbcProjectionSpec
     }
 
     "call start and stop of the handler" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       val handlerProbe = createTestProbe[String]()
       val handler = new LifecycleHandler(handlerProbe.ref)
@@ -1125,9 +1107,9 @@ class R2dbcProjectionSpec
     }
 
     "call start and stop of the handler when using TestKit.runWithTestSink" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       val handlerProbe = createTestProbe[String]()
       val handler = new LifecycleHandler(handlerProbe.ref)
@@ -1164,9 +1146,9 @@ class R2dbcProjectionSpec
     }
 
     "call start and stop of handler when restarted" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       val handlerProbe = createTestProbe[String]()
       @volatile var _handler: Option[LifecycleHandler] = None
@@ -1179,7 +1161,7 @@ class R2dbcProjectionSpec
 
       def handler: LifecycleHandler = _handler match {
         case Some(h) => h
-        case None    =>
+        case None =>
           handlerProbe.awaitAssert {
             _handler.get
           }
@@ -1235,9 +1217,9 @@ class R2dbcProjectionSpec
     }
 
     "call start and stop of handler when failed but no restart" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       val handlerProbe = createTestProbe[String]()
       val failOnceOnOffset = new AtomicInteger(4)
@@ -1263,9 +1245,9 @@ class R2dbcProjectionSpec
     }
 
     "be able to stop when retrying" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      createOffsetStore(projectionId)
 
       val handlerProbe = createTestProbe[String]()
       val handler = new LifecycleHandler(handlerProbe.ref, alwaysFailOnOffset = 4)
@@ -1295,9 +1277,9 @@ class R2dbcProjectionSpec
   "R2dbcProjection management" must {
 
     "restart from beginning when offset is cleared" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val projection =
         R2dbcProjection
@@ -1307,7 +1289,7 @@ class R2dbcProjectionSpec
             sourceProvider = sourceProvider(entityId),
             handler = () =>
               R2dbcHandler[Envelope] { (session, envelope) =>
-                TestRepository(session, settings).concatToText(envelope.id, envelope.message)
+                TestRepository(session).concatToText(envelope.id, envelope.message)
               })
 
       offsetShouldBeEmpty()
@@ -1327,9 +1309,9 @@ class R2dbcProjectionSpec
     }
 
     "restart from updated offset" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val projection =
         R2dbcProjection
@@ -1339,7 +1321,7 @@ class R2dbcProjectionSpec
             sourceProvider = sourceProvider(entityId),
             handler = () =>
               R2dbcHandler[Envelope] { (session, envelope) =>
-                TestRepository(session, settings).concatToText(envelope.id, envelope.message)
+                TestRepository(session).concatToText(envelope.id, envelope.message)
               })
 
       offsetShouldBeEmpty()
@@ -1360,9 +1342,9 @@ class R2dbcProjectionSpec
     }
 
     "pause projection" in {
-      implicit val entityId: String = UUID.randomUUID().toString
+      implicit val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId)
+      implicit val offsetStore = createOffsetStore(projectionId)
 
       val projection =
         R2dbcProjection
@@ -1372,7 +1354,7 @@ class R2dbcProjectionSpec
             sourceProvider = sourceProvider(entityId),
             handler = () =>
               R2dbcHandler[Envelope] { (session, envelope) =>
-                TestRepository(session, settings).concatToText(envelope.id, envelope.message)
+                TestRepository(session).concatToText(envelope.id, envelope.message)
               })
 
       offsetShouldBeEmpty()

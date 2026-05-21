@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -16,19 +16,17 @@ package org.apache.pekko.projection.r2dbc
 import java.time.Instant
 import java.util.UUID
 
-import org.apache.pekko
-import pekko.actor.testkit.typed.scaladsl.LogCapturing
-import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import pekko.actor.typed.ActorSystem
-import pekko.persistence.query.Sequence
-import pekko.persistence.query.TimeBasedUUID
-import pekko.persistence.r2dbc.Dialect
-import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
-import pekko.projection.MergeableOffset
-import pekko.projection.ProjectionId
-import pekko.projection.internal.ManagementState
-import pekko.projection.r2dbc.internal.OffsetPidSeqNr
-import pekko.projection.r2dbc.internal.R2dbcOffsetStore
+import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
+import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.persistence.query.Sequence
+import org.apache.pekko.persistence.query.TimeBasedUUID
+import org.apache.pekko.persistence.r2dbc.internal.Sql.Interpolation
+import org.apache.pekko.projection.MergeableOffset
+import org.apache.pekko.projection.ProjectionId
+import org.apache.pekko.projection.internal.ManagementState
+import org.apache.pekko.projection.r2dbc.internal.OffsetPidSeqNr
+import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class R2dbcOffsetStoreSpec
@@ -46,11 +44,10 @@ class R2dbcOffsetStoreSpec
   private val settings = R2dbcProjectionSettings(testKit.system)
 
   private def createOffsetStore(projectionId: ProjectionId) =
-    R2dbcOffsetStore.fromConfig(projectionId, None, system, settings, r2dbcExecutor, clock)
+    new R2dbcOffsetStore(projectionId, None, system, settings, r2dbcExecutor, clock)
 
   private val table = settings.offsetTableWithSchema
 
-  implicit val dialect: Dialect = settings.dialect
   def selectLastSql: String =
     sql"SELECT * FROM $table WHERE projection_name = ? AND projection_key = ?"
 
@@ -62,14 +59,14 @@ class R2dbcOffsetStoreSpec
             .createStatement(selectLastSql)
             .bind(0, projectionId.name)
             .bind(1, projectionId.key),
-        row => Instant.ofEpochMilli(row.get[java.lang.Long]("last_updated", classOf[java.lang.Long])))
+        row => Instant.ofEpochMilli(row.get("last_updated", classOf[java.lang.Long]).longValue()))
       .futureValue
       .getOrElse(throw new RuntimeException(s"no records found for $projectionId"))
   }
 
   "The R2dbcOffsetStore" must {
 
-    "save and read offsets" in {
+    s"save and read offsets" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -84,7 +81,7 @@ class R2dbcOffsetStoreSpec
       offset2.futureValue shouldBe Some(2L) // yep, saveOffset overwrites previous
     }
 
-    "save and retrieve offsets of type Long" in {
+    s"save and retrieve offsets of type Long" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -95,7 +92,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(1L)
     }
 
-    "save and retrieve offsets of type java.lang.Long" in {
+    s"save and retrieve offsets of type java.lang.Long" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -106,7 +103,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(1L)
     }
 
-    "save and retrieve offsets of type Int" in {
+    s"save and retrieve offsets of type Int" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -117,7 +114,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(1)
     }
 
-    "save and retrieve offsets of type java.lang.Integer" in {
+    s"save and retrieve offsets of type java.lang.Integer" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -128,7 +125,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(1)
     }
 
-    "save and retrieve offsets of type String" in {
+    s"save and retrieve offsets of type String" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -140,7 +137,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(randOffset)
     }
 
-    "save and retrieve offsets of type pekko.persistence.query.Sequence" in {
+    s"save and retrieve offsets of type akka.persistence.query.Sequence" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -152,20 +149,20 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(seqOffset)
     }
 
-    "save and retrieve offsets of type pekko.persistence.query.TimeBasedUUID" in {
+    s"save and retrieve offsets of type akka.persistence.query.TimeBasedUUID" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
         offsetStore.saveOffset(OffsetPidSeqNr(offset)).futureValue
 
       val timeUuidOffset =
-        TimeBasedUUID(UUID.fromString("49225740-2019-11ea-a752-ffae2393b6e4")) // 2019-12-16T15:32:36.148Z[UTC]
+        TimeBasedUUID(UUID.fromString("49225740-2019-11ea-a752-ffae2393b6e4")) //2019-12-16T15:32:36.148Z[UTC]
       saveOffset(timeUuidOffset)
       val offset = offsetStore.readOffset[TimeBasedUUID]()
       offset.futureValue shouldBe Some(timeUuidOffset)
     }
 
-    "save and retrieve offsets of unknown custom serializable type" in {
+    s"save and retrieve offsets of unknown custom serializable type" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -177,7 +174,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(customOffset)
     }
 
-    "save and retrieve MergeableOffset" in {
+    s"save and retrieve MergeableOffset" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -189,7 +186,7 @@ class R2dbcOffsetStoreSpec
       offset.futureValue shouldBe Some(origOffset)
     }
 
-    "add new offsets to MergeableOffset" in {
+    s"add new offsets to MergeableOffset" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -209,7 +206,7 @@ class R2dbcOffsetStoreSpec
       offset2.futureValue shouldBe Some(updatedOffset)
     }
 
-    "update timestamp" in {
+    s"update timestamp" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -228,7 +225,7 @@ class R2dbcOffsetStoreSpec
       instant3 shouldBe instant2
     }
 
-    "set offset" in {
+    s"set offset" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -241,7 +238,7 @@ class R2dbcOffsetStoreSpec
       offsetStore.readOffset[Long]().futureValue shouldBe Some(2L)
     }
 
-    "clear offset" in {
+    s"clear offset" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
       def saveOffset(offset: Any): Unit =
@@ -254,10 +251,9 @@ class R2dbcOffsetStoreSpec
       offsetStore.readOffset[Long]().futureValue shouldBe None
     }
 
-    "read and save paused" in {
+    s"read and save paused" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
-
       offsetStore.readManagementState().futureValue shouldBe None
 
       offsetStore.savePaused(paused = true).futureValue

@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -19,25 +19,23 @@ import java.util.UUID
 
 import scala.concurrent.Future
 
-import org.apache.pekko
-import pekko.actor.testkit.typed.scaladsl.LogCapturing
-import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import pekko.actor.typed.ActorSystem
-import pekko.persistence.query.TimestampOffset
-import pekko.persistence.query.UpdatedDurableState
-import pekko.persistence.query.typed.EventEnvelope
-import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import pekko.persistence.typed.PersistenceId
-import pekko.persistence.r2dbc.internal.EnvelopeOrigin
-import pekko.projection.BySlicesSourceProvider
-import pekko.projection.ProjectionId
-import pekko.projection.internal.ManagementState
-import pekko.projection.r2dbc.internal.OffsetPidSeqNr
-import pekko.projection.r2dbc.internal.R2dbcOffsetStore
-import pekko.projection.r2dbc.internal.R2dbcOffsetStore.Pid
-import pekko.projection.r2dbc.internal.R2dbcOffsetStore.Record
-import pekko.projection.r2dbc.internal.R2dbcOffsetStore.SeqNr
+import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
+import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.persistence.query.TimestampOffset
+import org.apache.pekko.persistence.query.UpdatedDurableState
+import org.apache.pekko.persistence.query.typed.EventEnvelope
+import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import org.apache.pekko.persistence.r2dbc.internal.EnvelopeOrigin
+import org.apache.pekko.persistence.typed.PersistenceId
+import org.apache.pekko.projection.BySlicesSourceProvider
+import org.apache.pekko.projection.ProjectionId
+import org.apache.pekko.projection.internal.ManagementState
+import org.apache.pekko.projection.r2dbc.internal.OffsetPidSeqNr
+import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore
+import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.Pid
+import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.SeqNr
 import com.typesafe.config.ConfigFactory
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
@@ -61,8 +59,9 @@ class R2dbcTimestampOffsetStoreSpec
       ConfigFactory
         .parseString("""
     # to be able to test eviction
-    pekko.projection.r2dbc.offset-store.keep-number-of-entries = 0
-    """).withFallback(TestConfig.config))
+    org.apache.pekko.projection.r2dbc.offset-store.keep-number-of-entries = 0
+    """)
+        .withFallback(TestConfig.config))
     with AnyWordSpecLike
     with TestDbLifecycle
     with TestData
@@ -82,7 +81,7 @@ class R2dbcTimestampOffsetStoreSpec
       projectionId: ProjectionId,
       customSettings: R2dbcProjectionSettings = settings,
       eventTimestampQueryClock: TestClock = clock) =
-    R2dbcOffsetStore.fromConfig(
+    new R2dbcOffsetStore(
       projectionId,
       Some(new TestTimestampSourceProvider(0, persistenceExt.numberOfSlices - 1, eventTimestampQueryClock)),
       system,
@@ -308,7 +307,7 @@ class R2dbcTimestampOffsetStoreSpec
       slice4 shouldBe 656
 
       val offsetStore0 =
-        R2dbcOffsetStore.fromConfig(
+        new R2dbcOffsetStore(
           projectionId0,
           Some(new TestTimestampSourceProvider(0, persistenceExt.numberOfSlices - 1, clock)),
           system,
@@ -329,7 +328,7 @@ class R2dbcTimestampOffsetStoreSpec
       offsetStore0.saveOffset(OffsetPidSeqNr(offset4, p4, 5L)).futureValue
 
       val offsetStore1 =
-        R2dbcOffsetStore.fromConfig(
+        new R2dbcOffsetStore(
           projectionId1,
           Some(new TestTimestampSourceProvider(0, 511, clock)),
           system,
@@ -339,7 +338,7 @@ class R2dbcTimestampOffsetStoreSpec
       offsetStore1.getState().byPid.keySet shouldBe Set(p1, p2)
 
       val offsetStore2 =
-        R2dbcOffsetStore.fromConfig(
+        new R2dbcOffsetStore(
           projectionId2,
           Some(new TestTimestampSourceProvider(512, 1023, clock)),
           system,
@@ -350,6 +349,7 @@ class R2dbcTimestampOffsetStoreSpec
     }
 
     "filter duplicates" in {
+      import R2dbcOffsetStore.Validation._
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
 
@@ -367,26 +367,30 @@ class R2dbcTimestampOffsetStoreSpec
       val offset3 = TimestampOffset(clock.instant(), Map("p5" -> 10L))
       offsetStore.saveOffset(OffsetPidSeqNr(offset3, "p5", 10L)).futureValue
 
-      offsetStore.isDuplicate(Record("p5", 10, offset3.timestamp)) shouldBe true
-      offsetStore.isDuplicate(Record("p1", 4, offset2.timestamp)) shouldBe true
-      offsetStore.isDuplicate(Record("p3", 6, offset2.timestamp)) shouldBe true
-      offsetStore.isDuplicate(Record("p4", 9, offset2.timestamp)) shouldBe true
+      def env(pid: Pid, seqNr: SeqNr, timestamp: Instant): EventEnvelope[String] =
+        createEnvelope(pid, seqNr, timestamp, "evt")
 
-      offsetStore.isDuplicate(Record("p1", 3, offset1.timestamp)) shouldBe true
-      offsetStore.isDuplicate(Record("p2", 1, offset1.timestamp)) shouldBe true
-      offsetStore.isDuplicate(Record("p3", 5, offset1.timestamp)) shouldBe true
+      offsetStore.validate(env("p5", 10, offset3.timestamp)).futureValue shouldBe Duplicate
+      offsetStore.validate(env("p1", 4, offset2.timestamp)).futureValue shouldBe Duplicate
+      offsetStore.validate(env("p3", 6, offset2.timestamp)).futureValue shouldBe Duplicate
+      offsetStore.validate(env("p4", 9, offset2.timestamp)).futureValue shouldBe Duplicate
 
-      offsetStore.isDuplicate(Record("p1", 2, offset1.timestamp.minusMillis(1))) shouldBe true
-      offsetStore.isDuplicate(Record("p5", 9, offset3.timestamp.minusMillis(1))) shouldBe true
+      offsetStore.validate(env("p1", 3, offset1.timestamp)).futureValue shouldBe Duplicate
+      offsetStore.validate(env("p2", 1, offset1.timestamp)).futureValue shouldBe Duplicate
+      offsetStore.validate(env("p3", 5, offset1.timestamp)).futureValue shouldBe Duplicate
 
-      offsetStore.isDuplicate(Record("p5", 11, offset3.timestamp)) shouldBe false
-      offsetStore.isDuplicate(Record("p5", 12, offset3.timestamp.plusMillis(1))) shouldBe false
+      offsetStore.validate(env("p1", 2, offset1.timestamp.minusMillis(1))).futureValue shouldBe Duplicate
+      offsetStore.validate(env("p5", 9, offset3.timestamp.minusMillis(1))).futureValue shouldBe Duplicate
 
-      offsetStore.isDuplicate(Record("p6", 1, offset3.timestamp.plusMillis(2))) shouldBe false
-      offsetStore.isDuplicate(Record("p7", 1, offset3.timestamp.minusMillis(1))) shouldBe false
+      offsetStore.validate(env("p5", 11, offset3.timestamp)).futureValue shouldNot be(Duplicate)
+      offsetStore.validate(env("p5", 12, offset3.timestamp.plusMillis(1))).futureValue shouldNot be(Duplicate)
+
+      offsetStore.validate(env("p6", 1, offset3.timestamp.plusMillis(2))).futureValue shouldNot be(Duplicate)
+      offsetStore.validate(env("p7", 1, offset3.timestamp.minusMillis(1))).futureValue shouldNot be(Duplicate)
     }
 
     "accept known sequence numbers and reject unknown" in {
+      import R2dbcOffsetStore.Validation._
       val projectionId = genRandomProjectionId()
       val eventTimestampQueryClock = TestClock.nowMicros()
       val offsetStore = createOffsetStore(projectionId, eventTimestampQueryClock = eventTimestampQueryClock)
@@ -399,97 +403,84 @@ class R2dbcTimestampOffsetStoreSpec
 
       // seqNr 1 is always accepted
       val env1 = createEnvelope("p4", 1L, startTime.plusMillis(1), "e4-1")
-      offsetStore.isAccepted(env1).futureValue shouldBe true
-      offsetStore.isAccepted(backtrackingEnvelope(env1)).futureValue shouldBe true
+      offsetStore.validate(env1).futureValue shouldBe Accepted
+      offsetStore.validate(backtrackingEnvelope(env1)).futureValue shouldBe Accepted
       // but not if already inflight, seqNr 1 was accepted
       offsetStore.addInflight(env1)
       val env1Later = createEnvelope("p4", 1L, startTime.plusMillis(1), "e4-1")
-      offsetStore.isAccepted(env1Later).futureValue shouldBe false
-      offsetStore.isAccepted(backtrackingEnvelope(env1Later)).futureValue shouldBe false
+      offsetStore.validate(env1Later).futureValue shouldBe Duplicate
+      offsetStore.validate(backtrackingEnvelope(env1Later)).futureValue shouldBe Duplicate
       // subsequent seqNr is accepted
       val env2 = createEnvelope("p4", 2L, startTime.plusMillis(2), "e4-2")
-      offsetStore.isAccepted(env2).futureValue shouldBe true
-      offsetStore.isAccepted(backtrackingEnvelope(env2)).futureValue shouldBe true
+      offsetStore.validate(env2).futureValue shouldBe Accepted
+      offsetStore.validate(backtrackingEnvelope(env2)).futureValue shouldBe Accepted
       offsetStore.addInflight(env2)
       // but not when gap
       val envP4SeqNr4 = createEnvelope("p4", 4L, startTime.plusMillis(3), "e4-4")
-      offsetStore.isAccepted(envP4SeqNr4).futureValue shouldBe false
+      offsetStore.validate(envP4SeqNr4).futureValue shouldBe RejectedSeqNr
       // hard reject when gap from backtracking
-      (offsetStore
-        .isAccepted(backtrackingEnvelope(envP4SeqNr4))
-        .failed
-        .futureValue
-        .getMessage should fullyMatch).regex("Rejected envelope from backtracking.*unexpected sequence number.*")
+      offsetStore.validate(backtrackingEnvelope(envP4SeqNr4)).futureValue shouldBe RejectedBacktrackingSeqNr
       // reject filtered event when gap
-      offsetStore.isAccepted(filteredEnvelope(envP4SeqNr4)).futureValue shouldBe false
+      offsetStore.validate(filteredEnvelope(envP4SeqNr4)).futureValue shouldBe RejectedSeqNr
       // hard reject when filtered event with gap from backtracking
-      (offsetStore
-        .isAccepted(backtrackingEnvelope(filteredEnvelope(envP4SeqNr4)))
-        .failed
-        .futureValue
-        .getMessage should fullyMatch).regex("Rejected envelope from backtracking.*unexpected sequence number.*")
+      offsetStore
+        .validate(backtrackingEnvelope(filteredEnvelope(envP4SeqNr4)))
+        .futureValue shouldBe RejectedBacktrackingSeqNr
       // and not if later already inflight, seqNr 2 was accepted
-      offsetStore.isAccepted(createEnvelope("p4", 1L, startTime.plusMillis(1), "e4-1")).futureValue shouldBe false
+      offsetStore.validate(createEnvelope("p4", 1L, startTime.plusMillis(1), "e4-1")).futureValue shouldBe Duplicate
 
       // +1 to known is accepted
       val env3 = createEnvelope("p1", 4L, startTime.plusMillis(4), "e1-4")
-      offsetStore.isAccepted(env3).futureValue shouldBe true
+      offsetStore.validate(env3).futureValue shouldBe Accepted
       // but not same
-      offsetStore.isAccepted(createEnvelope("p3", 5L, startTime, "e3-5")).futureValue shouldBe false
+      offsetStore.validate(createEnvelope("p3", 5L, startTime, "e3-5")).futureValue shouldBe Duplicate
       // but not same, even if it's 1
-      offsetStore.isAccepted(createEnvelope("p2", 1L, startTime, "e2-1")).futureValue shouldBe false
+      offsetStore.validate(createEnvelope("p2", 1L, startTime, "e2-1")).futureValue shouldBe Duplicate
       // and not less
-      offsetStore.isAccepted(createEnvelope("p3", 4L, startTime, "e3-4")).futureValue shouldBe false
+      offsetStore.validate(createEnvelope("p3", 4L, startTime, "e3-4")).futureValue shouldBe Duplicate
       offsetStore.addInflight(env3)
       // and then it's not accepted again
-      offsetStore.isAccepted(env3).futureValue shouldBe false
-      offsetStore.isAccepted(backtrackingEnvelope(env3)).futureValue shouldBe false
+      offsetStore.validate(env3).futureValue shouldBe Duplicate
+      offsetStore.validate(backtrackingEnvelope(env3)).futureValue shouldBe Duplicate
       // and not when later seqNr is inflight
-      offsetStore.isAccepted(env2).futureValue shouldBe false
-      offsetStore.isAccepted(backtrackingEnvelope(env2)).futureValue shouldBe false
+      offsetStore.validate(env2).futureValue shouldBe Duplicate
+      offsetStore.validate(backtrackingEnvelope(env2)).futureValue shouldBe Duplicate
 
       // +1 to known, and then also subsequent are accepted (needed for grouped)
       val env4 = createEnvelope("p3", 6L, startTime.plusMillis(5), "e3-6")
-      offsetStore.isAccepted(env4).futureValue shouldBe true
+      offsetStore.validate(env4).futureValue shouldBe Accepted
       offsetStore.addInflight(env4)
       val env5 = createEnvelope("p3", 7L, startTime.plusMillis(6), "e3-7")
-      offsetStore.isAccepted(env5).futureValue shouldBe true
+      offsetStore.validate(env5).futureValue shouldBe Accepted
       offsetStore.addInflight(env5)
       val env6 = createEnvelope("p3", 8L, startTime.plusMillis(7), "e3-8")
-      offsetStore.isAccepted(env6).futureValue shouldBe true
+      offsetStore.validate(env6).futureValue shouldBe Accepted
       offsetStore.addInflight(env6)
 
       // reject unknown
       val env7 = createEnvelope("p5", 7L, startTime.plusMillis(8), "e5-7")
-      offsetStore.isAccepted(env7).futureValue shouldBe false
-      (offsetStore.isAccepted(backtrackingEnvelope(env7)).failed.futureValue.getMessage should fullyMatch)
-        .regex("Rejected envelope from backtracking.*unknown sequence number.*")
+      offsetStore.validate(env7).futureValue shouldBe RejectedSeqNr
+      offsetStore.validate(backtrackingEnvelope(env7)).futureValue shouldBe RejectedBacktrackingSeqNr
       // but ok when previous is old
       eventTimestampQueryClock.setInstant(startTime.minusSeconds(3600))
       val env8 = createEnvelope("p5", 7L, startTime.plusMillis(5), "e5-7")
-      offsetStore.isAccepted(env8).futureValue shouldBe true
+      offsetStore.validate(env8).futureValue shouldBe Accepted
       eventTimestampQueryClock.setInstant(startTime)
       offsetStore.addInflight(env8)
       // and subsequent seqNr is accepted
       val env9 = createEnvelope("p5", 8L, startTime.plusMillis(9), "e5-8")
-      offsetStore.isAccepted(env9).futureValue shouldBe true
+      offsetStore.validate(env9).futureValue shouldBe Accepted
       offsetStore.addInflight(env9)
 
       // reject unknown filtered
       val env10 = filteredEnvelope(createEnvelope("p6", 7L, startTime.plusMillis(10), "e6-7"))
-      offsetStore.isAccepted(env10).futureValue shouldBe false
+      offsetStore.validate(env10).futureValue shouldBe RejectedSeqNr
       // hard reject when unknown from backtracking
-      (offsetStore
-        .isAccepted(backtrackingEnvelope(env10))
-        .failed
-        .futureValue
-        .getMessage should fullyMatch).regex("Rejected envelope from backtracking.*unknown sequence number.*")
+      offsetStore.validate(backtrackingEnvelope(env10)).futureValue shouldBe RejectedBacktrackingSeqNr
       // hard reject when unknown filtered event from backtracking
-      (offsetStore
-        .isAccepted(backtrackingEnvelope(filteredEnvelope(env10)))
-        .failed
-        .futureValue
-        .getMessage should fullyMatch).regex("Rejected envelope from backtracking.*unknown sequence number.*")
+      offsetStore
+        .validate(backtrackingEnvelope(filteredEnvelope(env10)))
+        .futureValue shouldBe RejectedBacktrackingSeqNr
 
       // it's keeping the inflight that are not in the "stored" state
       offsetStore.getInflight() shouldBe Map("p1" -> 4L, "p3" -> 8, "p4" -> 2L, "p5" -> 8)
@@ -504,6 +495,7 @@ class R2dbcTimestampOffsetStoreSpec
     }
 
     "update inflight on error and re-accept element" in {
+      import R2dbcOffsetStore.Validation._
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
 
@@ -514,7 +506,7 @@ class R2dbcTimestampOffsetStoreSpec
       val envelope3 = createEnvelope("p1", 3L, startTime.plusMillis(2), "e1-2")
 
       // seqNr 1 is always accepted
-      offsetStore.isAccepted(envelope1).futureValue shouldBe true
+      offsetStore.validate(envelope1).futureValue shouldBe Accepted
       offsetStore.addInflight(envelope1)
       offsetStore.getInflight() shouldBe Map("p1" -> 1L)
       offsetStore
@@ -523,19 +515,19 @@ class R2dbcTimestampOffsetStoreSpec
       offsetStore.getInflight() shouldBe empty
 
       // seqNr 2 is accepts since it follows seqNr 1 that is stored in state
-      offsetStore.isAccepted(envelope2).futureValue shouldBe true
+      offsetStore.validate(envelope2).futureValue shouldBe Accepted
       // simulate envelope processing error by not adding envelope2 to inflight
 
       // seqNr 3 is not accepted, still waiting for seqNr 2
-      offsetStore.isAccepted(envelope3).futureValue shouldBe false
+      offsetStore.validate(envelope3).futureValue shouldBe RejectedSeqNr
 
       // offer seqNr 2 once again
-      offsetStore.isAccepted(envelope2).futureValue shouldBe true
+      offsetStore.validate(envelope2).futureValue shouldBe Accepted
       offsetStore.addInflight(envelope2)
       offsetStore.getInflight() shouldBe Map("p1" -> 2L)
 
       // offer seqNr 3  once more
-      offsetStore.isAccepted(envelope3).futureValue shouldBe true
+      offsetStore.validate(envelope3).futureValue shouldBe Accepted
       offsetStore.addInflight(envelope3)
       offsetStore.getInflight() shouldBe Map("p1" -> 3L)
 
@@ -546,7 +538,8 @@ class R2dbcTimestampOffsetStoreSpec
       offsetStore.getInflight() shouldBe empty
     }
 
-    "filter accepted" in {
+    "mapIsAccepted" in {
+      import R2dbcOffsetStore.Validation._
       val projectionId = genRandomProjectionId()
       val startTime = TestClock.nowMicros().instant()
       val offsetStore = createOffsetStore(projectionId)
@@ -567,11 +560,17 @@ class R2dbcTimestampOffsetStoreSpec
       // but not when previous is unknown
       val env5 = createEnvelope("p3", 7L, startTime.plusMillis(5), "e3-7")
 
-      offsetStore.filterAccepted(List(env1, env2, env3, env4, env5)).futureValue shouldBe List(env1, env2, env4)
+      offsetStore.validateAll(List(env1, env2, env3, env4, env5)).futureValue shouldBe List(
+        env1 -> Accepted,
+        env2 -> Accepted,
+        env3 -> RejectedSeqNr,
+        env4 -> Accepted,
+        env5 -> RejectedSeqNr)
 
     }
 
     "accept new revisions for durable state" in {
+      import R2dbcOffsetStore.Validation._
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
 
@@ -583,50 +582,50 @@ class R2dbcTimestampOffsetStoreSpec
 
       // seqNr 1 is always accepted
       val env1 = createUpdatedDurableState("p4", 1L, startTime.plusMillis(1), "s4-1")
-      offsetStore.isAccepted(env1).futureValue shouldBe true
+      offsetStore.validate(env1).futureValue shouldBe Accepted
       // but not if already inflight, seqNr 1 was accepted
       offsetStore.addInflight(env1)
       offsetStore
-        .isAccepted(createUpdatedDurableState("p4", 1L, startTime.plusMillis(1), "s4-1"))
-        .futureValue shouldBe false
+        .validate(createUpdatedDurableState("p4", 1L, startTime.plusMillis(1), "s4-1"))
+        .futureValue shouldBe Duplicate
       // subsequent seqNr is accepted
       val env2 = createUpdatedDurableState("p4", 2L, startTime.plusMillis(2), "s4-2")
-      offsetStore.isAccepted(env2).futureValue shouldBe true
+      offsetStore.validate(env2).futureValue shouldBe Accepted
       offsetStore.addInflight(env2)
       // and also ok with gap
       offsetStore
-        .isAccepted(createUpdatedDurableState("p4", 4L, startTime.plusMillis(3), "s4-4"))
-        .futureValue shouldBe true
+        .validate(createUpdatedDurableState("p4", 4L, startTime.plusMillis(3), "s4-4"))
+        .futureValue shouldBe Accepted
       // and not if later already inflight, seqNr 2 was accepted
       offsetStore
-        .isAccepted(createUpdatedDurableState("p4", 1L, startTime.plusMillis(1), "s4-1"))
-        .futureValue shouldBe false
+        .validate(createUpdatedDurableState("p4", 1L, startTime.plusMillis(1), "s4-1"))
+        .futureValue shouldBe Duplicate
 
       // greater than known is accepted
       val env3 = createUpdatedDurableState("p1", 4L, startTime.plusMillis(4), "s1-4")
-      offsetStore.isAccepted(env3).futureValue shouldBe true
+      offsetStore.validate(env3).futureValue shouldBe Accepted
       // but not same
-      offsetStore.isAccepted(createUpdatedDurableState("p3", 5L, startTime, "s3-5")).futureValue shouldBe false
+      offsetStore.validate(createUpdatedDurableState("p3", 5L, startTime, "s3-5")).futureValue shouldBe Duplicate
       // but not same, even if it's 1
-      offsetStore.isAccepted(createUpdatedDurableState("p2", 1L, startTime, "s2-1")).futureValue shouldBe false
+      offsetStore.validate(createUpdatedDurableState("p2", 1L, startTime, "s2-1")).futureValue shouldBe Duplicate
       // and not less
-      offsetStore.isAccepted(createUpdatedDurableState("p3", 4L, startTime, "s3-4")).futureValue shouldBe false
+      offsetStore.validate(createUpdatedDurableState("p3", 4L, startTime, "s3-4")).futureValue shouldBe Duplicate
       offsetStore.addInflight(env3)
 
       // greater than known, and then also subsequent are accepted (needed for grouped)
       val env4 = createUpdatedDurableState("p3", 8L, startTime.plusMillis(5), "s3-6")
-      offsetStore.isAccepted(env4).futureValue shouldBe true
+      offsetStore.validate(env4).futureValue shouldBe Accepted
       offsetStore.addInflight(env4)
       val env5 = createUpdatedDurableState("p3", 9L, startTime.plusMillis(6), "s3-7")
-      offsetStore.isAccepted(env5).futureValue shouldBe true
+      offsetStore.validate(env5).futureValue shouldBe Accepted
       offsetStore.addInflight(env5)
       val env6 = createUpdatedDurableState("p3", 20L, startTime.plusMillis(7), "s3-8")
-      offsetStore.isAccepted(env6).futureValue shouldBe true
+      offsetStore.validate(env6).futureValue shouldBe Accepted
       offsetStore.addInflight(env6)
 
       // accept unknown
       val env7 = createUpdatedDurableState("p5", 7L, startTime.plusMillis(8), "s5-7")
-      offsetStore.isAccepted(env7).futureValue shouldBe true
+      offsetStore.validate(env7).futureValue shouldBe Accepted
       offsetStore.addInflight(env7)
 
       // it's keeping the inflight that are not in the "stored" state
@@ -650,50 +649,59 @@ class R2dbcTimestampOffsetStoreSpec
       val startTime = TestClock.nowMicros().instant()
       log.debug("Start time [{}]", startTime)
 
-      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map("p1" -> 1L)), "p1", 1L)).futureValue
+      // these pids have the same slice 645, otherwise it will keep one for each slice
+      val p1 = "p500"
+      val p2 = "p621"
+      val p3 = "p742"
+      val p4 = "p863"
+      val p5 = "p984"
+      val p6 = "p3080"
+      val p7 = "p4290"
+      val p8 = "p20180"
+
+      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(1)), Map("p2" -> 1L)), "p2", 1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(1)), Map(p2 -> 1L)), p2, 1L))
         .futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(2)), Map("p3" -> 1L)), "p3", 1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(2)), Map(p3 -> 1L)), p3, 1L))
         .futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(evictInterval), Map("p4" -> 1L)), "p4", 1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(evictInterval), Map(p4 -> 1L)), p4, 1L))
         .futureValue
       offsetStore
         .saveOffset(
           OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(1)), Map("p4" -> 1L)),
-            "p4",
+            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(1)), Map(p4 -> 1L)),
+            p4,
             1L))
         .futureValue
       offsetStore
         .saveOffset(
           OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(2)), Map("p5" -> 1L)),
-            "p5",
+            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(2)), Map(p5 -> 1L)),
+            p5,
             1L))
         .futureValue
       offsetStore
         .saveOffset(
           OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(3)), Map("p6" -> 1L)),
-            "p6",
-            1L))
+            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(3)), Map(p6 -> 1L)),
+            p6,
+            3L))
         .futureValue
       offsetStore.getState().size shouldBe 6
 
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(10)), Map("p7" -> 1L)), "p7",
-          1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(10)), Map(p7 -> 1L)), p7, 1L))
         .futureValue
       offsetStore.getState().size shouldBe 7 // nothing evicted yet
 
       offsetStore
         .saveOffset(
           OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).minusSeconds(3)), Map("p8" -> 1L)),
-            "p8",
+            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).minusSeconds(3)), Map(p8 -> 1L)),
+            p8,
             1L))
         .futureValue
       offsetStore.getState().size shouldBe 8 // still nothing evicted yet
@@ -701,20 +709,105 @@ class R2dbcTimestampOffsetStoreSpec
       offsetStore
         .saveOffset(
           OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).plusSeconds(1)), Map("p8" -> 2L)),
-            "p8",
+            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).plusSeconds(1)), Map(p8 -> 2L)),
+            p8,
             2L))
         .futureValue
-      offsetStore.getState().byPid.keySet shouldBe Set("p5", "p6", "p7", "p8")
+      offsetStore.getState().byPid.keySet shouldBe Set(p5, p6, p7, p8)
 
       offsetStore
         .saveOffset(
           OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).plusSeconds(20)), Map("p8" -> 3L)),
-            "p8",
+            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).plusSeconds(20)), Map(p8 -> 3L)),
+            p8,
             3L))
         .futureValue
-      offsetStore.getState().byPid.keySet shouldBe Set("p7", "p8")
+      offsetStore.getState().byPid.keySet shouldBe Set(p7, p8)
+    }
+
+    "evict old records but keep latest for each slice" in {
+      val projectionId = genRandomProjectionId()
+      val evictSettings = settings.withTimeWindow(JDuration.ofSeconds(100)).withEvictInterval(JDuration.ofSeconds(10))
+      import evictSettings._
+      val offsetStore = createOffsetStore(projectionId, evictSettings)
+
+      val startTime = TestClock.nowMicros().instant()
+      log.debug("Start time [{}]", startTime)
+
+      val p1 = "p500" // slice 645
+      val p2 = "p92" // slice 905
+      val p3 = "p108" // slice 905
+      val p4 = "p863" // slice 645
+      val p5 = "p984" // slice 645
+      val p6 = "p3080" // slice 645
+      val p7 = "p4290" // slice 645
+      val p8 = "p20180" // slice 645
+
+      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(1)), Map(p2 -> 1L)), p2, 1L))
+        .futureValue
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(2)), Map(p3 -> 1L)), p3, 1L))
+        .futureValue
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(evictInterval), Map(p4 -> 1L)), p4, 1L))
+        .futureValue
+      offsetStore
+        .saveOffset(
+          OffsetPidSeqNr(
+            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(1)), Map(p4 -> 1L)),
+            p4,
+            1L))
+        .futureValue
+      offsetStore
+        .saveOffset(
+          OffsetPidSeqNr(
+            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(2)), Map(p5 -> 1L)),
+            p5,
+            1L))
+        .futureValue
+      offsetStore
+        .saveOffset(
+          OffsetPidSeqNr(
+            TimestampOffset(startTime.plus(evictInterval).plus(JDuration.ofSeconds(3)), Map(p6 -> 1L)),
+            p6,
+            1L))
+        .futureValue
+      offsetStore.getState().size shouldBe 6
+
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(10)), Map(p7 -> 1L)), p7, 1L))
+        .futureValue
+      offsetStore.getState().size shouldBe 7 // nothing evicted yet
+
+      offsetStore
+        .saveOffset(
+          OffsetPidSeqNr(
+            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).minusSeconds(3)), Map(p8 -> 1L)),
+            p8,
+            1L))
+        .futureValue
+      offsetStore.getState().size shouldBe 8 // still nothing evicted yet
+
+      offsetStore
+        .saveOffset(
+          OffsetPidSeqNr(
+            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).plusSeconds(1)), Map(p8 -> 2L)),
+            p8,
+            2L))
+        .futureValue
+      // also keeping p3 ("p108") for slice 905
+      offsetStore.getState().byPid.keySet shouldBe Set(p3, p5, p6, p7, p8)
+
+      offsetStore
+        .saveOffset(
+          OffsetPidSeqNr(
+            TimestampOffset(startTime.plus(timeWindow.plus(evictInterval).plusSeconds(20)), Map(p8 -> 3L)),
+            p8,
+            3L))
+        .futureValue
+      offsetStore.getState().byPid.keySet shouldBe Set(p3, p7, p8)
     }
 
     "delete old records" in {
@@ -726,27 +819,35 @@ class R2dbcTimestampOffsetStoreSpec
       val startTime = TestClock.nowMicros().instant()
       log.debug("Start time [{}]", startTime)
 
-      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map("p1" -> 1L)), "p1", 1L)).futureValue
+      // these pids have the same slice 645, otherwise it will keep one for each slice
+      val p1 = "p500"
+      val p2 = "p621"
+      val p3 = "p742"
+      val p4 = "p863"
+      val p5 = "p984"
+      val p6 = "p3080"
+      val p7 = "p4290"
+      val p8 = "p20180"
+
+      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(1)), Map("p2" -> 1L)), "p2", 1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(1)), Map(p2 -> 1L)), p2, 1L))
         .futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(2)), Map("p3" -> 1L)), "p3", 1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(2)), Map(p3 -> 1L)), p3, 1L))
         .futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(3)), Map("p4" -> 1L)), "p4", 1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(3)), Map(p4 -> 1L)), p4, 1L))
         .futureValue
       offsetStore.deleteOldTimestampOffsets().futureValue shouldBe 0
       offsetStore.readOffset().futureValue // this will load from database
       offsetStore.getState().size shouldBe 4
 
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(2)), Map("p5" -> 1L)), "p5",
-          1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(2)), Map(p5 -> 1L)), p5, 1L))
         .futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(1)), Map("p6" -> 1L)), "p6",
-          1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(1)), Map(p6 -> 1L)), p6, 1L))
         .futureValue
       // nothing deleted yet
       offsetStore.deleteOldTimestampOffsets().futureValue shouldBe 0
@@ -754,47 +855,142 @@ class R2dbcTimestampOffsetStoreSpec
       offsetStore.getState().size shouldBe 6
 
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map("p7" -> 1L)), "p7",
-          1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map(p7 -> 1L)), p7, 1L))
         .futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(2)), Map("p8" -> 1L)), "p8",
-          1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(3)), Map(p8 -> 1L)), p8, 1L))
         .futureValue
-      offsetStore.deleteOldTimestampOffsets().futureValue shouldBe 2
+      offsetStore.deleteOldTimestampOffsets().futureValue shouldBe 3
       offsetStore.readOffset().futureValue // this will load from database
-      offsetStore.getState().byPid.keySet shouldBe Set("p3", "p4", "p5", "p6", "p7", "p8")
+      offsetStore.getState().byPid.keySet shouldBe Set(p4, p5, p6, p7, p8)
     }
 
-    "periodically delete old records" in {
+    "delete old records but keep latest for each slice" in {
       val projectionId = genRandomProjectionId()
-      val deleteSettings = settings.withTimeWindow(JDuration.ofSeconds(100)).withDeleteInterval(JDuration.ofMillis(500))
+      val deleteSettings = settings.withTimeWindow(JDuration.ofSeconds(100))
       import deleteSettings._
       val offsetStore = createOffsetStore(projectionId, deleteSettings)
 
       val startTime = TestClock.nowMicros().instant()
       log.debug("Start time [{}]", startTime)
 
-      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map("p1" -> 1L)), "p1", 1L)).futureValue
+      val p1 = "p500" // slice 645
+      val p2 = "p92" // slice 905
+      val p3 = "p108" // slice 905
+      val p4 = "p863" // slice 645
+      val p5 = "p984" // slice 645
+      val p6 = "p3080" // slice 645
+      val p7 = "p4290" // slice 645
+      val p8 = "p20180" // slice 645
+
+      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
       offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map("p2" -> 1L)), "p2",
-          1L))
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(1)), Map(p2 -> 1L)), p2, 1L))
+        .futureValue
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(2)), Map(p3 -> 1L)), p3, 1L))
+        .futureValue
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofSeconds(3)), Map(p4 -> 1L)), p4, 1L))
+        .futureValue
+      offsetStore.deleteOldTimestampOffsets().futureValue shouldBe 0
+      offsetStore.readOffset().futureValue // this will load from database
+      offsetStore.getState().size shouldBe 4
+
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(2)), Map(p5 -> 1L)), p5, 1L))
+        .futureValue
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.minusSeconds(1)), Map(p6 -> 1L)), p6, 1L))
+        .futureValue
+      // nothing deleted yet
+      offsetStore.deleteOldTimestampOffsets().futureValue shouldBe 0
+      offsetStore.readOffset().futureValue // this will load from database
+      offsetStore.getState().size shouldBe 6
+
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map(p7 -> 1L)), p7, 1L))
+        .futureValue
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(3)), Map(p8 -> 1L)), p8, 1L))
+        .futureValue
+      offsetStore.deleteOldTimestampOffsets().futureValue shouldBe 2
+      offsetStore.readOffset().futureValue // this will load from database
+      // p3 is kept for slice 905
+      offsetStore.getState().byPid.keySet shouldBe Set(p3, p4, p5, p6, p7, p8)
+    }
+
+    "delete many old records" in {
+      // windowSeconds and totalMillis can be increase for longer/more testing
+      val windowSeconds = 3
+      val totalMillis = 5 * 1000
+
+      val projectionId = genRandomProjectionId()
+      val deleteSettings = settings
+        .withTimeWindow(JDuration.ofSeconds(windowSeconds))
+        .withKeepNumberOfEntries(2000)
+        .withDeleteInterval(JDuration.ofHours(1)) // don't run the scheduled deletes
+      val offsetStore = createOffsetStore(projectionId, deleteSettings)
+
+      val startTime = TestClock.nowMicros().instant()
+      log.debug("Start time [{}]", startTime)
+
+      val storedSlices =
+        (1 to totalMillis / 10).flatMap { m =>
+          val offsets = (1 to 10).map { n =>
+            val pid = s"p$m-$n"
+            OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofMillis(m * 10 + n)), Map(pid -> 1L)), pid, 1L)
+          }
+          offsetStore.saveOffsets(offsets).futureValue
+          if (m % (totalMillis / 100) == 0) {
+            val t0 = System.nanoTime()
+            val deleted = offsetStore.deleteOldTimestampOffsets().futureValue
+            println(s"# ${m * 10} deleted $deleted, took ${(System.nanoTime() - t0) / 1000 / 1000} ms")
+          }
+          offsets.map(o => persistenceExt.sliceForPersistenceId(o.pidSeqNr.get._1)).toSet
+        }.toSet
+
+      offsetStore.readOffset().futureValue // this will load from database
+      val readSlices = offsetStore.getState().byPid.keySet.map(pid => persistenceExt.sliceForPersistenceId(pid))
+      readSlices shouldBe storedSlices
+    }
+
+    "periodically delete old records" in {
+      val projectionId = genRandomProjectionId()
+      val deleteSettings =
+        settings
+          .withTimeWindow(JDuration.ofSeconds(100))
+          .withDeleteInterval(JDuration.ofMillis(500))
+      import deleteSettings._
+      val offsetStore = createOffsetStore(projectionId, deleteSettings)
+
+      val startTime = TestClock.nowMicros().instant()
+      log.debug("Start time [{}]", startTime)
+
+      // these pids have the same slice 645, otherwise it will keep one for each slice
+      val p1 = "p500"
+      val p2 = "p621"
+      val p3 = "p742"
+
+      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
+      offsetStore
+        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map(p2 -> 1L)), p2, 1L))
         .futureValue
       eventually {
         offsetStore.readOffset().futureValue // this will load from database
-        offsetStore.getState().byPid.keySet shouldBe Set("p2")
+        offsetStore.getState().byPid.keySet shouldBe Set(p2)
       }
 
       offsetStore
         .saveOffset(
           OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(timeWindow.multipliedBy(2).plusSeconds(2)), Map("p3" -> 1L)),
-            "p3",
+            TimestampOffset(startTime.plus(timeWindow.multipliedBy(2).plusSeconds(2)), Map(p3 -> 1L)),
+            p3,
             1L))
         .futureValue
       eventually {
         offsetStore.readOffset().futureValue // this will load from database
-        offsetStore.getState().byPid.keySet shouldBe Set("p3")
+        offsetStore.getState().byPid.keySet shouldBe Set(p3)
       }
     }
 

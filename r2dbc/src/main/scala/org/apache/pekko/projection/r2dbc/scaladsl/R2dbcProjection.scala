@@ -371,7 +371,7 @@ object R2dbcProjection {
         connFactory)
 
     val adaptedHandler =
-      R2dbcProjectionImpl.adaptedHandlerForFlow(sourceProvider, handler, offsetStore)(system.executionContext)
+      R2dbcProjectionImpl.adaptedHandlerForFlow(sourceProvider, handler, offsetStore, r2dbcSettings)(system)
 
     new R2dbcProjectionImpl(
       projectionId,

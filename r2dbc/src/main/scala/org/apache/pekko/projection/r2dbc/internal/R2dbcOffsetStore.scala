@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021-2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc.internal
@@ -22,44 +22,47 @@ import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
 import scala.collection.immutable
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 
-import org.apache.pekko
-import pekko.Done
-import pekko.actor.typed.ActorSystem
-import pekko.actor.typed.scaladsl.LoggerOps
-import pekko.annotation.InternalApi
-import pekko.persistence.Persistence
-import pekko.persistence.query.DeletedDurableState
-import pekko.persistence.query.DurableStateChange
-import pekko.persistence.query.Offset
-import pekko.persistence.query.TimestampOffset
-import pekko.persistence.query.UpdatedDurableState
-import pekko.persistence.query.typed.EventEnvelope
-import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import pekko.persistence.r2dbc.Dialect
-import pekko.persistence.r2dbc.internal.EnvelopeOrigin
-import pekko.persistence.r2dbc.internal.R2dbcExecutor
-import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
-import pekko.persistence.typed.PersistenceId
-import pekko.projection.BySlicesSourceProvider
-import pekko.projection.MergeableOffset
-import pekko.projection.ProjectionId
-import pekko.projection.internal.ManagementState
-import pekko.projection.internal.OffsetSerialization
-import pekko.projection.internal.OffsetSerialization.MultipleOffsets
-import pekko.projection.internal.OffsetSerialization.SingleOffset
-import pekko.projection.r2dbc.R2dbcProjectionSettings
-import pekko.projection.r2dbc.internal.mysql.MySQLR2dbcOffsetStore
+import org.apache.pekko.Done
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.actor.typed.scaladsl.LoggerOps
+import org.apache.pekko.annotation.InternalApi
+import org.apache.pekko.persistence.Persistence
+import org.apache.pekko.persistence.query.DeletedDurableState
+import org.apache.pekko.persistence.query.DurableStateChange
+import org.apache.pekko.persistence.query.TimestampOffset
+import org.apache.pekko.persistence.query.UpdatedDurableState
+import org.apache.pekko.persistence.query.typed.EventEnvelope
+import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import org.apache.pekko.persistence.r2dbc.internal.EnvelopeOrigin
+import org.apache.pekko.persistence.r2dbc.internal.R2dbcExecutor
+import org.apache.pekko.persistence.r2dbc.Dialect
+import org.apache.pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
+import org.apache.pekko.persistence.typed.PersistenceId
+import org.apache.pekko.projection.BySlicesSourceProvider
+import org.apache.pekko.projection.MergeableOffset
+import org.apache.pekko.projection.ProjectionId
+import org.apache.pekko.projection.internal.ManagementState
+import org.apache.pekko.projection.internal.OffsetSerialization
+import org.apache.pekko.projection.internal.OffsetSerialization.MultipleOffsets
+import org.apache.pekko.projection.internal.OffsetSerialization.SingleOffset
+import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
+import org.apache.pekko.projection.r2dbc.internal.mysql.MySQLR2dbcOffsetStore
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.Statement
 import org.slf4j.LoggerFactory
 
-object R2dbcOffsetStore {
+/**
+ * INTERNAL API
+ */
+@InternalApi
+private[projection] object R2dbcOffsetStore {
   type SeqNr = Long
   type Pid = String
 
-  final case class Record(pid: Pid, seqNr: SeqNr, timestamp: Instant)
+  final case class Record(slice: Int, pid: Pid, seqNr: SeqNr, timestamp: Instant)
   final case class RecordWithOffset(
       record: Record,
       offset: TimestampOffset,
@@ -68,7 +71,7 @@ object R2dbcOffsetStore {
       fromPubSub: Boolean)
 
   object State {
-    val empty: State = State(Map.empty, Vector.empty, Instant.EPOCH)
+    val empty: State = State(Map.empty, Vector.empty, Instant.EPOCH, 0)
 
     def apply(records: immutable.IndexedSeq[Record]): State = {
       if (records.isEmpty) empty
@@ -76,7 +79,12 @@ object R2dbcOffsetStore {
     }
   }
 
-  final case class State(byPid: Map[Pid, Record], latest: immutable.IndexedSeq[Record], oldestTimestamp: Instant) {
+  final case class State(
+      byPid: Map[Pid, Record],
+      latest: immutable.IndexedSeq[Record],
+      oldestTimestamp: Instant,
+      sizeAfterEvict: Int) {
+
     def size: Int = byPid.size
 
     def latestTimestamp: Instant =
@@ -91,44 +99,45 @@ object R2dbcOffsetStore {
     }
 
     def add(records: immutable.IndexedSeq[Record]): State = {
-      records.foldLeft(this) { case (acc, r) =>
-        val newByPid =
-          acc.byPid.get(r.pid) match {
-            case Some(existingRecord) =>
-              if (r.seqNr > existingRecord.seqNr)
-                acc.byPid.updated(r.pid, r)
-              else
-                acc.byPid // older or same seqNr
-            case None =>
-              acc.byPid.updated(r.pid, r)
-          }
-
-        val latestTimestamp = acc.latestTimestamp
-        val newLatest =
-          if (r.timestamp.isAfter(latestTimestamp)) {
-            Vector(r)
-          } else if (r.timestamp == latestTimestamp) {
-            acc.latest.find(_.pid == r.pid) match {
-              case None                 => acc.latest :+ r
+      records.foldLeft(this) {
+        case (acc, r) =>
+          val newByPid =
+            acc.byPid.get(r.pid) match {
               case Some(existingRecord) =>
-                // keep highest seqNr
-                if (r.seqNr >= existingRecord.seqNr)
-                  acc.latest.filterNot(_.pid == r.pid) :+ r
+                if (r.seqNr > existingRecord.seqNr)
+                  acc.byPid.updated(r.pid, r)
                 else
-                  acc.latest
+                  acc.byPid // older or same seqNr
+              case None =>
+                acc.byPid.updated(r.pid, r)
             }
-          } else {
-            acc.latest // older than existing latest, keep existing latest
-          }
-        val newOldestTimestamp =
-          if (acc.oldestTimestamp == Instant.EPOCH)
-            r.timestamp // first record
-          else if (r.timestamp.isBefore(acc.oldestTimestamp))
-            r.timestamp
-          else
-            acc.oldestTimestamp // this is the normal case
 
-        acc.copy(byPid = newByPid, latest = newLatest, oldestTimestamp = newOldestTimestamp)
+          val latestTimestamp = acc.latestTimestamp
+          val newLatest =
+            if (r.timestamp.isAfter(latestTimestamp)) {
+              Vector(r)
+            } else if (r.timestamp == latestTimestamp) {
+              acc.latest.find(_.pid == r.pid) match {
+                case None                 => acc.latest :+ r
+                case Some(existingRecord) =>
+                  // keep highest seqNr
+                  if (r.seqNr >= existingRecord.seqNr)
+                    acc.latest.filterNot(_.pid == r.pid) :+ r
+                  else
+                    acc.latest
+              }
+            } else {
+              acc.latest // older than existing latest, keep existing latest
+            }
+          val newOldestTimestamp =
+            if (acc.oldestTimestamp == Instant.EPOCH)
+              r.timestamp // first record
+            else if (r.timestamp.isBefore(acc.oldestTimestamp))
+              r.timestamp
+            else
+              acc.oldestTimestamp // this is the normal case
+
+          acc.copy(byPid = newByPid, latest = newLatest, oldestTimestamp = newOldestTimestamp)
       }
     }
 
@@ -142,37 +151,48 @@ object R2dbcOffsetStore {
     def window: JDuration =
       JDuration.between(oldestTimestamp, latestTimestamp)
 
+    private lazy val sortedByTimestamp: Vector[Record] = byPid.valuesIterator.toVector.sortBy(_.timestamp)
+
+    lazy val latestBySlice: Vector[Record] = {
+      val builder = scala.collection.mutable.Map[Int, Record]()
+      sortedByTimestamp.reverseIterator.foreach { record =>
+        if (!builder.contains(record.slice))
+          builder.update(record.slice, record)
+      }
+      builder.values.toVector
+    }
+
     def evict(until: Instant, keepNumberOfEntries: Int): State = {
       if (oldestTimestamp.isBefore(until) && size > keepNumberOfEntries) {
-        val sorted = byPid.valuesIterator.toVector.sortBy(_.timestamp)
-        State(
-          sorted
+        val newState = State(
+          sortedByTimestamp
             .take(size - keepNumberOfEntries)
-            .filterNot(_.timestamp.isBefore(until)) ++ sorted.takeRight(keepNumberOfEntries))
+            .filterNot(_.timestamp.isBefore(until)) ++ sortedByTimestamp
+            .takeRight(keepNumberOfEntries) ++ latestBySlice)
+        newState.copy(sizeAfterEvict = newState.size)
       } else
         this
     }
+
+  }
+
+  final class RejectedEnvelope(message: String) extends IllegalStateException(message)
+
+  sealed trait Validation
+
+  object Validation {
+    case object Accepted extends Validation
+    case object Duplicate extends Validation
+    case object RejectedSeqNr extends Validation
+    case object RejectedBacktrackingSeqNr extends Validation
+
+    val FutureAccepted: Future[Validation] = Future.successful(Accepted)
+    val FutureDuplicate: Future[Validation] = Future.successful(Duplicate)
+    val FutureRejectedSeqNr: Future[Validation] = Future.successful(RejectedSeqNr)
+    val FutureRejectedBacktrackingSeqNr: Future[Validation] = Future.successful(RejectedBacktrackingSeqNr)
   }
 
   val FutureDone: Future[Done] = Future.successful(Done)
-  val FutureTrue: Future[Boolean] = Future.successful(true)
-  val FutureFalse: Future[Boolean] = Future.successful(false)
-
-  def fromConfig(
-      projectionId: ProjectionId,
-      sourceProvider: Option[BySlicesSourceProvider],
-      system: ActorSystem[_],
-      settings: R2dbcProjectionSettings,
-      r2dbcExecutor: R2dbcExecutor,
-      clock: Clock = Clock.systemUTC()
-  ): R2dbcOffsetStore = {
-    settings.dialect match {
-      case Dialect.Postgres | Dialect.Yugabyte =>
-        new R2dbcOffsetStore(projectionId, sourceProvider, system, settings, r2dbcExecutor, clock)
-      case Dialect.MySQL =>
-        new MySQLR2dbcOffsetStore(projectionId, sourceProvider, system, settings, r2dbcExecutor, clock)
-    }
-  }
 }
 
 /**
@@ -195,6 +215,8 @@ private[projection] class R2dbcOffsetStore(
   // FIXME include projectionId in all log messages
   private val logger = LoggerFactory.getLogger(this.getClass)
 
+  private val persistenceExt = Persistence(system)
+
   private val evictWindow = settings.timeWindow.plus(settings.evictInterval)
   private val evictKeepNumberOfEntriesThreshold = (settings.keepNumberOfEntries * 1.1).toInt
 
@@ -203,15 +225,13 @@ private[projection] class R2dbcOffsetStore(
   import offsetSerialization.toStorageRepresentation
 
   private val timestampOffsetTable = settings.timestampOffsetTableWithSchema
-  protected val offsetTable = settings.offsetTableWithSchema
-  protected val managementTable = settings.managementTableWithSchema
+  protected val offsetTable: String = settings.offsetTableWithSchema
+  protected val managementTable: String = settings.managementTableWithSchema
 
   private[projection] implicit val executionContext: ExecutionContext = system.executionContext
 
-  private val persistenceExt = Persistence(system)
-
   private val selectTimestampOffsetSql: String = sql"""
-    SELECT persistence_id, seq_nr, timestamp_offset
+    SELECT slice, persistence_id, seq_nr, timestamp_offset
     FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ?"""
 
   private val insertTimestampOffsetSql: String = sql"""
@@ -220,8 +240,9 @@ private[projection] class R2dbcOffsetStore(
     VALUES (?,?,?,?,?,?, $timestampSql)"""
 
   // delete less than a timestamp
-  private val deleteOldTimestampOffsetSql: String =
-    sql"DELETE FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ?"
+  private val deleteOldTimestampOffsetSql: String = sql"""
+    DELETE FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ?
+    AND NOT (persistence_id || '-' || seq_nr) = ANY (?)"""
 
   // delete greater than or equal a timestamp
   private val deleteNewTimestampOffsetSql: String =
@@ -283,22 +304,22 @@ private[projection] class R2dbcOffsetStore(
   private def timestampOffsetBySlicesSourceProvider: BySlicesSourceProvider =
     sourceProvider match {
       case Some(provider) => provider
-      case None           =>
+      case None =>
         throw new IllegalArgumentException(
-          "Expected BySlicesSourceProvider to be defined when TimestampOffset is used.")
+          s"Expected BySlicesSourceProvider to be defined when TimestampOffset is used.")
     }
 
   private def timestampOf(persistenceId: String, sequenceNr: Long): Future[Option[Instant]] = {
     timestampOffsetBySlicesSourceProvider match {
       case timestampQuery: EventTimestampQuery =>
         timestampQuery.timestampOf(persistenceId, sequenceNr)
-      case timestampQuery: pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
+      case timestampQuery: org.apache.pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
         import scala.jdk.FutureConverters._
         import scala.jdk.OptionConverters._
-        timestampQuery.timestampOf(persistenceId, sequenceNr).asScala.map(_.toScala)
+        timestampQuery.timestampOf(persistenceId, sequenceNr).toScala.map(_.toScala)
       case _ =>
         throw new IllegalArgumentException(
-          "Expected BySlicesSourceProvider to implement EventTimestampQuery when TimestampOffset is used.")
+          s"Expected BySlicesSourceProvider to implement EventTimestampQuery when TimestampOffset is used.")
     }
   }
 
@@ -308,20 +329,20 @@ private[projection] class R2dbcOffsetStore(
   def getInflight(): Map[Pid, SeqNr] =
     inflight.get()
 
-  def getOffset[Off](): Future[Option[Off]] = {
+  def getOffset[Offset](): Future[Option[Offset]] = {
     getState().latestOffset match {
-      case Some(t) => Future.successful(Some(t.asInstanceOf[Off]))
+      case Some(t) => Future.successful(Some(t.asInstanceOf[Offset]))
       case None    => readOffset()
     }
   }
 
-  def readOffset[Off](): Future[Option[Off]] = {
-    // look for TimestampOffset first since that is used by pekko-persistence-r2dbc,
+  def readOffset[Offset](): Future[Option[Offset]] = {
+    // look for TimestampOffset first since that is used by akka-persistence-r2dbc,
     // and then fall back to the other more primitive offset types
     sourceProvider match {
-      case Some(provider) =>
+      case Some(_) =>
         readTimestampOffset().flatMap {
-          case Some(t) => Future.successful(Some(t.asInstanceOf[Off]))
+          case Some(t) => Future.successful(Some(t.asInstanceOf[Offset]))
           case None    => readPrimitiveOffset()
         }
       case None =>
@@ -350,16 +371,17 @@ private[projection] class R2dbcOffsetStore(
           .bind(2, projectionId.name)
       },
       row => {
+        val slice = row.get("slice", classOf[java.lang.Integer])
         val pid = row.get("persistence_id", classOf[String])
         val seqNr = row.get("seq_nr", classOf[java.lang.Long])
         val timestamp = row.get("timestamp_offset", classOf[Instant])
-        Record(pid, seqNr, timestamp)
+        Record(slice, pid, seqNr, timestamp)
       })
     recordsFut.map { records =>
       val newState = State(records)
-      logger.debug(
+      logger.debugN(
         "readTimestampOffset state with [{}] persistenceIds, oldest [{}], latest [{}]",
-        newState.byPid.size: java.lang.Integer,
+        newState.byPid.size,
         newState.oldestTimestamp,
         newState.latestTimestamp)
       if (!state.compareAndSet(oldState, newState))
@@ -373,7 +395,7 @@ private[projection] class R2dbcOffsetStore(
     }
   }
 
-  private def readPrimitiveOffset[Off](): Future[Option[Off]] = {
+  private def readPrimitiveOffset[Offset](): Future[Option[Offset]] = {
     if (settings.isOffsetTableDefined) {
       val singleOffsets = r2dbcExecutor.select("read offset")(
         conn => {
@@ -385,7 +407,7 @@ private[projection] class R2dbcOffsetStore(
         row => {
           val offsetStr = row.get("current_offset", classOf[String])
           val manifest = row.get("manifest", classOf[String])
-          val mergeable = row.get[java.lang.Boolean]("mergeable", classOf[java.lang.Boolean])
+          val mergeable = row.get("mergeable", classOf[java.lang.Boolean])
           val key = row.get("projection_key", classOf[String])
 
           val adaptedProjectionId = ProjectionId(projectionId.name, key)
@@ -398,9 +420,9 @@ private[projection] class R2dbcOffsetStore(
           else if (offsets.forall(_.mergeable)) {
             Some(
               fromStorageRepresentation[MergeableOffset[_], Offset](MultipleOffsets(offsets.toList))
-                .asInstanceOf[Off])
+                .asInstanceOf[Offset])
           } else {
-            offsets.find(_.id == projectionId).map(fromStorageRepresentation[Off, Off])
+            offsets.find(_.id == projectionId).map(fromStorageRepresentation[Offset, Offset])
           }
 
         logger.trace2("found offset [{}] for [{}]", result, projectionId)
@@ -420,7 +442,7 @@ private[projection] class R2dbcOffsetStore(
       .withConnection("save offset") { conn =>
         saveOffsetInTx(conn, offset)
       }
-      .map(_ => Done)(ExecutionContext.parasitic)
+      .map(_ => Done)(ExecutionContexts.parasitic)
   }
 
   /**
@@ -429,7 +451,8 @@ private[projection] class R2dbcOffsetStore(
   def saveOffsetInTx(conn: Connection, offset: OffsetPidSeqNr): Future[Done] = {
     offset match {
       case OffsetPidSeqNr(t: TimestampOffset, Some((pid, seqNr))) =>
-        val record = Record(pid, seqNr, t.timestamp)
+        val slice = persistenceExt.sliceForPersistenceId(pid)
+        val record = Record(slice, pid, seqNr, t.timestamp)
         saveTimestampOffsetInTx(conn, Vector(record))
       case OffsetPidSeqNr(_: TimestampOffset, None) =>
         throw new IllegalArgumentException("Required EventEnvelope or DurableStateChange for TimestampOffset.")
@@ -443,7 +466,7 @@ private[projection] class R2dbcOffsetStore(
       .withConnection("save offsets") { conn =>
         saveOffsetsInTx(conn, offsets)
       }
-      .map(_ => Done)(ExecutionContext.parasitic)
+      .map(_ => Done)(ExecutionContexts.parasitic)
   }
 
   def saveOffsetsInTx(conn: Connection, offsets: immutable.IndexedSeq[OffsetPidSeqNr]): Future[Done] = {
@@ -452,12 +475,13 @@ private[projection] class R2dbcOffsetStore(
     else if (offsets.head.offset.isInstanceOf[TimestampOffset]) {
       val records = offsets.map {
         case OffsetPidSeqNr(t: TimestampOffset, Some((pid, seqNr))) =>
-          Record(pid, seqNr, t.timestamp)
+          val slice = persistenceExt.sliceForPersistenceId(pid)
+          Record(slice, pid, seqNr, t.timestamp)
         case OffsetPidSeqNr(_: TimestampOffset, None) =>
           throw new IllegalArgumentException("Required EventEnvelope or DurableStateChange for TimestampOffset.")
         case _ =>
           throw new IllegalArgumentException(
-            "Mix of TimestampOffset and other offset type in same transaction is not supported")
+            "Mix of TimestampOffset and other offset type in same transaction isnot supported")
       }
       saveTimestampOffsetInTx(conn, records)
     } else {
@@ -465,7 +489,7 @@ private[projection] class R2dbcOffsetStore(
     }
   }
 
-  private def saveTimestampOffsetInTx[Off](conn: Connection, records: immutable.IndexedSeq[Record]): Future[Done] = {
+  private def saveTimestampOffsetInTx(conn: Connection, records: immutable.IndexedSeq[Record]): Future[Done] = {
     idle.set(false)
     val oldState = state.get()
     val filteredRecords = {
@@ -487,16 +511,20 @@ private[projection] class R2dbcOffsetStore(
     } else {
       val newState = oldState.add(filteredRecords)
 
-      // accumulate some more than the timeWindow before evicting
+      // accumulate some more than the timeWindow before evicting, and at least 10% increase of size
+      // for testing keepNumberOfEntries = 0 is used
+      val evictThresholdReached =
+        if (settings.keepNumberOfEntries == 0) true else newState.size > (newState.sizeAfterEvict * 1.1).toInt
       val evictedNewState =
-        if (newState.size > evictKeepNumberOfEntriesThreshold && newState.window.compareTo(evictWindow) > 0) {
+        if (newState.size > settings.keepNumberOfEntries && evictThresholdReached && newState.window
+              .compareTo(evictWindow) > 0) {
           val evictUntil = newState.latestTimestamp.minus(settings.timeWindow)
           val s = newState.evict(evictUntil, settings.keepNumberOfEntries)
-          logger.debug(
+          logger.debugN(
             "Evicted [{}] records until [{}], keeping [{}] records. Latest [{}].",
-            newState.size - s.size: java.lang.Integer,
+            newState.size - s.size,
             evictUntil,
-            s.size: java.lang.Integer,
+            s.size,
             newState.latestTimestamp)
           s
         } else
@@ -535,8 +563,7 @@ private[projection] class R2dbcOffsetStore(
 
     require(records.nonEmpty)
 
-    // FIXME change to trace
-    logger.debug("saving timestamp offset [{}], {}", records.last.timestamp: Any, records: Any)
+    logger.trace2("saving timestamp offset [{}], {}", records.last.timestamp, records)
 
     val statement = conn.createStatement(insertTimestampOffsetSql)
 
@@ -546,10 +573,8 @@ private[projection] class R2dbcOffsetStore(
     } else {
       // TODO Try Batch without bind parameters for better performance. Risk of sql injection for these parameters is low.
       val boundStatement =
-        records.zipWithIndex.foldLeft(statement) { case (stmt, (rec, idx)) =>
-          if (idx != 0) {
-            stmt.add()
-          }
+        records.foldLeft(statement) { (stmt, rec) =>
+          stmt.add()
           bindRecord(stmt, rec)
         }
       R2dbcExecutor.updateBatchInTx(boundStatement)
@@ -565,12 +590,11 @@ private[projection] class R2dbcOffsetStore(
             case Some(r) => r.seqNr < inflightSeqNr
             case None    => true
           }
-        case null => true
       }
     if (newInflight.size >= 10000) {
       throw new IllegalStateException(
         s"Too many envelopes in-flight [${newInflight.size}]. " +
-        "Please report this issue at https://github.com/apache/pekko-persistence-r2dbc")
+        "Please report this issue at https://github.com/akka/akka-persistence-r2dbc")
     }
     if (!inflight.compareAndSet(currentInflight, newInflight))
       cleanupInflight(newState) // CAS retry, concurrent update of inflight
@@ -582,13 +606,13 @@ private[projection] class R2dbcOffsetStore(
       clearInflight() // CAS retry, concurrent update of inflight
   }
 
-  private def savePrimitiveOffsetInTx[Off](conn: Connection, offset: Off): Future[Done] = {
+  private def savePrimitiveOffsetInTx[Offset](conn: Connection, offset: Offset): Future[Done] = {
     logger.trace("saving offset [{}]", offset)
 
     if (!settings.isOffsetTableDefined)
       Future.failed(
         new IllegalArgumentException(
-          "Offset table has been disabled config 'pekko.projection.r2dbc.offset-store.offset-table', " +
+          "Offset table has been disabled config 'org.apache.pekko.projection.r2dbc.offset-store.offset-table', " +
           s"but trying to save a non-timestamp offset [$offset]"))
 
     val now = Instant.now(clock).toEpochMilli
@@ -612,101 +636,114 @@ private[projection] class R2dbcOffsetStore(
       case MultipleOffsets(many) => many.map(upsertStmt).toVector
     }
 
-    R2dbcExecutor.updateInTx(statements).map(_ => Done)(ExecutionContext.parasitic)
+    R2dbcExecutor.updateInTx(statements).map(_ => Done)(ExecutionContexts.parasitic)
   }
 
-  def isDuplicate(record: Record): Boolean =
-    getState().isDuplicate(record)
+  /**
+   * The stored sequence number for a persistenceId, or 0 if unknown persistenceId.
+   */
+  def storedSeqNr(pid: Pid): SeqNr =
+    getState().byPid.get(pid) match {
+      case Some(record) => record.seqNr
+      case None         => 0L
+    }
 
-  def filterAccepted[Envelope](envelopes: immutable.Seq[Envelope]): Future[immutable.Seq[Envelope]] = {
+  def validateAll[Envelope](envelopes: immutable.Seq[Envelope]): Future[immutable.Seq[(Envelope, Validation)]] = {
+    import Validation._
     envelopes
-      .foldLeft(Future.successful((getInflight(), Vector.empty[Envelope]))) { (acc, envelope) =>
-        acc.flatMap { case (inflight, filteredEnvelopes) =>
-          createRecordWithOffset(envelope) match {
-            case Some(recordWithOffset) =>
-              isAccepted(recordWithOffset, inflight).map {
-                case true =>
-                  (
-                    inflight.updated(recordWithOffset.record.pid, recordWithOffset.record.seqNr),
-                    filteredEnvelopes :+ envelope)
-                case false =>
-                  (inflight, filteredEnvelopes)
-              }
-            case None =>
-              Future.successful((inflight, filteredEnvelopes :+ envelope))
-          }
+      .foldLeft(Future.successful((getInflight(), Vector.empty[(Envelope, Validation)]))) { (acc, envelope) =>
+        acc.flatMap {
+          case (inflight, filteredEnvelopes) =>
+            createRecordWithOffset(envelope) match {
+              case Some(recordWithOffset) =>
+                validate(recordWithOffset, inflight).map {
+                  case Accepted =>
+                    (
+                      inflight.updated(recordWithOffset.record.pid, recordWithOffset.record.seqNr),
+                      filteredEnvelopes :+ (envelope -> Accepted))
+                  case rejected =>
+                    (inflight, filteredEnvelopes :+ (envelope -> rejected))
+                }
+              case None =>
+                Future.successful((inflight, filteredEnvelopes :+ (envelope -> Accepted)))
+            }
         }
       }
-      .map { case (_, filteredEnvelopes) =>
-        filteredEnvelopes
+      .map {
+        case (_, filteredEnvelopes) =>
+          filteredEnvelopes
       }
   }
 
-  def isAccepted[Envelope](envelope: Envelope): Future[Boolean] = {
+  /**
+   * Validate if the sequence number of the envelope is the next expected, or if the envelope
+   * is a duplicate that has already been processed, or there is a gap in sequence numbers that
+   * should be rejected.
+   */
+  def validate[Envelope](envelope: Envelope): Future[Validation] = {
     createRecordWithOffset(envelope) match {
-      case Some(recordWithOffset) => isAccepted(recordWithOffset, getInflight())
-      case None                   => FutureTrue
+      case Some(recordWithOffset) => validate(recordWithOffset, getInflight())
+      case None                   => Validation.FutureAccepted
     }
   }
 
-  private def isAccepted[Envelope](
-      recordWithOffset: RecordWithOffset,
-      currentInflight: Map[Pid, SeqNr]): Future[Boolean] = {
+  private def validate(recordWithOffset: RecordWithOffset, currentInflight: Map[Pid, SeqNr]): Future[Validation] = {
+    import Validation._
     val pid = recordWithOffset.record.pid
     val seqNr = recordWithOffset.record.seqNr
     val currentState = getState()
 
-    val duplicate = isDuplicate(recordWithOffset.record)
+    val duplicate = getState().isDuplicate(recordWithOffset.record)
 
     if (duplicate) {
       logger.trace("Filtering out duplicate sequence number [{}] for pid [{}]", seqNr, pid)
-      FutureFalse
+      FutureDuplicate
     } else if (recordWithOffset.strictSeqNr) {
       // strictSeqNr == true is for event sourced
       val prevSeqNr = currentInflight.getOrElse(pid, currentState.byPid.get(pid).map(_.seqNr).getOrElse(0L))
 
       def logUnexpected(): Unit = {
         if (recordWithOffset.fromPubSub)
-          logger.debug(
+          logger.debugN(
             "Rejecting pub-sub envelope, unexpected sequence number [{}] for pid [{}], previous sequence number [{}]. Offset: {}",
-            seqNr: java.lang.Long,
+            seqNr,
             pid,
-            prevSeqNr: java.lang.Long,
+            prevSeqNr,
             recordWithOffset.offset)
         else if (!recordWithOffset.fromBacktracking)
-          logger.debug(
+          logger.debugN(
             "Rejecting unexpected sequence number [{}] for pid [{}], previous sequence number [{}]. Offset: {}",
-            seqNr: java.lang.Long,
+            seqNr,
             pid,
-            prevSeqNr: java.lang.Long,
+            prevSeqNr,
             recordWithOffset.offset)
         else
-          logger.warn(
+          logger.warnN(
             "Rejecting unexpected sequence number [{}] for pid [{}], previous sequence number [{}]. Offset: {}",
-            seqNr: java.lang.Long,
+            seqNr,
             pid,
-            prevSeqNr: java.lang.Long,
+            prevSeqNr,
             recordWithOffset.offset)
       }
 
       def logUnknown(): Unit = {
         if (recordWithOffset.fromPubSub) {
-          logger.debug(
+          logger.debugN(
             "Rejecting pub-sub envelope, unknown sequence number [{}] for pid [{}] (might be accepted later): {}",
-            seqNr: java.lang.Long,
+            seqNr,
             pid,
             recordWithOffset.offset)
         } else if (!recordWithOffset.fromBacktracking) {
           // This may happen rather frequently when using `publish-events`, after reconnecting and such.
-          logger.debug(
+          logger.debugN(
             "Rejecting unknown sequence number [{}] for pid [{}] (might be accepted later): {}",
-            seqNr: java.lang.Long,
+            seqNr,
             pid,
             recordWithOffset.offset)
         } else {
-          logger.warn(
+          logger.warnN(
             "Rejecting unknown sequence number [{}] for pid [{}]. Offset: {}",
-            seqNr: java.lang.Long,
+            seqNr,
             pid,
             recordWithOffset.offset)
         }
@@ -716,26 +753,22 @@ private[projection] class R2dbcOffsetStore(
         // expecting seqNr to be +1 of previously known
         val ok = seqNr == prevSeqNr + 1
         if (ok) {
-          FutureTrue
+          FutureAccepted
         } else if (seqNr <= currentInflight.getOrElse(pid, 0L)) {
           // currentInFlight contains those that have been processed or about to be processed in Flow,
           // but offset not saved yet => ok to handle as duplicate
-          FutureFalse
+          FutureDuplicate
         } else if (!recordWithOffset.fromBacktracking) {
           logUnexpected()
-          FutureFalse
+          FutureRejectedSeqNr
         } else {
           logUnexpected()
           // This will result in projection restart (with normal configuration)
-          Future.failed(
-            new IllegalStateException(
-              s"Rejected envelope from backtracking, persistenceId [$pid], seqNr [$seqNr] " +
-              "due to unexpected sequence number. " +
-              "Please report this issue at https://github.com/apache/pekko-persistence-r2dbc"))
+          FutureRejectedBacktrackingSeqNr
         }
       } else if (seqNr == 1) {
         // always accept first event if no other event for that pid has been seen
-        FutureTrue
+        FutureAccepted
       } else {
         // Haven't see seen this pid within the time window. Since events can be missed
         // when read at the tail we will only accept it if the event with previous seqNr has timestamp
@@ -745,28 +778,25 @@ private[projection] class R2dbcOffsetStore(
           case Some(previousTimestamp) =>
             val before = currentState.latestTimestamp.minus(settings.timeWindow)
             if (previousTimestamp.isBefore(before)) {
-              logger.debug(
+              logger.debugN(
                 "Accepting envelope with pid [{}], seqNr [{}], where previous event timestamp [{}] " +
                 "is before time window [{}].",
                 pid,
-                seqNr: java.lang.Long,
+                seqNr,
                 previousTimestamp,
                 before)
-              true
+              Accepted
             } else if (!recordWithOffset.fromBacktracking) {
               logUnknown()
-              false
+              RejectedSeqNr
             } else {
               logUnknown()
               // This will result in projection restart (with normal configuration)
-              throw new IllegalStateException(
-                s"Rejected envelope from backtracking, persistenceId [$pid], seqNr [$seqNr], " +
-                "due to unknown sequence number. " +
-                "Please report this issue at https://github.com/apache/pekko-persistence-r2dbc")
+              RejectedBacktrackingSeqNr
             }
           case None =>
             // previous not found, could have been deleted
-            true
+            Accepted
         }
       }
     } else {
@@ -775,12 +805,10 @@ private[projection] class R2dbcOffsetStore(
       val ok = seqNr > prevSeqNr
 
       if (ok) {
-        FutureTrue
+        FutureAccepted
       } else {
-        logger.trace("Filtering out earlier revision [{}] for pid [{}], previous revision [{}]", seqNr: java.lang.Long,
-          pid,
-          prevSeqNr: java.lang.Long)
-        FutureFalse
+        logger.traceN("Filtering out earlier revision [{}] for pid [{}], previous revision [{}]", seqNr, pid, prevSeqNr)
+        FutureDuplicate
       }
     }
   }
@@ -798,8 +826,9 @@ private[projection] class R2dbcOffsetStore(
 
   @tailrec final def addInflights[Envelope](envelopes: immutable.Seq[Envelope]): Unit = {
     val currentInflight = getInflight()
-    val entries = envelopes.iterator.map(createRecordWithOffset).collect { case Some(r) =>
-      r.record.pid -> r.record.seqNr
+    val entries = envelopes.iterator.map(createRecordWithOffset).collect {
+      case Some(r) =>
+        r.record.pid -> r.record.seqNr
     }
     val newInflight = currentInflight ++ entries
     if (!inflight.compareAndSet(currentInflight, newInflight))
@@ -832,6 +861,13 @@ private[projection] class R2dbcOffsetStore(
         val until = currentState.latestTimestamp.minus(settings.timeWindow)
         val minSlice = timestampOffsetBySlicesSourceProvider.minSlice
         val maxSlice = timestampOffsetBySlicesSourceProvider.maxSlice
+        val notInLatestBySlice = currentState.latestBySlice.collect {
+          case record if record.timestamp.isBefore(until) =>
+            // note that deleteOldTimestampOffsetSql already has `AND timestamp_offset < ?`
+            // and that's why timestamp >= until don't have to be included here
+            s"${record.pid}-${record.seqNr}"
+        }.toArray
+
         val result = r2dbcExecutor.updateOne("delete old timestamp offset") { conn =>
           conn
             .createStatement(deleteOldTimestampOffsetSql)
@@ -839,10 +875,8 @@ private[projection] class R2dbcOffsetStore(
             .bind(1, maxSlice)
             .bind(2, projectionId.name)
             .bind(3, until)
+            .bind(4, notInLatestBySlice)
         }
-
-        // FIXME would it be good to keep at least one record per slice that can be used as the
-        // starting point for the slice if the slice ranges are changed?
 
         result.failed.foreach { exc =>
           idle.set(false) // try again next tick
@@ -854,9 +888,9 @@ private[projection] class R2dbcOffsetStore(
         }
         if (logger.isDebugEnabled)
           result.foreach { rows =>
-            logger.debug(
+            logger.debugN(
               "Deleted [{}] timestamp offset rows until [{}] for projection [{}].",
-              rows: java.lang.Long,
+              rows,
               until,
               projectionId.id)
           }
@@ -870,29 +904,35 @@ private[projection] class R2dbcOffsetStore(
    * Resetting an offset. Deletes newer offsets. Used from ProjectionManagement. Doesn't update in-memory state because
    * the projection is supposed to be stopped/started for this operation.
    */
-  def managementSetOffset[Off](offset: Off): Future[Done] = {
+  def managementSetOffset[Offset](offset: Offset): Future[Done] = {
     offset match {
       case t: TimestampOffset =>
         r2dbcExecutor
           .withConnection("set offset") { conn =>
             deleteNewTimestampOffsetsInTx(conn, t.timestamp).flatMap { _ =>
               val records =
-                if (t.seen.isEmpty)
+                if (t.seen.isEmpty) {
                   // we need some persistenceId to be able to store the new offset timestamp
-                  Vector(Record(PersistenceId("mgmt", UUID.randomUUID().toString).id, seqNr = 1L, t.timestamp))
-                else
-                  t.seen.iterator.map { case (pid, seqNr) => Record(pid, seqNr, t.timestamp) }.toVector
+                  val pid = PersistenceId("mgmt", UUID.randomUUID().toString).id
+                  val slice = persistenceExt.sliceForPersistenceId(pid)
+                  Vector(Record(slice, pid, seqNr = 1L, t.timestamp))
+                } else
+                  t.seen.iterator.map {
+                    case (pid, seqNr) =>
+                      val slice = persistenceExt.sliceForPersistenceId(pid)
+                      Record(slice, pid, seqNr, t.timestamp)
+                  }.toVector
               insertTimestampOffsetInTx(conn, records)
             }
           }
-          .map(_ => Done)(ExecutionContext.parasitic)
+          .map(_ => Done)(ExecutionContexts.parasitic)
 
       case _ =>
         r2dbcExecutor
           .withConnection("set offset") { conn =>
             savePrimitiveOffsetInTx(conn, offset)
           }
-          .map(_ => Done)(ExecutionContext.parasitic)
+          .map(_ => Done)(ExecutionContexts.parasitic)
     }
   }
 
@@ -912,14 +952,11 @@ private[projection] class R2dbcOffsetStore(
           .bind(2, projectionId.name)
           .bind(3, timestamp))
 
-      // FIXME would it be good to keep at least one record per slice that can be used as the
-      // starting point for the slice if the slice ranges are changed?
-
       if (logger.isDebugEnabled)
         result.foreach { rows =>
-          logger.debug(
+          logger.debugN(
             "Deleted [{}] timestamp offset rows >= [{}] for projection [{}].",
-            rows: java.lang.Long,
+            rows,
             timestamp,
             projectionId.id)
         }
@@ -1002,34 +1039,41 @@ private[projection] class R2dbcOffsetStore(
           .bind(2, paused)
           .bind(3, Instant.now(clock).toEpochMilli)
       }
-      .map(_ => Done)(ExecutionContext.parasitic)
+      .flatMap {
+        case i if i == 1 => Future.successful(Done)
+        case _ =>
+          Future.failed(new RuntimeException(s"Failed to update management table for $projectionId"))
+      }
   }
 
   private def createRecordWithOffset[Envelope](envelope: Envelope): Option[RecordWithOffset] = {
     envelope match {
       case eventEnvelope: EventEnvelope[_] if eventEnvelope.offset.isInstanceOf[TimestampOffset] =>
         val timestampOffset = eventEnvelope.offset.asInstanceOf[TimestampOffset]
+        val slice = persistenceExt.sliceForPersistenceId(eventEnvelope.persistenceId)
         Some(
           RecordWithOffset(
-            Record(eventEnvelope.persistenceId, eventEnvelope.sequenceNr, timestampOffset.timestamp),
+            Record(slice, eventEnvelope.persistenceId, eventEnvelope.sequenceNr, timestampOffset.timestamp),
             timestampOffset,
             strictSeqNr = true,
             fromBacktracking = EnvelopeOrigin.fromBacktracking(eventEnvelope),
             fromPubSub = EnvelopeOrigin.fromPubSub(eventEnvelope)))
       case change: UpdatedDurableState[_] if change.offset.isInstanceOf[TimestampOffset] =>
         val timestampOffset = change.offset.asInstanceOf[TimestampOffset]
+        val slice = persistenceExt.sliceForPersistenceId(change.persistenceId)
         Some(
           RecordWithOffset(
-            Record(change.persistenceId, change.revision, timestampOffset.timestamp),
+            Record(slice, change.persistenceId, change.revision, timestampOffset.timestamp),
             timestampOffset,
             strictSeqNr = false,
-            fromBacktracking = change.value == null,
+            fromBacktracking = EnvelopeOrigin.fromBacktracking(change),
             fromPubSub = false))
       case change: DeletedDurableState[_] if change.offset.isInstanceOf[TimestampOffset] =>
         val timestampOffset = change.offset.asInstanceOf[TimestampOffset]
+        val slice = persistenceExt.sliceForPersistenceId(change.persistenceId)
         Some(
           RecordWithOffset(
-            Record(change.persistenceId, change.revision, timestampOffset.timestamp),
+            Record(slice, change.persistenceId, change.revision, timestampOffset.timestamp),
             timestampOffset,
             strictSeqNr = false,
             fromBacktracking = false,
@@ -1037,7 +1081,7 @@ private[projection] class R2dbcOffsetStore(
       case change: DurableStateChange[_] if change.offset.isInstanceOf[TimestampOffset] =>
         // in case additional types are added
         throw new IllegalArgumentException(
-          s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/pekko-persistence-r2dbc/issues")
+          s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/akka/akka-persistence-r2dbc/issues")
       case _ => None
     }
   }

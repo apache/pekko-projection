@@ -3,17 +3,17 @@
 
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>[%date{ISO8601}] [%level] [%logger] [%X{pekkoAddress}] [%marker] [%thread] - %msg%n</pattern>
+            <pattern>[%date{ISO8601}] [%level] [%logger] [%X{akkaAddress}] [%marker] [%thread] - %msg%n</pattern>
         </encoder>
     </appender>
 
-    <appender name="CapturingAppender" class="org.apache.pekko.actor.testkit.typed.internal.CapturingAppender"/>
-    <logger name="org.apache.pekko.actor.testkit.typed.internal.CapturingAppenderDelegate">
+    <appender name="CapturingAppender" class="akka.actor.testkit.typed.internal.CapturingAppender"/>
+    <logger name="akka.actor.testkit.typed.internal.CapturingAppenderDelegate">
         <appender-ref ref="STDOUT"/>
     </logger>
 
-    <logger name="org.apache.pekko.projection.r2dbc" level="DEBUG" />
-    <logger name="org.apache.pekko.persistence.r2dbc" level="DEBUG" />
+    <logger name="akka.projection" level="DEBUG" />
+    <logger name="akka.persistence.r2dbc" level="DEBUG" />
 <!--    <logger name="io.r2dbc.postgresql.QUERY" level="DEBUG" />-->
 <!--    <logger name="io.r2dbc.pool" level="DEBUG" />-->
 

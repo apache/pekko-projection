@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc.internal
@@ -17,21 +17,20 @@ import java.time.Instant
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
+import scala.concurrent.Future
+import org.apache.pekko.NotUsed
+import org.apache.pekko.annotation.InternalApi
+import org.apache.pekko.projection.javadsl
+import org.apache.pekko.projection.scaladsl
+import org.apache.pekko.stream.scaladsl.Source
 
-import scala.concurrent.{ ExecutionContext, Future }
 import scala.jdk.FutureConverters._
-import scala.jdk.OptionConverters._
 
-import org.apache.pekko
-import pekko.NotUsed
-import pekko.annotation.InternalApi
-import pekko.persistence.query.typed.EventEnvelope
-import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import pekko.projection.javadsl
-import pekko.projection.scaladsl
-import pekko.projection.BySlicesSourceProvider
-import pekko.stream.scaladsl.Source
+import scala.jdk.OptionConverters._
+import org.apache.pekko.persistence.query.typed.EventEnvelope
+import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import org.apache.pekko.projection.BySlicesSourceProvider
 
 /**
  * INTERNAL API: Adapter from javadsl.SourceProvider to scaladsl.SourceProvider
@@ -46,11 +45,11 @@ import pekko.stream.scaladsl.Source
   def source(offset: () => Future[Option[Offset]]): Future[Source[Envelope, NotUsed]] = {
     // the parasitic context is used to convert the Optional to Option and a java streams Source to a scala Source,
     // it _should_ not be used for the blocking operation of getting offsets themselves
-    val ec = ExecutionContext.parasitic
+    val ec = scala.concurrent.ExecutionContext.parasitic
     val offsetAdapter = new Supplier[CompletionStage[Optional[Offset]]] {
-      override def get(): CompletionStage[Optional[Offset]] = offset().map(_.toJava)(ec).asJava
+      override def get(): CompletionStage[Optional[Offset]] = offset().map(_.asJava)(ec).toJava
     }
-    delegate.source(offsetAdapter).asScala.map(_.asScala)(ec)
+    delegate.source(offsetAdapter).toScala.map(_.asScala)(ec)
   }
 
   def extractOffset(envelope: Envelope): Offset = delegate.extractOffset(envelope)
@@ -65,23 +64,23 @@ import pekko.stream.scaladsl.Source
 
   override def timestampOf(persistenceId: String, sequenceNr: Long): Future[Option[Instant]] =
     delegate match {
-      case timestampQuery: pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
-        timestampQuery.timestampOf(persistenceId, sequenceNr).asScala.map(_.toScala)(ExecutionContext.parasitic)
+      case timestampQuery: org.apache.pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
+        timestampQuery.timestampOf(persistenceId, sequenceNr).toScala.map(_.toScala)(scala.concurrent.ExecutionContext.parasitic)
       case _ =>
         Future.failed(
           new IllegalArgumentException(
             s"Expected SourceProvider [${delegate.getClass.getName}] to implement " +
-            "EventTimestampQuery when TimestampOffset is used."))
+            s"EventTimestampQuery when TimestampOffset is used."))
     }
 
   override def loadEnvelope[Event](persistenceId: String, sequenceNr: Long): Future[EventEnvelope[Event]] =
     delegate match {
-      case timestampQuery: pekko.persistence.query.typed.javadsl.LoadEventQuery =>
-        timestampQuery.loadEnvelope[Event](persistenceId, sequenceNr).asScala
+      case timestampQuery: org.apache.pekko.persistence.query.typed.javadsl.LoadEventQuery =>
+        timestampQuery.loadEnvelope[Event](persistenceId, sequenceNr).toScala
       case _ =>
         Future.failed(
           new IllegalArgumentException(
             s"Expected SourceProvider [${delegate.getClass.getName}] to implement " +
-            "EventTimestampQuery when LoadEventQuery is used."))
+            s"EventTimestampQuery when LoadEventQuery is used."))
     }
 }

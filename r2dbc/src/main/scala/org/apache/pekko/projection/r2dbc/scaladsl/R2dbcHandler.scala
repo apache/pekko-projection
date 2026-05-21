@@ -8,17 +8,16 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc.scaladsl
 
 import scala.concurrent.Future
 
-import org.apache.pekko
-import pekko.Done
-import pekko.annotation.ApiMayChange
-import pekko.projection.scaladsl.HandlerLifecycle
+import org.apache.pekko.Done
+import org.apache.pekko.annotation.ApiMayChange
+import org.apache.pekko.projection.scaladsl.HandlerLifecycle
 
 /**
  * Implement this interface for the Envelope handler for R2DBC Projections.

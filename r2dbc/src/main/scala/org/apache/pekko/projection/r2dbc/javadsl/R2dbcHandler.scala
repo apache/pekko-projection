@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc.javadsl
@@ -17,11 +17,10 @@ import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
 import java.util.function.BiFunction
 
-import org.apache.pekko
-import pekko.Done
-import pekko.annotation.ApiMayChange
-import pekko.annotation.InternalApi
-import pekko.projection.javadsl.HandlerLifecycle
+import org.apache.pekko.Done
+import org.apache.pekko.annotation.ApiMayChange
+import org.apache.pekko.annotation.InternalApi
+import org.apache.pekko.projection.javadsl.HandlerLifecycle
 
 object R2dbcHandler {
 

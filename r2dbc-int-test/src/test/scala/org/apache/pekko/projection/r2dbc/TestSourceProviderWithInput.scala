@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -22,20 +22,19 @@ import scala.concurrent.Future
 import scala.concurrent.Promise
 import scala.jdk.CollectionConverters._
 
-import org.apache.pekko
-import pekko.NotUsed
-import pekko.actor.typed.ActorRef
-import pekko.actor.typed.ActorSystem
-import pekko.actor.typed.scaladsl.adapter._
-import pekko.persistence.Persistence
-import pekko.persistence.query.TimestampOffset
-import pekko.persistence.query.typed.EventEnvelope
-import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import pekko.projection.BySlicesSourceProvider
-import pekko.projection.scaladsl.SourceProvider
-import pekko.stream.OverflowStrategy
-import pekko.stream.scaladsl.Source
+import org.apache.pekko.NotUsed
+import org.apache.pekko.actor.typed.ActorRef
+import org.apache.pekko.actor.typed.ActorSystem
+import org.apache.pekko.actor.typed.scaladsl.adapter._
+import org.apache.pekko.persistence.Persistence
+import org.apache.pekko.persistence.query.TimestampOffset
+import org.apache.pekko.persistence.query.typed.EventEnvelope
+import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import org.apache.pekko.projection.BySlicesSourceProvider
+import org.apache.pekko.projection.scaladsl.SourceProvider
+import org.apache.pekko.stream.OverflowStrategy
+import org.apache.pekko.stream.scaladsl.Source
 
 class TestSourceProviderWithInput()(implicit val system: ActorSystem[_])
     extends SourceProvider[TimestampOffset, EventEnvelope[String]]
@@ -88,8 +87,7 @@ class TestSourceProviderWithInput()(implicit val system: ActorSystem[_])
   override def timestampOf(persistenceId: String, sequenceNr: Long): Future[Option[Instant]] = {
     Future.successful(envelopes.iterator().asScala.collectFirst {
       case env
-          if env.persistenceId == persistenceId && env.sequenceNr == sequenceNr &&
-          env.offset
+          if env.persistenceId == persistenceId && env.sequenceNr == sequenceNr && env.offset
             .isInstanceOf[TimestampOffset] =>
         env.offset.asInstanceOf[TimestampOffset].timestamp
     })
@@ -101,7 +99,7 @@ class TestSourceProviderWithInput()(implicit val system: ActorSystem[_])
         env.asInstanceOf[EventEnvelope[Event]]
     } match {
       case Some(env) => Future.successful(env)
-      case None      =>
+      case None =>
         Future.failed(
           new NoSuchElementException(
             s"Event with persistenceId [$persistenceId] and sequenceNr [$sequenceNr] not found."))

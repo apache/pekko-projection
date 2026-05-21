@@ -47,7 +47,8 @@ object R2dbcProjectionSettings {
       keepNumberOfEntries = config.getInt("offset-store.keep-number-of-entries"),
       evictInterval = config.getDuration("offset-store.evict-interval"),
       deleteInterval = config.getDuration("offset-store.delete-interval"),
-      logDbCallsExceeding
+      logDbCallsExceeding,
+      warnAboutFilteredEventsInFlow = config.getBoolean("warn-about-filtered-events-in-flow")
     )
   }
 
@@ -85,7 +86,8 @@ object R2dbcProjectionSettings {
       keepNumberOfEntries: Int,
       evictInterval: JDuration,
       deleteInterval: JDuration,
-      logDbCallsExceeding: FiniteDuration
+      logDbCallsExceeding: FiniteDuration,
+      warnAboutFilteredEventsInFlow: Boolean = true
   ): R2dbcProjectionSettings = new R2dbcProjectionSettings(
     Dialect.Postgres,
     schema,
@@ -97,7 +99,8 @@ object R2dbcProjectionSettings {
     keepNumberOfEntries,
     evictInterval,
     deleteInterval,
-    logDbCallsExceeding
+    logDbCallsExceeding,
+    warnAboutFilteredEventsInFlow
   )
 }
 
@@ -112,12 +115,13 @@ final class R2dbcProjectionSettings private (
     val keepNumberOfEntries: Int,
     val evictInterval: JDuration,
     val deleteInterval: JDuration,
-    val logDbCallsExceeding: FiniteDuration
+    val logDbCallsExceeding: FiniteDuration,
+    val warnAboutFilteredEventsInFlow: Boolean
 ) extends Serializable {
 
   override def toString: String =
     s"R2dbcProjectionSettings($dialect, $schema, $offsetTable, $timestampOffsetTable, $managementTable, " +
-    s"$useConnectionFactory, $timeWindow, $keepNumberOfEntries, $evictInterval, $deleteInterval, $logDbCallsExceeding)"
+    s"$useConnectionFactory, $timeWindow, $keepNumberOfEntries, $evictInterval, $deleteInterval, $logDbCallsExceeding, $warnAboutFilteredEventsInFlow)"
 
   override def equals(other: Any): Boolean =
     other match {
@@ -127,7 +131,8 @@ final class R2dbcProjectionSettings private (
         managementTable == that.managementTable && useConnectionFactory == that.useConnectionFactory &&
         timeWindow == that.timeWindow && keepNumberOfEntries == that.keepNumberOfEntries &&
         evictInterval == that.evictInterval && deleteInterval == that.deleteInterval &&
-        logDbCallsExceeding == that.logDbCallsExceeding
+        logDbCallsExceeding == that.logDbCallsExceeding &&
+        warnAboutFilteredEventsInFlow == that.warnAboutFilteredEventsInFlow
       case _ => false
     }
 
@@ -143,7 +148,8 @@ final class R2dbcProjectionSettings private (
       keepNumberOfEntries,
       evictInterval,
       deleteInterval,
-      logDbCallsExceeding
+      logDbCallsExceeding,
+      warnAboutFilteredEventsInFlow
     )
     val h = values.foldLeft(MurmurHash3.productSeed) { case (h, value) =>
       MurmurHash3.mix(h, value.##)
@@ -162,7 +168,8 @@ final class R2dbcProjectionSettings private (
       keepNumberOfEntries: Int = keepNumberOfEntries,
       evictInterval: JDuration = evictInterval,
       deleteInterval: JDuration = deleteInterval,
-      logDbCallsExceeding: FiniteDuration = logDbCallsExceeding
+      logDbCallsExceeding: FiniteDuration = logDbCallsExceeding,
+      warnAboutFilteredEventsInFlow: Boolean = warnAboutFilteredEventsInFlow
   ): R2dbcProjectionSettings =
     new R2dbcProjectionSettings(
       dialect,
@@ -175,7 +182,8 @@ final class R2dbcProjectionSettings private (
       keepNumberOfEntries,
       evictInterval,
       deleteInterval,
-      logDbCallsExceeding
+      logDbCallsExceeding,
+      warnAboutFilteredEventsInFlow
     )
 
   def withDialect(dialect: Dialect): R2dbcProjectionSettings =
@@ -210,6 +218,9 @@ final class R2dbcProjectionSettings private (
 
   def withLogDbCallsExceeding(logDbCallsExceeding: FiniteDuration): R2dbcProjectionSettings =
     copy(logDbCallsExceeding = logDbCallsExceeding)
+
+  def withWarnAboutFilteredEventsInFlow(warnAboutFilteredEventsInFlow: Boolean): R2dbcProjectionSettings =
+    copy(warnAboutFilteredEventsInFlow = warnAboutFilteredEventsInFlow)
 
   val offsetTableWithSchema: String = schema.map(_ + ".").getOrElse("") + offsetTable
   val timestampOffsetTableWithSchema: String = schema.map(_ + ".").getOrElse("") + timestampOffsetTable
