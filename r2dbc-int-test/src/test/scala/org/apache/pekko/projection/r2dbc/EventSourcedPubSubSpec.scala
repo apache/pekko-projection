@@ -26,6 +26,7 @@ import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.testkit.typed.scaladsl.TestProbe
 import pekko.actor.typed.ActorRef
 import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.persistence.query.TimestampOffset
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
@@ -43,23 +44,23 @@ import org.slf4j.LoggerFactory
 
 object EventSourcedPubSubSpec {
 
-  val config: Config = ConfigFactory.load(
-    ConfigFactory
-      .parseString("""
-      pekko.persistence.r2dbc {
-        journal.publish-events = on
+  val config: Config = ConfigFactory
+    .parseString("""
+    pekko.persistence.r2dbc {
+      journal.publish-events = on
+      query {
         refresh-interval = 3 seconds
-          # simulate lost messages by overflowing the buffer
-          buffer-size = 10
+        # simulate lost messages by overflowing the buffer
+        buffer-size = 10
 
-          backtracking {
-            behind-current-time = 5 seconds
-            window = 20 seconds
-          }
+        backtracking {
+          behind-current-time = 5 seconds
+          window = 20 seconds
+        }
       }
-      """)
-      .withFallback(TestConfig.unresolvedConfig)
-  )
+    }
+    """)
+    .withFallback(TestConfig.config)
 
   final case class Processed(projectionId: ProjectionId, envelope: EventEnvelope[String])
 
@@ -74,13 +75,13 @@ object EventSourcedPubSubSpec {
       whenDone(envelope).map { _ =>
         val timestampOffset = envelope.offset.asInstanceOf[TimestampOffset]
         val directReplication = timestampOffset.timestamp == timestampOffset.readTimestamp
-        log.debug(
+        log.debugN(
           "{} Processed {}, pid {}, seqNr {}, direct {}",
           projectionId.key,
           envelope.event,
           envelope.persistenceId,
-          envelope.sequenceNr: java.lang.Long,
-          directReplication: java.lang.Boolean)
+          envelope.sequenceNr,
+          directReplication)
         probe ! Processed(projectionId, envelope)
         Done
       }
