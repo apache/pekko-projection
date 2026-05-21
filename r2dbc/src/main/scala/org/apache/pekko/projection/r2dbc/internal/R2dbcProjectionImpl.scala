@@ -114,7 +114,7 @@ private[projection] object R2dbcProjectionImpl {
             loadEventQuery.loadEnvelope[Any](pid, seqNr)
           case loadEventQuery: pekko.persistence.query.typed.javadsl.LoadEventQuery =>
             import scala.jdk.FutureConverters._
-            loadEventQuery.loadEnvelope[Any](pid, seqNr).toScala
+            loadEventQuery.loadEnvelope[Any](pid, seqNr).asScala
           case _ =>
             throw new IllegalArgumentException(
               s"Expected sourceProvider [${sourceProvider.getClass.getName}] " +
@@ -135,7 +135,7 @@ private[projection] object R2dbcProjectionImpl {
             store.getObject(pid)
           case store: pekko.persistence.state.javadsl.DurableStateStore[_] =>
             import scala.jdk.FutureConverters._
-            store.getObject(pid).toScala.map(_.toScala)
+            store.getObject(pid).asScala.map(_.toScala)
           case unknown =>
             throw new IllegalArgumentException(s"Unsupported source provider type '${unknown.getClass}'")
         }).map {

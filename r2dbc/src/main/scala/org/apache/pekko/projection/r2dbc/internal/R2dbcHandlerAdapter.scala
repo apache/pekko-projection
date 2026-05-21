@@ -32,14 +32,14 @@ import pekko.projection.r2dbc.scaladsl
     extends scaladsl.R2dbcHandler[Envelope] {
 
   override def process(session: scaladsl.R2dbcSession, envelope: Envelope): Future[Done] = {
-    delegate.process(new R2dbcSession(session.connection)(session.ec, session.system), envelope).toScala
+    delegate.process(new R2dbcSession(session.connection)(session.ec, session.system), envelope).asScala
   }
 
   override def start(): Future[Done] =
-    delegate.start().toScala
+    delegate.start().asScala
 
   override def stop(): Future[Done] =
-    delegate.stop().toScala
+    delegate.stop().asScala
 
 }
 
@@ -52,13 +52,13 @@ import pekko.projection.r2dbc.scaladsl
     extends scaladsl.R2dbcHandler[immutable.Seq[Envelope]] {
 
   override def process(session: scaladsl.R2dbcSession, envelopes: immutable.Seq[Envelope]): Future[Done] = {
-    delegate.process(new R2dbcSession(session.connection)(session.ec, session.system), envelopes.asJava).toScala
+    delegate.process(new R2dbcSession(session.connection)(session.ec, session.system), envelopes.asJava).asScala
   }
 
   override def start(): Future[Done] =
-    delegate.start().toScala
+    delegate.start().asScala
 
   override def stop(): Future[Done] =
-    delegate.stop().toScala
+    delegate.stop().asScala
 
 }

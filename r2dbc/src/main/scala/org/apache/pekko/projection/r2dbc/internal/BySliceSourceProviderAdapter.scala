@@ -47,9 +47,9 @@ import pekko.stream.scaladsl.Source
     // it _should_ not be used for the blocking operation of getting offsets themselves
     val ec = scala.concurrent.ExecutionContext.parasitic
     val offsetAdapter = new Supplier[CompletionStage[Optional[Offset]]] {
-      override def get(): CompletionStage[Optional[Offset]] = offset().map(_.asJava)(ec).toJava
+      override def get(): CompletionStage[Optional[Offset]] = offset().map(_.asJava)(ec).asJava
     }
-    delegate.source(offsetAdapter).toScala.map(_.asScala)(ec)
+    delegate.source(offsetAdapter).asScala.map(_.asScala)(ec)
   }
 
   def extractOffset(envelope: Envelope): Offset = delegate.extractOffset(envelope)
@@ -65,7 +65,7 @@ import pekko.stream.scaladsl.Source
   override def timestampOf(persistenceId: String, sequenceNr: Long): Future[Option[Instant]] =
     delegate match {
       case timestampQuery: pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
-        timestampQuery.timestampOf(persistenceId, sequenceNr).toScala.map(_.toScala)(
+        timestampQuery.timestampOf(persistenceId, sequenceNr).asScala.map(_.toScala)(
           scala.concurrent.ExecutionContext.parasitic)
       case _ =>
         Future.failed(
@@ -77,7 +77,7 @@ import pekko.stream.scaladsl.Source
   override def loadEnvelope[Event](persistenceId: String, sequenceNr: Long): Future[EventEnvelope[Event]] =
     delegate match {
       case timestampQuery: pekko.persistence.query.typed.javadsl.LoadEventQuery =>
-        timestampQuery.loadEnvelope[Event](persistenceId, sequenceNr).toScala
+        timestampQuery.loadEnvelope[Event](persistenceId, sequenceNr).asScala
       case _ =>
         Future.failed(
           new IllegalArgumentException(
