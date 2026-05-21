@@ -47,7 +47,7 @@ import pekko.stream.scaladsl.Source
     // it _should_ not be used for the blocking operation of getting offsets themselves
     val ec = scala.concurrent.ExecutionContext.parasitic
     val offsetAdapter = new Supplier[CompletionStage[Optional[Offset]]] {
-      override def get(): CompletionStage[Optional[Offset]] = offset().map(_.asJava)(ec).asJava
+      override def get(): CompletionStage[Optional[Offset]] = offset().map(_.toJava)(ec).asJava
     }
     delegate.source(offsetAdapter).asScala.map(_.asScala)(ec)
   }
