@@ -19,23 +19,24 @@ import java.util.UUID
 
 import scala.concurrent.Future
 
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.persistence.query.TimestampOffset
-import org.apache.pekko.persistence.query.UpdatedDurableState
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import org.apache.pekko.persistence.r2dbc.internal.EnvelopeOrigin
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.BySlicesSourceProvider
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.internal.ManagementState
-import org.apache.pekko.projection.r2dbc.internal.OffsetPidSeqNr
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.Pid
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.SeqNr
+import org.apache.pekko
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorSystem
+import pekko.persistence.query.TimestampOffset
+import pekko.persistence.query.UpdatedDurableState
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.persistence.r2dbc.internal.EnvelopeOrigin
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.BySlicesSourceProvider
+import pekko.projection.ProjectionId
+import pekko.projection.internal.ManagementState
+import pekko.projection.r2dbc.internal.OffsetPidSeqNr
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore.Pid
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore.SeqNr
 import com.typesafe.config.ConfigFactory
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
@@ -59,7 +60,7 @@ class R2dbcTimestampOffsetStoreSpec
       ConfigFactory
         .parseString("""
     # to be able to test eviction
-    org.apache.pekko.projection.r2dbc.offset-store.keep-number-of-entries = 0
+    pekko.projection.r2dbc.offset-store.keep-number-of-entries = 0
     """)
         .withFallback(TestConfig.config))
     with AnyWordSpecLike
@@ -935,20 +936,19 @@ class R2dbcTimestampOffsetStoreSpec
       val startTime = TestClock.nowMicros().instant()
       log.debug("Start time [{}]", startTime)
 
-      val storedSlices =
-        (1 to totalMillis / 10).flatMap { m =>
-          val offsets = (1 to 10).map { n =>
-            val pid = s"p$m-$n"
-            OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofMillis(m * 10 + n)), Map(pid -> 1L)), pid, 1L)
-          }
-          offsetStore.saveOffsets(offsets).futureValue
-          if (m % (totalMillis / 100) == 0) {
-            val t0 = System.nanoTime()
-            val deleted = offsetStore.deleteOldTimestampOffsets().futureValue
-            println(s"# ${m * 10} deleted $deleted, took ${(System.nanoTime() - t0) / 1000 / 1000} ms")
-          }
-          offsets.map(o => persistenceExt.sliceForPersistenceId(o.pidSeqNr.get._1)).toSet
-        }.toSet
+      val storedSlices = (1 to totalMillis / 10).flatMap { m =>
+        val offsets = (1 to 10).map { n =>
+          val pid = s"p$m-$n"
+          OffsetPidSeqNr(TimestampOffset(startTime.plus(JDuration.ofMillis(m * 10 + n)), Map(pid -> 1L)), pid, 1L)
+        }
+        offsetStore.saveOffsets(offsets).futureValue
+        if (m % (totalMillis / 100) == 0) {
+          val t0 = System.nanoTime()
+          val deleted = offsetStore.deleteOldTimestampOffsets().futureValue
+          println(s"# ${m * 10} deleted $deleted, took ${(System.nanoTime() - t0) / 1000 / 1000} ms")
+        }
+        offsets.map(o => persistenceExt.sliceForPersistenceId(o.pidSeqNr.get._1)).toSet
+      }.toSet
 
       offsetStore.readOffset().futureValue // this will load from database
       val readSlices = offsetStore.getState().byPid.keySet.map(pid => persistenceExt.sliceForPersistenceId(pid))

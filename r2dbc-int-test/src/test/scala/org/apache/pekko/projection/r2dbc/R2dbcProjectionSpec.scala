@@ -24,37 +24,38 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import org.apache.pekko.Done
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.testkit.typed.TestException
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.persistence.r2dbc.internal.Sql.Interpolation
-import org.apache.pekko.persistence.r2dbc.internal.R2dbcExecutor
-import org.apache.pekko.projection.HandlerRecoveryStrategy
-import org.apache.pekko.projection.OffsetVerification
-import org.apache.pekko.projection.OffsetVerification.VerificationFailure
-import org.apache.pekko.projection.OffsetVerification.VerificationSuccess
-import org.apache.pekko.projection.ProjectionBehavior
-import org.apache.pekko.projection.ProjectionContext
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.TestStatusObserver
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
-import org.apache.pekko.projection.scaladsl.Handler
-import org.apache.pekko.projection.scaladsl.ProjectionManagement
-import org.apache.pekko.projection.scaladsl.SourceProvider
-import org.apache.pekko.projection.testkit.scaladsl.ProjectionTestKit
-import org.apache.pekko.projection.testkit.scaladsl.TestSourceProvider
-import org.apache.pekko.stream.scaladsl.FlowWithContext
-import org.apache.pekko.stream.scaladsl.Source
-import org.apache.pekko.stream.testkit.TestPublisher
-import org.apache.pekko.stream.testkit.TestSubscriber
-import org.apache.pekko.stream.testkit.scaladsl.TestSource
+import org.apache.pekko
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.testkit.typed.TestException
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.persistence.r2dbc.internal.Sql.Interpolation
+import pekko.persistence.r2dbc.internal.R2dbcExecutor
+import pekko.projection.HandlerRecoveryStrategy
+import pekko.projection.OffsetVerification
+import pekko.projection.OffsetVerification.VerificationFailure
+import pekko.projection.OffsetVerification.VerificationSuccess
+import pekko.projection.ProjectionBehavior
+import pekko.projection.ProjectionContext
+import pekko.projection.ProjectionId
+import pekko.projection.TestStatusObserver
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore
+import pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import pekko.projection.r2dbc.scaladsl.R2dbcSession
+import pekko.projection.scaladsl.Handler
+import pekko.projection.scaladsl.ProjectionManagement
+import pekko.projection.scaladsl.SourceProvider
+import pekko.projection.testkit.scaladsl.ProjectionTestKit
+import pekko.projection.testkit.scaladsl.TestSourceProvider
+import pekko.stream.scaladsl.FlowWithContext
+import pekko.stream.scaladsl.Source
+import pekko.stream.testkit.TestPublisher
+import pekko.stream.testkit.TestSubscriber
+import pekko.stream.testkit.scaladsl.TestSource
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
 
@@ -188,8 +189,8 @@ class R2dbcProjectionSpec
     super.beforeAll()
 
     Await.result(r2dbcExecutor.executeDdl("beforeAll createTable") { conn =>
-      conn.createStatement(TestRepository.createTableSql)
-    }, 10.seconds)
+        conn.createStatement(TestRepository.createTableSql)
+      }, 10.seconds)
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(_.createStatement(s"delete from ${TestRepository.table}")),
       10.seconds)
@@ -830,7 +831,6 @@ class R2dbcProjectionSpec
           .withSaveOffset(10, 1.minute)
 
       projectionTestKit.runWithTestSink(projection) { sinkProbe =>
-
         eventually {
           sourceProbe.get should not be null
         }
@@ -875,7 +875,6 @@ class R2dbcProjectionSpec
           .withSaveOffset(10, 2.seconds)
 
       projectionTestKit.runWithTestSink(projection) { sinkProbe =>
-
         eventually {
           sourceProbe.get should not be null
         }
@@ -1161,7 +1160,7 @@ class R2dbcProjectionSpec
 
       def handler: LifecycleHandler = _handler match {
         case Some(h) => h
-        case None =>
+        case None    =>
           handlerProbe.awaitAssert {
             _handler.get
           }

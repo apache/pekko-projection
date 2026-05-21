@@ -18,33 +18,34 @@ import java.util.function.Supplier
 
 import scala.jdk.OptionConverters._
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.annotation.ApiMayChange
-import org.apache.pekko.projection.BySlicesSourceProvider
-import org.apache.pekko.projection.ProjectionContext
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.internal.GroupedHandlerAdapter
-import org.apache.pekko.projection.internal.HandlerAdapter
-import org.apache.pekko.projection.internal.SourceProviderAdapter
-import org.apache.pekko.projection.javadsl.AtLeastOnceFlowProjection
-import org.apache.pekko.projection.javadsl.AtLeastOnceProjection
-import org.apache.pekko.projection.javadsl.ExactlyOnceProjection
-import org.apache.pekko.projection.javadsl.GroupedProjection
-import org.apache.pekko.projection.javadsl.Handler
-import org.apache.pekko.projection.javadsl.SourceProvider
-import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
-import org.apache.pekko.projection.r2dbc.internal.BySliceSourceProviderAdapter
-import org.apache.pekko.projection.r2dbc.internal.R2dbcGroupedHandlerAdapter
-import org.apache.pekko.projection.r2dbc.internal.R2dbcHandlerAdapter
-import org.apache.pekko.projection.r2dbc.scaladsl
-import org.apache.pekko.stream.javadsl.FlowWithContext
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.typed.ActorSystem
+import pekko.annotation.ApiMayChange
+import pekko.projection.BySlicesSourceProvider
+import pekko.projection.ProjectionContext
+import pekko.projection.ProjectionId
+import pekko.projection.internal.GroupedHandlerAdapter
+import pekko.projection.internal.HandlerAdapter
+import pekko.projection.internal.SourceProviderAdapter
+import pekko.projection.javadsl.AtLeastOnceFlowProjection
+import pekko.projection.javadsl.AtLeastOnceProjection
+import pekko.projection.javadsl.ExactlyOnceProjection
+import pekko.projection.javadsl.GroupedProjection
+import pekko.projection.javadsl.Handler
+import pekko.projection.javadsl.SourceProvider
+import pekko.projection.r2dbc.R2dbcProjectionSettings
+import pekko.projection.r2dbc.internal.BySliceSourceProviderAdapter
+import pekko.projection.r2dbc.internal.R2dbcGroupedHandlerAdapter
+import pekko.projection.r2dbc.internal.R2dbcHandlerAdapter
+import pekko.projection.r2dbc.scaladsl
+import pekko.stream.javadsl.FlowWithContext
 
 @ApiMayChange
 object R2dbcProjection {
 
   /**
-   * Create a [[org.apache.pekko.projection.Projection]] with exactly-once processing semantics.
+   * Create a [[pekko.projection.Projection]] with exactly-once processing semantics.
    *
    * It stores the offset in a relational database table using R2DBC in the same transaction as the user defined
    * `handler`.
@@ -65,7 +66,7 @@ object R2dbcProjection {
   }
 
   /**
-   * Create a [[org.apache.pekko.projection.Projection]] with at-least-once processing semantics.
+   * Create a [[pekko.projection.Projection]] with at-least-once processing semantics.
    *
    * It stores the offset in a relational database table using R2DBC after the `handler` has processed the envelope.
    * This means that if the projection is restarted from previously stored offset then some elements may be processed
@@ -94,7 +95,7 @@ object R2dbcProjection {
   }
 
   /**
-   * Create a [[org.apache.pekko.projection.Projection]] with at-least-once processing semantics.
+   * Create a [[pekko.projection.Projection]] with at-least-once processing semantics.
    *
    * Compared to [[R2dbcProjection.atLeastOnce]] the [[Handler]] is not storing the projected result in the database,
    * but is integrating with something else.
@@ -124,7 +125,7 @@ object R2dbcProjection {
   }
 
   /**
-   * Create a [[org.apache.pekko.projection.Projection]] that groups envelopes and calls the `handler` with a group of `Envelopes`.
+   * Create a [[pekko.projection.Projection]] that groups envelopes and calls the `handler` with a group of `Envelopes`.
    * The envelopes are grouped within a time window, or limited by a number of envelopes, whatever happens first. This
    * window can be defined with [[GroupedProjection.withGroup]] of the returned `GroupedProjection`. The default
    * settings for the window is defined in configuration section `pekko.projection.grouped`.
@@ -148,7 +149,7 @@ object R2dbcProjection {
   }
 
   /**
-   * Create a [[org.apache.pekko.projection.Projection]] that groups envelopes and calls the `handler` with a group of `Envelopes`.
+   * Create a [[pekko.projection.Projection]] that groups envelopes and calls the `handler` with a group of `Envelopes`.
    * The envelopes are grouped within a time window, or limited by a number of envelopes, whatever happens first. This
    * window can be defined with [[GroupedProjection.withGroup]] of the returned `GroupedProjection`. The default
    * settings for the window is defined in configuration section `pekko.projection.grouped`.
@@ -176,7 +177,7 @@ object R2dbcProjection {
   }
 
   /**
-   * Create a [[org.apache.pekko.projection.Projection]] with a [[FlowWithContext]] as the envelope handler. It has at-least-once
+   * Create a [[pekko.projection.Projection]] with a [[FlowWithContext]] as the envelope handler. It has at-least-once
    * processing semantics.
    *
    * The flow should emit a `Done` element for each completed envelope. The offset of the envelope is carried in the

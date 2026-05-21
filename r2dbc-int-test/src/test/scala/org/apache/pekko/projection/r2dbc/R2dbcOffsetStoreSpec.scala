@@ -16,17 +16,18 @@ package org.apache.pekko.projection.r2dbc
 import java.time.Instant
 import java.util.UUID
 
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.persistence.query.Sequence
-import org.apache.pekko.persistence.query.TimeBasedUUID
-import org.apache.pekko.persistence.r2dbc.internal.Sql.Interpolation
-import org.apache.pekko.projection.MergeableOffset
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.internal.ManagementState
-import org.apache.pekko.projection.r2dbc.internal.OffsetPidSeqNr
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore
+import org.apache.pekko
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorSystem
+import pekko.persistence.query.Sequence
+import pekko.persistence.query.TimeBasedUUID
+import pekko.persistence.r2dbc.internal.Sql.Interpolation
+import pekko.projection.MergeableOffset
+import pekko.projection.ProjectionId
+import pekko.projection.internal.ManagementState
+import pekko.projection.r2dbc.internal.OffsetPidSeqNr
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore
 import org.scalatest.wordspec.AnyWordSpecLike
 
 class R2dbcOffsetStoreSpec
@@ -156,7 +157,7 @@ class R2dbcOffsetStoreSpec
         offsetStore.saveOffset(OffsetPidSeqNr(offset)).futureValue
 
       val timeUuidOffset =
-        TimeBasedUUID(UUID.fromString("49225740-2019-11ea-a752-ffae2393b6e4")) //2019-12-16T15:32:36.148Z[UTC]
+        TimeBasedUUID(UUID.fromString("49225740-2019-11ea-a752-ffae2393b6e4")) // 2019-12-16T15:32:36.148Z[UTC]
       saveOffset(timeUuidOffset)
       val offset = offsetStore.readOffset[TimeBasedUUID]()
       offset.futureValue shouldBe Some(timeUuidOffset)

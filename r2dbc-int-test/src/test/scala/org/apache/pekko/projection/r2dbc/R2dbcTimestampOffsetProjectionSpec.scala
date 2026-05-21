@@ -24,39 +24,41 @@ import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import org.apache.pekko.Done
-import org.apache.pekko.NotUsed
-import org.apache.pekko.actor.testkit.typed.TestException
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.persistence.query.TimestampOffset
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import org.apache.pekko.persistence.r2dbc.internal.EnvelopeOrigin
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.BySlicesSourceProvider
-import org.apache.pekko.projection.HandlerRecoveryStrategy
-import org.apache.pekko.projection.ProjectionBehavior
-import org.apache.pekko.projection.ProjectionContext
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.TestStatusObserver
-import org.apache.pekko.projection.TestStatusObserver.Err
-import org.apache.pekko.projection.TestStatusObserver.OffsetProgress
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
-import org.apache.pekko.projection.scaladsl.Handler
-import org.apache.pekko.projection.scaladsl.ProjectionManagement
-import org.apache.pekko.projection.scaladsl.SourceProvider
-import org.apache.pekko.projection.testkit.scaladsl.ProjectionTestKit
-import org.apache.pekko.projection.testkit.scaladsl.TestSourceProvider
-import org.apache.pekko.stream.scaladsl.FlowWithContext
-import org.apache.pekko.stream.scaladsl.Source
-import org.apache.pekko.stream.testkit.TestSubscriber
+
+import org.apache.pekko
+import pekko.Done
+import pekko.NotUsed
+import pekko.actor.testkit.typed.TestException
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.persistence.query.TimestampOffset
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.persistence.r2dbc.internal.EnvelopeOrigin
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.BySlicesSourceProvider
+import pekko.projection.HandlerRecoveryStrategy
+import pekko.projection.ProjectionBehavior
+import pekko.projection.ProjectionContext
+import pekko.projection.ProjectionId
+import pekko.projection.TestStatusObserver
+import pekko.projection.TestStatusObserver.Err
+import pekko.projection.TestStatusObserver.OffsetProgress
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore
+import pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import pekko.projection.r2dbc.scaladsl.R2dbcSession
+import pekko.projection.scaladsl.Handler
+import pekko.projection.scaladsl.ProjectionManagement
+import pekko.projection.scaladsl.SourceProvider
+import pekko.projection.testkit.scaladsl.ProjectionTestKit
+import pekko.projection.testkit.scaladsl.TestSourceProvider
+import pekko.stream.scaladsl.FlowWithContext
+import pekko.stream.scaladsl.Source
+import pekko.stream.testkit.TestSubscriber
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
 
@@ -110,7 +112,8 @@ object R2dbcTimestampOffsetProjectionSpec {
     override def timestampOf(persistenceId: String, sequenceNr: Long): Future[Option[Instant]] = {
       Future.successful(envelopes.collectFirst {
         case env
-            if env.persistenceId == persistenceId && env.sequenceNr == sequenceNr && env.offset
+            if env.persistenceId == persistenceId && env.sequenceNr == sequenceNr &&
+            env.offset
               .isInstanceOf[TimestampOffset] =>
           env.offset.asInstanceOf[TimestampOffset].timestamp
       })
@@ -122,7 +125,7 @@ object R2dbcTimestampOffsetProjectionSpec {
           env.asInstanceOf[EventEnvelope[Event]]
       } match {
         case Some(env) => Future.successful(env)
-        case None =>
+        case None      =>
           Future.failed(
             new NoSuchElementException(
               s"Event with persistenceId [$persistenceId] and sequenceNr [$sequenceNr] not found."))
@@ -159,8 +162,8 @@ class R2dbcTimestampOffsetProjectionSpec
     super.beforeAll()
 
     Await.result(r2dbcExecutor.executeDdl("beforeAll createTable") { conn =>
-      conn.createStatement(TestRepository.createTableSql)
-    }, 10.seconds)
+        conn.createStatement(TestRepository.createTableSql)
+      }, 10.seconds)
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(_.createStatement(s"delete from ${TestRepository.table}")),
       10.seconds)

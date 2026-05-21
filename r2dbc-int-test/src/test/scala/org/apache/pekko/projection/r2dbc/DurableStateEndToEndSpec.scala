@@ -15,25 +15,27 @@ package org.apache.pekko.projection.r2dbc
 
 import java.util.UUID
 import scala.concurrent.Future
-import org.apache.pekko.Done
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.Behavior
-import org.apache.pekko.actor.typed.scaladsl.Behaviors
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.persistence.query.DurableStateChange
-import org.apache.pekko.persistence.query.UpdatedDurableState
-import org.apache.pekko.persistence.r2dbc.state.scaladsl.R2dbcDurableStateStore
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.persistence.typed.state.scaladsl.DurableStateBehavior
-import org.apache.pekko.projection.ProjectionBehavior
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
-import org.apache.pekko.projection.state.scaladsl.DurableStateSourceProvider
+
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Behavior
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.persistence.query.DurableStateChange
+import pekko.persistence.query.UpdatedDurableState
+import pekko.persistence.r2dbc.state.scaladsl.R2dbcDurableStateStore
+import pekko.persistence.typed.PersistenceId
+import pekko.persistence.typed.state.scaladsl.DurableStateBehavior
+import pekko.projection.ProjectionBehavior
+import pekko.projection.ProjectionId
+import pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import pekko.projection.r2dbc.scaladsl.R2dbcSession
+import pekko.projection.state.scaladsl.DurableStateSourceProvider
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -54,7 +56,7 @@ object DurableStateEndToEndSpec {
     .withFallback(TestConfig.config)
 
   object DurableStatePersister {
-    import org.apache.pekko.persistence.typed.state.scaladsl.Effect
+    import pekko.persistence.typed.state.scaladsl.Effect
 
     sealed trait Command
     final case class Persist(payload: Any) extends Command
@@ -67,31 +69,32 @@ object DurableStateEndToEndSpec {
 
     def apply(pid: PersistenceId): Behavior[Command] = {
       Behaviors.setup { context =>
-        DurableStateBehavior[Command, Any](persistenceId = pid, "", {
-          (_, command) =>
-            command match {
-              case command: Persist =>
-                context.log.debugN(
-                  "Persist [{}], pid [{}], seqNr [{}]",
-                  command.payload,
-                  pid.id,
-                  DurableStateBehavior.lastSequenceNumber(context) + 1)
-                Effect.persist(command.payload)
-              case command: PersistWithAck =>
-                context.log.debugN(
-                  "Persist [{}], pid [{}], seqNr [{}]",
-                  command.payload,
-                  pid.id,
-                  DurableStateBehavior.lastSequenceNumber(context) + 1)
-                Effect.persist(command.payload).thenRun(_ => command.replyTo ! Done)
-              case Ping(replyTo) =>
-                replyTo ! Done
-                Effect.none
-              case Stop(replyTo) =>
-                replyTo ! Done
-                Effect.stop()
-            }
-        })
+        DurableStateBehavior[Command, Any](persistenceId = pid, "",
+          {
+            (_, command) =>
+              command match {
+                case command: Persist =>
+                  context.log.debugN(
+                    "Persist [{}], pid [{}], seqNr [{}]",
+                    command.payload,
+                    pid.id,
+                    DurableStateBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payload)
+                case command: PersistWithAck =>
+                  context.log.debugN(
+                    "Persist [{}], pid [{}], seqNr [{}]",
+                    command.payload,
+                    pid.id,
+                    DurableStateBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payload).thenRun(_ => command.replyTo ! Done)
+                case Ping(replyTo) =>
+                  replyTo ! Done
+                  Effect.none
+                case Stop(replyTo) =>
+                  replyTo ! Done
+                  Effect.stop()
+              }
+          })
       }
     }
   }

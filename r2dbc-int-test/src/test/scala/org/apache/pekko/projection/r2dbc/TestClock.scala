@@ -21,7 +21,8 @@ import java.time.ZoneOffset
 import java.time.temporal.ChronoUnit
 import java.time.temporal.TemporalUnit
 
-import org.apache.pekko.annotation.InternalApi
+import org.apache.pekko
+import pekko.annotation.InternalApi
 
 object TestClock {
   def nowMillis(): TestClock = new TestClock(ChronoUnit.MILLIS)

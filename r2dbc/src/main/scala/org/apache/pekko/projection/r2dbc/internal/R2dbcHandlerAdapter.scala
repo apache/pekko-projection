@@ -14,15 +14,16 @@
 package org.apache.pekko.projection.r2dbc.internal
 
 import scala.collection.immutable
-import scala.jdk.FutureConverters._
 import scala.concurrent.Future
-
-import org.apache.pekko.Done
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.projection.r2dbc.javadsl
-import org.apache.pekko.projection.r2dbc.javadsl.R2dbcSession
-import org.apache.pekko.projection.r2dbc.scaladsl
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
+
+import org.apache.pekko
+import pekko.Done
+import pekko.annotation.InternalApi
+import pekko.projection.r2dbc.javadsl
+import pekko.projection.r2dbc.javadsl.R2dbcSession
+import pekko.projection.r2dbc.scaladsl
 
 /**
  * INTERNAL API: Adapter from javadsl.R2dbcHandler to scaladsl.R2dbcHandler

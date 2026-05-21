@@ -13,9 +13,10 @@
 
 package org.apache.pekko.projection.r2dbc.scaladsl
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.projection.grpc.replication.scaladsl.ReplicationProjectionProvider
-import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.projection.grpc.replication.scaladsl.ReplicationProjectionProvider
+import pekko.projection.r2dbc.R2dbcProjectionSettings
 
 object R2dbcReplication {
 

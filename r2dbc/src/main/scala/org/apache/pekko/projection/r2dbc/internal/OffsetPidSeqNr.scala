@@ -13,7 +13,8 @@
 
 package org.apache.pekko.projection.r2dbc.internal
 
-import org.apache.pekko.annotation.InternalApi
+import org.apache.pekko
+import pekko.annotation.InternalApi
 
 /**
  * INTERNAL API

@@ -15,10 +15,11 @@ package org.apache.pekko.projection.r2dbc
 
 import java.time.Instant
 
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.Pid
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.Record
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.SeqNr
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.State
+import org.apache.pekko
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore.Pid
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore.Record
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore.SeqNr
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore.State
 import org.scalatest.TestSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec

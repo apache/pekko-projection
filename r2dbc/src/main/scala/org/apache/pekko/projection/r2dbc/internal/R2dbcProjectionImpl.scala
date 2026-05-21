@@ -22,56 +22,57 @@ import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
 import scala.util.control.NonFatal
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.event.Logging
-import org.apache.pekko.event.LoggingAdapter
-import org.apache.pekko.persistence.query.DeletedDurableState
-import org.apache.pekko.persistence.query.DurableStateChange
-import org.apache.pekko.persistence.query.UpdatedDurableState
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import org.apache.pekko.persistence.r2dbc.internal.R2dbcExecutor
-import org.apache.pekko.persistence.state.scaladsl.DurableStateStore
-import org.apache.pekko.persistence.state.scaladsl.GetObjectResult
-import org.apache.pekko.projection.BySlicesSourceProvider
-import org.apache.pekko.projection.HandlerRecoveryStrategy
-import org.apache.pekko.projection.HandlerRecoveryStrategy.Internal.RetryAndSkip
-import org.apache.pekko.projection.HandlerRecoveryStrategy.Internal.Skip
-import org.apache.pekko.projection.ProjectionContext
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.RunningProjection
-import org.apache.pekko.projection.RunningProjection.AbortProjectionException
-import org.apache.pekko.projection.RunningProjectionManagement
-import org.apache.pekko.projection.StatusObserver
-import org.apache.pekko.projection.internal.ActorHandlerInit
-import org.apache.pekko.projection.internal.AtLeastOnce
-import org.apache.pekko.projection.internal.AtMostOnce
-import org.apache.pekko.projection.internal.CanTriggerReplay
-import org.apache.pekko.projection.internal.ExactlyOnce
-import org.apache.pekko.projection.internal.GroupedHandlerStrategy
-import org.apache.pekko.projection.internal.HandlerStrategy
-import org.apache.pekko.projection.internal.InternalProjection
-import org.apache.pekko.projection.internal.InternalProjectionState
-import org.apache.pekko.projection.internal.ManagementState
-import org.apache.pekko.projection.internal.OffsetStrategy
-import org.apache.pekko.projection.internal.ProjectionContextImpl
-import org.apache.pekko.projection.internal.ProjectionSettings
-import org.apache.pekko.projection.internal.SettingsImpl
-import org.apache.pekko.projection.javadsl
-import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
-import org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.RejectedEnvelope
-import org.apache.pekko.projection.r2dbc.internal.R2dbcProjectionImpl.extractOffsetPidSeqNr
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
-import org.apache.pekko.projection.scaladsl
-import org.apache.pekko.projection.scaladsl.Handler
-import org.apache.pekko.projection.scaladsl.SourceProvider
-import org.apache.pekko.stream.RestartSettings
-import org.apache.pekko.stream.scaladsl.FlowWithContext
-import org.apache.pekko.stream.scaladsl.Source
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.annotation.InternalApi
+import pekko.event.Logging
+import pekko.event.LoggingAdapter
+import pekko.persistence.query.DeletedDurableState
+import pekko.persistence.query.DurableStateChange
+import pekko.persistence.query.UpdatedDurableState
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.persistence.r2dbc.internal.R2dbcExecutor
+import pekko.persistence.state.scaladsl.DurableStateStore
+import pekko.persistence.state.scaladsl.GetObjectResult
+import pekko.projection.BySlicesSourceProvider
+import pekko.projection.HandlerRecoveryStrategy
+import pekko.projection.HandlerRecoveryStrategy.Internal.RetryAndSkip
+import pekko.projection.HandlerRecoveryStrategy.Internal.Skip
+import pekko.projection.ProjectionContext
+import pekko.projection.ProjectionId
+import pekko.projection.RunningProjection
+import pekko.projection.RunningProjection.AbortProjectionException
+import pekko.projection.RunningProjectionManagement
+import pekko.projection.StatusObserver
+import pekko.projection.internal.ActorHandlerInit
+import pekko.projection.internal.AtLeastOnce
+import pekko.projection.internal.AtMostOnce
+import pekko.projection.internal.CanTriggerReplay
+import pekko.projection.internal.ExactlyOnce
+import pekko.projection.internal.GroupedHandlerStrategy
+import pekko.projection.internal.HandlerStrategy
+import pekko.projection.internal.InternalProjection
+import pekko.projection.internal.InternalProjectionState
+import pekko.projection.internal.ManagementState
+import pekko.projection.internal.OffsetStrategy
+import pekko.projection.internal.ProjectionContextImpl
+import pekko.projection.internal.ProjectionSettings
+import pekko.projection.internal.SettingsImpl
+import pekko.projection.javadsl
+import pekko.projection.r2dbc.R2dbcProjectionSettings
+import pekko.projection.r2dbc.internal.R2dbcOffsetStore.RejectedEnvelope
+import pekko.projection.r2dbc.internal.R2dbcProjectionImpl.extractOffsetPidSeqNr
+import pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcSession
+import pekko.projection.scaladsl
+import pekko.projection.scaladsl.Handler
+import pekko.projection.scaladsl.SourceProvider
+import pekko.stream.RestartSettings
+import pekko.stream.scaladsl.FlowWithContext
+import pekko.stream.scaladsl.Source
 import io.r2dbc.spi.ConnectionFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -81,8 +82,8 @@ import org.slf4j.LoggerFactory
  */
 @InternalApi
 private[projection] object R2dbcProjectionImpl {
-  import org.apache.pekko.persistence.r2dbc.internal.EnvelopeOrigin.fromBacktracking
-  import org.apache.pekko.persistence.r2dbc.internal.EnvelopeOrigin.isFilteredEvent
+  import pekko.persistence.r2dbc.internal.EnvelopeOrigin.fromBacktracking
+  import pekko.persistence.r2dbc.internal.EnvelopeOrigin.isFilteredEvent
 
   val log: Logger = LoggerFactory.getLogger(classOf[R2dbcProjectionImpl[_, _]])
 
@@ -111,7 +112,7 @@ private[projection] object R2dbcProjectionImpl {
         (sourceProvider match {
           case loadEventQuery: LoadEventQuery =>
             loadEventQuery.loadEnvelope[Any](pid, seqNr)
-          case loadEventQuery: org.apache.pekko.persistence.query.typed.javadsl.LoadEventQuery =>
+          case loadEventQuery: pekko.persistence.query.typed.javadsl.LoadEventQuery =>
             import scala.jdk.FutureConverters._
             loadEventQuery.loadEnvelope[Any](pid, seqNr).toScala
           case _ =>
@@ -132,7 +133,7 @@ private[projection] object R2dbcProjectionImpl {
         (sourceProvider match {
           case store: DurableStateStore[_] =>
             store.getObject(pid)
-          case store: org.apache.pekko.persistence.state.javadsl.DurableStateStore[_] =>
+          case store: pekko.persistence.state.javadsl.DurableStateStore[_] =>
             import scala.jdk.FutureConverters._
             store.getObject(pid).toScala.map(_.toScala)
           case unknown =>
@@ -189,7 +190,6 @@ private[projection] object R2dbcProjectionImpl {
       offsetStore: R2dbcOffsetStore,
       r2dbcExecutor: R2dbcExecutor)(implicit ec: ExecutionContext, system: ActorSystem[_]): () => Handler[Envelope] = {
     () =>
-
       new AdaptedR2dbcHandler(handlerFactory()) {
         override def process(envelope: Envelope): Future[Done] = {
           import R2dbcOffsetStore.Validation._
@@ -237,7 +237,6 @@ private[projection] object R2dbcProjectionImpl {
       implicit
       ec: ExecutionContext,
       system: ActorSystem[_]): () => Handler[immutable.Seq[Envelope]] = { () =>
-
     new AdaptedR2dbcHandler(handlerFactory()) {
       override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
         import R2dbcOffsetStore.Validation._
@@ -374,7 +373,6 @@ private[projection] object R2dbcProjectionImpl {
       implicit
       ec: ExecutionContext,
       system: ActorSystem[_]): () => Handler[immutable.Seq[Envelope]] = { () =>
-
     new AdaptedHandler(handlerFactory()) {
       override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
         import R2dbcOffsetStore.Validation._
@@ -593,7 +591,7 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
     val newStrategy = offsetStrategy match {
       case s: ExactlyOnce => s.copy(recoveryStrategy = Some(recoveryStrategy))
       case s: AtLeastOnce => s.copy(recoveryStrategy = Some(recoveryStrategy))
-      //NOTE: AtMostOnce has its own withRecoveryStrategy variant
+      // NOTE: AtMostOnce has its own withRecoveryStrategy variant
       // this method is not available for AtMostOnceProjection
       case s: AtMostOnce => s
     }

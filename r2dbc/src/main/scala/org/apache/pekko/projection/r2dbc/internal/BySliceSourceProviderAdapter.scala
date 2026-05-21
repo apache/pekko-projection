@@ -18,19 +18,19 @@ import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
 import scala.concurrent.Future
-import org.apache.pekko.NotUsed
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.projection.javadsl
-import org.apache.pekko.projection.scaladsl
-import org.apache.pekko.stream.scaladsl.Source
-
 import scala.jdk.FutureConverters._
-
 import scala.jdk.OptionConverters._
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import org.apache.pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import org.apache.pekko.projection.BySlicesSourceProvider
+
+import org.apache.pekko
+import pekko.NotUsed
+import pekko.annotation.InternalApi
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.projection.BySlicesSourceProvider
+import pekko.projection.javadsl
+import pekko.projection.scaladsl
+import pekko.stream.scaladsl.Source
 
 /**
  * INTERNAL API: Adapter from javadsl.SourceProvider to scaladsl.SourceProvider
@@ -64,8 +64,9 @@ import org.apache.pekko.projection.BySlicesSourceProvider
 
   override def timestampOf(persistenceId: String, sequenceNr: Long): Future[Option[Instant]] =
     delegate match {
-      case timestampQuery: org.apache.pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
-        timestampQuery.timestampOf(persistenceId, sequenceNr).toScala.map(_.toScala)(scala.concurrent.ExecutionContext.parasitic)
+      case timestampQuery: pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
+        timestampQuery.timestampOf(persistenceId, sequenceNr).toScala.map(_.toScala)(
+          scala.concurrent.ExecutionContext.parasitic)
       case _ =>
         Future.failed(
           new IllegalArgumentException(
@@ -75,7 +76,7 @@ import org.apache.pekko.projection.BySlicesSourceProvider
 
   override def loadEnvelope[Event](persistenceId: String, sequenceNr: Long): Future[EventEnvelope[Event]] =
     delegate match {
-      case timestampQuery: org.apache.pekko.persistence.query.typed.javadsl.LoadEventQuery =>
+      case timestampQuery: pekko.persistence.query.typed.javadsl.LoadEventQuery =>
         timestampQuery.loadEnvelope[Event](persistenceId, sequenceNr).toScala
       case _ =>
         Future.failed(

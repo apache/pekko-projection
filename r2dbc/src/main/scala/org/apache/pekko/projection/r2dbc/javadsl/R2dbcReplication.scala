@@ -13,9 +13,10 @@
 
 package org.apache.pekko.projection.r2dbc.javadsl
 
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.projection.grpc.replication.javadsl.ReplicationProjectionProvider
-import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
+import org.apache.pekko
+import pekko.actor.typed.ActorSystem
+import pekko.projection.grpc.replication.javadsl.ReplicationProjectionProvider
+import pekko.projection.r2dbc.R2dbcProjectionSettings
 
 import java.util.Optional
 

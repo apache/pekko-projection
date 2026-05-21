@@ -19,29 +19,30 @@ import java.util.UUID
 import scala.concurrent.Future
 import scala.concurrent.duration._
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.testkit.typed.scaladsl.TestProbe
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.Behavior
-import org.apache.pekko.actor.typed.scaladsl.Behaviors
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.r2dbc.R2dbcSettings
-import org.apache.pekko.persistence.r2dbc.internal.Sql.Interpolation
-import org.apache.pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.persistence.typed.scaladsl.Effect
-import org.apache.pekko.persistence.typed.scaladsl.EventSourcedBehavior
-import org.apache.pekko.projection.ProjectionBehavior
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.eventsourced.scaladsl.EventSourcedProvider
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
-import org.apache.pekko.serialization.SerializationExtension
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.testkit.typed.scaladsl.TestProbe
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.Behavior
+import pekko.actor.typed.scaladsl.Behaviors
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.r2dbc.R2dbcSettings
+import pekko.persistence.r2dbc.internal.Sql.Interpolation
+import pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
+import pekko.persistence.typed.PersistenceId
+import pekko.persistence.typed.scaladsl.Effect
+import pekko.persistence.typed.scaladsl.EventSourcedBehavior
+import pekko.projection.ProjectionBehavior
+import pekko.projection.ProjectionId
+import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+import pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import pekko.projection.r2dbc.scaladsl.R2dbcSession
+import pekko.serialization.SerializationExtension
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -73,39 +74,40 @@ object EventSourcedEndToEndSpec {
 
     def apply(pid: PersistenceId): Behavior[Command] = {
       Behaviors.setup { context =>
-        EventSourcedBehavior[Command, Any, String](persistenceId = pid, "", {
-          (_, command) =>
-            command match {
-              case command: Persist =>
-                context.log.debugN(
-                  "Persist [{}], pid [{}], seqNr [{}]",
-                  command.payload,
-                  pid.id,
-                  EventSourcedBehavior.lastSequenceNumber(context) + 1)
-                Effect.persist(command.payload)
-              case command: PersistWithAck =>
-                context.log.debugN(
-                  "Persist [{}], pid [{}], seqNr [{}]",
-                  command.payload,
-                  pid.id,
-                  EventSourcedBehavior.lastSequenceNumber(context) + 1)
-                Effect.persist(command.payload).thenRun(_ => command.replyTo ! Done)
-              case command: PersistAll =>
-                if (context.log.isDebugEnabled)
+        EventSourcedBehavior[Command, Any, String](persistenceId = pid, "",
+          {
+            (_, command) =>
+              command match {
+                case command: Persist =>
                   context.log.debugN(
-                    "PersistAll [{}], pid [{}], seqNr [{}]",
-                    command.payloads.mkString(","),
+                    "Persist [{}], pid [{}], seqNr [{}]",
+                    command.payload,
                     pid.id,
                     EventSourcedBehavior.lastSequenceNumber(context) + 1)
-                Effect.persist(command.payloads)
-              case Ping(replyTo) =>
-                replyTo ! Done
-                Effect.none
-              case Stop(replyTo) =>
-                replyTo ! Done
-                Effect.stop()
-            }
-        }, (_, _) => "")
+                  Effect.persist(command.payload)
+                case command: PersistWithAck =>
+                  context.log.debugN(
+                    "Persist [{}], pid [{}], seqNr [{}]",
+                    command.payload,
+                    pid.id,
+                    EventSourcedBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payload).thenRun(_ => command.replyTo ! Done)
+                case command: PersistAll =>
+                  if (context.log.isDebugEnabled)
+                    context.log.debugN(
+                      "PersistAll [{}], pid [{}], seqNr [{}]",
+                      command.payloads.mkString(","),
+                      pid.id,
+                      EventSourcedBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payloads)
+                case Ping(replyTo) =>
+                  replyTo ! Done
+                  Effect.none
+                case Stop(replyTo) =>
+                  replyTo ! Done
+                  Effect.stop()
+              }
+          }, (_, _) => "")
       }
     }
   }
@@ -213,8 +215,9 @@ class EventSourcedEndToEndSpec
         case e: AssertionError =>
           val missing = expectedEvents.diff(processed.map(_.envelope.event))
           log.error(s"Processed [${processed.size}] events, but expected [$expectedNumberOfEvents]. " +
-          s"Missing [${missing.mkString(",")}]. " +
-          s"Received [${processed.map(p => s"(${p.envelope.event}, ${p.envelope.persistenceId}, ${p.envelope.sequenceNr})").mkString(", ")}]. ")
+            s"Missing [${missing.mkString(",")}]. " +
+            s"Received [${processed.map(p =>
+                s"(${p.envelope.event}, ${p.envelope.persistenceId}, ${p.envelope.sequenceNr})").mkString(", ")}]. ")
           throw e
       }
     }
@@ -386,7 +389,8 @@ class EventSourcedEndToEndSpec
       // but backtracking can fill in the gaps, backtracking will pick up pid3 seqNr 8 and 9
       writeEvent(pid3, 8L, startTime.plusMillis(3), "e3-8")
       val possibleDelay =
-        journalSettings.querySettings.backtrackingBehindCurrentTime + journalSettings.querySettings.refreshInterval + processedProbe.remainingOrDefault
+        journalSettings.querySettings.backtrackingBehindCurrentTime + journalSettings.querySettings.refreshInterval +
+        processedProbe.remainingOrDefault
       processedProbe.receiveMessage(possibleDelay).envelope.event shouldBe "e3-8"
       processedProbe.receiveMessage(possibleDelay).envelope.event shouldBe "e3-9"
 

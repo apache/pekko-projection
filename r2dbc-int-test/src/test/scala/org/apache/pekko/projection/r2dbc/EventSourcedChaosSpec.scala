@@ -20,30 +20,31 @@ import scala.concurrent.Future
 import scala.concurrent.duration._
 import scala.util.Random
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.testkit.typed.TestException
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.ProjectionBehavior
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.eventsourced.scaladsl.EventSourcedProvider
-import org.apache.pekko.projection.r2dbc.EventSourcedChaosSpec.FailingTestHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.testkit.typed.TestException
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.ProjectionBehavior
+import pekko.projection.ProjectionId
+import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+import pekko.projection.r2dbc.EventSourcedChaosSpec.FailingTestHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import pekko.projection.r2dbc.scaladsl.R2dbcSession
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
 
 object EventSourcedChaosSpec {
-  import org.apache.pekko.projection.r2dbc.EventSourcedEndToEndSpec.Processed
+  import pekko.projection.r2dbc.EventSourcedEndToEndSpec.Processed
 
   val config: Config = ConfigFactory
     .parseString("""
@@ -66,7 +67,7 @@ object EventSourcedChaosSpec {
     .withFallback(TestConfig.config)
     .withFallback(ConfigFactory.parseString("""
       # TODO in nightly CI we can set this to 10
-      org.apache.pekko.projection.r2dbc.ChaosSpec.nr-iterations = 2
+      pekko.projection.r2dbc.ChaosSpec.nr-iterations = 2
       """))
 
   class FailingTestHandler(
@@ -130,7 +131,8 @@ class EventSourcedChaosSpec
 
     "handle all events exactlyOnce" in {
       val rnd = new Random(seed)
-      val numberOfIterations = system.settings.config.getInt("org.apache.pekko.projection.r2dbc.ChaosSpec.nr-iterations")
+      val numberOfIterations =
+        system.settings.config.getInt("pekko.projection.r2dbc.ChaosSpec.nr-iterations")
       val numberOfEntities = 20 + rnd.nextInt(80)
       val numberOfProjections = 1 << rnd.nextInt(4) // 1 to 8 projections
       val entityType = nextEntityType()
@@ -141,7 +143,7 @@ class EventSourcedChaosSpec
       def entity(i: Int): ActorRef[Persister.Command] = {
         startedEntities.get(i) match {
           case Some(ref) => ref
-          case None =>
+          case None      =>
             val persistenceId = PersistenceId(entityType, s"p$i")
             val ref = spawn(Persister(persistenceId), s"p$i")
             startedEntities = startedEntities.updated(i, ref)
@@ -159,7 +161,7 @@ class EventSourcedChaosSpec
       def startProjection(projectionIndex: Int): ActorRef[ProjectionBehavior.Command] = {
         runningProjections.get(projectionIndex) match {
           case Some(ref) => ref
-          case None =>
+          case None      =>
             val range = EventSourcedProvider.sliceRanges(system, R2dbcReadJournal.Identifier, numberOfProjections)(
               projectionIndex)
 
@@ -206,7 +208,8 @@ class EventSourcedChaosSpec
               log.error(
                 s"Iteration #$iteration. Processed [${processed.size}] events, but expected [$expectedEventCounts]. " +
                 s"Missing [${missing.mkString(",")}]. " +
-                s"Received [${processed.map(p => s"(${p.envelope.event}, ${p.envelope.persistenceId}, ${p.envelope.sequenceNr})").mkString(", ")}]. " +
+                s"Received [${processed.map(p =>
+                    s"(${p.envelope.event}, ${p.envelope.persistenceId}, ${p.envelope.sequenceNr})").mkString(", ")}]. " +
                 s"Seed [$seed].")
               throw e
           }

@@ -17,23 +17,25 @@ import java.util.UUID
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
-import org.apache.pekko.Done
-import org.apache.pekko.actor.testkit.typed.scaladsl.LogCapturing
-import org.apache.pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
-import org.apache.pekko.actor.testkit.typed.scaladsl.TestProbe
-import org.apache.pekko.actor.typed.ActorRef
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.persistence.query.TimestampOffset
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.ProjectionBehavior
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.eventsourced.scaladsl.EventSourcedProvider
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcHandler
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcProjection
-import org.apache.pekko.projection.r2dbc.scaladsl.R2dbcSession
+
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.testkit.typed.scaladsl.LogCapturing
+import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.testkit.typed.scaladsl.TestProbe
+import pekko.actor.typed.ActorRef
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.persistence.query.TimestampOffset
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.ProjectionBehavior
+import pekko.projection.ProjectionId
+import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
+import pekko.projection.r2dbc.scaladsl.R2dbcHandler
+import pekko.projection.r2dbc.scaladsl.R2dbcProjection
+import pekko.projection.r2dbc.scaladsl.R2dbcSession
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -148,8 +150,9 @@ class EventSourcedPubSubSpec
         case e: AssertionError =>
           val missing = expectedEvents.diff(processed.map(_.envelope.event))
           log.error(s"Processed [${processed.size}] events, but expected [$numberOfEvents]. " +
-          s"Missing [${missing.mkString(",")}]. " +
-          s"Received [${processed.map(p => s"(${p.envelope.event}, ${p.envelope.persistenceId}, ${p.envelope.sequenceNr})").mkString(", ")}]. ")
+            s"Missing [${missing.mkString(",")}]. " +
+            s"Received [${processed.map(p =>
+                s"(${p.envelope.event}, ${p.envelope.persistenceId}, ${p.envelope.sequenceNr})").mkString(", ")}]. ")
           throw e
       }
     }
@@ -179,7 +182,7 @@ class EventSourcedPubSubSpec
       val slowEvents = Set(mkEvent(31), mkEvent(32), mkEvent(33))
       val whenDone: EventEnvelope[String] => Future[Done] = { env =>
         if (slowEvents.contains(env.event))
-          org.apache.pekko.pattern.after(500.millis)(Future.successful(Done))
+          pekko.pattern.after(500.millis)(Future.successful(Done))
         else
           Future.successful(Done)
       }
@@ -227,19 +230,19 @@ class EventSourcedPubSubSpec
           processedByPid.map(_.envelope.sequenceNr) shouldBe (1 to processedByPid.size).toVector
 
           val viaPubSub =
-            processedByPid.filter(
-              p =>
-                p.envelope.offset.asInstanceOf[TimestampOffset].timestamp == p.envelope.offset
-                    .asInstanceOf[TimestampOffset]
-                    .readTimestamp)
+            processedByPid.filter(p =>
+              p.envelope.offset.asInstanceOf[TimestampOffset].timestamp ==
+                p.envelope.offset
+                  .asInstanceOf[TimestampOffset]
+                  .readTimestamp)
           log.info2("via pub-sub {}: {}", pid, viaPubSub.map(_.envelope.sequenceNr).mkString(", "))
       }
 
-      val countViaPubSub = processed.count(
-        p =>
-          p.envelope.offset.asInstanceOf[TimestampOffset].timestamp == p.envelope.offset
-              .asInstanceOf[TimestampOffset]
-              .readTimestamp)
+      val countViaPubSub = processed.count(p =>
+        p.envelope.offset.asInstanceOf[TimestampOffset].timestamp ==
+          p.envelope.offset
+            .asInstanceOf[TimestampOffset]
+            .readTimestamp)
       log.info("Total via pub-sub: {}", countViaPubSub)
       countViaPubSub shouldBe >(0)
 

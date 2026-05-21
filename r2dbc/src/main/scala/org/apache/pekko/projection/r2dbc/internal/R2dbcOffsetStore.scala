@@ -25,31 +25,32 @@ import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
-import org.apache.pekko.Done
-import org.apache.pekko.actor.typed.ActorSystem
-import org.apache.pekko.actor.typed.scaladsl.LoggerOps
-import org.apache.pekko.annotation.InternalApi
-import org.apache.pekko.persistence.Persistence
-import org.apache.pekko.persistence.query.DeletedDurableState
-import org.apache.pekko.persistence.query.DurableStateChange
-import org.apache.pekko.persistence.query.TimestampOffset
-import org.apache.pekko.persistence.query.UpdatedDurableState
-import org.apache.pekko.persistence.query.typed.EventEnvelope
-import org.apache.pekko.persistence.query.typed.scaladsl.EventTimestampQuery
-import org.apache.pekko.persistence.r2dbc.internal.EnvelopeOrigin
-import org.apache.pekko.persistence.r2dbc.internal.R2dbcExecutor
-import org.apache.pekko.persistence.r2dbc.Dialect
-import org.apache.pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
-import org.apache.pekko.persistence.typed.PersistenceId
-import org.apache.pekko.projection.BySlicesSourceProvider
-import org.apache.pekko.projection.MergeableOffset
-import org.apache.pekko.projection.ProjectionId
-import org.apache.pekko.projection.internal.ManagementState
-import org.apache.pekko.projection.internal.OffsetSerialization
-import org.apache.pekko.projection.internal.OffsetSerialization.MultipleOffsets
-import org.apache.pekko.projection.internal.OffsetSerialization.SingleOffset
-import org.apache.pekko.projection.r2dbc.R2dbcProjectionSettings
-import org.apache.pekko.projection.r2dbc.internal.mysql.MySQLR2dbcOffsetStore
+import org.apache.pekko
+import pekko.Done
+import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.annotation.InternalApi
+import pekko.persistence.Persistence
+import pekko.persistence.query.DeletedDurableState
+import pekko.persistence.query.DurableStateChange
+import pekko.persistence.query.TimestampOffset
+import pekko.persistence.query.UpdatedDurableState
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
+import pekko.persistence.r2dbc.internal.EnvelopeOrigin
+import pekko.persistence.r2dbc.internal.R2dbcExecutor
+import pekko.persistence.r2dbc.Dialect
+import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
+import pekko.persistence.typed.PersistenceId
+import pekko.projection.BySlicesSourceProvider
+import pekko.projection.MergeableOffset
+import pekko.projection.ProjectionId
+import pekko.projection.internal.ManagementState
+import pekko.projection.internal.OffsetSerialization
+import pekko.projection.internal.OffsetSerialization.MultipleOffsets
+import pekko.projection.internal.OffsetSerialization.SingleOffset
+import pekko.projection.r2dbc.R2dbcProjectionSettings
+import pekko.projection.r2dbc.internal.mysql.MySQLR2dbcOffsetStore
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.Statement
 import org.slf4j.LoggerFactory
@@ -167,7 +168,8 @@ private[projection] object R2dbcOffsetStore {
         val newState = State(
           sortedByTimestamp
             .take(size - keepNumberOfEntries)
-            .filterNot(_.timestamp.isBefore(until)) ++ sortedByTimestamp
+            .filterNot(_.timestamp.isBefore(until)) ++
+          sortedByTimestamp
             .takeRight(keepNumberOfEntries) ++ latestBySlice)
         newState.copy(sizeAfterEvict = newState.size)
       } else
@@ -303,7 +305,7 @@ private[projection] class R2dbcOffsetStore(
   private def timestampOffsetBySlicesSourceProvider: BySlicesSourceProvider =
     sourceProvider match {
       case Some(provider) => provider
-      case None =>
+      case None           =>
         throw new IllegalArgumentException(
           s"Expected BySlicesSourceProvider to be defined when TimestampOffset is used.")
     }
@@ -312,7 +314,7 @@ private[projection] class R2dbcOffsetStore(
     timestampOffsetBySlicesSourceProvider match {
       case timestampQuery: EventTimestampQuery =>
         timestampQuery.timestampOf(persistenceId, sequenceNr)
-      case timestampQuery: org.apache.pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
+      case timestampQuery: pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
         import scala.jdk.FutureConverters._
         import scala.jdk.OptionConverters._
         timestampQuery.timestampOf(persistenceId, sequenceNr).toScala.map(_.toScala)
@@ -515,8 +517,9 @@ private[projection] class R2dbcOffsetStore(
       val evictThresholdReached =
         if (settings.keepNumberOfEntries == 0) true else newState.size > (newState.sizeAfterEvict * 1.1).toInt
       val evictedNewState =
-        if (newState.size > settings.keepNumberOfEntries && evictThresholdReached && newState.window
-              .compareTo(evictWindow) > 0) {
+        if (newState.size > settings.keepNumberOfEntries && evictThresholdReached &&
+          newState.window
+            .compareTo(evictWindow) > 0) {
           val evictUntil = newState.latestTimestamp.minus(settings.timeWindow)
           val s = newState.evict(evictUntil, settings.keepNumberOfEntries)
           logger.debugN(
@@ -611,7 +614,7 @@ private[projection] class R2dbcOffsetStore(
     if (!settings.isOffsetTableDefined)
       Future.failed(
         new IllegalArgumentException(
-          "Offset table has been disabled config 'org.apache.pekko.projection.r2dbc.offset-store.offset-table', " +
+          "Offset table has been disabled config 'pekko.projection.r2dbc.offset-store.offset-table', " +
           s"but trying to save a non-timestamp offset [$offset]"))
 
     val now = Instant.now(clock).toEpochMilli
@@ -1040,7 +1043,7 @@ private[projection] class R2dbcOffsetStore(
       }
       .flatMap {
         case i if i == 1 => Future.successful(Done)
-        case _ =>
+        case _           =>
           Future.failed(new RuntimeException(s"Failed to update management table for $projectionId"))
       }
   }
