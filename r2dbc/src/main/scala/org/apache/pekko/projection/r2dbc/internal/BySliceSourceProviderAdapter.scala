@@ -71,7 +71,7 @@ import pekko.stream.scaladsl.Source
         Future.failed(
           new IllegalArgumentException(
             s"Expected SourceProvider [${delegate.getClass.getName}] to implement " +
-            s"EventTimestampQuery when TimestampOffset is used."))
+            "EventTimestampQuery when TimestampOffset is used."))
     }
 
   override def loadEnvelope[Event](persistenceId: String, sequenceNr: Long): Future[EventEnvelope[Event]] =
@@ -82,6 +82,6 @@ import pekko.stream.scaladsl.Source
         Future.failed(
           new IllegalArgumentException(
             s"Expected SourceProvider [${delegate.getClass.getName}] to implement " +
-            s"EventTimestampQuery when LoadEventQuery is used."))
+            "EventTimestampQuery when LoadEventQuery is used."))
     }
 }

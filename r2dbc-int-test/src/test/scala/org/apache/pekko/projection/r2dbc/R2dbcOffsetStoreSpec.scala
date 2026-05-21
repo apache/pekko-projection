@@ -45,7 +45,7 @@ class R2dbcOffsetStoreSpec
   private val settings = R2dbcProjectionSettings(testKit.system)
 
   private def createOffsetStore(projectionId: ProjectionId) =
-    new R2dbcOffsetStore(projectionId, None, system, settings, r2dbcExecutor, clock)
+    R2dbcOffsetStore.fromConfig(projectionId, None, system, settings, r2dbcExecutor, clock)
 
   private val table = settings.offsetTableWithSchema
 

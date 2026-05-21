@@ -178,6 +178,21 @@ private[projection] object R2dbcOffsetStore {
 
   }
 
+  def fromConfig(
+      projectionId: ProjectionId,
+      sourceProvider: Option[BySlicesSourceProvider],
+      system: ActorSystem[_],
+      settings: R2dbcProjectionSettings,
+      r2dbcExecutor: R2dbcExecutor,
+      clock: Clock = Clock.systemUTC()
+  ): R2dbcOffsetStore =
+    settings.dialect match {
+      case Dialect.Postgres | Dialect.Yugabyte =>
+        new R2dbcOffsetStore(projectionId, sourceProvider, system, settings, r2dbcExecutor, clock)
+      case Dialect.MySQL =>
+        new MySQLR2dbcOffsetStore(projectionId, sourceProvider, system, settings, r2dbcExecutor, clock)
+    }
+
   final class RejectedEnvelope(message: String) extends IllegalStateException(message)
 
   sealed trait Validation

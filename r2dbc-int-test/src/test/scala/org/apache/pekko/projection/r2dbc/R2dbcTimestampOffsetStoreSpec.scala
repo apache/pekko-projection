@@ -82,7 +82,7 @@ class R2dbcTimestampOffsetStoreSpec
       projectionId: ProjectionId,
       customSettings: R2dbcProjectionSettings = settings,
       eventTimestampQueryClock: TestClock = clock) =
-    new R2dbcOffsetStore(
+    R2dbcOffsetStore.fromConfig(
       projectionId,
       Some(new TestTimestampSourceProvider(0, persistenceExt.numberOfSlices - 1, eventTimestampQueryClock)),
       system,
@@ -308,7 +308,7 @@ class R2dbcTimestampOffsetStoreSpec
       slice4 shouldBe 656
 
       val offsetStore0 =
-        new R2dbcOffsetStore(
+        R2dbcOffsetStore.fromConfig(
           projectionId0,
           Some(new TestTimestampSourceProvider(0, persistenceExt.numberOfSlices - 1, clock)),
           system,
@@ -329,7 +329,7 @@ class R2dbcTimestampOffsetStoreSpec
       offsetStore0.saveOffset(OffsetPidSeqNr(offset4, p4, 5L)).futureValue
 
       val offsetStore1 =
-        new R2dbcOffsetStore(
+        R2dbcOffsetStore.fromConfig(
           projectionId1,
           Some(new TestTimestampSourceProvider(0, 511, clock)),
           system,
@@ -339,7 +339,7 @@ class R2dbcTimestampOffsetStoreSpec
       offsetStore1.getState().byPid.keySet shouldBe Set(p1, p2)
 
       val offsetStore2 =
-        new R2dbcOffsetStore(
+        R2dbcOffsetStore.fromConfig(
           projectionId2,
           Some(new TestTimestampSourceProvider(512, 1023, clock)),
           system,
