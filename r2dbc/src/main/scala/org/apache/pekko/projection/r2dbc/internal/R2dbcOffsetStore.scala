@@ -1083,7 +1083,7 @@ private[projection] class R2dbcOffsetStore(
             Record(slice, change.persistenceId, change.revision, timestampOffset.timestamp),
             timestampOffset,
             strictSeqNr = false,
-            fromBacktracking = EnvelopeOrigin.fromBacktracking(change),
+            fromBacktracking = false,
             fromPubSub = false))
       case change: DeletedDurableState[_] if change.offset.isInstanceOf[TimestampOffset] =>
         val timestampOffset = change.offset.asInstanceOf[TimestampOffset]
