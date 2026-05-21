@@ -312,7 +312,7 @@ class JdbcProjectionSpec
   "A JDBC exactly-once projection" must {
 
     "persist projection and offset in the same write operation (transactional)" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val projection =
@@ -330,7 +330,7 @@ class JdbcProjectionSpec
     }
 
     "skip failing events when using RecoveryStrategy.skip" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val bogusEventHandler = new ConcatHandler(_ == 4)
@@ -352,7 +352,7 @@ class JdbcProjectionSpec
     }
 
     "store offset for failing events when using RecoveryStrategy.skip" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val bogusEventHandler = new ConcatHandler(_ == 6)
@@ -374,7 +374,7 @@ class JdbcProjectionSpec
     }
 
     "skip failing events after retrying when using RecoveryStrategy.retryAndSkip" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val bogusEventHandler = new ConcatHandler(_ == 4)
@@ -420,7 +420,7 @@ class JdbcProjectionSpec
     }
 
     "fail after retrying when using RecoveryStrategy.retryAndFail" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val bogusEventHandler = new ConcatHandler(_ == 4)
@@ -459,7 +459,7 @@ class JdbcProjectionSpec
     }
 
     "restart from previous offset - fail with throwing an exception" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       def exactlyOnceProjection(failWhenOffset: Long => Boolean = _ => false) = {
@@ -486,7 +486,7 @@ class JdbcProjectionSpec
     }
 
     "restart from previous offset - fail with bad insert on user code" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val bogusEventHandler = new JdbcHandler[Envelope, PureJdbcSession] {
@@ -523,7 +523,7 @@ class JdbcProjectionSpec
 
     "verify offsets before and after processing an envelope" in {
 
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       case class ProbeMessage(str: String, offset: Long)
@@ -566,7 +566,7 @@ class JdbcProjectionSpec
     }
 
     "skip record if offset verification fails before processing envelope" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val testVerification = (offset: Long) => {
@@ -591,7 +591,7 @@ class JdbcProjectionSpec
     }
 
     "skip record if offset verification fails after processing envelope" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val testVerification = (offset: Long) => {
@@ -618,7 +618,7 @@ class JdbcProjectionSpec
 
   "A JDBC grouped projection" must {
     "persist projection and offset in the same write operation (transactional)" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val handlerCalled = "called"
@@ -653,7 +653,7 @@ class JdbcProjectionSpec
     }
 
     "handle grouped async projection and store offset" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val result = new StringBuffer()
@@ -686,7 +686,7 @@ class JdbcProjectionSpec
   "A JDBC at-least-once projection" must {
 
     "persist projection and offset" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val projection =
@@ -704,7 +704,7 @@ class JdbcProjectionSpec
     }
 
     "skip failing events when using RecoveryStrategy.skip, save after 1" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val projection =
@@ -725,7 +725,7 @@ class JdbcProjectionSpec
     }
 
     "skip failing events when using RecoveryStrategy.skip, save after 2" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val projection =
@@ -746,7 +746,7 @@ class JdbcProjectionSpec
     }
 
     "restart from previous offset - handler throwing an exception, save after 1" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       def atLeastOnceProjection(failWhenOffset: Long => Boolean = _ => false) =
@@ -788,7 +788,7 @@ class JdbcProjectionSpec
     }
 
     "restart from previous offset - handler throwing an exception, save after 2" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       offsetStore.readOffset[Long](projectionId).futureValue shouldBe empty
@@ -838,7 +838,7 @@ class JdbcProjectionSpec
     }
 
     "save offset after number of elements" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       import pekko.actor.typed.scaladsl.adapter._
@@ -882,7 +882,7 @@ class JdbcProjectionSpec
     }
 
     "save offset after idle duration" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       import pekko.actor.typed.scaladsl.adapter._
@@ -927,7 +927,7 @@ class JdbcProjectionSpec
     }
 
     "verify offsets before processing an envelope" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
       val verifiedProbe: TestProbe[Long] = createTestProbe[Long]()
 
@@ -958,7 +958,7 @@ class JdbcProjectionSpec
     }
 
     "skip record if offset verification fails before processing envelope" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val testVerification = (offset: Long) => {
@@ -984,7 +984,7 @@ class JdbcProjectionSpec
     }
 
     "handle async projection and store offset" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val result = new StringBuffer()
@@ -1014,7 +1014,7 @@ class JdbcProjectionSpec
   "A JDBC flow projection" must {
 
     "persist projection and offset" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       offsetShouldBeEmpty()
@@ -1087,7 +1087,7 @@ class JdbcProjectionSpec
     }
 
     "call start and stop of the handler" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val handlerProbe = createTestProbe[String]()
@@ -1128,7 +1128,7 @@ class JdbcProjectionSpec
     }
 
     "call start and stop of the handler when using TestKit.runWithTestSink" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val handlerProbe = createTestProbe[String]()
@@ -1170,7 +1170,7 @@ class JdbcProjectionSpec
     }
 
     "call start and stop of handler when restarted" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val handlerProbe = createTestProbe[String]()
@@ -1239,7 +1239,7 @@ class JdbcProjectionSpec
     }
 
     "call start and stop of handler when failed but no restart" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val handlerProbe = createTestProbe[String]()
@@ -1270,7 +1270,7 @@ class JdbcProjectionSpec
     }
 
     "be able to stop when retrying" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val handlerProbe = createTestProbe[String]()
@@ -1305,7 +1305,7 @@ class JdbcProjectionSpec
   "JdbcProjection management" must {
 
     "restart from beginning when offset is cleared" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val projection =
@@ -1338,7 +1338,7 @@ class JdbcProjectionSpec
     }
 
     "restart from updated offset" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val projection =
@@ -1372,7 +1372,7 @@ class JdbcProjectionSpec
     }
 
     "pause projection" in {
-      implicit val entityId = UUID.randomUUID().toString
+      implicit val entityId: String = UUID.randomUUID().toString
       implicit val projectionId = genRandomProjectionId()
 
       val projection =

@@ -375,7 +375,7 @@ class R2dbcTimestampOffsetProjectionSpec
 
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection.exactlyOnce(projectionId, Some(settings), sourceProvider, handler = () => new ConcatHandler)
@@ -392,7 +392,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid1, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val bogusEventHandler = new ConcatHandler(_.sequenceNr == 4)
 
@@ -413,7 +413,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid1, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val bogusEventHandler = new ConcatHandler(_.sequenceNr == 6)
 
@@ -434,7 +434,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid1, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val statusProbe = createTestProbe[TestStatusObserver.Status]()
       val progressProbe = createTestProbe[TestStatusObserver.OffsetProgress[Envelope]]()
@@ -477,7 +477,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid1, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val bogusEventHandler = new ConcatHandler(_.sequenceNr == 4)
 
@@ -503,7 +503,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       def exactlyOnceProjection(failWhen: EventEnvelope[String] => Boolean = _ => false) = {
         R2dbcProjection.exactlyOnce(
@@ -534,7 +534,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopesWithDuplicates(pid1, pid2)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection.exactlyOnce(projectionId, Some(settings), sourceProvider, handler = () => new ConcatHandler)
@@ -554,7 +554,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val startTime = TestClock.nowMicros().instant()
       val envelopes1 = createEnvelopesUnknownSequenceNumbers(startTime, pid1, pid2)
       val sourceProvider1 = createSourceProvider(envelopes1)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider1)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider1)
 
       val projection1 =
         R2dbcProjection.exactlyOnce(projectionId, Some(settings), sourceProvider1, handler = () => new ConcatHandler)
@@ -590,7 +590,7 @@ class R2dbcTimestampOffsetProjectionSpec
           env
       }
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection.exactlyOnce(projectionId, Some(settings), sourceProvider, handler = () => new ConcatHandler)
@@ -610,7 +610,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val handlerProbe = createTestProbe[String]("calls-to-handler")
 
@@ -637,7 +637,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopesWithDuplicates(pid1, pid2)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val handlerProbe = createTestProbe[String]("calls-to-handler")
 
@@ -666,7 +666,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val startTime = TestClock.nowMicros().instant()
       val envelopes1 = createEnvelopesUnknownSequenceNumbers(startTime, pid1, pid2)
       val sourceProvider1 = createBacktrackingSourceProvider(envelopes1)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider1)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider1)
 
       val handlerProbe = createTestProbe[String]()
 
@@ -715,7 +715,7 @@ class R2dbcTimestampOffsetProjectionSpec
           env
       }
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val handlerProbe = createTestProbe[String]("calls-to-handler")
 
@@ -741,7 +741,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val result = new StringBuffer()
 
@@ -775,7 +775,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopesWithDuplicates(pid1, pid2)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val result1 = new StringBuffer()
       val result2 = new StringBuffer()
@@ -874,7 +874,7 @@ class R2dbcTimestampOffsetProjectionSpec
           env
       }
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val result = new StringBuffer()
 
@@ -910,7 +910,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection.atLeastOnce(projectionId, Some(settings), sourceProvider, handler = () => new ConcatHandler)
@@ -930,7 +930,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopesWithDuplicates(pid1, pid2)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection.atLeastOnce(projectionId, Some(settings), sourceProvider, handler = () => new ConcatHandler)
@@ -988,7 +988,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid1, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val failOnce = new AtomicBoolean(true)
       val failPredicate = (ev: EventEnvelope[String]) => {
@@ -1025,7 +1025,7 @@ class R2dbcTimestampOffsetProjectionSpec
           env
       }
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection.atLeastOnce(projectionId, Some(settings), sourceProvider, handler = () => new ConcatHandler)
@@ -1044,7 +1044,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val result = new StringBuffer()
 
@@ -1074,7 +1074,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid1, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val failOnce = new AtomicBoolean(true)
       val failPredicate = (ev: EventEnvelope[String]) => {
@@ -1119,7 +1119,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopesWithDuplicates(pid1, pid2)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val result1 = new StringBuffer()
       val result2 = new StringBuffer()
@@ -1215,7 +1215,7 @@ class R2dbcTimestampOffsetProjectionSpec
       }
 
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection.atLeastOnce(projectionId, Some(settings), sourceProvider, handler = () => new ConcatHandler)
@@ -1237,7 +1237,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       offsetShouldBeEmpty()
 
@@ -1266,7 +1266,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopesWithDuplicates(pid1, pid2)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       info(s"pid1 [$pid1], pid2 [$pid2]")
 
@@ -1350,7 +1350,7 @@ class R2dbcTimestampOffsetProjectionSpec
           env
       }
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       offsetShouldBeEmpty()
 
@@ -1382,7 +1382,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection
@@ -1416,7 +1416,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val projectionId = genRandomProjectionId()
       val envelopes = createEnvelopes(pid, 6)
       val sourceProvider = createSourceProvider(envelopes)
-      implicit val offsetStore = createOffsetStore(projectionId, sourceProvider)
+      implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider)
 
       val projection =
         R2dbcProjection
