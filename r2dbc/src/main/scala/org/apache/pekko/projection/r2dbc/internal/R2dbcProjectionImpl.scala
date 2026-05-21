@@ -179,7 +179,7 @@ private[projection] object R2dbcProjectionImpl {
       case change: DurableStateChange[_] =>
         // in case additional types are added
         throw new IllegalArgumentException(
-          s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/akka/akka-persistence-r2dbc/issues")
+          s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/pekko-persistence-r2dbc/issues")
       case _ => OffsetPidSeqNr(offset)
     }
   }
@@ -646,9 +646,9 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
     // Called from InternalProjectionState.saveOffsetAndReport
     override def saveOffset(projectionId: ProjectionId, offset: Offset): Future[Done] = {
       // need the envelope to be able to call offsetStore.saveOffset
-      // FIXME maybe we can cleanup this mess when moving R2dbcProjection to the Akka Projections repository? This is all internal api.
+      // FIXME maybe we can cleanup this mess when moving R2dbcProjection to the Pekko Projections repository? This is all internal api.
       throw new IllegalStateException(
-        "Unexpected call to saveOffset. It should have called saveOffsetAndReport. Please report bug at https://github.com/akka/akka-persistence-r2dbc/issues")
+        "Unexpected call to saveOffset. It should have called saveOffsetAndReport. Please report bug at https://github.com/apache/pekko-persistence-r2dbc/issues")
     }
 
     override protected def saveOffsetAndReport(
