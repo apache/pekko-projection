@@ -23,7 +23,7 @@ import org.testcontainers.postgresql.PostgreSQLContainer
 class TestContainerConf {
   val grpcPort: Int = SocketUtil.temporaryServerAddress("127.0.0.1").getPort
 
-  private val container: PostgreSQLContainer[_] = new PostgreSQLContainer("postgres:18.4")
+  private val container: PostgreSQLContainer = new PostgreSQLContainer("postgres:18.4")
   container.withInitScript("db/default-init.sql")
   container.withStartupCheckStrategy(new IsRunningStartupCheckStrategy)
   container.withStartupAttempts(5)
