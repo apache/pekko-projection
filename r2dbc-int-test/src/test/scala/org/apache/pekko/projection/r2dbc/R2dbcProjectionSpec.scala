@@ -32,6 +32,7 @@ import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorRef
 import pekko.actor.typed.ActorSystem
+import pekko.persistence.r2dbc.Dialect
 import pekko.persistence.r2dbc.internal.Sql.Interpolation
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
 import pekko.projection.HandlerRecoveryStrategy
@@ -104,7 +105,8 @@ object R2dbcProjectionSpec {
           |);""".stripMargin
   }
 
-  final case class TestRepository(session: R2dbcSession)(implicit ec: ExecutionContext, system: ActorSystem[_]) {
+  final case class TestRepository(session: R2dbcSession, settings: R2dbcProjectionSettings)(
+      implicit ec: ExecutionContext, system: ActorSystem[_]) {
     import TestRepository.table
 
     private val logger = LoggerFactory.getLogger(this.getClass)
@@ -150,6 +152,7 @@ object R2dbcProjectionSpec {
               id = excluded.id,
               concatenated = excluded.concatenated
           """
+      }
       val stmt = session
         .createStatement(stmtSql)
         .bind(0, concatStr.id)
@@ -251,7 +254,7 @@ class R2dbcProjectionSpec
   private def withRepo[R](fun: TestRepository => Future[R]): Future[R] = {
     r2dbcExecutor.withConnection("test") { conn =>
       val session = new R2dbcSession(conn)
-      fun(TestRepository(session))
+      fun(TestRepository(session, settings))
     }
   }
 
@@ -266,7 +269,7 @@ class R2dbcProjectionSpec
         throw TestException(concatHandlerFail4Msg + s" after $attempts attempts")
       } else {
         logger.debug("handling {}", envelope)
-        TestRepository(session).concatToText(envelope.id, envelope.message)
+        TestRepository(session, settings).concatToText(envelope.id, envelope.message)
       }
     }
   }
@@ -447,7 +450,7 @@ class R2dbcProjectionSpec
 
       val bogusEventHandler = new R2dbcHandler[Envelope] {
         override def process(session: R2dbcSession, envelope: Envelope): Future[Done] = {
-          val repo = TestRepository(session)
+          val repo = TestRepository(session, settings)
           if (envelope.offset == 4L) repo.updateWithNullValue(envelope.id)
           else repo.concatToText(envelope.id, envelope.message)
         }
@@ -498,7 +501,7 @@ class R2dbcProjectionSpec
           verificationProbe.receiveMessage().offset shouldEqual envelope.offset
           processProbe.ref ! ProbeMessage("process", envelope.offset)
 
-          TestRepository(session).concatToText(envelope.id, envelope.message)
+          TestRepository(session, settings).concatToText(envelope.id, envelope.message)
         }
       }
 
@@ -594,7 +597,7 @@ class R2dbcProjectionSpec
                 if (envelopes.isEmpty)
                   Future.successful(Done)
                 else {
-                  val repo = TestRepository(session)
+                  val repo = TestRepository(session, settings)
                   val id = envelopes.head.id
                   repo.findById(id).flatMap { existing =>
                     val newConcatStr = envelopes.foldLeft(existing.getOrElse(ConcatStr(id, ""))) { (acc, env) =>
@@ -929,7 +932,7 @@ class R2dbcProjectionSpec
             handler = () =>
               R2dbcHandler[Envelope] { (session, envelope) =>
                 verifiedProbe.expectMessage(envelope.offset)
-                TestRepository(session).concatToText(envelope.id, envelope.message)
+                TestRepository(session, settings).concatToText(envelope.id, envelope.message)
               })
 
       projectionTestKit.run(projection) {
@@ -1296,7 +1299,7 @@ class R2dbcProjectionSpec
             sourceProvider = sourceProvider(entityId),
             handler = () =>
               R2dbcHandler[Envelope] { (session, envelope) =>
-                TestRepository(session).concatToText(envelope.id, envelope.message)
+                TestRepository(session, settings).concatToText(envelope.id, envelope.message)
               })
 
       offsetShouldBeEmpty()
@@ -1328,7 +1331,7 @@ class R2dbcProjectionSpec
             sourceProvider = sourceProvider(entityId),
             handler = () =>
               R2dbcHandler[Envelope] { (session, envelope) =>
-                TestRepository(session).concatToText(envelope.id, envelope.message)
+                TestRepository(session, settings).concatToText(envelope.id, envelope.message)
               })
 
       offsetShouldBeEmpty()
@@ -1361,7 +1364,7 @@ class R2dbcProjectionSpec
             sourceProvider = sourceProvider(entityId),
             handler = () =>
               R2dbcHandler[Envelope] { (session, envelope) =>
-                TestRepository(session).concatToText(envelope.id, envelope.message)
+                TestRepository(session, settings).concatToText(envelope.id, envelope.message)
               })
 
       offsetShouldBeEmpty()

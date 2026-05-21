@@ -67,7 +67,7 @@ object R2dbcTimestampOffsetProjectionSpec {
   final case class Envelope(id: String, seqNr: Long, message: String)
 
   /**
-   * This variant of TestStatusObserver is useful when the incoming envelope is the original akka projection
+   * This variant of TestStatusObserver is useful when the incoming envelope is the original pekko projection
    * EventBySliceEnvelope, but we want to assert on [[Envelope]]. The original [[EventEnvelope]] has too many params
    * that are not so interesting for the test including the offset timestamp that would make the it harder to test.
    */
@@ -222,7 +222,7 @@ class R2dbcTimestampOffsetProjectionSpec
   private def withRepo[R](fun: TestRepository => Future[R]): Future[R] = {
     r2dbcExecutor.withConnection("test") { conn =>
       val session = new R2dbcSession(conn)
-      fun(TestRepository(session))
+      fun(TestRepository(session, settings))
     }
   }
 
@@ -239,7 +239,7 @@ class R2dbcTimestampOffsetProjectionSpec
         throw TestException(concatHandlerFail4Msg + s" after $attempts attempts")
       } else {
         logger.debug(s"handling {}", envelope)
-        TestRepository(session).concatToText(envelope.persistenceId, envelope.event)
+        TestRepository(session, settings).concatToText(envelope.persistenceId, envelope.event)
       }
     }
 
@@ -338,7 +338,7 @@ class R2dbcTimestampOffsetProjectionSpec
       if (envelopes.isEmpty)
         Future.successful(Done)
       else {
-        val repo = TestRepository(session)
+        val repo = TestRepository(session, settings)
         val results = envelopes.groupBy(_.persistenceId).map {
           case (pid, envs) =>
             repo.findById(pid).flatMap { existing =>
@@ -1392,7 +1392,7 @@ class R2dbcTimestampOffsetProjectionSpec
             sourceProvider,
             handler = () =>
               R2dbcHandler[EventEnvelope[String]] { (session, envelope) =>
-                TestRepository(session).concatToText(envelope.persistenceId, envelope.event)
+                TestRepository(session, settings).concatToText(envelope.persistenceId, envelope.event)
               })
 
       offsetShouldBeEmpty()
@@ -1426,7 +1426,7 @@ class R2dbcTimestampOffsetProjectionSpec
             sourceProvider,
             handler = () =>
               R2dbcHandler[EventEnvelope[String]] { (session, envelope) =>
-                TestRepository(session).concatToText(envelope.persistenceId, envelope.event)
+                TestRepository(session, settings).concatToText(envelope.persistenceId, envelope.event)
               })
 
       offsetShouldBeEmpty()
