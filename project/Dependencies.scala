@@ -41,6 +41,7 @@ object Dependencies {
 
   object Compile {
     val pekkoActorTyped = "org.apache.pekko" %% "pekko-actor-typed" % Versions.pekko
+    val pekkoClusterShardingTyped = "org.apache.pekko" %% "pekko-cluster-sharding-typed" % Versions.pekko
     val pekkoStream = "org.apache.pekko" %% "pekko-stream" % Versions.pekko
     val pekkoProtobufV3 = "org.apache.pekko" %% "pekko-protobuf-v3" % Versions.pekko
     val pekkoPersistenceQuery = "org.apache.pekko" %% "pekko-persistence-query" % Versions.pekko
@@ -213,12 +214,36 @@ object Dependencies {
   val grpc =
     deps ++= Seq(
       Compile.pekkoGrpcRuntime,
+      Compile.pekkoClusterShardingTyped % "provided",
       Compile.pekkoPersistenceQuery,
       Compile.pekkoPersistenceTyped,
+      Compile.pekkoActorTyped,
+      Compile.pekkoStream,
+      Compile.pekkoProtobufV3,
+      Compile.jackson)
+
+  val grpcTest =
+    deps ++= Seq(
+      "org.apache.pekko" %% "pekko-projection-r2dbc" % Versions.pekkoPersistenceR2dbc % "test",
+      Test.postgresDriver % "test",
+      Compile.pekkoClusterShardingTyped % "test",
       Test.pekkoSerializationJackson,
       Test.pekkoDiscovery,
       Test.pekkoTypedTestkit % "test",
       Test.pekkoStreamTestkit % "test",
+      Test.postgresContainer % "test",
+      Test.logback % "test",
+      Test.scalatest % "test")
+
+  val grpcIntTest =
+    deps ++= Seq(
+      Compile.pekkoClusterShardingTyped % "test",
+      Test.postgresDriver % "test",
+      Test.pekkoSerializationJackson,
+      Test.pekkoDiscovery,
+      Test.pekkoTypedTestkit % "test",
+      Test.postgresContainer % "test",
+      Test.r2dbcPostgres,
       Test.logback % "test",
       Test.scalatest % "test")
 
@@ -233,16 +258,6 @@ object Dependencies {
       Test.pekkoSerializationJackson,
       Test.pekkoTypedTestkit % "test",
       Test.pekkoStreamTestkit % "test",
-      Test.logback % "test",
-      Test.scalatest % "test")
-
-  val grpcIntTest =
-    deps ++= Seq(
-      Test.postgresDriver % "test",
-      Test.pekkoSerializationJackson,
-      Test.pekkoTypedTestkit % "test",
-      Test.postgresContainer % "test",
-      Test.r2dbcPostgres,
       Test.logback % "test",
       Test.scalatest % "test")
 

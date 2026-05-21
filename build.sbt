@@ -189,6 +189,21 @@ lazy val r2dbc =
       name := "pekko-projection-r2dbc")
     .dependsOn(core)
 
+lazy val grpcTest =
+  Project(id = "grpc-test", base = file("grpc-test"))
+    .enablePlugins(PekkoGrpcPlugin)
+    .disablePlugins(MimaPlugin)
+    .settings(Dependencies.grpcTest)
+    .settings(
+      name := "pekko-projection-grpc-test",
+      publish / skip := true,
+      // following is needed by Agrona lib
+      // https://github.com/aeron-io/agrona/wiki/Change-Log#200-2024-12-17
+      Test / fork := true,
+      Test / javaOptions += "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED")
+    .dependsOn(grpc % "compile;test->compile")
+    .dependsOn(testkit % Test)
+
 lazy val grpcIntTest =
   Project(id = "grpc-int-test", base = file("grpc-int-test"))
     .disablePlugins(MimaPlugin)
@@ -196,8 +211,10 @@ lazy val grpcIntTest =
     .settings(
       name := "pekko-projection-grpc-int-test",
       publish / skip := true,
-      Test / parallelExecution := false)
-    .dependsOn(grpc % "test->test;test->compile")
+      Test / parallelExecution := false,
+      // we need to access snapshot jars for pekko-persistence-r2dbc
+      resolvers += Resolver.ApacheMavenSnapshotsRepo)
+    .dependsOn(grpcTest % "test->test;test->compile")
     .dependsOn(eventsourced % Test)
     .dependsOn(r2dbc % Test)
     .dependsOn(testkit % Test)
@@ -307,7 +324,7 @@ lazy val billOfMaterials = Project("bill-of-materials", file("bill-of-materials"
 
 lazy val root = Project(id = "projection", base = file("."))
   .aggregate(userProjects: _*)
-  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, examples, integrationExamples, docs)
+  .aggregate(billOfMaterials, coreTest, kafkaTest, cassandraTest, grpcTest, examples, integrationExamples, docs)
   .settings(
     publish / skip := true,
     name := "pekko-projection-root")

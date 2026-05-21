@@ -8,31 +8,28 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
-import java.util.Collections
-import java.util.Optional
-import java.util.concurrent.CompletionStage
-
-import scala.jdk.FutureConverters._
-import scala.jdk.OptionConverters._
-import scala.concurrent.{ ExecutionContext, Future }
-
 import org.apache.pekko
-import pekko.Done
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange
-import pekko.grpc.internal.JavaMetadataImpl
-import pekko.grpc.scaladsl.{ Metadata => ScalaMetadata }
 import pekko.http.javadsl.model.HttpRequest
 import pekko.http.javadsl.model.HttpResponse
 import pekko.japi.function.{ Function => JapiFunction }
 import pekko.projection.grpc.internal.EventProducerServiceImpl
 import pekko.projection.grpc.internal.proto.EventProducerServicePowerApiHandler
+
+import java.util.Collections
+import java.util.Optional
+import java.util.concurrent.CompletionStage
+
+import scala.concurrent.ExecutionContext
 import scala.jdk.CollectionConverters._
+import scala.jdk.FutureConverters._
+import scala.jdk.OptionConverters._
 
 /**
  * The event producer implementation that can be included a gRPC route in a Pekko HTTP server.
@@ -74,12 +71,16 @@ object EventProducer {
     val eventsBySlicesQueriesPerStreamId =
       org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer
         .eventsBySlicesQueriesForStreamIds(scalaProducerSources, system)
+    val currentEventsByPersistenceIdQueriesForStreamIds =
+      org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer
+        .currentEventsByPersistenceIdQueriesForStreamIds(scalaProducerSources, system)
 
     val eventProducerService = new EventProducerServiceImpl(
       system,
       eventsBySlicesQueriesPerStreamId,
+      currentEventsByPersistenceIdQueriesForStreamIds,
       scalaProducerSources,
-      interceptor.toScala.map(new InterceptorAdapter(_)))
+      interceptor.toScala.map(new EventProducerInterceptorAdapter(_)))
 
     val handler = EventProducerServicePowerApiHandler(eventProducerService)(system)
     new JapiFunction[HttpRequest, CompletionStage[HttpResponse]] {
@@ -88,16 +89,6 @@ object EventProducer {
           .map(_.asInstanceOf[HttpResponse])(ExecutionContext.parasitic)
           .asJava
     }
-  }
-
-  private final class InterceptorAdapter(interceptor: EventProducerInterceptor)
-      extends org.apache.pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor {
-    def intercept(streamId: String, requestMetadata: ScalaMetadata): Future[Done] =
-      interceptor
-        .intercept(
-          streamId,
-          new JavaMetadataImpl(requestMetadata))
-        .asScala
   }
 
 }

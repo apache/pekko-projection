@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
   Licensed to the Apache Software Foundation (ASF) under one or more
   contributor license agreements.  See the NOTICE file distributed with
@@ -31,7 +31,16 @@
     <logger name="org.apache.pekko.projection.grpc" level="TRACE" />
     <logger name="org.apache.pekko.projection.r2dbc" level="DEBUG" />
     <logger name="org.apache.pekko.persistence.r2dbc" level="DEBUG" />
+    <logger name="org.apache.pekko.persistence.typed" level="TRACE" />
 
+    <!-- Silence some other stuff -->
+    <logger name="org.apache.pekko.actor.typed.pubsub" level="INFO" />
+    <logger name="org.apache.pekko.http" level="INFO" />
+    <logger name="org.apache.pekko.cluster.typed.internal.receptionist" level="INFO" />
+    <logger name="io.grpc.netty.shaded.io.grpc.netty" level="INFO" />
+    <logger name="io.r2dbc.postgresql" level="INFO" />
+    <logger name="reactor.netty.resources" level="INFO" />
+    <logger name="io.r2dbc.pool" level="INFO" />
 
     <root level="INFO">
         <appender-ref ref="CapturingAppender"/>

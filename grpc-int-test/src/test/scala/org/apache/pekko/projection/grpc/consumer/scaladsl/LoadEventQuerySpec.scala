@@ -8,19 +8,13 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.consumer.scaladsl
 
-import scala.concurrent.Await
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.duration._
-
 import org.apache.pekko
 import pekko.Done
-import pekko.NotUsed
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorSystem
@@ -30,9 +24,9 @@ import pekko.http.scaladsl.Http
 import pekko.http.scaladsl.model.HttpRequest
 import pekko.http.scaladsl.model.HttpResponse
 import pekko.projection.grpc.TestContainerConf
+import pekko.projection.grpc.TestData
 import pekko.projection.grpc.TestDbLifecycle
 import pekko.projection.grpc.TestEntity
-import pekko.projection.grpc.TestData
 import pekko.projection.grpc.consumer.GrpcQuerySettings
 import pekko.projection.grpc.producer.EventProducerSettings
 import pekko.projection.grpc.producer.scaladsl.EventProducer
@@ -42,6 +36,11 @@ import io.grpc.Status
 import io.grpc.StatusRuntimeException
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpecLike
+
+import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 class LoadEventQuerySpec(testContainerConf: TestContainerConf)
     extends ScalaTestWithActorTestKit(testContainerConf.config)
@@ -132,8 +131,9 @@ class LoadEventQuerySpec(testContainerConf: TestContainerConf)
       val env = grpcReadJournal
         .loadEnvelope[String](pid.id, sequenceNr = 1L)
         .futureValue
+      env.filtered shouldBe true
+      env.eventMetadata shouldBe None
       env.eventOption.isEmpty shouldBe true
-      env.eventMetadata shouldBe Some(NotUsed)
     }
 
     "handle missing event as NOT_FOUND" in new TestFixture {

@@ -8,26 +8,30 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.producer.scaladsl
 
-import org.apache.pekko
-import pekko.Done
-
 import scala.concurrent.Future
 import scala.reflect.ClassTag
+
+import org.apache.pekko
+import pekko.Done
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange
 import pekko.grpc.scaladsl.Metadata
 import pekko.http.scaladsl.model.HttpRequest
 import pekko.http.scaladsl.model.HttpResponse
 import pekko.persistence.query.PersistenceQuery
+import pekko.persistence.query.scaladsl.ReadJournal
+import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.CurrentEventsByPersistenceIdTypedQuery
 import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
 import pekko.projection.grpc.internal.EventProducerServiceImpl
 import pekko.projection.grpc.internal.proto.EventProducerServicePowerApiHandler
 import pekko.projection.grpc.producer.EventProducerSettings
+import pekko.projection.grpc.producer.javadsl.{ Transformation => JTransformation }
 
 /**
  * The event producer implementation that can be included a gRPC route in a Pekko HTTP server.
@@ -35,34 +39,68 @@ import pekko.projection.grpc.producer.EventProducerSettings
 @ApiMayChange
 object EventProducer {
 
+  object EventProducerSource {
+    def apply(
+        entityType: String,
+        streamId: String,
+        transformation: Transformation,
+        settings: EventProducerSettings): EventProducerSource =
+      new EventProducerSource(entityType, streamId, transformation, settings, _ => true)
+
+    def apply[Event](
+        entityType: String,
+        streamId: String,
+        transformation: Transformation,
+        settings: EventProducerSettings,
+        producerFilter: EventEnvelope[Event] => Boolean): EventProducerSource =
+      new EventProducerSource(
+        entityType,
+        streamId,
+        transformation,
+        settings,
+        producerFilter.asInstanceOf[EventEnvelope[Any] => Boolean])
+
+  }
+
   /**
-   * @param entityType The internal entity type name
-   * @param streamId The public, logical, stream id that consumers use to consume this source
+   * @param entityType     The internal entity type name
+   * @param streamId       The public, logical, stream id that consumers use to consume this source
    * @param transformation Transformations for turning the internal events to public message types
-   * @param settings The event producer settings used (can be shared for multiple sources)
+   * @param settings       The event producer settings used (can be shared for multiple sources)
    */
   @ApiMayChange
-  final case class EventProducerSource(
-      entityType: String,
-      streamId: String,
-      transformation: Transformation,
-      settings: EventProducerSettings) {
-    require(entityType.nonEmpty, "Entity type must not be empty")
+  final class EventProducerSource private (
+      val entityType: String,
+      val streamId: String,
+      val transformation: Transformation,
+      val settings: EventProducerSettings,
+      val producerFilter: EventEnvelope[Any] => Boolean) {
+    require(entityType.nonEmpty, "Stream id must not be empty")
     require(streamId.nonEmpty, "Stream id must not be empty")
+
+    def withProducerFilter[Event](producerFilter: EventEnvelope[Event] => Boolean): EventProducerSource =
+      new EventProducerSource(
+        entityType,
+        streamId,
+        transformation,
+        settings,
+        producerFilter.asInstanceOf[EventEnvelope[Any] => Boolean])
+
   }
 
   @ApiMayChange
   object Transformation {
+
     val empty: Transformation = new Transformation(
       mappers = Map.empty,
-      orElse = event =>
-        Future.failed(new IllegalArgumentException(s"Missing transformation for event [${event.getClass}]")))
+      orElse = envelope =>
+        Future.failed(new IllegalArgumentException(s"Missing transformation for event [${envelope.event.getClass}]")))
 
     /**
      * No transformation. Pass through each event as is.
      */
     val identity: Transformation =
-      new Transformation(mappers = Map.empty, orElse = event => Future.successful(Option(event)))
+      new Transformation(mappers = Map.empty, orElse = envelope => Future.successful(envelope.eventOption))
   }
 
   /**
@@ -71,12 +109,22 @@ object EventProducer {
    */
   @ApiMayChange
   final class Transformation private (
-      val mappers: Map[Class[_], Any => Future[Option[Any]]],
-      val orElse: Any => Future[Option[Any]]) {
+      private[pekko] val mappers: Map[Class[_], EventEnvelope[Any] => Future[Option[Any]]],
+      private[pekko] val orElse: EventEnvelope[Any] => Future[Option[Any]]) {
+
+    /**
+     * @param f A function that is fed each event, and the possible additional metadata
+     */
+    def registerAsyncEnvelopeMapper[A: ClassTag, B](f: EventEnvelope[A] => Future[Option[B]]): Transformation = {
+      val clazz = implicitly[ClassTag[A]].runtimeClass
+      new Transformation(mappers.updated(clazz, f.asInstanceOf[EventEnvelope[Any] => Future[Option[Any]]]), orElse)
+    }
 
     def registerAsyncMapper[A: ClassTag, B](f: A => Future[Option[B]]): Transformation = {
       val clazz = implicitly[ClassTag[A]].runtimeClass
-      new Transformation(mappers.updated(clazz, f.asInstanceOf[Any => Future[Option[Any]]]), orElse)
+      new Transformation(
+        mappers.updated(clazz, (envelope: EventEnvelope[Any]) => f(envelope.event.asInstanceOf[A])),
+        orElse)
     }
 
     def registerMapper[A: ClassTag, B](f: A => Option[B]): Transformation = {
@@ -84,12 +132,24 @@ object EventProducer {
     }
 
     def registerAsyncOrElseMapper(f: Any => Future[Option[Any]]): Transformation = {
-      new Transformation(mappers, f)
+      new Transformation(mappers, (envelope: EventEnvelope[Any]) => f(envelope.event))
     }
 
     def registerOrElseMapper(f: Any => Option[Any]): Transformation = {
       registerAsyncOrElseMapper(event => Future.successful(f(event)))
     }
+
+    def registerAsyncEnvelopeOrElseMapper(m: EventEnvelope[Any] => Future[Option[Any]]): Transformation = {
+      new Transformation(mappers, m)
+    }
+
+    private[pekko] def apply(envelope: EventEnvelope[Any]): Future[Option[Any]] = {
+      val mapper = mappers.getOrElse(envelope.event.getClass, orElse)
+      mapper.apply(envelope)
+    }
+
+    private[pekko] def toJava: JTransformation =
+      new JTransformation(this)
   }
 
   /**
@@ -119,11 +179,13 @@ object EventProducer {
   def grpcServiceHandler(sources: Set[EventProducerSource], interceptor: Option[EventProducerInterceptor])(
       implicit system: ActorSystem[_]): PartialFunction[HttpRequest, scala.concurrent.Future[HttpResponse]] = {
 
-    val eventsBySlicesQueriesPerStreamId =
-      eventsBySlicesQueriesForStreamIds(sources, system)
-
     EventProducerServicePowerApiHandler.partial(
-      new EventProducerServiceImpl(system, eventsBySlicesQueriesPerStreamId, sources, interceptor))
+      new EventProducerServiceImpl(
+        system,
+        eventsBySlicesQueriesForStreamIds(sources, system),
+        currentEventsByPersistenceIdQueriesForStreamIds(sources, system),
+        sources,
+        interceptor))
   }
 
   /**
@@ -132,6 +194,30 @@ object EventProducer {
   private[pekko] def eventsBySlicesQueriesForStreamIds(
       sources: Set[EventProducerSource],
       system: ActorSystem[_]): Map[String, EventsBySliceQuery] = {
+    queriesForStreamIds(sources, system).map {
+      case (streamId, q: EventsBySliceQuery) => streamId -> q
+      case (_, other)                        =>
+        throw new IllegalArgumentException(s"Expected EventsBySliceQuery but was [${other.getClass.getName}]")
+    }
+  }
+
+  /**
+   * INTERNAL API
+   */
+  private[pekko] def currentEventsByPersistenceIdQueriesForStreamIds(
+      sources: Set[EventProducerSource],
+      system: ActorSystem[_]): Map[String, CurrentEventsByPersistenceIdTypedQuery] = {
+    queriesForStreamIds(sources, system).map {
+      case (streamId, q: CurrentEventsByPersistenceIdTypedQuery) => streamId -> q
+      case (_, other)                                            =>
+        throw new IllegalArgumentException(
+          s"Expected CurrentEventsByPersistenceIdQuery but was [${other.getClass.getName}]")
+    }
+  }
+
+  private def queriesForStreamIds(
+      sources: Set[EventProducerSource],
+      system: ActorSystem[_]): Map[String, ReadJournal] = {
     val streamIds = sources.map(_.streamId)
     require(
       streamIds.size == sources.size,
@@ -141,7 +227,7 @@ object EventProducer {
     val queryPluginsIds = sources.groupBy { eps =>
       require(
         eps.settings.queryPluginId.nonEmpty,
-        s"Configuration property [pekko.projection.grpc.producer.query-plugin-id] must be defined for stream id [${eps.streamId}].")
+        s"Configuration property [org.apache.pekko.projection.grpc.producer.query-plugin-id] must be defined for stream id [${eps.streamId}].")
       eps.settings.queryPluginId
     }
 
@@ -149,7 +235,7 @@ object EventProducer {
       case (queryPluginId, sourcesUsingIt) =>
         val eventsBySlicesQuery =
           PersistenceQuery(system)
-            .readJournalFor[EventsBySliceQuery](queryPluginId)
+            .readJournalFor[ReadJournal](queryPluginId)
 
         sourcesUsingIt.map(eps => eps.streamId -> eventsBySlicesQuery)
     }

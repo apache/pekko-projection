@@ -8,13 +8,14 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.internal
 
 import scala.collection.concurrent.TrieMap
 import scala.collection.immutable
+import scala.jdk.CollectionConverters._
 import scala.util.Try
 
 import org.apache.pekko
@@ -23,7 +24,6 @@ import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.annotation.InternalApi
 import pekko.serialization.SerializationExtension
 import pekko.serialization.Serializers
-import scala.jdk.CollectionConverters._
 import com.google.common.base.CaseFormat
 import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors
@@ -266,7 +266,7 @@ import scalapb.options.Scalapb
       else ""
 
     // flat package could be overridden on the command line, so attempt to load both possibilities if it's not
-    // explicitly set
+    // explicitly setclassLoader.loadClass(className)
     val possibleBaseNames =
       if (scalaOptions.hasFlatPackage) {
         if (scalaOptions.getFlatPackage) Seq("")
@@ -353,7 +353,7 @@ import scalapb.options.Scalapb
         typeName
       case _ =>
         log.warn2(
-          "Message type [{}] does not have a url prefix, it should have one that matches the type url prefix [{}]",
+          "Message type [{}] does not have a url prefix, it should have one that matchers the type url prefix [{}]",
           typeUrl,
           GoogleTypeUrlPrefix)
         typeUrl

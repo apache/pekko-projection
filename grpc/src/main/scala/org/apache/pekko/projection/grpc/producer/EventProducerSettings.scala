@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.producer
@@ -24,22 +24,20 @@ object EventProducerSettings {
     apply(system.settings.config.getConfig("pekko.projection.grpc.producer"))
 
   def apply(config: Config): EventProducerSettings = {
-    val queryPluginId: String = config.getString("query-plugin-id")
-    val transformationParallelism: Int =
-      config.getInt("transformation-parallelism")
 
-    new EventProducerSettings(queryPluginId, transformationParallelism)
+    new EventProducerSettings(
+      queryPluginId = config.getString("query-plugin-id"),
+      transformationParallelism = config.getInt("transformation-parallelism"),
+      replayParallelism = config.getInt("filter.replay-parallelism"))
   }
-
-  /** Java API */
-  def create(system: ActorSystem[_]): EventProducerSettings = apply(system)
-
-  /** Java API */
-  def create(config: Config): EventProducerSettings = apply(config)
 }
 
 @ApiMayChange
-final case class EventProducerSettings(queryPluginId: String, transformationParallelism: Int) {
+final class EventProducerSettings private (
+    val queryPluginId: String,
+    val transformationParallelism: Int,
+    val replayParallelism: Int) {
   require(transformationParallelism >= 1, "Configuration property [transformation-parallelism] must be >= 1.")
+  require(replayParallelism >= 1, "Configuration property [replay-parallelism] must be >= 1.")
 
 }

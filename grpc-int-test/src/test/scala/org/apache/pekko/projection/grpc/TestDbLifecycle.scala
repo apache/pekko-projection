@@ -8,13 +8,10 @@
  */
 
 /*
- * Copyright (C) 2009-2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2009-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc
-
-import scala.concurrent.Await
-import scala.concurrent.duration._
 
 import org.apache.pekko
 import pekko.actor.typed.ActorSystem
@@ -26,6 +23,9 @@ import pekko.projection.r2dbc.R2dbcProjectionSettings
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.Suite
 import org.slf4j.LoggerFactory
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
 
 trait TestDbLifecycle extends BeforeAndAfterAll { this: Suite =>
 
@@ -46,8 +46,8 @@ trait TestDbLifecycle extends BeforeAndAfterAll { this: Suite =>
   lazy val persistenceExt: Persistence = Persistence(typedSystem)
 
   override protected def beforeAll(): Unit = {
-    lazy val journalSettings: JournalSettings =
-      JournalSettings(typedSystem.settings.config.getConfig("pekko.persistence.r2dbc.journal"))
+    val journalSettings = JournalSettings(
+      typedSystem.settings.config.getConfig("pekko.persistence.r2dbc.journal"))
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(
         _.createStatement(s"delete from ${journalSettings.journalTableWithSchema}")),

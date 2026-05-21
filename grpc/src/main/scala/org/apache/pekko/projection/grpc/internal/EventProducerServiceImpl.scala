@@ -8,16 +8,13 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.internal
 
 import org.apache.pekko
 import pekko.Done
-
-import java.time.Instant
-import scala.concurrent.Future
 import pekko.NotUsed
 import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.scaladsl.LoggerOps
@@ -27,6 +24,7 @@ import pekko.grpc.scaladsl.Metadata
 import pekko.persistence.query.NoOffset
 import pekko.persistence.query.TimestampOffset
 import pekko.persistence.query.typed.EventEnvelope
+import pekko.persistence.query.typed.scaladsl.CurrentEventsByPersistenceIdTypedQuery
 import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
 import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
 import pekko.persistence.query.typed.scaladsl.LoadEventQuery
@@ -46,6 +44,7 @@ import pekko.projection.grpc.internal.proto.StreamOut
 import pekko.projection.grpc.producer.scaladsl.EventProducer
 import pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
 import pekko.projection.grpc.producer.scaladsl.EventProducerInterceptor
+import pekko.stream.scaladsl.BidiFlow
 import pekko.stream.scaladsl.Flow
 import pekko.stream.scaladsl.Sink
 import pekko.stream.scaladsl.Source
@@ -53,6 +52,10 @@ import com.google.protobuf.timestamp.Timestamp
 import io.grpc.Status
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+
+import java.time.Instant
+import scala.concurrent.Future
+import scala.util.Success
 
 /**
  * INTERNAL API
@@ -69,6 +72,7 @@ import org.slf4j.LoggerFactory
 @InternalApi private[pekko] class EventProducerServiceImpl(
     system: ActorSystem[_],
     eventsBySlicesQueriesPerStreamId: Map[String, EventsBySliceQuery],
+    currentEventsByPersistenceIdQueriesPerStreamId: Map[String, CurrentEventsByPersistenceIdTypedQuery],
     sources: Set[EventProducer.EventProducerSource],
     interceptor: Option[EventProducerInterceptor])
     extends EventProducerServicePowerApi {
@@ -111,7 +115,7 @@ import org.slf4j.LoggerFactory
   override def eventsBySlices(in: Source[StreamIn, NotUsed], metadata: Metadata): Source[StreamOut, NotUsed] = {
     in.prefixAndTail(1).flatMapConcat {
       case (Seq(StreamIn(StreamIn.Message.Init(init), _)), tail) =>
-        tail.via(runEventsBySlices(init, tail, metadata))
+        tail.via(runEventsBySlices(init, metadata))
       case (Seq(), _) =>
         // if error during recovery in proxy the stream will be completed before init
         log.warn("Event stream closed before init.")
@@ -126,10 +130,7 @@ import org.slf4j.LoggerFactory
     }
   }
 
-  private def runEventsBySlices(
-      init: InitReq,
-      nextReq: Source[StreamIn, NotUsed],
-      metadata: Metadata): Flow[StreamIn, StreamOut, NotUsed] = {
+  private def runEventsBySlices(init: InitReq, metadata: Metadata): Flow[StreamIn, StreamOut, NotUsed] = {
     val futureFlow = intercept(init.streamId, metadata).map { _ =>
       val producerSource = eventProducerSourceFor(init.streamId)
 
@@ -160,32 +161,45 @@ import org.slf4j.LoggerFactory
         eventsBySlicesQueriesPerStreamId(init.streamId)
           .eventsBySlices[Any](producerSource.entityType, init.sliceMin, init.sliceMax, offset)
 
-      val eventsStreamOut: Source[StreamOut, NotUsed] =
-        events.mapAsync(producerSource.settings.transformationParallelism) { env =>
+      val eventsFlow: Flow[StreamIn, EventEnvelope[Any], NotUsed] =
+        BidiFlow
+          .fromGraph(
+            new FilterStage(
+              init.streamId,
+              producerSource.entityType,
+              init.sliceMin to init.sliceMax,
+              init.filter,
+              currentEventsByPersistenceIdQueriesPerStreamId(init.streamId),
+              producerFilter = producerSource.producerFilter,
+              replayParallelism = producerSource.settings.replayParallelism))
+          .join(Flow.fromSinkAndSource(Sink.ignore, events))
+
+      val eventsStreamOut: Flow[StreamIn, StreamOut, NotUsed] =
+        eventsFlow.mapAsync(producerSource.settings.transformationParallelism) { env =>
           import system.executionContext
           transformAndEncodeEvent(producerSource.transformation, env).map {
             case Some(event) =>
               log.traceN(
-                "Emitting {}event from persistenceId [{}] with seqNr [{}], offset [{}]",
-                if (event.payload.isEmpty) "backtracking " else "",
+                "Emitting event from persistenceId [{}] with seqNr [{}], offset [{}], source [{}]",
                 env.persistenceId,
                 env.sequenceNr,
-                env.offset)
+                env.offset,
+                event.source)
               StreamOut(StreamOut.Message.Event(event))
             case None =>
               log.traceN(
-                "Filtered event from persistenceId [{}] with seqNr [{}], offset [{}]",
+                "Filtered event from persistenceId [{}] with seqNr [{}], offset [{}], source [{}]",
                 env.persistenceId,
                 env.sequenceNr,
-                env.offset)
+                env.offset,
+                env.source)
               StreamOut(
                 StreamOut.Message.FilteredEvent(
                   FilteredEvent(env.persistenceId, env.sequenceNr, env.slice, Some(protoOffset(env)))))
           }
         }
 
-      // FIXME nextReq not handled yet
-      Flow.fromSinkAndSource(Sink.ignore, eventsStreamOut)
+      eventsStreamOut
     }
     Flow.futureFlow(futureFlow).mapMaterializedValue(_ => NotUsed)
   }
@@ -206,23 +220,41 @@ import org.slf4j.LoggerFactory
 
   private def transformAndEncodeEvent(transformation: Transformation, env: EventEnvelope[_]): Future[Option[Event]] = {
     env.eventOption match {
-      case Some(event) =>
+      case Some(_) =>
         import system.executionContext
-        val f = transformation.mappers
-          .getOrElse(event.getClass, transformation.orElse)
-
-        f(event).map {
-          _.map { transformedEvent =>
-            val protoEvent = protoAnySerialization.serialize(transformedEvent)
-            Event(env.persistenceId, env.sequenceNr, env.slice, Some(protoOffset(env)), Some(protoEvent))
-          }
+        val mappedFuture: Future[Option[Any]] = transformation(env.asInstanceOf[EventEnvelope[Any]])
+        def toEvent(transformedEvent: Any): Event = {
+          val protoEvent = protoAnySerialization.serialize(transformedEvent)
+          val metadata = env.eventMetadata.map(protoAnySerialization.serialize)
+          Event(
+            persistenceId = env.persistenceId,
+            seqNr = env.sequenceNr,
+            slice = env.slice,
+            offset = Some(protoOffset(env)),
+            payload = Some(protoEvent),
+            metadata = metadata,
+            source = env.source,
+            tags = env.tags.toSeq)
+        }
+        mappedFuture.value match {
+          case Some(Success(Some(transformedEvent))) => Future.successful(Some(toEvent(transformedEvent)))
+          case Some(Success(None))                   => Future.successful(None)
+          case _                                     => mappedFuture.map(_.map(toEvent))
         }
 
       case None =>
         // Events from backtracking are lazily loaded via `loadEvent` if needed.
         // Transformation and filter is done via `loadEvent` in that case.
         Future.successful(
-          Some(Event(env.persistenceId, env.sequenceNr, env.slice, Some(protoOffset(env)), payload = None)))
+          Some(
+            Event(
+              persistenceId = env.persistenceId,
+              seqNr = env.sequenceNr,
+              slice = env.slice,
+              offset = Some(protoOffset(env)),
+              payload = None,
+              source = env.source,
+              tags = env.tags.toSeq)))
     }
   }
 
@@ -276,8 +308,14 @@ import org.slf4j.LoggerFactory
                     env.persistenceId,
                     env.sequenceNr,
                     env.offset)
-                  LoadEventResponse(LoadEventResponse.Message.FilteredEvent(
-                    FilteredEvent(env.persistenceId, env.sequenceNr, env.slice, Some(protoOffset(env)))))
+                  LoadEventResponse(
+                    LoadEventResponse.Message.FilteredEvent(
+                      FilteredEvent(
+                        persistenceId = env.persistenceId,
+                        seqNr = env.sequenceNr,
+                        slice = env.slice,
+                        offset = Some(protoOffset(env)),
+                        source = env.source)))
               }
             }
             .recoverWith {

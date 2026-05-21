@@ -8,13 +8,14 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.producer.javadsl
 
 import org.apache.pekko
 import pekko.annotation.ApiMayChange
+import pekko.persistence.query.typed.EventEnvelope
 import pekko.projection.grpc.producer.EventProducerSettings
 
 /**
@@ -25,12 +26,25 @@ import pekko.projection.grpc.producer.EventProducerSettings
  */
 @ApiMayChange
 final class EventProducerSource(
-    entityType: String,
-    streamId: String,
-    transformation: Transformation,
-    settings: EventProducerSettings) {
+    val entityType: String,
+    val streamId: String,
+    val transformation: Transformation,
+    val settings: EventProducerSettings,
+    val producerFilter: java.util.function.Predicate[EventEnvelope[Any]]) {
+
+  def this(entityType: String, streamId: String, transformation: Transformation, settings: EventProducerSettings) =
+    this(entityType, streamId, transformation, settings, producerFilter = _ => true)
+
+  def withProducerFilter[Event](
+      producerFilter: java.util.function.Predicate[EventEnvelope[Event]]): EventProducerSource =
+    new EventProducerSource(
+      entityType,
+      streamId,
+      transformation,
+      settings,
+      producerFilter.asInstanceOf[java.util.function.Predicate[EventEnvelope[Any]]])
 
   def asScala: org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource =
     org.apache.pekko.projection.grpc.producer.scaladsl.EventProducer
-      .EventProducerSource(entityType, streamId, transformation.delegate, settings)
+      .EventProducerSource(entityType, streamId, transformation.delegate, settings, producerFilter.test)
 }

@@ -8,16 +8,10 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.consumer.scaladsl
-
-import java.time.Instant
-import java.time.{ Duration => JDuration }
-import scala.concurrent.ExecutionContext
-import scala.concurrent.Future
-import scala.concurrent.duration._
 
 import org.apache.pekko
 import pekko.Done
@@ -40,6 +34,12 @@ import pekko.projection.grpc.producer.scaladsl.EventProducer.EventProducerSource
 import pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.wordspec.AnyWordSpecLike
+
+import java.time.Instant
+import java.time.{ Duration => JDuration }
+import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
+import scala.concurrent.duration._
 
 class EventTimestampQuerySpec(testContainerConf: TestContainerConf)
     extends ScalaTestWithActorTestKit(testContainerConf.config)
@@ -111,7 +111,7 @@ class EventTimestampQuerySpec(testContainerConf: TestContainerConf)
       val timestampB =
         grpcReadJournal.timestampOf(pid.id, sequenceNr = 2L).futureValue.get
       JDuration
-        .between(timestampB, Instant.now())
+        .between(timestampA, Instant.now())
         .toMillis should (be >= 0L and be <= 3000L)
 
       if (timestampB != timestampA)

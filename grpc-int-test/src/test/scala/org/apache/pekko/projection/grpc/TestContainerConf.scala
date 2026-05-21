@@ -8,21 +8,22 @@
  */
 
 /*
- * Copyright (C) 2009-2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2009-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc
 
+import org.apache.pekko
+import pekko.testkit.SocketUtil
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import org.apache.pekko.testkit.SocketUtil
 import org.testcontainers.containers.startupcheck.IsRunningStartupCheckStrategy
 import org.testcontainers.postgresql.PostgreSQLContainer
 
 class TestContainerConf {
   val grpcPort: Int = SocketUtil.temporaryServerAddress("127.0.0.1").getPort
 
-  private val container = new PostgreSQLContainer("postgres:18.0")
+  private val container: PostgreSQLContainer = new PostgreSQLContainer("postgres:18.4")
   container.withInitScript("db/default-init.sql")
   container.withStartupCheckStrategy(new IsRunningStartupCheckStrategy)
   container.withStartupAttempts(5)
@@ -31,7 +32,7 @@ class TestContainerConf {
   def config: Config =
     ConfigFactory
       .parseString(s"""
-     pekko.http.server.preview.enable-http2 = on
+     pekko.http.server.enable-http2 = on
      pekko.projection.grpc {
        consumer.client {
          host = "127.0.0.1"

@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2022 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022-2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.grpc.consumer.javadsl
@@ -17,7 +17,6 @@ import java.time.Instant
 import java.util
 import java.util.Optional
 import java.util.concurrent.CompletionStage
-
 import scala.concurrent.ExecutionContext
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
@@ -27,6 +26,7 @@ import pekko.Done
 import pekko.NotUsed
 import pekko.actor.ClassicActorSystemProvider
 import pekko.annotation.ApiMayChange
+import pekko.annotation.InternalApi
 import pekko.grpc.GrpcClientSettings
 import pekko.japi.Pair
 import pekko.persistence.query.Offset
@@ -38,6 +38,7 @@ import pekko.persistence.query.typed.javadsl.LoadEventQuery
 import pekko.projection.grpc.consumer.GrpcQuerySettings
 import pekko.projection.grpc.consumer.scaladsl
 import pekko.projection.grpc.internal.ProtoAnySerialization
+import pekko.projection.internal.CanTriggerReplay
 import pekko.stream.javadsl.Source
 import com.google.protobuf.Descriptors
 
@@ -80,7 +81,8 @@ class GrpcReadJournal(delegate: scaladsl.GrpcReadJournal)
     extends ReadJournal
     with EventsBySliceQuery
     with EventTimestampQuery
-    with LoadEventQuery {
+    with LoadEventQuery
+    with CanTriggerReplay {
 
   /**
    * The identifier of the stream to consume, which is exposed by the producing/publishing side.
@@ -88,6 +90,10 @@ class GrpcReadJournal(delegate: scaladsl.GrpcReadJournal)
    */
   def streamId(): String =
     delegate.streamId
+
+  @InternalApi
+  private[pekko] override def triggerReplay(persistenceId: String, fromSeqNr: Long): Unit =
+    delegate.triggerReplay(persistenceId, fromSeqNr)
 
   override def eventsBySlices[Event](
       entityType: String,

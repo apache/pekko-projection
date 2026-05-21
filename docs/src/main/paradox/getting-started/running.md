@@ -83,7 +83,7 @@ If you don't see any connection exceptions then you should eventually see log li
 Ex)
 
 ```shell
-[2020-08-13 15:20:05,583] [INFO] [docs.guide.EventGeneratorApp$] [] [EventGenerator-pekko.actor.default-dispatcher-22] - id [cb52b] tag [shopping-cart] event: ItemQuantityAdjusted(cb52b,skis,1,1) MDC: {persistencePhase=persist-evt, pekkoAddress=pekko://EventGenerator@127.0.1.1:25520, pekkoSource=pekko://EventGenerator/system/sharding/shopping-cart-event/678/cb52b, sourceActorSystem=EventGenerator, persistenceId=cb52b}
+[2020-08-13 15:20:05,583] [INFO] [docs.guide.EventGeneratorApp$] [] [EventGenerator-pekko.actor.default-dispatcher-22] - id [cb52b] tag [shopping-cart] event: ItemQuantityAdjusted(cb52b,skis,1,1) MDC: {persistencePhase=persist-evt, pekkoAddress=pekko://EventGenerator@127.0.1.1:73350, pekkoSource=pekko://EventGenerator/system/sharding/shopping-cart-event/678/cb52b, sourceActorSystem=EventGenerator, persistenceId=cb52b}
 ```
 
 Finally, we can run `ShoppingCartApp` in a new terminal:
