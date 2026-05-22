@@ -159,7 +159,7 @@ class ProducerFilterEndToEndSpec(testContainerConf: TestContainerConf)
       spawnProjection()
     }
 
-    "Filter events according to producer filter" ignore {
+    "Filter events according to producer filter" in {
       val ackProbe = createTestProbe[Done]()
       val entity1 = testKit.spawn(TestEntity("one"))
       entity1.tell(TestEntity.Command("a", ackProbe.ref))
