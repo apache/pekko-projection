@@ -225,7 +225,7 @@ object R2dbcProjectionDocExample {
     // #grouped
   }
 
-  // Ignore Scala 2.13 compiler warning 
+  // Ignore Scala 2.13 compiler warning
   @nowarn("msg=possible missing interpolator")
   object IllustrateSettings {
     val config =
