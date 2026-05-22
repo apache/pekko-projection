@@ -15,6 +15,7 @@ package org.apache.pekko.projection.r2dbc.scaladsl
 
 import scala.collection.immutable
 import scala.concurrent.duration.Duration
+
 import org.apache.pekko
 import pekko.Done
 import pekko.actor.typed.ActorSystem
@@ -371,7 +372,7 @@ object R2dbcProjection {
         connFactory)
 
     val adaptedHandler =
-      R2dbcProjectionImpl.adaptedHandlerForFlow(sourceProvider, handler, offsetStore)(system.executionContext)
+      R2dbcProjectionImpl.adaptedHandlerForFlow(sourceProvider, handler, offsetStore, r2dbcSettings)(system)
 
     new R2dbcProjectionImpl(
       projectionId,

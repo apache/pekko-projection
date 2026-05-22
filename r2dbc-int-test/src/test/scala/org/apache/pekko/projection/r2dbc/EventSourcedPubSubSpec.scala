@@ -8,13 +8,12 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
 
 import java.util.UUID
-
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -121,12 +120,8 @@ class EventSourcedPubSubSpec
     sliceRanges.map { range =>
       val projectionId = ProjectionId(projectionName, s"${range.min}-${range.max}")
       val sourceProvider =
-        EventSourcedProvider.eventsBySlices[String](
-          system,
-          R2dbcReadJournal.Identifier,
-          entityType,
-          range.min,
-          range.max)
+        EventSourcedProvider
+          .eventsBySlices[String](system, R2dbcReadJournal.Identifier, entityType, range.min, range.max)
       val projection = R2dbcProjection
         .exactlyOnce(
           projectionId,
@@ -150,7 +145,7 @@ class EventSourcedPubSubSpec
     (1 to numberOfEvents).foreach { _ =>
       // not using receiveMessages(expectedEvents) for better logging in case of failure
       try {
-        processed :+= processedProbe.receiveMessage(30.seconds)
+        processed :+= processedProbe.receiveMessage(25.seconds)
       } catch {
         case e: AssertionError =>
           val missing = expectedEvents.diff(processed.map(_.envelope.event))
@@ -227,19 +222,20 @@ class EventSourcedPubSubSpec
       processed ++= expectProcessed(processedProbe, numberOfEvents - 10 + 1, numberOfEvents)
 
       val byPid = processed.groupBy(_.envelope.persistenceId)
-      byPid.foreach { case (pid, processedByPid) =>
-        // all events of a pid must be processed by the same projection instance
-        processedByPid.map(_.projectionId).toSet.size shouldBe 1
-        // processed events in right order
-        processedByPid.map(_.envelope.sequenceNr) shouldBe (1 to processedByPid.size).toVector
+      byPid.foreach {
+        case (pid, processedByPid) =>
+          // all events of a pid must be processed by the same projection instance
+          processedByPid.map(_.projectionId).toSet.size shouldBe 1
+          // processed events in right order
+          processedByPid.map(_.envelope.sequenceNr) shouldBe (1 to processedByPid.size).toVector
 
-        val viaPubSub =
-          processedByPid.filter(p =>
-            p.envelope.offset.asInstanceOf[TimestampOffset].timestamp ==
-              p.envelope.offset
-                .asInstanceOf[TimestampOffset]
-                .readTimestamp)
-        log.info("via pub-sub {}: {}", pid: Any, viaPubSub.map(_.envelope.sequenceNr).mkString(", "): Any)
+          val viaPubSub =
+            processedByPid.filter(p =>
+              p.envelope.offset.asInstanceOf[TimestampOffset].timestamp ==
+                p.envelope.offset
+                  .asInstanceOf[TimestampOffset]
+                  .readTimestamp)
+          log.info2("via pub-sub {}: {}", pid, viaPubSub.map(_.envelope.sequenceNr).mkString(", "))
       }
 
       val countViaPubSub = processed.count(p =>

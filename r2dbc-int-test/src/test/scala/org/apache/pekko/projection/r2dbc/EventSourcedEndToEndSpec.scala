@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -23,16 +23,16 @@ import org.apache.pekko
 import pekko.Done
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
+import pekko.actor.testkit.typed.scaladsl.TestProbe
 import pekko.actor.typed.ActorRef
 import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.Behavior
 import pekko.actor.typed.scaladsl.Behaviors
+import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.persistence.query.typed.EventEnvelope
-import pekko.persistence.r2dbc.Dialect
+import pekko.persistence.r2dbc.JournalSettings
 import pekko.persistence.r2dbc.QuerySettings
-import pekko.persistence.r2dbc.internal.PayloadCodec
-import pekko.persistence.r2dbc.internal.PayloadCodec.RichStatement
-import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
+import pekko.persistence.r2dbc.internal.Sql.Interpolation
 import pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
 import pekko.persistence.typed.PersistenceId
 import pekko.persistence.typed.scaladsl.Effect
@@ -75,42 +75,40 @@ object EventSourcedEndToEndSpec {
 
     def apply(pid: PersistenceId): Behavior[Command] = {
       Behaviors.setup { context =>
-        EventSourcedBehavior[Command, Any, String](
-          persistenceId = pid,
-          "",
-          { (_, command) =>
-            command match {
-              case command: Persist =>
-                context.log.debug(
-                  "Persist [{}], pid [{}], seqNr [{}]",
-                  command.payload.toString,
-                  pid.id,
-                  EventSourcedBehavior.lastSequenceNumber(context) + 1: java.lang.Long)
-                Effect.persist(command.payload)
-              case command: PersistWithAck =>
-                context.log.debug(
-                  "Persist [{}], pid [{}], seqNr [{}]",
-                  command.payload.toString,
-                  pid.id,
-                  EventSourcedBehavior.lastSequenceNumber(context) + 1: java.lang.Long)
-                Effect.persist(command.payload).thenRun(_ => command.replyTo ! Done)
-              case command: PersistAll =>
-                if (context.log.isDebugEnabled)
-                  context.log.debug(
-                    "PersistAll [{}], pid [{}], seqNr [{}]",
-                    command.payloads.mkString(","),
+        EventSourcedBehavior[Command, Any, String](persistenceId = pid, "",
+          {
+            (_, command) =>
+              command match {
+                case command: Persist =>
+                  context.log.debugN(
+                    "Persist [{}], pid [{}], seqNr [{}]",
+                    command.payload,
                     pid.id,
-                    EventSourcedBehavior.lastSequenceNumber(context) + 1: java.lang.Long)
-                Effect.persist(command.payloads)
-              case Ping(replyTo) =>
-                replyTo ! Done
-                Effect.none
-              case Stop(replyTo) =>
-                replyTo ! Done
-                Effect.stop()
-            }
-          },
-          (_, _) => "")
+                    EventSourcedBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payload)
+                case command: PersistWithAck =>
+                  context.log.debugN(
+                    "Persist [{}], pid [{}], seqNr [{}]",
+                    command.payload,
+                    pid.id,
+                    EventSourcedBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payload).thenRun(_ => command.replyTo ! Done)
+                case command: PersistAll =>
+                  if (context.log.isDebugEnabled)
+                    context.log.debugN(
+                      "PersistAll [{}], pid [{}], seqNr [{}]",
+                      command.payloads.mkString(","),
+                      pid.id,
+                      EventSourcedBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payloads)
+                case Ping(replyTo) =>
+                  replyTo ! Done
+                  Effect.none
+                case Stop(replyTo) =>
+                  replyTo ! Done
+                  Effect.stop()
+              }
+          }, (_, _) => "")
       }
     }
   }
@@ -122,7 +120,7 @@ object EventSourcedEndToEndSpec {
     private val log = LoggerFactory.getLogger(getClass)
 
     override def process(session: R2dbcSession, envelope: EventEnvelope[String]): Future[Done] = {
-      log.debug("{} Processed {}", projectionId.key: Any, envelope.event: Any)
+      log.debug2("{} Processed {}", projectionId.key, envelope.event)
       probe ! Processed(projectionId, envelope)
       Future.successful(Done)
     }
@@ -142,10 +140,10 @@ class EventSourcedEndToEndSpec
 
   private val log = LoggerFactory.getLogger(getClass)
 
+  private val journalSettings = JournalSettings(system.settings.config.getConfig("pekko.persistence.r2dbc.journal"))
   private val querySettings = QuerySettings(system.settings.config.getConfig("pekko.persistence.r2dbc.query"))
   private val projectionSettings = R2dbcProjectionSettings(system)
   private val stringSerializer = SerializationExtension(system).serializerFor(classOf[String])
-  private implicit val journalPayloadCodec: PayloadCodec = querySettings.journalPayloadCodec
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()
@@ -153,10 +151,9 @@ class EventSourcedEndToEndSpec
 
   // to be able to store events with specific timestamps
   private def writeEvent(persistenceId: String, seqNr: Long, timestamp: Instant, event: String): Unit = {
-    log.debug("Write test event [{}] [{}] [{}] at time [{}]", persistenceId, seqNr: java.lang.Long, event, timestamp)
-    implicit val dialect: Dialect = projectionSettings.dialect
+    log.debugN("Write test event [{}] [{}] [{}] at time [{}]", persistenceId, seqNr, event, timestamp)
     val insertEventSql = sql"""
-      INSERT INTO ${querySettings.journalTableWithSchema}
+      INSERT INTO ${journalSettings.journalTableWithSchema}
       (slice, entity_type, persistence_id, seq_nr, db_timestamp, writer, adapter_manifest, event_ser_id, event_ser_manifest, event_payload)
       VALUES (?, ?, ?, ?, ?, '', '', ?, '', ?)"""
 
@@ -172,7 +169,7 @@ class EventSourcedEndToEndSpec
         .bind(3, seqNr)
         .bind(4, timestamp)
         .bind(5, stringSerializer.identifier)
-        .bindPayload(6, stringSerializer.toBinary(event))
+        .bind(6, stringSerializer.toBinary(event))
     }
     result.futureValue shouldBe 1
   }
@@ -187,12 +184,8 @@ class EventSourcedEndToEndSpec
     sliceRanges.map { range =>
       val projectionId = ProjectionId(projectionName, s"${range.min}-${range.max}")
       val sourceProvider =
-        EventSourcedProvider.eventsBySlices[String](
-          system,
-          R2dbcReadJournal.Identifier,
-          entityType,
-          range.min,
-          range.max)
+        EventSourcedProvider
+          .eventsBySlices[String](system, R2dbcReadJournal.Identifier, entityType, range.min, range.max)
       val projection = R2dbcProjection
         .exactlyOnce(
           projectionId,
@@ -209,6 +202,40 @@ class EventSourcedEndToEndSpec
     "e" + (template + s).takeRight(5)
   }
 
+  private def assertEventsProcessed(
+      expectedEvents: Vector[String],
+      processedProbe: TestProbe[Processed],
+      verifyProjectionId: Boolean): Unit = {
+    val expectedNumberOfEvents = expectedEvents.size
+    var processed = Vector.empty[Processed]
+
+    (1 to expectedNumberOfEvents).foreach { _ =>
+      // not using receiveMessages(expectedEvents) for better logging in case of failure
+      try {
+        processed :+= processedProbe.receiveMessage(15.seconds)
+      } catch {
+        case e: AssertionError =>
+          val missing = expectedEvents.diff(processed.map(_.envelope.event))
+          log.error(s"Processed [${processed.size}] events, but expected [$expectedNumberOfEvents]. " +
+            s"Missing [${missing.mkString(",")}]. " +
+            s"Received [${processed.map(p =>
+                s"(${p.envelope.event}, ${p.envelope.persistenceId}, ${p.envelope.sequenceNr})").mkString(", ")}]. ")
+          throw e
+      }
+    }
+
+    if (verifyProjectionId) {
+      val byPid = processed.groupBy(_.envelope.persistenceId)
+      byPid.foreach {
+        case (_, processedByPid) =>
+          // all events of a pid must be processed by the same projection instance
+          processedByPid.map(_.projectionId).toSet.size shouldBe 1
+          // processed events in right order
+          processedByPid.map(_.envelope.sequenceNr).toVector shouldBe (1 to processedByPid.size).toVector
+      }
+    }
+  }
+
   "A R2DBC projection with eventsBySlices source" must {
 
     "handle all events exactlyOnce" in {
@@ -218,7 +245,7 @@ class EventSourcedEndToEndSpec
 
       val entities = (0 until numberOfEntities).map { n =>
         val persistenceId = PersistenceId(entityType, s"p$n")
-        spawn(Persister(persistenceId), s"p$n")
+        spawn(Persister(persistenceId), s"$entityType-p$n")
       }
 
       // write some before starting the projections
@@ -267,30 +294,64 @@ class EventSourcedEndToEndSpec
         n += 1
       }
 
-      var processed = Vector.empty[Processed]
       val expectedEvents = (1 to numberOfEvents).map(mkEvent).toVector
-      (1 to numberOfEvents).foreach { _ =>
-        // not using receiveMessages(expectedEvents) for better logging in case of failure
-        try {
-          processed :+= processedProbe.receiveMessage(30.seconds)
-        } catch {
-          case e: AssertionError =>
-            val missing = expectedEvents.diff(processed.map(_.envelope.event))
-            log.error(s"Processed [${processed.size}] events, but expected [$numberOfEvents]. " +
-              s"Missing [${missing.mkString(",")}]. " +
-              s"Received [${processed.map(p =>
-                  s"(${p.envelope.event}, ${p.envelope.persistenceId}, ${p.envelope.sequenceNr})").mkString(", ")}]. ")
-            throw e
-        }
+      assertEventsProcessed(expectedEvents, processedProbe, verifyProjectionId = true)
+
+      projections.foreach(_ ! ProjectionBehavior.Stop)
+    }
+
+    "support change of slice distribution" in {
+      val numberOfEntities = 20
+      val numberOfEvents = numberOfEntities * 10
+      val entityType = nextEntityType()
+
+      val entities = (0 until numberOfEntities).map { n =>
+        val persistenceId = PersistenceId(entityType, s"p$n")
+        spawn(Persister(persistenceId), s"$entityType-p$n")
       }
 
-      val byPid = processed.groupBy(_.envelope.persistenceId)
-      byPid.foreach { case (_, processedByPid) =>
-        // all events of a pid must be processed by the same projection instance
-        processedByPid.map(_.projectionId).toSet.size shouldBe 1
-        // processed events in right order
-        processedByPid.map(_.envelope.sequenceNr).toVector shouldBe (1 to processedByPid.size).toVector
+      val projectionName = UUID.randomUUID().toString
+      val processedProbe = createTestProbe[Processed]()
+      var projections = startProjections(entityType, projectionName, nrOfProjections = 4, processedProbe.ref)
+
+      (1 to numberOfEvents).foreach { n =>
+        val p = n % numberOfEntities
+        entities(p) ! Persister.Persist(mkEvent(n))
+
+        if (n % 10 == 0)
+          Thread.sleep(50)
+        else if (n % 25 == 0)
+          Thread.sleep(1500)
+
+        // stop projections
+        if (n == numberOfEvents / 4) {
+          val probe = createTestProbe()
+          projections.foreach { ref =>
+            ref ! ProjectionBehavior.Stop
+            probe.expectTerminated(ref)
+          }
+        }
+
+        // resume projections again but with more nrOfProjections
+        if (n == (numberOfEvents / 4) + 20)
+          projections = startProjections(entityType, projectionName, nrOfProjections = 8, processedProbe.ref)
+
+        // stop projections
+        if (n == numberOfEvents * 3 / 4) {
+          val probe = createTestProbe()
+          projections.foreach { ref =>
+            ref ! ProjectionBehavior.Stop
+            probe.expectTerminated(ref)
+          }
+        }
+
+        // resume projections again but with less nrOfProjections
+        if (n == (numberOfEvents * 3 / 4) + 20)
+          projections = startProjections(entityType, projectionName, nrOfProjections = 2, processedProbe.ref)
       }
+
+      val expectedEvents = (1 to numberOfEvents).map(mkEvent).toVector
+      assertEventsProcessed(expectedEvents, processedProbe, verifyProjectionId = false)
 
       projections.foreach(_ ! ProjectionBehavior.Stop)
     }
@@ -330,12 +391,14 @@ class EventSourcedEndToEndSpec
       // but backtracking can fill in the gaps, backtracking will pick up pid3 seqNr 8 and 9
       writeEvent(pid3, 8L, startTime.plusMillis(3), "e3-8")
       val possibleDelay =
-        querySettings.backtrackingBehindCurrentTime + querySettings.refreshInterval + processedProbe.remainingOrDefault
+        querySettings.backtrackingBehindCurrentTime + querySettings.refreshInterval +
+        processedProbe.remainingOrDefault
       processedProbe.receiveMessage(possibleDelay).envelope.event shouldBe "e3-8"
       processedProbe.receiveMessage(possibleDelay).envelope.event shouldBe "e3-9"
 
       projection ! ProjectionBehavior.Stop
     }
+
   }
 
 }

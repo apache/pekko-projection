@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -18,7 +18,6 @@ import java.time.{ Duration => JDuration }
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicBoolean
 import java.util.concurrent.atomic.AtomicInteger
-
 import scala.annotation.tailrec
 import scala.collection.immutable
 import scala.concurrent.Await
@@ -38,8 +37,8 @@ import pekko.persistence.query.TimestampOffset
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
 import pekko.persistence.query.typed.scaladsl.LoadEventQuery
-import pekko.persistence.typed.PersistenceId
 import pekko.persistence.r2dbc.internal.EnvelopeOrigin
+import pekko.persistence.typed.PersistenceId
 import pekko.projection.BySlicesSourceProvider
 import pekko.projection.HandlerRecoveryStrategy
 import pekko.projection.ProjectionBehavior
@@ -162,11 +161,9 @@ class R2dbcTimestampOffsetProjectionSpec
   override protected def beforeAll(): Unit = {
     super.beforeAll()
 
-    Await.result(
-      r2dbcExecutor.executeDdl("beforeAll createTable") { conn =>
+    Await.result(r2dbcExecutor.executeDdl("beforeAll createTable") { conn =>
         conn.createStatement(TestRepository.createTableSql)
-      },
-      10.seconds)
+      }, 10.seconds)
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(_.createStatement(s"delete from ${TestRepository.table}")),
       10.seconds)
@@ -286,12 +283,8 @@ class R2dbcTimestampOffsetProjectionSpec
     }
   }
 
-  def now(): Instant = {
-    TestClock.nowMicros().instant()
-  }
-
   def createEnvelopesWithDuplicates(pid1: Pid, pid2: Pid): Vector[EventEnvelope[String]] = {
-    val startTime = now()
+    val startTime = TestClock.nowMicros().instant()
 
     Vector(
       createEnvelope(pid1, 1, startTime, "e1-1"),
@@ -346,13 +339,14 @@ class R2dbcTimestampOffsetProjectionSpec
         Future.successful(Done)
       else {
         val repo = TestRepository(session, settings)
-        val results = envelopes.groupBy(_.persistenceId).map { case (pid, envs) =>
-          repo.findById(pid).flatMap { existing =>
-            val newConcatStr = envs.foldLeft(existing.getOrElse(ConcatStr(pid, ""))) { (acc, env) =>
-              acc.concat(env.event)
+        val results = envelopes.groupBy(_.persistenceId).map {
+          case (pid, envs) =>
+            repo.findById(pid).flatMap { existing =>
+              val newConcatStr = envs.foldLeft(existing.getOrElse(ConcatStr(pid, ""))) { (acc, env) =>
+                acc.concat(env.event)
+              }
+              repo.update(pid, newConcatStr.text)
             }
-            repo.update(pid, newConcatStr.text)
-          }
         }
         Future.sequence(results).map(_ => Done)
       }
@@ -557,7 +551,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val pid2 = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
 
-      val startTime = now()
+      val startTime = TestClock.nowMicros().instant()
       val envelopes1 = createEnvelopesUnknownSequenceNumbers(startTime, pid1, pid2)
       val sourceProvider1 = createSourceProvider(envelopes1)
       implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider1)
@@ -669,7 +663,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val pid2 = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
 
-      val startTime = now()
+      val startTime = TestClock.nowMicros().instant()
       val envelopes1 = createEnvelopesUnknownSequenceNumbers(startTime, pid1, pid2)
       val sourceProvider1 = createBacktrackingSourceProvider(envelopes1)
       implicit val offsetStore: R2dbcOffsetStore = createOffsetStore(projectionId, sourceProvider1)
@@ -818,7 +812,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val pid2 = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
 
-      val startTime = now()
+      val startTime = TestClock.nowMicros().instant()
       val sourceProvider = new TestSourceProviderWithInput()
       implicit val offsetStore: R2dbcOffsetStore =
         R2dbcOffsetStore.fromConfig(projectionId, Some(sourceProvider), system, settings, r2dbcExecutor)
@@ -955,7 +949,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val pid2 = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
 
-      val startTime = now()
+      val startTime = TestClock.nowMicros().instant()
       val sourceProvider = new TestSourceProviderWithInput()
       implicit val offsetStore: R2dbcOffsetStore =
         R2dbcOffsetStore.fromConfig(projectionId, Some(sourceProvider), system, settings, r2dbcExecutor)
@@ -1159,7 +1153,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val pid1 = UUID.randomUUID().toString
       val pid2 = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
-      val startTime = now()
+      val startTime = TestClock.nowMicros().instant()
       val sourceProvider = new TestSourceProviderWithInput()
       implicit val offsetStore: R2dbcOffsetStore =
         R2dbcOffsetStore.fromConfig(projectionId, Some(sourceProvider), system, settings, r2dbcExecutor)
@@ -1301,7 +1295,7 @@ class R2dbcTimestampOffsetProjectionSpec
       val pid2 = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
 
-      val startTime = now()
+      val startTime = TestClock.nowMicros().instant()
       val sourceProvider = new TestSourceProviderWithInput()
       implicit val offsetStore: R2dbcOffsetStore =
         R2dbcOffsetStore.fromConfig(projectionId, Some(sourceProvider), system, settings, r2dbcExecutor)

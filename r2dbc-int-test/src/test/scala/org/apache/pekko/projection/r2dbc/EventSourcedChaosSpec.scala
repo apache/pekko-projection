@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -27,6 +27,7 @@ import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorRef
 import pekko.actor.typed.ActorSystem
+import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
 import pekko.persistence.typed.PersistenceId
@@ -80,20 +81,20 @@ object EventSourcedChaosSpec {
       val failCount = failEvents.getOrDefault(envelope.eventOption, 0)
       if (failCount > 0) {
         failEvents.put(envelope.event, failCount - 1)
-        log.debug(
+        log.debugN(
           "{} Fail event [{}], pid [{}], seqNr [{}]",
           projectionId.key,
           envelope.event,
           envelope.persistenceId,
-          envelope.sequenceNr: java.lang.Long)
+          envelope.sequenceNr)
         throw TestException(s"Fail event [${envelope.event}]")
       } else {
-        log.debug(
+        log.debugN(
           "{} Processed event [{}], pid [{}], seqNr [{}]",
           projectionId.key,
           envelope.event,
           envelope.persistenceId,
-          envelope.sequenceNr: java.lang.Long)
+          envelope.sequenceNr)
         probe ! Processed(projectionId, envelope)
         Future.successful(Done)
       }
@@ -130,7 +131,8 @@ class EventSourcedChaosSpec
 
     "handle all events exactlyOnce" in {
       val rnd = new Random(seed)
-      val numberOfIterations = system.settings.config.getInt("pekko.projection.r2dbc.ChaosSpec.nr-iterations")
+      val numberOfIterations =
+        system.settings.config.getInt("pekko.projection.r2dbc.ChaosSpec.nr-iterations")
       val numberOfEntities = 20 + rnd.nextInt(80)
       val numberOfProjections = 1 << rnd.nextInt(4) // 1 to 8 projections
       val entityType = nextEntityType()
@@ -199,7 +201,7 @@ class EventSourcedChaosSpec
         (1 to expectedEventCounts).foreach { _ =>
           // not using receiveMessages(expectedEvents) for better logging in case of failure
           try {
-            processed :+= processedProbe.receiveMessage(30.seconds)
+            processed :+= processedProbe.receiveMessage(15.seconds)
           } catch {
             case e: AssertionError =>
               val missing = expectedEvents.diff(processed.map(_.envelope.event))
@@ -221,13 +223,14 @@ class EventSourcedChaosSpec
         val logMsg =
           s"Iteration #$iteration. Processed [$expectedEventCounts] events in [$numberOfProjections] projections from [${byPid.size}] pids."
         log.debug(logMsg)
-        byPid.foreach { case (_, processedByPid) =>
-          // all events of a pid must be processed by the same projection instance
-          processedByPid.map(_.projectionId).toSet.size shouldBe 1
-          // processed events in right order
-          val seqNrs = processedByPid.map(_.envelope.sequenceNr).toVector
-          (seqNrs.last - seqNrs.head + 1) shouldBe processedByPid.size
-          seqNrs shouldBe (seqNrs.head to seqNrs.last).toVector
+        byPid.foreach {
+          case (_, processedByPid) =>
+            // all events of a pid must be processed by the same projection instance
+            processedByPid.map(_.projectionId).toSet.size shouldBe 1
+            // processed events in right order
+            val seqNrs = processedByPid.map(_.envelope.sequenceNr).toVector
+            (seqNrs.last - seqNrs.head + 1) shouldBe processedByPid.size
+            seqNrs shouldBe (seqNrs.head to seqNrs.last).toVector
         }
         info(logMsg)
 
@@ -279,11 +282,11 @@ class EventSourcedChaosSpec
               val failCount = 1 + rnd.nextInt(3)
               val i = rnd.nextInt(events.size)
               failEvents.put(events(i), failCount)
-              log.debug(
+              log.debugN(
                 "Persisting events [{}], it will fail [{}] in projection [{}] times",
                 events.mkString(", "),
                 events(i),
-                failCount: java.lang.Integer)
+                failCount)
             } else {
               log.debug("Persisting events [{}]", events.mkString(", "))
             }

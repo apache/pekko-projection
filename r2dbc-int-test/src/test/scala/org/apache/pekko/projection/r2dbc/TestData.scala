@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -16,7 +16,8 @@ package org.apache.pekko.projection.r2dbc
 import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 
-import org.apache.pekko.projection.ProjectionId
+import org.apache.pekko
+import pekko.projection.ProjectionId
 
 object TestData {
   private val start = 0L // could be something more unique, like currentTimeMillis

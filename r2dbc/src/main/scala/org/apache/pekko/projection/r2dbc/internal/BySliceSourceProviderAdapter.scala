@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc.internal
@@ -17,8 +17,7 @@ import java.time.Instant
 import java.util.Optional
 import java.util.concurrent.CompletionStage
 import java.util.function.Supplier
-
-import scala.concurrent.{ ExecutionContext, Future }
+import scala.concurrent.Future
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
 
@@ -28,9 +27,9 @@ import pekko.annotation.InternalApi
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
 import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.projection.BySlicesSourceProvider
 import pekko.projection.javadsl
 import pekko.projection.scaladsl
-import pekko.projection.BySlicesSourceProvider
 import pekko.stream.scaladsl.Source
 
 /**
@@ -46,7 +45,7 @@ import pekko.stream.scaladsl.Source
   def source(offset: () => Future[Option[Offset]]): Future[Source[Envelope, NotUsed]] = {
     // the parasitic context is used to convert the Optional to Option and a java streams Source to a scala Source,
     // it _should_ not be used for the blocking operation of getting offsets themselves
-    val ec = ExecutionContext.parasitic
+    val ec = scala.concurrent.ExecutionContext.parasitic
     val offsetAdapter = new Supplier[CompletionStage[Optional[Offset]]] {
       override def get(): CompletionStage[Optional[Offset]] = offset().map(_.toJava)(ec).asJava
     }
@@ -66,7 +65,8 @@ import pekko.stream.scaladsl.Source
   override def timestampOf(persistenceId: String, sequenceNr: Long): Future[Option[Instant]] =
     delegate match {
       case timestampQuery: pekko.persistence.query.typed.javadsl.EventTimestampQuery =>
-        timestampQuery.timestampOf(persistenceId, sequenceNr).asScala.map(_.toScala)(ExecutionContext.parasitic)
+        timestampQuery.timestampOf(persistenceId, sequenceNr).asScala.map(_.toScala)(
+          scala.concurrent.ExecutionContext.parasitic)
       case _ =>
         Future.failed(
           new IllegalArgumentException(

@@ -8,13 +8,12 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
 
 import java.util.UUID
-
 import scala.concurrent.Future
 
 import org.apache.pekko
@@ -25,6 +24,7 @@ import pekko.actor.typed.ActorRef
 import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.Behavior
 import pekko.actor.typed.scaladsl.Behaviors
+import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.persistence.query.DurableStateChange
 import pekko.persistence.query.UpdatedDurableState
 import pekko.persistence.r2dbc.state.scaladsl.R2dbcDurableStateStore
@@ -69,32 +69,31 @@ object DurableStateEndToEndSpec {
 
     def apply(pid: PersistenceId): Behavior[Command] = {
       Behaviors.setup { context =>
-        DurableStateBehavior[Command, Any](
-          persistenceId = pid,
-          "",
-          { (_, command) =>
-            command match {
-              case command: Persist =>
-                context.log.debug(
-                  "Persist [{}], pid [{}], seqNr [{}]",
-                  command.payload.toString,
-                  pid.id,
-                  DurableStateBehavior.lastSequenceNumber(context) + 1: java.lang.Long)
-                Effect.persist(command.payload)
-              case command: PersistWithAck =>
-                context.log.debug(
-                  "Persist [{}], pid [{}], seqNr [{}]",
-                  command.payload.toString,
-                  pid.id,
-                  DurableStateBehavior.lastSequenceNumber(context) + 1: java.lang.Long)
-                Effect.persist(command.payload).thenRun(_ => command.replyTo ! Done)
-              case Ping(replyTo) =>
-                replyTo ! Done
-                Effect.none
-              case Stop(replyTo) =>
-                replyTo ! Done
-                Effect.stop()
-            }
+        DurableStateBehavior[Command, Any](persistenceId = pid, "",
+          {
+            (_, command) =>
+              command match {
+                case command: Persist =>
+                  context.log.debugN(
+                    "Persist [{}], pid [{}], seqNr [{}]",
+                    command.payload,
+                    pid.id,
+                    DurableStateBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payload)
+                case command: PersistWithAck =>
+                  context.log.debugN(
+                    "Persist [{}], pid [{}], seqNr [{}]",
+                    command.payload,
+                    pid.id,
+                    DurableStateBehavior.lastSequenceNumber(context) + 1)
+                  Effect.persist(command.payload).thenRun(_ => command.replyTo ! Done)
+                case Ping(replyTo) =>
+                  replyTo ! Done
+                  Effect.none
+                case Stop(replyTo) =>
+                  replyTo ! Done
+                  Effect.stop()
+              }
           })
       }
     }
@@ -109,7 +108,7 @@ object DurableStateEndToEndSpec {
     override def process(session: R2dbcSession, envelope: DurableStateChange[String]): Future[Done] = {
       envelope match {
         case upd: UpdatedDurableState[String] =>
-          log.debug("{} Processed {} revision {}", projectionId.key, upd.value, upd.revision: java.lang.Long)
+          log.debugN("{} Processed {} revision {}", projectionId.key, upd.value, upd.revision)
         case _ =>
       }
       processed :+= envelope
@@ -155,12 +154,8 @@ class DurableStateEndToEndSpec
     sliceRanges.map { range =>
       val projectionId = ProjectionId(projectionName, s"${range.min}-${range.max}")
       val sourceProvider =
-        DurableStateSourceProvider.changesBySlices[String](
-          system,
-          R2dbcDurableStateStore.Identifier,
-          entityType,
-          range.min,
-          range.max)
+        DurableStateSourceProvider
+          .changesBySlices[String](system, R2dbcDurableStateStore.Identifier, entityType, range.min, range.max)
       val projection = R2dbcProjection
         .exactlyOnce(
           projectionId,
@@ -228,28 +223,29 @@ class DurableStateEndToEndSpec
         n += 1
       }
 
-      handlers.foreach { case (projectionId, handler) =>
-        (0 until numberOfEntities).foreach { p =>
-          val persistenceId = PersistenceId(entityType, s"p$p")
-          val slice = DurableStateSourceProvider.sliceForPersistenceId(
-            system,
-            R2dbcDurableStateStore.Identifier,
-            persistenceId.id)
-          withClue(s"projectionId $projectionId, persistenceId $persistenceId, slice $slice: ") {
-            if (handler.sliceRange.contains(slice)) {
-              eventually {
-                val updates = handler.processed.collect {
-                  case upd: UpdatedDurableState[String] if upd.persistenceId == persistenceId.id => upd
+      handlers.foreach {
+        case (projectionId, handler) =>
+          (0 until numberOfEntities).foreach { p =>
+            val persistenceId = PersistenceId(entityType, s"p$p")
+            val slice = DurableStateSourceProvider.sliceForPersistenceId(
+              system,
+              R2dbcDurableStateStore.Identifier,
+              persistenceId.id)
+            withClue(s"projectionId $projectionId, persistenceId $persistenceId, slice $slice: ") {
+              if (handler.sliceRange.contains(slice)) {
+                eventually {
+                  val updates = handler.processed.collect {
+                    case upd: UpdatedDurableState[String] if upd.persistenceId == persistenceId.id => upd
+                  }
+                  val revision = revisionPerEntity(p)
+                  updates.last.revision shouldBe revision
+                  updates.last.value shouldBe s"s$p-$revision"
+                  // processed events in right order
+                  updates shouldBe updates.sortBy(_.revision)
                 }
-                val revision = revisionPerEntity(p)
-                updates.last.revision shouldBe revision
-                updates.last.value shouldBe s"s$p-$revision"
-                // processed events in right order
-                updates shouldBe updates.sortBy(_.revision)
               }
             }
           }
-        }
       }
 
       projections.foreach(_ ! ProjectionBehavior.Stop)

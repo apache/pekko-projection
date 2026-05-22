@@ -80,6 +80,7 @@ object Dependencies {
 
   object Test {
     val pekkoDiscovery = "org.apache.pekko" %% "pekko-discovery" % Versions.pekko % "test"
+    val pekkoDistributedData = "org.apache.pekko" %% "pekko-distributed-data" % Versions.pekko % "test"
     val pekkoSerializationJackson = "org.apache.pekko" %% "pekko-serialization-jackson" % Versions.pekko % "test"
     val pekkoTypedTestkit = Compile.pekkoTypedTestkit
     val pekkoStreamTestkit = Compile.pekkoStreamTestkit
@@ -253,9 +254,20 @@ object Dependencies {
       Compile.pekkoPersistenceQuery,
       Compile.r2dbcSpi,
       Compile.r2dbcPool,
-      Compile.r2dbcPostgres % "provided,test",
-      Compile.r2dbcMysql % "provided,test",
+      Compile.r2dbcPostgres % "provided",
+      Compile.r2dbcMysql % "provided")
+
+  val r2dbcIntTest =
+    deps ++= Seq(
+      "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc,
+      Compile.pekkoPersistenceQuery,
+      Compile.r2dbcSpi,
+      Compile.r2dbcPool,
+      Compile.r2dbcPostgres % "test",
+      Compile.r2dbcMysql % "test",
       Test.pekkoSerializationJackson,
+      Test.pekkoDiscovery,
+      Test.pekkoDistributedData,
       Test.pekkoTypedTestkit % "test",
       Test.pekkoStreamTestkit % "test",
       Test.logback % "test",

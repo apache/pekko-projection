@@ -188,6 +188,7 @@ lazy val r2dbc =
     .settings(
       name := "pekko-projection-r2dbc")
     .dependsOn(core)
+    .dependsOn(grpc)
 
 lazy val grpcTest =
   Project(id = "grpc-test", base = file("grpc-test"))
@@ -222,7 +223,7 @@ lazy val grpcIntTest =
 lazy val r2dbcIntTest =
   Project(id = "r2dbc-int-test", base = file("r2dbc-int-test"))
     .disablePlugins(MimaPlugin)
-    .settings(Dependencies.r2dbc)
+    .settings(Dependencies.r2dbcIntTest)
     .settings(
       name := "pekko-projection-r2dbc-int-test",
       publish / skip := true,

@@ -8,7 +8,7 @@
  */
 
 /*
- * Copyright (C) 2021 Lightbend Inc. <https://www.lightbend.com>
+ * Copyright (C) 2022 - 2023 Lightbend Inc. <https://www.lightbend.com>
  */
 
 package org.apache.pekko.projection.r2dbc
@@ -22,8 +22,7 @@ import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorSystem
 import pekko.persistence.query.Sequence
 import pekko.persistence.query.TimeBasedUUID
-import pekko.persistence.r2dbc.Dialect
-import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
+import pekko.persistence.r2dbc.internal.Sql.Interpolation
 import pekko.projection.MergeableOffset
 import pekko.projection.ProjectionId
 import pekko.projection.internal.ManagementState
@@ -50,7 +49,6 @@ class R2dbcOffsetStoreSpec
 
   private val table = settings.offsetTableWithSchema
 
-  implicit val dialect: Dialect = settings.dialect
   def selectLastSql: String =
     sql"SELECT * FROM $table WHERE projection_name = ? AND projection_key = ?"
 
@@ -62,7 +60,7 @@ class R2dbcOffsetStoreSpec
             .createStatement(selectLastSql)
             .bind(0, projectionId.name)
             .bind(1, projectionId.key),
-        row => Instant.ofEpochMilli(row.get[java.lang.Long]("last_updated", classOf[java.lang.Long])))
+        row => Instant.ofEpochMilli(row.get("last_updated", classOf[java.lang.Long]).longValue()))
       .futureValue
       .getOrElse(throw new RuntimeException(s"no records found for $projectionId"))
   }
@@ -257,7 +255,6 @@ class R2dbcOffsetStoreSpec
     "read and save paused" in {
       val projectionId = genRandomProjectionId()
       val offsetStore = createOffsetStore(projectionId)
-
       offsetStore.readManagementState().futureValue shouldBe None
 
       offsetStore.savePaused(paused = true).futureValue
