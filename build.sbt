@@ -212,9 +212,10 @@ lazy val grpcIntTest =
     .settings(
       name := "pekko-projection-grpc-int-test",
       publish / skip := true,
-      Test / parallelExecution := false,
-      // we need to access snapshot jars for pekko-persistence-r2dbc
-      resolvers += Resolver.ApacheMavenSnapshotsRepo)
+      // following is needed by Agrona lib
+      // https://github.com/aeron-io/agrona/wiki/Change-Log#200-2024-12-17
+      Test / fork := true,
+      Test / javaOptions += "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED")
     .dependsOn(grpcTest % "test->test;test->compile")
     .dependsOn(eventsourced % Test)
     .dependsOn(r2dbc % Test)
