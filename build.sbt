@@ -203,6 +203,7 @@ lazy val grpcTest =
       Test / fork := true,
       Test / javaOptions += "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED")
     .dependsOn(grpc % "compile;test->compile")
+    .dependsOn(r2dbc % Test)
     .dependsOn(testkit % Test)
 
 lazy val grpcIntTest =
