@@ -258,7 +258,7 @@ class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
           Http(system)
             .newServerAt("127.0.0.1", grpcPort)
             .bind(started.createSingleServiceHandler())
-            .toScala
+            .asScala
             .map { binding: ServerBinding =>
               binding.addToCoordinatedShutdown(Duration.ofSeconds(3), system)
               replica.replicaId -> started
@@ -281,7 +281,7 @@ class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
                 .get(systemPerDc(dc))
                 .entityRefFor(entityTypeKey, entityId)
                 .ask(LWWHelloWorld.SetGreeting(s"hello 1 from ${dc.id}", _), Duration.ofSeconds(3))
-                .toScala
+                .asScala
             })
             .futureValue
 
@@ -298,7 +298,7 @@ class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
                   probe.awaitAssert({
                       entityRef
                         .ask(LWWHelloWorld.Get.apply, Duration.ofSeconds(10))
-                        .toScala
+                        .asScala
                         .futureValue should ===(s"hello 1 from ${dc.id}")
                     }, 10.seconds)
                 }
