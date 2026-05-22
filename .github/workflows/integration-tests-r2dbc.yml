@@ -58,11 +58,11 @@ jobs:
           docker compose -f docker/docker-compose-postgres.yml up -d
           # TODO: could we poll the port instead of sleep?
           sleep 10
-          docker exec -i docker-postgres-db-1 psql -U postgres -t < ddl-scripts/create_tables_postgres.sql
+          docker exec -i docker-postgres-db-1 psql -U postgres -t < r2dbc-int-test/ddl-scripts/create_tables_postgres.sql
           docker exec -i docker-postgres-db-1 psql -U postgres -t -c 'CREATE DATABASE database1;'
-          docker exec -i docker-postgres-db-1 psql -U postgres -t -d database1 < ddl-scripts/create_tables_postgres.sql
+          docker exec -i docker-postgres-db-1 psql -U postgres -t -d database1 < r2dbc-int-test/ddl-scripts/create_tables_postgres.sql
           docker exec -i docker-postgres-db-1 psql -U postgres -t -c 'CREATE DATABASE database2;'
-          docker exec -i docker-postgres-db-1 psql -U postgres -t -d database2 < ddl-scripts/create_tables_postgres.sql
+          docker exec -i docker-postgres-db-1 psql -U postgres -t -d database2 < r2dbc-int-test/ddl-scripts/create_tables_postgres.sql
 
       - name: Run all integration tests with default Scala and Java ${{ matrix.java-version }}
         run: sbt "r2dbc-int-test/test" ${{ matrix.extraOpts }}
