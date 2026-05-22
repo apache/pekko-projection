@@ -25,6 +25,7 @@ import docs.home.CborSerializable
 import org.slf4j.LoggerFactory
 
 import java.time.Instant
+import scala.annotation.nowarn
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -224,6 +225,8 @@ object R2dbcProjectionDocExample {
     // #grouped
   }
 
+  // Ignore Scala 2.13 compiler warning 
+  @nowarn("msg=possible missing interpolator")
   object IllustrateSettings {
     val config =
       """
