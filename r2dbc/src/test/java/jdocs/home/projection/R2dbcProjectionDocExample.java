@@ -72,8 +72,7 @@ class R2dbcProjectionDocExample {
     public static EntityTypeKey<Command> ENTITY_TYPE_KEY =
         EntityTypeKey.create(Command.class, "ShoppingCart");
 
-    interface Command extends CborSerializable {
-    }
+    interface Command extends CborSerializable {}
 
     interface Event {
       String getCartId();
@@ -126,6 +125,7 @@ class R2dbcProjectionDocExample {
       }
     }
   }
+
   // #handler
 
   // #grouped-handler
@@ -158,6 +158,7 @@ class R2dbcProjectionDocExample {
       return session.update(stmts).thenApply(rowsUpdated -> Done.getInstance());
     }
   }
+
   // #grouped-handler
 
   ActorSystem<Void> system = ActorSystem.create(Behaviors.empty(), "Example");
@@ -197,6 +198,7 @@ class R2dbcProjectionDocExample {
     return R2dbcProjection.exactlyOnce(
         projectionId, settings, sourceProvider, ShoppingCartHandler::new, system);
   }
+
   // #initProjections
 
   // #sourceProvider
@@ -213,6 +215,7 @@ class R2dbcProjectionDocExample {
   SourceProvider<Offset, EventEnvelope<ShoppingCart.Event>> sourceProvider =
       EventSourcedProvider.eventsBySlices(
           system, R2dbcReadJournal.Identifier(), entityType, minSlice, maxSlice);
+
   // #sourceProvider
 
   {
@@ -263,16 +266,18 @@ class R2dbcProjectionDocExample {
   }
 
   {
-    //#projectionSettings
+    // #projectionSettings
     ProjectionId projectionId =
         ProjectionId.of("ShoppingCarts", "carts-" + minSlice + "-" + maxSlice);
 
-    Optional<R2dbcProjectionSettings> settings = Optional.of(
-        R2dbcProjectionSettings.create(system.settings().config().getConfig("second-projection-r2dbc")));
+    Optional<R2dbcProjectionSettings> settings =
+        Optional.of(
+            R2dbcProjectionSettings.create(
+                system.settings().config().getConfig("second-projection-r2dbc")));
 
     Projection<EventEnvelope<ShoppingCart.Event>> projection =
         R2dbcProjection.atLeastOnce(
             projectionId, settings, sourceProvider, ShoppingCartHandler::new, system);
-    //#projectionSettings
+    // #projectionSettings
   }
 }
