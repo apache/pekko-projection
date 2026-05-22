@@ -54,7 +54,7 @@ object R2dbcProjectionDocExample {
     final case class CheckedOut(cartId: String, eventTime: Instant) extends Event
   }
 
-  //#handler
+  // #handler
   class ShoppingCartHandler()(implicit ec: ExecutionContext) extends R2dbcHandler[EventEnvelope[ShoppingCart.Event]] {
     private val logger = LoggerFactory.getLogger(getClass)
 
@@ -76,9 +76,9 @@ object R2dbcProjectionDocExample {
       }
     }
   }
-  //#handler
+  // #handler
 
-  //#grouped-handler
+  // #grouped-handler
   import scala.collection.immutable
 
   class GroupedShoppingCartHandler()(implicit ec: ExecutionContext)
@@ -107,7 +107,7 @@ object R2dbcProjectionDocExample {
       session.update(stmts).map(_ => Done)
     }
   }
-  //#grouped-handler
+  // #grouped-handler
 
   implicit val system: ActorSystem[Nothing] = ActorSystem(Behaviors.empty, "Example")
   implicit val ec: ExecutionContext = system.executionContext
@@ -159,7 +159,7 @@ object R2dbcProjectionDocExample {
     // #initProjections
   }
 
-  //#sourceProvider
+  // #sourceProvider
   import pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
   import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
   import pekko.projection.scaladsl.SourceProvider
@@ -181,10 +181,10 @@ object R2dbcProjectionDocExample {
         entityType,
         minSlice,
         maxSlice)
-  //#sourceProvider
+  // #sourceProvider
 
   object IllustrateExactlyOnce {
-    //#exactlyOnce
+    // #exactlyOnce
     import pekko.projection.ProjectionId
     import pekko.projection.r2dbc.scaladsl.R2dbcProjection
 
@@ -193,11 +193,11 @@ object R2dbcProjectionDocExample {
     val projection =
       R2dbcProjection
         .exactlyOnce(projectionId, settings = None, sourceProvider, handler = () => new ShoppingCartHandler)
-    //#exactlyOnce
+    // #exactlyOnce
   }
 
   object IllustrateAtLeastOnce {
-    //#atLeastOnce
+    // #atLeastOnce
     import pekko.projection.ProjectionId
     import pekko.projection.r2dbc.scaladsl.R2dbcProjection
 
@@ -207,11 +207,11 @@ object R2dbcProjectionDocExample {
       R2dbcProjection
         .atLeastOnce(projectionId, settings = None, sourceProvider, handler = () => new ShoppingCartHandler)
         .withSaveOffset(afterEnvelopes = 100, afterDuration = 500.millis)
-    //#atLeastOnce
+    // #atLeastOnce
   }
 
   object IllustrateGrouped {
-    //#grouped
+    // #grouped
     import pekko.projection.ProjectionId
     import pekko.projection.r2dbc.scaladsl.R2dbcProjection
 
@@ -221,7 +221,7 @@ object R2dbcProjectionDocExample {
       R2dbcProjection
         .groupedWithin(projectionId, settings = None, sourceProvider, handler = () => new GroupedShoppingCartHandler)
         .withGroup(groupAfterEnvelopes = 20, groupAfterDuration = 500.millis)
-    //#grouped
+    // #grouped
   }
 
   object IllustrateSettings {
@@ -253,7 +253,7 @@ object R2dbcProjectionDocExample {
     // #second-projection-config-with-connection-factory
     """
 
-    //#projectionSettings
+    // #projectionSettings
 
     import pekko.projection.ProjectionId
     import pekko.projection.r2dbc.scaladsl.R2dbcProjection
@@ -265,7 +265,7 @@ object R2dbcProjectionDocExample {
     val projection =
       R2dbcProjection
         .atLeastOnce(projectionId, settings = None, sourceProvider, handler = () => new ShoppingCartHandler)
-    //#projectionSettings
+    // #projectionSettings
   }
 
 }
