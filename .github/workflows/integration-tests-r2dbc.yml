@@ -110,11 +110,11 @@ jobs:
           docker compose -f docker-files/docker-compose-yugabyte.yml up -d
           # TODO: could we poll the port instead of sleep?
           sleep 10
-          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t < ddl-scripts/create_tables_yugabyte.sql
+          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
           docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -c 'CREATE DATABASE database1;'
-          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database1 < ddl-scripts/create_tables_yugabyte.sql
+          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database1 < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
           docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -c 'CREATE DATABASE database2;'
-          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database2 < ddl-scripts/create_tables_yugabyte.sql
+          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database2 < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
 
       - name: test
         run: sbt -Dpekko.persistence.r2dbc.dialect=yugabyte -Dpekko.projection.r2dbc.dialect=yugabyte ++${{ matrix.SCALA_VERSION }} test
