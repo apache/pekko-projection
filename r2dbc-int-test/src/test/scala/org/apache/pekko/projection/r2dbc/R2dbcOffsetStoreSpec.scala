@@ -22,7 +22,8 @@ import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorSystem
 import pekko.persistence.query.Sequence
 import pekko.persistence.query.TimeBasedUUID
-import pekko.persistence.r2dbc.internal.Sql.Interpolation
+import pekko.persistence.r2dbc.Dialect
+import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
 import pekko.projection.MergeableOffset
 import pekko.projection.ProjectionId
 import pekko.projection.internal.ManagementState
@@ -43,6 +44,7 @@ class R2dbcOffsetStoreSpec
   private val clock = TestClock.nowMillis()
 
   private val settings = R2dbcProjectionSettings(testKit.system)
+  private implicit val dialect: Dialect = settings.dialect
 
   private def createOffsetStore(projectionId: ProjectionId) =
     R2dbcOffsetStore.fromConfig(projectionId, None, system, settings, r2dbcExecutor, clock)
