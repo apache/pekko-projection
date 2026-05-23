@@ -79,7 +79,7 @@ private[projection] class MySQLR2dbcOffsetStore(
       records: immutable.IndexedSeq[R2dbcOffsetStore.Record]): Future[Long] = {
     require(records.nonEmpty)
 
-    logger.trace2("saving timestamp offset [{}], {}", records.last.timestamp, records)
+    logger.trace("saving timestamp offset [{}], {}", records.last.timestamp, records)
 
     val statement = conn.createStatement(insertTimestampOffsetSql)
 
