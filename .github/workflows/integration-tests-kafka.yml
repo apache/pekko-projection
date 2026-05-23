@@ -19,6 +19,7 @@ jobs:
   test:
     name: Build and Test Integration for Kafka
     runs-on: ubuntu-22.04
+    if: github.repository == 'apache/pekko-projection'
     strategy:
       fail-fast: false
       matrix:

@@ -22,6 +22,7 @@ jobs:
   postgres-test:
     name: Build and Test Integration for R2DBC with PostgreSQL
     runs-on: ubuntu-22.04
+    if: github.repository == 'apache/pekko-projection'
     strategy:
       fail-fast: false
       matrix:
@@ -74,6 +75,7 @@ jobs:
   yugabyte-test:
     name: Build and Test Integration for R2DBC with YugabyteDB
     runs-on: ubuntu-22.04
+    if: github.repository == 'apache/pekko-projection'
     strategy:
       fail-fast: false
       matrix:
