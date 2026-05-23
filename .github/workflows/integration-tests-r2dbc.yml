@@ -119,7 +119,7 @@ jobs:
           docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database2 < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
 
       - name: test
-        run: sbt -Dpekko.persistence.r2dbc.dialect=yugabyte -Dpekko.projection.r2dbc.dialect=yugabyte ++${{ matrix.scala-version }} test
+        run: sbt -Dpekko.persistence.r2dbc.dialect=yugabyte -Dpekko.projection.r2dbc.dialect=yugabyte ++${{ matrix.scala-version }} "r2dbc-int-test/test" ${{ matrix.extraOpts }}
 
       - name: Print logs on failure
         if: ${{ failure() }}
@@ -170,7 +170,7 @@ jobs:
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=database2 < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
 
       - name: test
-        run: sbt -Dpekko.persistence.r2dbc.dialect=mysql -Dpekko.projection.r2dbc.dialect=mysql ++${{ matrix.scala-version }} test
+        run: sbt -Dpekko.persistence.r2dbc.dialect=mysql -Dpekko.projection.r2dbc.dialect=mysql ++${{ matrix.scala-version }} "r2dbc-int-test/test" ${{ matrix.extraOpts }}
 
       - name: Print logs on failure
         if: ${{ failure() }}
