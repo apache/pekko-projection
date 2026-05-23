@@ -203,6 +203,7 @@ lazy val grpcTest =
       Test / fork := true,
       Test / javaOptions += "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED")
     .dependsOn(grpc % "compile;test->compile")
+    .dependsOn(r2dbc % Test)
     .dependsOn(testkit % Test)
 
 lazy val grpcIntTest =
@@ -297,6 +298,12 @@ lazy val docs = project
       "scaladoc.pekko.base_url" -> s"https://pekko.apache.org/api/pekko/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.pekko.base_url" -> s"https://pekko.apache.org/japi/pekko/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.pekko.link_style" -> "direct",
+      "extref.pekko-persistence-r2dbc.base_url" ->
+      s"https://pekko.apache.org/docs/pekko-persistence-r2dbc/${Dependencies.PekkoPersistenceR2dbcVersionInDocs}/%s",
+      "scaladoc.org.apache.pekko.persistence.r2dbc.base_url" ->
+      s"https://pekko.apache.org/api/pekko-persistence-r2dbc/${Dependencies.PekkoPersistenceR2dbcVersionInDocs}",
+      "javadoc.org.apache.pekko.persistence.r2dbc.base_url" ->
+      s"https://pekko.apache.org/japi/pekko-persistence-r2dbc/${Dependencies.PekkoPersistenceR2dbcVersionInDocs}",
       // Java
       "javadoc.base_url" -> "https://docs.oracle.com/javase/8/docs/api/",
       // Scala
