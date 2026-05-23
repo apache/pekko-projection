@@ -163,11 +163,11 @@ jobs:
       - name: Start MySQL
         run: |-
           docker compose -f docker-files/docker-compose-mysql.yml up -d --wait
-          docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=mysql < ddl-scripts/create_tables_mysql.sql
+          docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=mysql < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root -e 'CREATE SCHEMA database1;'
-          docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=database1 < ddl-scripts/create_tables_mysql.sql
+          docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=database1 < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root -e 'CREATE SCHEMA database2;'
-          docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=database2 < ddl-scripts/create_tables_mysql.sql
+          docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=database2 < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
 
       - name: test
         run: sbt -Dpekko.persistence.r2dbc.dialect=mysql -Dpekko.projection.r2dbc.dialect=mysql ++${{ matrix.scala-version }} test
