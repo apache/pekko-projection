@@ -33,7 +33,7 @@ import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorRef
 import pekko.actor.typed.ActorSystem
 import pekko.persistence.r2dbc.Dialect
-import pekko.persistence.r2dbc.internal.Sql.Interpolation
+import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
 import pekko.projection.HandlerRecoveryStrategy
 import pekko.projection.OffsetVerification
@@ -110,6 +110,7 @@ object R2dbcProjectionSpec {
     import TestRepository.table
 
     private val logger = LoggerFactory.getLogger(this.getClass)
+    private implicit val dialect: Dialect = settings.dialect
 
     def concatToText(id: String, payload: String): Future[Done] = {
       val savedStrOpt = findById(id)
