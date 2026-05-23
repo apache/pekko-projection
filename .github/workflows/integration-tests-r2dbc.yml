@@ -19,9 +19,10 @@ permissions:
   contents: read
 
 jobs:
-  test:
-    name: Build and Test Integration for R2DBC
+  postgres-test:
+    name: Build and Test Integration for R2DBC with PostgreSQL
     runs-on: ubuntu-22.04
+    if: github.repository == 'apache/pekko-projection'
     strategy:
       fail-fast: false
       matrix:
@@ -53,9 +54,9 @@ jobs:
       - name: Install sbt
         uses: sbt/setup-sbt@508b753e53cb6095967669e0911487d2b9bc9f41 # v1.1.22
 
-      - name: Start DB
+      - name: Start PostgreSQL DB
         run: |-
-          docker compose -f docker/docker-compose-postgres.yml up -d
+          docker compose -f docker-files/docker-compose-postgres.yml up -d
           # TODO: could we poll the port instead of sleep?
           sleep 10
           docker exec -i docker-postgres-db-1 psql -U postgres -t < r2dbc-int-test/ddl-scripts/create_tables_postgres.sql
@@ -66,6 +67,59 @@ jobs:
 
       - name: Run all integration tests with default Scala and Java ${{ matrix.java-version }}
         run: sbt "r2dbc-int-test/test" ${{ matrix.extraOpts }}
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;
+
+  yugabyte-test:
+    name: Build and Test Integration for R2DBC with YugabyteDB
+    runs-on: ubuntu-22.04
+    if: github.repository == 'apache/pekko-projection'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { java-version: 17, scala-version: 2.13,  sbt-opts: '' }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@90c37294538be80a558fd665531fcdc2b467b475 # v8.1.0
+
+      - name: Setup JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: temurin
+
+      - name: Install sbt
+        uses: sbt/setup-sbt@508b753e53cb6095967669e0911487d2b9bc9f41 # v1.1.22
+
+      - name: Start YugabyteDB
+        run: |-
+          docker compose -f docker-files/docker-compose-yugabyte.yml up -d
+          # TODO: could we poll the port instead of sleep?
+          sleep 10
+          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
+          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -c 'CREATE DATABASE database1;'
+          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database1 < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
+          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -c 'CREATE DATABASE database2;'
+          docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database2 < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
+
+      - name: test
+        run: sbt -Dpekko.persistence.r2dbc.dialect=yugabyte -Dpekko.projection.r2dbc.dialect=yugabyte ++${{ matrix.SCALA_VERSION }} test
 
       - name: Print logs on failure
         if: ${{ failure() }}
