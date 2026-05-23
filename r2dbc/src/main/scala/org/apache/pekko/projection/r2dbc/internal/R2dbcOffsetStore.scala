@@ -590,7 +590,7 @@ private[projection] class R2dbcOffsetStore(
     } else {
       // TODO Try Batch without bind parameters for better performance. Risk of sql injection for these parameters is low.
       val boundStatement =
-        records.foldLeft(statement) { (stmt, rec) =>
+        records.tail.foldLeft(bindRecord(statement, records.head)) { (stmt, rec) =>
           stmt.add()
           bindRecord(stmt, rec)
         }
