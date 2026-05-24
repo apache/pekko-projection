@@ -1065,9 +1065,9 @@ private[projection] class R2dbcOffsetStore(
           .bind(3, Instant.now(clock).toEpochMilli)
       }
       .flatMap {
-        case i if i == 1 => Future.successful(Done)
-        case _           =>
-          Future.failed(new RuntimeException(s"Failed to update management table for $projectionId"))
+        case i if i >= 1 => Future.successful(Done)
+        case i           =>
+          Future.failed(new RuntimeException(s"Failed to update management table for $projectionId, row count: $i"))
       }
   }
 
