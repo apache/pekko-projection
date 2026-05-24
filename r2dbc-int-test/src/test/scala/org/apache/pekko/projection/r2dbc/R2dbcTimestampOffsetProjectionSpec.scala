@@ -162,7 +162,7 @@ class R2dbcTimestampOffsetProjectionSpec
     super.beforeAll()
 
     Await.result(r2dbcExecutor.executeDdl("beforeAll createTable") { conn =>
-        conn.createStatement(TestRepository.createTableSql)
+        conn.createStatement(TestRepository.createTableSql(settings.dialect))
       }, 10.seconds)
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(_.createStatement(s"delete from ${TestRepository.table}")),

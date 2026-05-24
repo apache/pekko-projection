@@ -96,10 +96,10 @@ CREATE TABLE IF NOT EXISTS projection_timestamp_offset_store (
   persistence_id VARCHAR(255) NOT NULL,
   seq_nr BIGINT NOT NULL,
   -- timestamp_offset is the db_timestamp of the original event
-  timestamp_offset TIMESTAMP NOT NULL,
+  timestamp_offset TIMESTAMP(6) NOT NULL,
   -- timestamp_consumed is when the offset was stored
   -- the consumer lag is timestamp_consumed - timestamp_offset
-  timestamp_consumed TIMESTAMP NOT NULL,
+  timestamp_consumed TIMESTAMP(6) NOT NULL,
   PRIMARY KEY(slice, projection_name, timestamp_offset, persistence_id, seq_nr)
 );
 
