@@ -40,6 +40,28 @@ import io.r2dbc.spi.Connection
  * INTERNAL API
  */
 @InternalApi
+private[projection] object MySQLR2dbcOffsetStore {
+
+  /**
+   * Builds the SQL string for deleting old timestamp offsets. When `notInCount` is 0 the plain
+   * deletion query (no exclusion list) is returned. When `notInCount > 0` the query uses
+   * `CONCAT(persistence_id, '-', seq_nr) NOT IN (?, …)` — note the placement of `NOT IN` rather
+   * than `NOT CONCAT(…) IN`, which is invalid SQL.
+   */
+  private[projection] def buildDeleteOldTimestampOffsetsSql(tableName: String, notInCount: Int): String = {
+    if (notInCount == 0) {
+      s"DELETE FROM $tableName WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ?"
+    } else {
+      val placeholders = Seq.fill(notInCount)("?").mkString(", ")
+      s"DELETE FROM $tableName WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ? AND CONCAT(persistence_id, '-', seq_nr) NOT IN ($placeholders)"
+    }
+  }
+}
+
+/**
+ * INTERNAL API
+ */
+@InternalApi
 private[projection] class MySQLR2dbcOffsetStore(
     projectionId: ProjectionId,
     sourceProvider: Option[BySlicesSourceProvider],
@@ -112,16 +134,17 @@ private[projection] class MySQLR2dbcOffsetStore(
       val stmt = if (notInLatestBySlice.isEmpty) {
         conn
           .createStatement(
-            sql"DELETE FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ?")
+            MySQLR2dbcOffsetStore.buildDeleteOldTimestampOffsetsSql(timestampOffsetTable, 0))
           .bind(0, minSlice)
           .bind(1, maxSlice)
           .bind(2, projectionId.name)
           .bind(3, until)
       } else {
-        val placeholders = notInLatestBySlice.map(_ => "?").mkString(", ")
         val s = conn
           .createStatement(
-            sql"DELETE FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ? AND CONCAT(persistence_id, '-', seq_nr) NOT IN ($placeholders)")
+            MySQLR2dbcOffsetStore.buildDeleteOldTimestampOffsetsSql(
+              timestampOffsetTable,
+              notInLatestBySlice.length))
           .bind(0, minSlice)
           .bind(1, maxSlice)
           .bind(2, projectionId.name)
