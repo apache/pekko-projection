@@ -32,8 +32,8 @@ class MySQLR2dbcOffsetStoreSqlSpec extends AnyWordSpec with TestSuite with Match
       sql should include("DELETE FROM")
       sql should include(table)
       sql should include("timestamp_offset < ?")
-      sql should not include "NOT IN"
-      sql should not include "CONCAT"
+      (sql should not).include("NOT IN")
+      (sql should not).include("CONCAT")
     }
 
     "produce a DELETE with CONCAT…NOT IN for a single exclusion" in {
@@ -43,7 +43,7 @@ class MySQLR2dbcOffsetStoreSqlSpec extends AnyWordSpec with TestSuite with Match
       sql should include("timestamp_offset < ?")
       // Operator must be `CONCAT(…) NOT IN`, not `NOT CONCAT(…) IN`
       sql should include("CONCAT(persistence_id, '-', seq_nr) NOT IN")
-      sql should not include "NOT CONCAT"
+      (sql should not).include("NOT CONCAT")
       sql should endWith("NOT IN (?)")
     }
 
@@ -53,7 +53,7 @@ class MySQLR2dbcOffsetStoreSqlSpec extends AnyWordSpec with TestSuite with Match
       sql should include(table)
       sql should include("timestamp_offset < ?")
       sql should include("CONCAT(persistence_id, '-', seq_nr) NOT IN")
-      sql should not include "NOT CONCAT"
+      (sql should not).include("NOT CONCAT")
       sql should endWith("NOT IN (?, ?, ?)")
     }
 
