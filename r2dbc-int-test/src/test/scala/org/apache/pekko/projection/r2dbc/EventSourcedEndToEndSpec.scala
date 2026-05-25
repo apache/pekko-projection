@@ -32,7 +32,8 @@ import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.r2dbc.JournalSettings
 import pekko.persistence.r2dbc.QuerySettings
-import pekko.persistence.r2dbc.internal.Sql.Interpolation
+import pekko.persistence.r2dbc.Dialect
+import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
 import pekko.persistence.r2dbc.query.scaladsl.R2dbcReadJournal
 import pekko.persistence.typed.PersistenceId
 import pekko.persistence.typed.scaladsl.Effect
@@ -144,6 +145,7 @@ class EventSourcedEndToEndSpec
   private val querySettings = QuerySettings(system.settings.config.getConfig("pekko.persistence.r2dbc.query"))
   private val projectionSettings = R2dbcProjectionSettings(system)
   private val stringSerializer = SerializationExtension(system).serializerFor(classOf[String])
+  private implicit val dialect: Dialect = projectionSettings.dialect
 
   override protected def beforeAll(): Unit = {
     super.beforeAll()

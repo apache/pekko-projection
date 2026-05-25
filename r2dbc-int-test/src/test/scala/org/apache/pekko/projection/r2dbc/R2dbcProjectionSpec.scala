@@ -33,7 +33,7 @@ import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorRef
 import pekko.actor.typed.ActorSystem
 import pekko.persistence.r2dbc.Dialect
-import pekko.persistence.r2dbc.internal.Sql.Interpolation
+import pekko.persistence.r2dbc.internal.Sql.DialectInterpolation
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
 import pekko.projection.HandlerRecoveryStrategy
 import pekko.projection.OffsetVerification
@@ -97,12 +97,17 @@ object R2dbcProjectionSpec {
   object TestRepository {
     val table = "projection_spec_model"
 
-    val createTableSql: String =
-      s"""|CREATE table IF NOT EXISTS "$table" (
+    def createTableSql(dialect: Dialect): String = {
+      val quotedTable = dialect match {
+        case Dialect.MySQL => table
+        case _             => s""""$table""""
+      }
+      s"""|CREATE table IF NOT EXISTS $quotedTable (
           |  id VARCHAR(255) NOT NULL,
           |  concatenated VARCHAR(255) NOT NULL,
           |  PRIMARY KEY(id)
           |);""".stripMargin
+    }
   }
 
   final case class TestRepository(session: R2dbcSession, settings: R2dbcProjectionSettings)(
@@ -110,6 +115,7 @@ object R2dbcProjectionSpec {
     import TestRepository.table
 
     private val logger = LoggerFactory.getLogger(this.getClass)
+    private implicit val dialect: Dialect = settings.dialect
 
     def concatToText(id: String, payload: String): Future[Done] = {
       val savedStrOpt = findById(id)
@@ -200,7 +206,7 @@ class R2dbcProjectionSpec
     super.beforeAll()
 
     Await.result(r2dbcExecutor.executeDdl("beforeAll createTable") { conn =>
-        conn.createStatement(TestRepository.createTableSql)
+        conn.createStatement(TestRepository.createTableSql(settings.dialect))
       }, 10.seconds)
     Await.result(
       r2dbcExecutor.updateOne("beforeAll delete")(_.createStatement(s"delete from ${TestRepository.table}")),

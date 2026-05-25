@@ -230,7 +230,7 @@ private[projection] class R2dbcOffsetStore(
   protected lazy val timestampSql: String = "transaction_timestamp()"
 
   // FIXME include projectionId in all log messages
-  private val logger = LoggerFactory.getLogger(this.getClass)
+  protected val logger = LoggerFactory.getLogger(this.getClass)
 
   private val persistenceExt = Persistence(system)
 
@@ -240,7 +240,7 @@ private[projection] class R2dbcOffsetStore(
   import offsetSerialization.fromStorageRepresentation
   import offsetSerialization.toStorageRepresentation
 
-  private val timestampOffsetTable = settings.timestampOffsetTableWithSchema
+  protected val timestampOffsetTable: String = settings.timestampOffsetTableWithSchema
   protected val offsetTable: String = settings.offsetTableWithSchema
   protected val managementTable: String = settings.managementTableWithSchema
 
@@ -250,7 +250,7 @@ private[projection] class R2dbcOffsetStore(
     SELECT slice, persistence_id, seq_nr, timestamp_offset
     FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ?"""
 
-  private val insertTimestampOffsetSql: String = sql"""
+  protected val insertTimestampOffsetSql: String = sql"""
     INSERT INTO $timestampOffsetTable
     (projection_name, projection_key, slice, persistence_id, seq_nr, timestamp_offset, timestamp_consumed)
     VALUES (?,?,?,?,?,?, $timestampSql)"""
@@ -559,25 +559,25 @@ private[projection] class R2dbcOffsetStore(
     }
   }
 
-  private def insertTimestampOffsetInTx(conn: Connection, records: immutable.IndexedSeq[Record]): Future[Long] = {
-    def bindRecord(stmt: Statement, record: Record): Statement = {
-      val slice = persistenceExt.sliceForPersistenceId(record.pid)
-      val minSlice = timestampOffsetBySlicesSourceProvider.minSlice
-      val maxSlice = timestampOffsetBySlicesSourceProvider.maxSlice
-      if (slice < minSlice || slice > maxSlice)
-        throw new IllegalArgumentException(
-          s"This offset store [$projectionId] manages slices " +
-          s"[$minSlice - $maxSlice] but received slice [$slice] for persistenceId [${record.pid}]")
+  protected def bindTimestampOffsetRecord(stmt: Statement, record: Record): Statement = {
+    val slice = persistenceExt.sliceForPersistenceId(record.pid)
+    val minSlice = timestampOffsetBySlicesSourceProvider.minSlice
+    val maxSlice = timestampOffsetBySlicesSourceProvider.maxSlice
+    if (slice < minSlice || slice > maxSlice)
+      throw new IllegalArgumentException(
+        s"This offset store [$projectionId] manages slices " +
+        s"[$minSlice - $maxSlice] but received slice [$slice] for persistenceId [${record.pid}]")
 
-      stmt
-        .bind(0, projectionId.name)
-        .bind(1, projectionId.key)
-        .bind(2, slice)
-        .bind(3, record.pid)
-        .bind(4, record.seqNr)
-        .bind(5, record.timestamp)
-    }
+    stmt
+      .bind(0, projectionId.name)
+      .bind(1, projectionId.key)
+      .bind(2, slice)
+      .bind(3, record.pid)
+      .bind(4, record.seqNr)
+      .bind(5, record.timestamp)
+  }
 
+  protected def insertTimestampOffsetInTx(conn: Connection, records: immutable.IndexedSeq[Record]): Future[Long] = {
     require(records.nonEmpty)
 
     logger.trace2("saving timestamp offset [{}], {}", records.last.timestamp, records)
@@ -585,14 +585,14 @@ private[projection] class R2dbcOffsetStore(
     val statement = conn.createStatement(insertTimestampOffsetSql)
 
     if (records.size == 1) {
-      val boundStatement = bindRecord(statement, records.head)
+      val boundStatement = bindTimestampOffsetRecord(statement, records.head)
       R2dbcExecutor.updateOneInTx(boundStatement)
     } else {
       // TODO Try Batch without bind parameters for better performance. Risk of sql injection for these parameters is low.
       val boundStatement =
         records.foldLeft(statement) { (stmt, rec) =>
           stmt.add()
-          bindRecord(stmt, rec)
+          bindTimestampOffsetRecord(stmt, rec)
         }
       R2dbcExecutor.updateBatchInTx(boundStatement)
     }
@@ -885,15 +885,7 @@ private[projection] class R2dbcOffsetStore(
             s"${record.pid}-${record.seqNr}"
         }.toArray
 
-        val result = r2dbcExecutor.updateOne("delete old timestamp offset") { conn =>
-          conn
-            .createStatement(deleteOldTimestampOffsetSql)
-            .bind(0, minSlice)
-            .bind(1, maxSlice)
-            .bind(2, projectionId.name)
-            .bind(3, until)
-            .bind(4, notInLatestBySlice)
-        }
+        val result = executeDeleteOldTimestampOffsets(minSlice, maxSlice, until, notInLatestBySlice)
 
         result.failed.foreach { exc =>
           idle.set(false) // try again next tick
@@ -914,6 +906,22 @@ private[projection] class R2dbcOffsetStore(
 
         result
       }
+    }
+  }
+
+  protected def executeDeleteOldTimestampOffsets(
+      minSlice: Int,
+      maxSlice: Int,
+      until: Instant,
+      notInLatestBySlice: Array[String]): Future[Long] = {
+    r2dbcExecutor.updateOne("delete old timestamp offset") { conn =>
+      conn
+        .createStatement(deleteOldTimestampOffsetSql)
+        .bind(0, minSlice)
+        .bind(1, maxSlice)
+        .bind(2, projectionId.name)
+        .bind(3, until)
+        .bind(4, notInLatestBySlice)
     }
   }
 
@@ -1057,9 +1065,9 @@ private[projection] class R2dbcOffsetStore(
           .bind(3, Instant.now(clock).toEpochMilli)
       }
       .flatMap {
-        case i if i == 1 => Future.successful(Done)
-        case _           =>
-          Future.failed(new RuntimeException(s"Failed to update management table for $projectionId"))
+        case i if i >= 1 => Future.successful(Done)
+        case i           =>
+          Future.failed(new RuntimeException(s"Failed to update management table for $projectionId, row count: $i"))
       }
   }
 
