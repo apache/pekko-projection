@@ -121,7 +121,7 @@ private[projection] class MySQLR2dbcOffsetStore(
         val placeholders = notInLatestBySlice.map(_ => "?").mkString(", ")
         val s = conn
           .createStatement(
-            sql"DELETE FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ? AND NOT CONCAT(persistence_id, '-', seq_nr) IN ($placeholders)")
+            sql"DELETE FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ? AND CONCAT(persistence_id, '-', seq_nr) NOT IN ($placeholders)")
           .bind(0, minSlice)
           .bind(1, maxSlice)
           .bind(2, projectionId.name)
