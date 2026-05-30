@@ -6,9 +6,9 @@ The @apidoc[SlickProjection$] has support for storing the offset in a relational
 used with Scala.
 
 @@@ warning
-The Slick module in Pekko Projections is community-driven
+The Slick module in Apache Pekko Projections is community-driven
 and not included in Apache support.
-Prefer using the @ref[JDBC module](jdbc.md) to implement your projection handler. Slick support in Pekko Projections is meant for users
+Prefer using the @ref[JDBC module](jdbc.md) to implement your projection handler. Slick support in Apache Pekko Projections is meant for users
 migrating from [`Lagom's Slick ReadSideProcessor`](https://www.lagomframework.com/documentation/1.6.x/scala/ReadSideSlick.html).
 @@@
 

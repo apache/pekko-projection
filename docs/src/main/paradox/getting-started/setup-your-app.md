@@ -29,7 +29,7 @@ Java
 :  @@snip [CborSerializable.java](/examples/src/test/java/jdocs/guide/CborSerializable.java) { #guideCbor }
 
 Configure the `CborSerializable` type to use `jackson-cbor` configuration in your `application.conf`.
-We will add this configuration when Pekko Persistence configuration is setup in the @ref:[Choosing a SourceProvider](source-provider.md) section of the guide.
+We will add this configuration when Apache Pekko Persistence configuration is setup in the @ref:[Choosing a SourceProvider](source-provider.md) section of the guide.
 
 Scala
 :  @@snip [guide-shopping-cart-app.conf](/examples/src/test/resources/guide-shopping-cart-app.conf) { #guideSerializationBindingsScala }
@@ -45,7 +45,7 @@ In @scala[sbt you can add it your sbt project by adding it to the `javacOptions`
 @@@
 
 Define the persistence tags to be used in your project.
-Note that partitioned tags will be used later when @ref[running the projection in Pekko Cluster](running-cluster.md).
+Note that partitioned tags will be used later when @ref[running the projection in an Apache Pekko Cluster](running-cluster.md).
 Add `ShoppingCartTags` to your project:
 
 Scala
