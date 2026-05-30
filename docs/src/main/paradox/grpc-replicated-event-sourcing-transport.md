@@ -52,7 +52,7 @@ To use the gRPC module of Apache Pekko Projections add the following dependency 
   version=$project.version$
 }
 
-Pekko Replicated Event Sourcing over gRPC requires Pekko 2.8.0 or later and can only be run in an Apache Pekko cluster since it uses cluster components.
+Pekko Replicated Event Sourcing over gRPC can only be run in an Apache Pekko cluster since it uses cluster components.
 
 It is currently only possible to use @ref:[Apache Pekko-projection-r2dbc](r2dbc.md) as the
 projection storage and journal for this module.
