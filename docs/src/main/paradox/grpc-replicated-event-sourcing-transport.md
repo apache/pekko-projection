@@ -95,12 +95,6 @@ event sourced behavior. Its `setup` method provides a @apidoc[ReplicationContext
 which will then be configured for replication. The behavior factory can be composed with other behavior factories, if
 access to the actor context or timers are needed.
 
-Scala
-
-
-Java
-
-
 ### Settings
 
 The @apidoc[pekko.projection.grpc.replication.*.ReplicationSettings] @scala[`apply`]@java[`create`] factory methods can
@@ -129,21 +123,7 @@ with other HTTP and gRPC routes.
 
 When there is only a single replicated entity and no other usage of Apache Pekko gRPC Projections in an application a
 convenience is provided through `createSingleServiceHandler` on @apidoc[pekko.projection.grpc.replication.*.Replication]
-which will create a single handler:
-
-Scala
-
-
-Java
-
-
-This can then be bound:
-
-Scala
-
-
-Java
-
+which will create a single handler.
 
 When multiple producers exist, all instances of @apidoc[pekko.projection.grpc.producer.EventProducerSettings] need to
 be passed at once to `EventProducer.grpcServiceHandler` to create a single producer service handling each of the event
@@ -156,13 +136,7 @@ Java
 :  @@snip [ReplicationCompileTest.java](/grpc-test/src/test/java/org/apache/pekko/projection/grpc/replication/javdsl/ReplicationCompileTest.java) { #multi-service }
 
 
-The Pekko HTTP server must be running with HTTP/2, this is done through config:
-
-Scala
-
-
-Java
-
+The Pekko HTTP server must be running with HTTP/2. This is the default since Pekko HTTP 2.0.0.
 
 ### Serialization of events
 
@@ -184,14 +158,6 @@ By default, events from all Replicated Event Sourced entities are replicated.
 The same kind of filters as described in @ref:[Apache Pekko Projection gRPC Filters](grpc.md#filters) can be used for
 Replicated Event Sourcing.
 
-The producer defined filter:
-
-Scala
-
-
-Java
-
-
 Consumer defined filters are updated as described in @ref:[Apache Pekko Projection gRPC Consumer defined filter](grpc.md#consumer-defined-filter)
 
 One thing to note is that `streamId` is always the same as the `entityType` when using Replicated Event Sourcing.
@@ -204,8 +170,6 @@ filters on both sides. That is not handled automatically.
 ## Sample projects
 
 Source code and build files for complete sample projects can be found in the `apache/pekko-projection` GitHub repository.
-
-
 
 
 ## Access control

@@ -19,8 +19,8 @@ object Dependencies {
   val ScalaVersions = Seq(Scala213, Scala3)
 
   val PekkoVersionInDocs = PekkoCoreDependency.default.link
-  // change PekkoPersistenceR2dbcVersionInDocs when 2.0.0-M1 is released
-  val PekkoPersistenceR2dbcVersionInDocs = "current"
+  val PekkoGrpcVersionInDocs = "2.0"
+  val PekkoPersistenceR2dbcVersionInDocs = PekkoPersistenceR2DBCDependency.default.link
   val ConnectorsVersionInDocs = PekkoConnectorsDependency.default.link
   val ConnectorsKafkaVersionInDocs = PekkoConnectorsKafkaDependency.default.link
 

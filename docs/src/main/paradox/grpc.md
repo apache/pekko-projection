@@ -63,12 +63,6 @@ The table below shows `pekko-projection-grpc`'s direct dependencies, and the sec
 On the consumer side the `Projection` is an ordinary @ref:[SourceProvider for eventsBySlices](eventsourced.md#sourceprovider-for-eventsbyslices)
 that is using `eventsBySlices` from the @apidoc[GrpcReadJournal].
 
-Scala
-
-
-Java
-
-
 The Protobuf descriptors are defined when the @apidoc[GrpcReadJournal] is created. The descriptors are used
 when deserializing the received events. @scala[The `protobufDescriptors` is a list of the `javaDescriptor` for the used protobuf messages.
 It is defined in the ScalaPB generated `Proto` companion object.]
@@ -96,42 +90,18 @@ can be called. After closing the `GrpcReadJournal` instance cannot be used again
 
 ## Producer
 
-Apache Pekko Projections gRPC provides the gRPC service implementation that is used by the consumer side. It is created with the @apidoc[EventProducer$]:
-
-Scala
-
-
-Java
-
+Apache Pekko Projections gRPC provides the gRPC service implementation that is used by the consumer side. It is created with the @apidoc[EventProducer$].
 
 Events can be transformed by application specific code on the producer side. The purpose is to be able to have a
 different public representation from the internal representation (stored in journal). The transformation functions
 are registered when creating the `EventProducer` service. Here is an example of one of those transformation functions
-accessing the projection envelope to include the shopping cart id in the public message type passed to consumers:
-
-Scala
-
-
-Java
-
+accessing the projection envelope to include the shopping cart id in the public message type passed to consumers.
 
 To omit an event the transformation function can return @scala[`None`]@java[`Optional.empty()`].
 
-That `EventProducer` service is started in an Apache Pekko gRPC server like this:
+That `EventProducer` service is started in an Apache Pekko gRPC server.
 
-Scala
-
-
-Java
-
-
-The Pekko HTTP server must be running with HTTP/2, this is done through config:
-
-Scala
-
-
-Java
-
+The Pekko HTTP server must be running with HTTP/2. This is the default since Pekko HTTP 2.0.0.
 
 This example includes an application specific `ShoppingCartService`, which is unrelated to Pekko Projections gRPC,
 but it illustrates how to combine the `EventProducer` service with other gRPC services.
@@ -151,22 +121,9 @@ Tags are typically used for the filters, so first an example of how to tag event
 based on total quantity of the shopping cart, i.e. the state of the cart. The tags are included in the
 @apidoc[pekko.persistence.query.typed.EventEnvelope].
 
-Scala
-
-
-Java
-
-
-
 ### Producer defined filter
 
 The producer may define a filter function on the `EventProducerSource`.
-
-Scala
-
-
-Java
-
 
 In this example the decision is based on tags, but the filter function can use anything in the
 @apidoc[pekko.persistence.query.typed.EventEnvelope] parameter or the event itself. Here, the entity sets the tag based
@@ -211,12 +168,6 @@ The exclude criteria can be a combination of:
 * `IncludeEntityIds` - include events for entities with the given entity ids
 
 The filter is updated with the @apidoc[ConsumerFilter] extension.
-
-Scala
-
-
-Java
-
 
 Note that the `streamId` must match what is used when initializing the `GrpcReadJournal`, which by default is from
 the config property `pekko.projection.grpc.consumer.stream-id`.
@@ -271,15 +222,6 @@ Application level deduplication of idempotency may be needed if the Projection c
 
 Source code and build files for complete sample projects can be found in `apache/pekko-projection` GitHub repository.
 
-Java:
-
-
-
-
-Scala:
-
-
-
 
 ## Access control
 
@@ -313,10 +255,6 @@ probably reading at the tail of the same event stream.
 ## Configuration
 
 ### Consumer configuration
-
-The configuration for the `GrpcReadJournal` may look like this:
-
-
 
 The `client` section in the configuration defines where the producer is running. It is an @extref:[Apache Pekko gRPC configuration](pekko-grpc:client/configuration.html#by-configuration) with several connection options.
 

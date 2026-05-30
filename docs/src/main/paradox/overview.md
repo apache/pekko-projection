@@ -22,8 +22,7 @@ For the offset storage you can select from:
 Those building blocks are assembled into a `Projection`. You can have many instances of it
 @ref:[automatically distributed and run](running.md) in an Apache Pekko Cluster.
 
-To see a complete example of an Apache Pekko Projections implementation review the @ref:[Getting Started Guide](getting-started/index.md)
-or the @extref[Microservices with Apache Pekko tutorial](platform-guide:microservices-tutorial/).
+To see a complete example of an Apache Pekko Projections implementation review the @ref:[Getting Started Guide](getting-started/index.md).
 
 ## Dependencies
 
