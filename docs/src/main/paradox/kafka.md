@@ -85,7 +85,7 @@ To mitigate that risk, you can increase the value of `pekko.projection.kafka.rea
 
 ## Committing offset in Kafka
 
-When using the approach of committing the offsets back to Kafka the [Apache Pekko Connectors Kafka comittableSource](https://pekko.apache.org/docs/pekko-connectors-kafka/current/consumer.html) can be used, and Pekko Projections is not needed for that usage.
+When using the approach of committing the offsets back to Kafka the [Apache Pekko Connectors Kafka comittableSource](https://pekko.apache.org/docs/pekko-connectors-kafka/current/consumer.html) can be used, and Apache Pekko Projections is not needed for that usage.
 
 ## Sending to Kafka
 
