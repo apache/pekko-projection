@@ -33,7 +33,7 @@ If the recovery strategy is not defined on the `Projection` the default is `fail
 in configuration:
 
 @@snip [reference.conf](/core/src/main/resources/reference.conf) { #recovery-strategy }
- 
+
 
 ## Projection restart
 
@@ -52,7 +52,7 @@ Scala
 
 Java
 :  @@snip [CassandraProjectionDocExample.java](/integration-examples/src/test/java/jdocs/cassandra/CassandraProjectionDocExample.java) { #withRestartBackoff }
- 
+
 If the recovery strategy is not defined on the `Projection` the default is defined in configuration:
 
 @@snip [reference.conf](/core/src/main/resources/reference.conf) { #restart-backoff }

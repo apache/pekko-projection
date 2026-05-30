@@ -1,5 +1,5 @@
 ---
-project.description: Snapshot builds of Pekko Projection are provided via the Sonatype snapshot repository.
+project.description: Snapshot builds of Apache Pekko Projection are provided via the Sonatype snapshot repository.
 ---
 # Snapshots
 

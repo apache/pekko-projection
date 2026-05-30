@@ -1,6 +1,6 @@
 # Choosing a Source Provider
 
-A @apidoc[SourceProvider] will provide the data to our projection. 
+A @apidoc[SourceProvider] will provide the data to our projection.
 In Projections each element that's processed is an `Envelope` and each `Envelope` contains an `Event`.
 An `Envelope` must include an `Offset`, but it can also contain other information such as creation timestamp, a topic name, an entity tag, etc.
 There are several supported Source Provider's available (or you can build your own), but in this example we will use the @ref:[Apache Pekko Persistence `EventSourced` Source Provider](../eventsourced.md).
@@ -33,6 +33,6 @@ Scala
 Java
 :  @@snip [ShoppingCartApp.java](/examples/src/test/java/jdocs/guide/ShoppingCartApp.java) { #guideSourceProviderSetup }
 
-Finally, we must configure Apache Pekko Persistence by adding a configuration file `guide-shopping-cart-app.conf` to the `src/main/resources/` directory of the project:
+Finally, we must configure Pekko Persistence by adding a configuration file `guide-shopping-cart-app.conf` to the `src/main/resources/` directory of the project:
 
 @@snip [guide-shopping-cart-app.conf](/examples/src/test/resources/guide-shopping-cart-app.conf) { #guideConfig }

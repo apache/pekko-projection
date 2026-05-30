@@ -6,7 +6,10 @@ The @apidoc[SlickProjection$] has support for storing the offset in a relational
 used with Scala.
 
 @@@ warning
-Use the @ref[JDBC module](jdbc.md) to implement your projection handler. This module is deprecated.
+The Slick module in Pekko Projections is community-driven
+and not included in Apache support.
+Prefer using the @ref[JDBC module](jdbc.md) to implement your projection handler. Slick support in Pekko Projections is meant for users
+migrating from [`Lagom's Slick ReadSideProcessor`](https://www.lagomframework.com/documentation/1.6.x/scala/ReadSideSlick.html).
 @@@
 
 The source of the envelopes can be @ref:[events from Apache Pekko Persistence](eventsourced.md) or any other `SourceProvider`
@@ -123,13 +126,13 @@ than the one that called `process`.
 
 It is important that the `Handler` instance is not shared between several `Projection` instances,
 because then it would be invoked concurrently, which is not how it is intended to be used. Each `Projection`
-instance should use a new `Handler` instance.  
+instance should use a new `Handler` instance.
 
 @@@
 
 ### Async handler
 
-The @apidoc[Handler] can be used with `SlickProjection.atLeastOnceAsync` and 
+The @apidoc[Handler] can be used with `SlickProjection.atLeastOnceAsync` and
 `SlickProjection.groupedWithinAsync` if the handler is not storing the projection result in the database.
 The handler could @ref:[send to a Kafka topic](kafka.md#sending-to-kafka) or integrate with something else.
 

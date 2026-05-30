@@ -9,7 +9,7 @@ artifact=pekko-projection-testkit_$scala.binary.version$
 version=$project.version$
 }
 
-Import the @apidoc[pekko.projection.testkit.(javadsl|scaladsl).ProjectionTestKit] and other utilities into a new 
+Import the @apidoc[pekko.projection.testkit.(javadsl|scaladsl).ProjectionTestKit] and other utilities into a new
 @scala[[ScalaTest](https://pekko.apache.org/docs/pekko/current/typed/testing-async.html#test-framework-integration) test spec]
 @java[[JUnit](https://pekko.apache.org/docs/pekko/current/typed/testing-async.html#test-framework-integration) test].
 

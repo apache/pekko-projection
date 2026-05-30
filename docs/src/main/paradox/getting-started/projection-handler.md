@@ -25,7 +25,7 @@ Each row in `item_popularity` contains a shopping cart item id and a count that 
 
 The example will persist the item popularity count with a [Cassandra counter](https://docs.datastax.com/en/cql-oss/3.x/cql/cql_reference/counter_type.html) data type.
 It's not possible to guarantee that item count updates occur idempotently because we are using at-least-once semantics.
-However, since the count is only a rough metric to judge how popular an item is it's not critical to have a totally accurate figure. 
+However, since the count is only a rough metric to judge how popular an item is it's not critical to have a totally accurate figure.
 
 @@@
 
@@ -41,7 +41,7 @@ Now it's time to write the Projection handler itself.
 This example uses a @apidoc[Handler] that will process `ShoppingCartEvents.Event` events from the @apidoc[SourceProvider] that we implemented earlier.
 Specifically, it will only process `ItemEvents` that modify the items added or removed from a shopping cart.
 It will ignore all shopping cart `Checkout` events by skipping them.
-The event envelopes are processed in the `process` method. 
+The event envelopes are processed in the `process` method.
 
 This example will also log the popularity count of every 10th item event that is processed.
 The logging counter is stored as a mutable variable within the handler.

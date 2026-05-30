@@ -29,7 +29,7 @@ Java
 :  @@snip [CborSerializable.java](/examples/src/test/java/jdocs/guide/CborSerializable.java) { #guideCbor }
 
 Configure the `CborSerializable` type to use `jackson-cbor` configuration in your `application.conf`.
-We will add this configuration when Apache Pekko Persistence configuration is setup in the @ref:[Choosing a SourceProvider](source-provider.md) section of the guide.
+We will add this configuration when Pekko Persistence configuration is setup in the @ref:[Choosing a SourceProvider](source-provider.md) section of the guide.
 
 Scala
 :  @@snip [guide-shopping-cart-app.conf](/examples/src/test/resources/guide-shopping-cart-app.conf) { #guideSerializationBindingsScala }
@@ -40,12 +40,12 @@ Java
 @@@ note
 
 For Jackson serialization to work correctly in Java projects you must use the `javac` compiler parameter `-parameters` when building your project.
-In @scala[sbt you can add it your sbt project by adding it to the `javacOptions` Setting: `javacOptions += "-parameters"`]@java[maven you can add an argument to `maven-compiler-plugin` plugin under `compilerArgs`].
+In @scala[sbt you can add it your sbt project by adding it to the `javacOptions` Setting: `javacOptions += "-parameters"`]@java[maven you can add an argument to `maven-compiler-plugin` plugin under `compilerArgs` ([see an example here](https://github.com/apache/pekko-samples/blob/2.6/pekko-sample-cqrs-java/pom.xml#L136))].
 
 @@@
 
 Define the persistence tags to be used in your project.
-Note that partitioned tags will be used later when @ref[running the projection in Apache Pekko Cluster](running-cluster.md).
+Note that partitioned tags will be used later when @ref[running the projection in Pekko Cluster](running-cluster.md).
 Add `ShoppingCartTags` to your project:
 
 Scala
@@ -54,7 +54,7 @@ Scala
 Java
 :  @@snip [ShoppingCartTags.java](/examples/src/test/java/jdocs/guide/ShoppingCartTags.java) { #guideTags }
 
-Create the `ShoppingCartApp` with an `org.apache.pekko.actor.typed.ActorSystem` (API: @apidoc[pekko.actor.typed.ActorSystem]) for Projections to use.
+Create the `ShoppingCartApp` with an `pekko.actor.typed.ActorSystem` (API: @apidoc[pekko.actor.typed.ActorSystem]) for Projections to use.
 Create an empty [Guardian Actor](https://pekko.apache.org/docs/pekko/current/typed/actor-lifecycle.html#the-guardian-actor) (the root Actor of the `ActorSystem`).
 We will populate this Actor in the following steps of the guide.
 Note that we are using the @scala[`docs.scaladsl`]@java[`jdocs.scaladsl`] package.

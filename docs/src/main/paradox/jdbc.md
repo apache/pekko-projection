@@ -38,9 +38,9 @@ There are two settings that need to be set beforehand in your `application.conf`
 
 ## Defining a JdbcSession
 
-Before using Apache Pekko Projections JDBC you must implement a `JdbcSession` @scala[trait]@java[interface]. `JdbcSession` is used to open a connection and start a transaction. A new `JdbcSession` will be created for each call to the handler. At the end of the processing, the transaction will be committed (or rolled back). 
+Before using Pekko Projections JDBC you must implement a `JdbcSession` @scala[trait]@java[interface]. `JdbcSession` is used to open a connection and start a transaction. A new `JdbcSession` will be created for each call to the handler. At the end of the processing, the transaction will be committed (or rolled back).
 
-When using `JdbcProjection.exactlyOnce`, the `JdbcSession` that is passed to the handler will be used to save the offset behind the scenes. Therefore, it's extremely important to disable auto-commit (eg: `setAutoCommit(false)`), otherwise the two operations won't participate on the same transaction.  
+When using `JdbcProjection.exactlyOnce`, the `JdbcSession` that is passed to the handler will be used to save the offset behind the scenes. Therefore, it's extremely important to disable auto-commit (eg: `setAutoCommit(false)`), otherwise the two operations won't participate on the same transaction.
 
 Scala
 :  @@snip [JdbcProjectionDocExample.scala](/examples/src/test/scala/docs/jdbc/JdbcProjectionDocExample.scala) { #jdbc-session-imports #jdbc-session }
@@ -58,7 +58,7 @@ When declaring a `JdbcProjection` you must provide a factory for the `JdbcSessio
 An alternative Hibernate based implementation would look like this:
 
 Java
-:  @@snip [HibernateJdbcSession.java](/examples/src/test/java/jdocs/jdbc/HibernateJdbcSession.java) { #hibernate-session-imports #hibernate-session } 
+:  @@snip [HibernateJdbcSession.java](/examples/src/test/java/jdocs/jdbc/HibernateJdbcSession.java) { #hibernate-session-imports #hibernate-session }
 
 And a special factory that initializes the `EntityManagerFactory` and builds the `JdbcSession` instance:
 
@@ -68,14 +68,14 @@ Java
 
 ## Blocking JDBC Dispatcher
 
-JDBC APIs are blocking by design, therefore Apache Pekko Projections JDBC will use a dedicated dispatcher to run all JDBC calls. It's important to configure the dispatcher to have the same size as the connection pool. 
+JDBC APIs are blocking by design, therefore Pekko Projections JDBC will use a dedicated dispatcher to run all JDBC calls. It's important to configure the dispatcher to have the same size as the connection pool.
 
-Each time the projection handler is called one thread and one database connection will be used. If your connection pool is smaller than the number of threads, the thread can potentially block while waiting for the connection pool to provide a connection. 
+Each time the projection handler is called one thread and one database connection will be used. If your connection pool is smaller than the number of threads, the thread can potentially block while waiting for the connection pool to provide a connection.
 
 The dispatcher pool size can be configured through the `pekko.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` settings. See @ref:[Configuration](#configuration) section below.
 
 @@@ note
-Most applications will use database connections to read data, for instance to read a projected model upon user request. This means that other parts of the application will be competing for a connection. It's recommend to configure a connection pool dedicated to the projections and use a different one in other parts of the application.  
+Most applications will use database connections to read data, for instance to read a projected model upon user request. This means that other parts of the application will be competing for a connection. It's recommend to configure a connection pool dedicated to the projections and use a different one in other parts of the application.
 @@@
 
 ## exactly-once
@@ -134,7 +134,7 @@ processing semantics if the projection is restarted from previously stored offse
 ## Handler
 
 It's in the @apidoc[JdbcHandler] that you implement the processing of each envelope. It's essentially a consumer function
-from `(JdbcSession, Envelope)` to @scala[`Unit`]@java[`void`]. 
+from `(JdbcSession, Envelope)` to @scala[`Unit`]@java[`void`].
 
 A handler that is consuming `ShoppingCart.Event` from `eventsByTag` can look like this:
 
@@ -177,13 +177,13 @@ than the one that called `process`.
 
 It is important that the `Handler` instance is not shared between several `Projection` instances,
 because then it would be invoked concurrently, which is not how it is intended to be used. Each `Projection`
-instance should use a new `Handler` instance.  
+instance should use a new `Handler` instance.
 
 @@@
 
 ### Async handler
 
-The @apidoc[Handler] can be used with `JdbcProjection.atLeastOnceAsync` and 
+The @apidoc[Handler] can be used with `JdbcProjection.atLeastOnceAsync` and
 `JdbcProjection.groupedWithinAsync` if the handler is not storing the projection result in the database.
 The handler could @ref:[send to a Kafka topic](kafka.md#sending-to-kafka) or integrate with something else.
 
@@ -230,6 +230,10 @@ H2
 The schema can be created and dropped using the methods `JdbcProjection.createTablesIfNotExists` and `JdbcProjection.dropTablesIfExists`. This is particularly useful when writting tests. For production enviornments, we recommend creating the schema before deploying the application.
 
 @@@ warning { title=Important }
+As of version 1.2.2, the index name `PROJECTION_NAME_INDEX` has been changed to `PEKKO_PROJECTION_NAME_INDEX`
+If you have a schema in production, we recommend applying an ALTER index script to change it accordingly.
+
+@@@ warning { title=Important }
 As of version 1.1.0, the schema for PostgreSQL and H2 databases has changed. It now defaults to lowercase table and column names.
 If you have a schema in production, we recommend applying an ALTER table script to change it accordingly.
 
@@ -263,7 +267,7 @@ The reference configuration file with the default values:
 @@snip [reference.conf](/jdbc/src/main/resources/reference.conf) { #config }
 
 @@@ note
-Settings `pekko.projection.jdbc.dialect` and `pekko.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` do not have a valid default value. You must configured them in your `application.conf` file.  
+Settings `pekko.projection.jdbc.dialect` and `pekko.projection.jdbc.blocking-jdbc-dispatcher.thread-pool-executor.fixed-pool-size` do not have a valid default value. You must configured them in your `application.conf` file.
 
-See @ref:[Required Configuration Settings](#required-configuration-settings) and @ref:[Blocking JDBC Dispatcher](#blocking-jdbc-dispatcher) sections for details. 
+See @ref:[Required Configuration Settings](#required-configuration-settings) and @ref:[Blocking JDBC Dispatcher](#blocking-jdbc-dispatcher) sections for details.
 @@@

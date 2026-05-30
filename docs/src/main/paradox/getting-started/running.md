@@ -2,7 +2,7 @@
 
 @@@ note
 
-This example requires a Cassandra database to run. 
+This example requires a Cassandra database to run.
 If you do not have a Cassandra database then you can run one locally as a Docker container.
 To run a Cassandra database locally you can use [`docker compose`](https://docs.docker.com/compose/) to run the [`docker-compose.yml`](https://raw.githubusercontent.com/apache/pekko-projection/main/docker-compose.yml) found in the Projections project root.
 The `docker-compose.yml` file references the latest [Cassandra Docker Image](https://hub.docker.com/_/cassandra).
