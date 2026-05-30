@@ -14,7 +14,6 @@
 package org.apache.pekko.projection.r2dbc.scaladsl
 
 import scala.collection.immutable
-import scala.concurrent.duration.Duration
 
 import org.apache.pekko
 import pekko.Done
@@ -30,6 +29,7 @@ import pekko.projection.internal.ExactlyOnce
 import pekko.projection.internal.FlowHandlerStrategy
 import pekko.projection.internal.GroupedHandlerStrategy
 import pekko.projection.internal.NoopStatusObserver
+import pekko.projection.internal.OffsetStoredByHandler
 import pekko.projection.internal.SingleHandlerStrategy
 import pekko.projection.r2dbc.R2dbcProjectionSettings
 import pekko.projection.r2dbc.internal.R2dbcProjectionImpl
@@ -318,7 +318,7 @@ object R2dbcProjection {
       settingsOpt = None,
       sourceProvider,
       restartBackoffOpt = None,
-      offsetStrategy = AtLeastOnce(afterEnvelopes = Some(1), orAfterDuration = Some(Duration.Zero)),
+      offsetStrategy = OffsetStoredByHandler(),
       handlerStrategy = GroupedHandlerStrategy(adaptedHandler),
       NoopStatusObserver,
       offsetStore)

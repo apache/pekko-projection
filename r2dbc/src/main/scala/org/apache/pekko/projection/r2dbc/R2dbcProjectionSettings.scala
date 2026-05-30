@@ -48,7 +48,8 @@ object R2dbcProjectionSettings {
       evictInterval = config.getDuration("offset-store.evict-interval"),
       deleteInterval = config.getDuration("offset-store.delete-interval"),
       logDbCallsExceeding,
-      warnAboutFilteredEventsInFlow = config.getBoolean("warn-about-filtered-events-in-flow")
+      warnAboutFilteredEventsInFlow = config.getBoolean("warn-about-filtered-events-in-flow"),
+      offsetBatchSize = config.getInt("offset-store.offset-batch-size")
     )
   }
 
@@ -100,7 +101,8 @@ object R2dbcProjectionSettings {
     evictInterval,
     deleteInterval,
     logDbCallsExceeding,
-    warnAboutFilteredEventsInFlow
+    warnAboutFilteredEventsInFlow,
+    offsetBatchSize = 10
   )
 }
 
@@ -116,12 +118,13 @@ final class R2dbcProjectionSettings private (
     val evictInterval: JDuration,
     val deleteInterval: JDuration,
     val logDbCallsExceeding: FiniteDuration,
-    val warnAboutFilteredEventsInFlow: Boolean
+    val warnAboutFilteredEventsInFlow: Boolean,
+    val offsetBatchSize: Int
 ) extends Serializable {
 
   override def toString: String =
     s"R2dbcProjectionSettings($dialect, $schema, $offsetTable, $timestampOffsetTable, $managementTable, " +
-    s"$useConnectionFactory, $timeWindow, $keepNumberOfEntries, $evictInterval, $deleteInterval, $logDbCallsExceeding, $warnAboutFilteredEventsInFlow)"
+    s"$useConnectionFactory, $timeWindow, $keepNumberOfEntries, $evictInterval, $deleteInterval, $logDbCallsExceeding, $warnAboutFilteredEventsInFlow, $offsetBatchSize)"
 
   override def equals(other: Any): Boolean =
     other match {
@@ -132,7 +135,8 @@ final class R2dbcProjectionSettings private (
         timeWindow == that.timeWindow && keepNumberOfEntries == that.keepNumberOfEntries &&
         evictInterval == that.evictInterval && deleteInterval == that.deleteInterval &&
         logDbCallsExceeding == that.logDbCallsExceeding &&
-        warnAboutFilteredEventsInFlow == that.warnAboutFilteredEventsInFlow
+        warnAboutFilteredEventsInFlow == that.warnAboutFilteredEventsInFlow &&
+        offsetBatchSize == that.offsetBatchSize
       case _ => false
     }
 
@@ -149,7 +153,8 @@ final class R2dbcProjectionSettings private (
       evictInterval,
       deleteInterval,
       logDbCallsExceeding,
-      warnAboutFilteredEventsInFlow
+      warnAboutFilteredEventsInFlow,
+      offsetBatchSize
     )
     val h = values.foldLeft(MurmurHash3.productSeed) { case (h, value) =>
       MurmurHash3.mix(h, value.##)
@@ -169,7 +174,8 @@ final class R2dbcProjectionSettings private (
       evictInterval: JDuration = evictInterval,
       deleteInterval: JDuration = deleteInterval,
       logDbCallsExceeding: FiniteDuration = logDbCallsExceeding,
-      warnAboutFilteredEventsInFlow: Boolean = warnAboutFilteredEventsInFlow
+      warnAboutFilteredEventsInFlow: Boolean = warnAboutFilteredEventsInFlow,
+      offsetBatchSize: Int = offsetBatchSize
   ): R2dbcProjectionSettings =
     new R2dbcProjectionSettings(
       dialect,
@@ -183,7 +189,8 @@ final class R2dbcProjectionSettings private (
       evictInterval,
       deleteInterval,
       logDbCallsExceeding,
-      warnAboutFilteredEventsInFlow
+      warnAboutFilteredEventsInFlow,
+      offsetBatchSize
     )
 
   def withDialect(dialect: Dialect): R2dbcProjectionSettings =
@@ -221,6 +228,10 @@ final class R2dbcProjectionSettings private (
 
   def withWarnAboutFilteredEventsInFlow(warnAboutFilteredEventsInFlow: Boolean): R2dbcProjectionSettings =
     copy(warnAboutFilteredEventsInFlow = warnAboutFilteredEventsInFlow)
+
+  /** @since 2.0.0 */
+  def withOffsetBatchSize(offsetBatchSize: Int): R2dbcProjectionSettings =
+    copy(offsetBatchSize = offsetBatchSize)
 
   val offsetTableWithSchema: String = schema.map(_ + ".").getOrElse("") + offsetTable
   val timestampOffsetTableWithSchema: String = schema.map(_ + ".").getOrElse("") + timestampOffsetTable
