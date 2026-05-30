@@ -10,8 +10,8 @@ version=$project.version$
 }
 
 Import the @apidoc[pekko.projection.testkit.(javadsl|scaladsl).ProjectionTestKit] and other utilities into a new
-@scala[[ScalaTest](https://pekko.apache.org/docs/pekko/current/typed/testing-async.html#test-framework-integration) test spec]
-@java[[JUnit](https://pekko.apache.org/docs/pekko/current/typed/testing-async.html#test-framework-integration) test].
+@scala:[[ScalaTest](pekko:typed/testing-async.html#test-framework-integration) test spec]
+@java:[[JUnit](pekko:typed/testing-async.html#test-framework-integration) test].
 
 Scala
 :  @@snip [ShoppingCartAppSpec.scala](/examples/src/test/scala/docs/guide/ShoppingCartAppSpec.scala) { #testKitImports }

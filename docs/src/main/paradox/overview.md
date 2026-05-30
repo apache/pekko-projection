@@ -48,7 +48,7 @@ All of them share a dependency to `pekko-projection-core`:
 
 ### Pekko version
 
-Apache Pekko Projections requires **Pekko $pekko.version$** or later. See [Apache Pekko's Binary Compatibility Rules](https://pekko.apache.org/docs/pekko/current/common/binary-compatibility-rules.html) for details.
+Apache Pekko Projections requires **Pekko $pekko.version$** or later. See :[Apache Pekko's Binary Compatibility Rules](pekko:common/binary-compatibility-rules.html) for details.
 
 It is recommended to use the latest patch version of Apache Pekko.
 It is important all Pekko dependencies are in the same version, so it is recommended to depend on
@@ -78,8 +78,8 @@ See the individual modules for their transitive dependencies.
 
 ### Pekko Classic
 
-Apache Pekko Projections can be used with the [new Actor API](https://pekko.apache.org/docs/pekko/current/typed/actors.html) or
-the [classic Actor API](https://pekko.apache.org/docs/pekko/current/index-classic.html). The documentation samples
+Apache Pekko Projections can be used with the :[new Actor API](pekko:typed/actors.html) or
+the :[classic Actor API](pekko:index-classic.html). The documentation samples
 show the new Actor API, and the @ref:[Apache Pekko Classic page](classic.md) highlights how to use it with the classic
 Actor API.
 

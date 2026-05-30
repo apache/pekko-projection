@@ -58,7 +58,7 @@ Java
 
 ## Testing with a TestSink probe
 
-The [Apache Pekko Stream TestKit](https://pekko.apache.org/docs/pekko/current/stream/stream-testkit.html#using-the-testkit) can be used to drive the pace of envelopes flowing through the Projection.
+The :[Apache Pekko Stream TestKit](pekko:stream/stream-testkit.html#using-the-testkit) can be used to drive the pace of envelopes flowing through the Projection.
 
 The Projection starts as soon as the first element is requested by the `TestSink` probe, new elements will be emitted as requested. The Projection is stopped once the assert function completes.
 

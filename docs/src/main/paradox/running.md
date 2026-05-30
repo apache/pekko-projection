@@ -4,7 +4,7 @@ Once you have decided how you want to build your projection, the next step is to
 
 ## Dependencies
 
-To distribute the projection over the cluster we recommend the use of [ShardedDaemonProcess](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html). Add the following dependency in your project if not yet using Apache Pekko Cluster Sharding:
+To distribute the projection over the cluster we recommend the use of :[ShardedDaemonProcess](pekko:typed/cluster-sharded-daemon-process.html). Add the following dependency in your project if not yet using Apache Pekko Cluster Sharding:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -14,7 +14,7 @@ To distribute the projection over the cluster we recommend the use of [ShardedDa
 
 Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
-For more information on using Apache Pekko Cluster consult Pekko's reference documentation on [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/index-cluster.html) and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html).
+For more information on using Apache Pekko Cluster consult Pekko's reference documentation on :[Apache Pekko Cluster](pekko:typed/index-cluster.html) and :[Apache Pekko Cluster Sharding](pekko:typed/cluster-sharding.html).
 
 ## Running with Sharded Daemon Process
 
@@ -56,7 +56,7 @@ The [JDBC plugin](https://pekko.apache.org/docs/pekko-persistence-jdbc/current/)
 doesn't have this constraint.
 @@@
 
-See also the [Apache Pekko reference documentation for tagging](https://pekko.apache.org/docs/pekko/current/typed/persistence.html#tagging).
+See also the :[Apache Pekko reference documentation for tagging](pekko:typed/persistence.html#tagging).
 
 ### Event Sourced Provider per tag
 
@@ -117,7 +117,7 @@ overwrite each others offset storage with undefined and unpredictable results.
 ## Running in Cluster Singleton
 
 If you know that you only need one or a few projection instances an alternative to @ref:[Sharded Daemon Process](#running-with-sharded-daemon-process)
-is to use [Apache Pekko Cluster Singleton](https://pekko.apache.org/docs/pekko/current/typed/cluster-singleton.html)
+is to use :[Apache Pekko Cluster Singleton](pekko:typed/cluster-singleton.html)
 
 Scala
 :  @@snip [CassandraProjectionDocExample.scala](/integration-examples/src/test/scala/docs/cassandra/CassandraProjectionDocExample.scala) { #running-with-singleton }

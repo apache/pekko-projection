@@ -1,7 +1,7 @@
 # Events from Apache Pekko Persistence
 
-A typical source for Projections is events stored with @apidoc[EventSourcedBehavior$] in [Apache Pekko Persistence](https://pekko.apache.org/docs/pekko/current/typed/persistence.html). Events can be [tagged](https://pekko.apache.org/docs/pekko/current/typed/persistence.html#tagging) and then
-consumed with the [eventsByTag query](https://pekko.apache.org/docs/pekko/current/persistence-query.html#eventsbytag-and-currenteventsbytag).
+A typical source for Projections is events stored with @apidoc[EventSourcedBehavior$] in :[Apache Pekko Persistence](pekko:typed/persistence.html). Events can be :[tagged](pekko:typed/persistence.html#tagging) and then
+consumed with the :[eventsByTag query](pekko:persistence-query.html#eventsbytag-and-currenteventsbytag).
 
 Apache Pekko Projections has integration with `eventsByTag`, which is described here.
 

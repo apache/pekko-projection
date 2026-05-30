@@ -6,7 +6,7 @@ such as active-active and hot standby.
 
 Originally, Pekko Replicated Event Sourcing has required cross-replica access to the underlying replica database, which
 can be hard to open up for security and infrastructure reasons. It was also easiest to use in an
-[Apache Pekko Multi DC Cluster](https://pekko.apache.org/docs/pekko/current/typed/cluster-dc.html) setup
+:[Apache Pekko Multi DC Cluster](pekko:typed/cluster-dc.html) setup
 where a single cluster spans multiple datacenters or regions, another thing that can be complicated to allow.
 
 Pekko Replicated Event Sourcing over gRPC builds on @ref:[Apache Pekko Projection gRPC](grpc.md) and @extref:[Apache Pekko gRPC](pekko-grpc:index.html) to instead use gRPC as the cross-replica transport for events.
@@ -16,7 +16,7 @@ Pekko cluster with the gRPC replication transport as only connection in between.
 
 @@@ warning
 
-This module is currently marked as [May Change](https://pekko.apache.org/docs/pekko/current/common/may-change.html)
+This module is currently marked as :[May Change](pekko:common/may-change.html)
 in the sense that the API might be changed based on feedback from initial usage.
 However, the module is ready for usage in production and we will not break serialization format of
 messages or stored data.

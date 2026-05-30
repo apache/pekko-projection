@@ -192,7 +192,7 @@ Same type of handlers can be used with `JdbcProjection` instead of `CassandraPro
 
 ### Actor handler
 
-A good alternative for advanced state management is to implement the handler as an [actor](https://pekko.apache.org/docs/pekko/current/typed/actors.html),
+A good alternative for advanced state management is to implement the handler as an :[actor](pekko:typed/actors.html),
 which is described in @ref:[Processing with Actor](actor.md).
 
 ### Flow handler
