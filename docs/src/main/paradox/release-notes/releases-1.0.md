@@ -8,7 +8,7 @@ a license that is not compatible with Open Source usage.
 Apache Pekko has changed the package names, among other changes. Config names have changed to use `pekko` instead
 of `akka` in their names. Users switching from Akka to Pekko should read our [Migration Guide](https://pekko.apache.org/docs/pekko/1.0/project/migration-guides.html).
 
-Generally, we have tried to make it as easy as possible to switch existing Akka based projects over to using Pekko.
+Generally, we have tried to make it as easy as possible to switch existing Akka based projects over to using Apache Pekko.
 
 We have gone through the code base and have tried to properly acknowledge all third party source code in the
 Apache Pekko code base. If anyone believes that there are any instances of third party source code that is not

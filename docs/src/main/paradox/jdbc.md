@@ -38,7 +38,7 @@ There are two settings that need to be set beforehand in your `application.conf`
 
 ## Defining a JdbcSession
 
-Before using Pekko Projections JDBC you must implement a `JdbcSession` @scala[trait]@java[interface]. `JdbcSession` is used to open a connection and start a transaction. A new `JdbcSession` will be created for each call to the handler. At the end of the processing, the transaction will be committed (or rolled back).
+Before using Apache Pekko Projections JDBC you must implement a `JdbcSession` @scala[trait]@java[interface]. `JdbcSession` is used to open a connection and start a transaction. A new `JdbcSession` will be created for each call to the handler. At the end of the processing, the transaction will be committed (or rolled back).
 
 When using `JdbcProjection.exactlyOnce`, the `JdbcSession` that is passed to the handler will be used to save the offset behind the scenes. Therefore, it's extremely important to disable auto-commit (eg: `setAutoCommit(false)`), otherwise the two operations won't participate on the same transaction.
 

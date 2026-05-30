@@ -4,7 +4,7 @@ Once you have decided how you want to build your projection, the next step is to
 
 ## Dependencies
 
-To distribute the projection over the cluster we recommend the use of [ShardedDaemonProcess](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html). Add the following dependency in your project if not yet using Pekko Cluster Sharding:
+To distribute the projection over the cluster we recommend the use of [ShardedDaemonProcess](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html). Add the following dependency in your project if not yet using Apache Pekko Cluster Sharding:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -14,7 +14,7 @@ To distribute the projection over the cluster we recommend the use of [ShardedDa
 
 Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
-For more information on using Pekko Cluster consult Pekko's reference documentation on [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/index-cluster.html) and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html).
+For more information on using Apache Pekko Cluster consult Pekko's reference documentation on [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/index-cluster.html) and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html).
 
 ## Running with Sharded Daemon Process
 

@@ -25,7 +25,7 @@ The table below shows `pekko-projection-testkit`'s direct dependencies and the s
 
 ## Initializing the Projection TestKit
 
-The Projection TestKit requires an instance of `ActorTestKit`. We recommend using Pekko's @scala[`ScalaTestWithActorTestKit`]@java[`TestKitJunitResource`]
+The Projection TestKit requires an instance of `ActorTestKit`. We recommend using Apache Pekko's @scala[`ScalaTestWithActorTestKit`]@java[`TestKitJunitResource`]
 
 Scala
 :  @@snip [TestKitDocExample.scala](/examples/src/test/scala/docs/testkit/TestKitDocExample.scala) { #testkit-import #testkit }

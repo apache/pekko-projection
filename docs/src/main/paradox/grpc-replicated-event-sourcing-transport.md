@@ -111,7 +111,7 @@ The entries in the block refer to the local replica while `replicas` is a list o
 with details about how to reach the replicas across the network.
 
 The `grpc.client` section for each of the replicas is used for setting up the Apache Pekko gRPC client and supports the same discovery, TLS
-and other connection options as when using Pekko gRPC directly. For more details see @extref:[Apache Pekko gRPC configuration](pekko-grpc:client/configuration.html#by-configuration).
+and other connection options as when using Apache Pekko gRPC directly. For more details see @extref:[Apache Pekko gRPC configuration](pekko-grpc:client/configuration.html#by-configuration).
 
 It is also possible to set up @apidoc[pekko.projection.grpc.replication.*.ReplicationSettings] through APIs only and not rely
 on the configuration file at all.
