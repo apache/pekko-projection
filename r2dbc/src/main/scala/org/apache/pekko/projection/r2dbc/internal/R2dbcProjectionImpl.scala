@@ -582,8 +582,8 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
   override def withRecoveryStrategy(
       recoveryStrategy: HandlerRecoveryStrategy): R2dbcProjectionImpl[Offset, Envelope] = {
     val newStrategy = offsetStrategy match {
-      case s: ExactlyOnce          => s.copy(recoveryStrategy = Some(recoveryStrategy))
-      case s: AtLeastOnce          => s.copy(recoveryStrategy = Some(recoveryStrategy))
+      case s: ExactlyOnce           => s.copy(recoveryStrategy = Some(recoveryStrategy))
+      case s: AtLeastOnce           => s.copy(recoveryStrategy = Some(recoveryStrategy))
       case s: OffsetStoredByHandler => s.copy(recoveryStrategy = Some(recoveryStrategy))
       // NOTE: AtMostOnce has its own withRecoveryStrategy variant
       // this method is not available for AtMostOnceProjection
