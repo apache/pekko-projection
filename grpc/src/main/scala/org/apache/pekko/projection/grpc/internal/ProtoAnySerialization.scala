@@ -27,7 +27,6 @@ import pekko.serialization.Serializers
 import com.google.common.base.CaseFormat
 import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors
-import com.google.protobuf.{ GeneratedMessage => PBGeneratedMessage }
 import com.google.protobuf.Message
 import com.google.protobuf.Parser
 import com.google.protobuf.any.{ Any => ScalaPbAny }
@@ -138,7 +137,7 @@ import scalapb.options.Scalapb
       case pbAny: PbAny                  => ScalaPbAny.fromJavaProto(pbAny)
       case msg: scalapb.GeneratedMessage =>
         encode(msg)
-      case msg: PBGeneratedMessage =>
+      case msg: com.google.protobuf.Message =>
         encode(msg)
       case other =>
         // fallback to Pekko serialization
