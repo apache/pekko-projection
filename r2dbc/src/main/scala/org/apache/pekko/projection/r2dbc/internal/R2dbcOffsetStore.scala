@@ -255,6 +255,14 @@ private[projection] class R2dbcOffsetStore(
     (projection_name, projection_key, slice, persistence_id, seq_nr, timestamp_offset, timestamp_consumed)
     VALUES (?,?,?,?,?,?, $timestampSql)"""
 
+  private val insertTimestampOffsetBatchSql: String = {
+    val values = (1 to settings.offsetBatchSize).map(_ => s"(?,?,?,?,?,?, $timestampSql)").mkString(", ")
+    sql"""
+    INSERT INTO $timestampOffsetTable
+    (projection_name, projection_key, slice, persistence_id, seq_nr, timestamp_offset, timestamp_consumed)
+    VALUES $values"""
+  }
+
   // delete less than a timestamp
   private val deleteOldTimestampOffsetSql: String = sql"""
     DELETE FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ? AND timestamp_offset < ?
@@ -559,7 +567,7 @@ private[projection] class R2dbcOffsetStore(
     }
   }
 
-  protected def bindTimestampOffsetRecord(stmt: Statement, record: Record): Statement = {
+  protected def bindTimestampOffsetRecord(stmt: Statement, record: Record, bindStartIndex: Int = 0): Statement = {
     val slice = persistenceExt.sliceForPersistenceId(record.pid)
     val minSlice = timestampOffsetBySlicesSourceProvider.minSlice
     val maxSlice = timestampOffsetBySlicesSourceProvider.maxSlice
@@ -569,12 +577,12 @@ private[projection] class R2dbcOffsetStore(
         s"[$minSlice - $maxSlice] but received slice [$slice] for persistenceId [${record.pid}]")
 
     stmt
-      .bind(0, projectionId.name)
-      .bind(1, projectionId.key)
-      .bind(2, slice)
-      .bind(3, record.pid)
-      .bind(4, record.seqNr)
-      .bind(5, record.timestamp)
+      .bind(bindStartIndex, projectionId.name)
+      .bind(bindStartIndex + 1, projectionId.key)
+      .bind(bindStartIndex + 2, slice)
+      .bind(bindStartIndex + 3, record.pid)
+      .bind(bindStartIndex + 4, record.seqNr)
+      .bind(bindStartIndex + 5, record.timestamp)
   }
 
   protected def insertTimestampOffsetInTx(conn: Connection, records: immutable.IndexedSeq[Record]): Future[Long] = {
@@ -582,19 +590,39 @@ private[projection] class R2dbcOffsetStore(
 
     logger.trace2("saving timestamp offset [{}], {}", records.last.timestamp, records)
 
-    val statement = conn.createStatement(insertTimestampOffsetSql)
-
     if (records.size == 1) {
+      val statement = conn.createStatement(insertTimestampOffsetSql)
       val boundStatement = bindTimestampOffsetRecord(statement, records.head)
       R2dbcExecutor.updateOneInTx(boundStatement)
     } else {
-      // TODO Try Batch without bind parameters for better performance. Risk of sql injection for these parameters is low.
-      val boundStatement =
-        records.foldLeft(statement) { (stmt, rec) =>
-          stmt.add()
-          bindTimestampOffsetRecord(stmt, rec)
+      val batchSize = settings.offsetBatchSize
+      val batches = if (batchSize > 0) records.size / batchSize else 0
+      val batchResult = if (batches > 0) {
+        val batchStatements = (0 until batches).map { i =>
+          val stmt = conn.createStatement(insertTimestampOffsetBatchSql)
+          records.slice(i * batchSize, i * batchSize + batchSize).zipWithIndex.foreach {
+            case (rec, recIdx) =>
+              bindTimestampOffsetRecord(stmt, rec, recIdx * 6) // 6 bind parameters per record
+          }
+          stmt
         }
-      R2dbcExecutor.updateBatchInTx(boundStatement)
+        R2dbcExecutor.updateInTx(batchStatements).map(_.sum)
+      } else Future.successful(0L)
+
+      batchResult.flatMap { batchResultCount =>
+        val remainingRecords = records.drop(batches * batchSize)
+        if (remainingRecords.nonEmpty) {
+          val statement = conn.createStatement(insertTimestampOffsetSql)
+          val boundStatement = remainingRecords.foldLeft(statement) { (stmt, rec) =>
+            stmt.add()
+            bindTimestampOffsetRecord(stmt, rec)
+          }
+          // This "batch" statement is not efficient, see issue #897
+          R2dbcExecutor
+            .updateBatchInTx(boundStatement)
+            .map(_ + batchResultCount)(ExecutionContext.parasitic)
+        } else Future.successful(batchResultCount)
+      }
     }
   }
 
@@ -1106,7 +1134,7 @@ private[projection] class R2dbcOffsetStore(
       case change: DurableStateChange[_] if change.offset.isInstanceOf[TimestampOffset] =>
         // in case additional types are added
         throw new IllegalArgumentException(
-          s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/pekko-persistence-r2dbc/issues")
+          s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/pekko-projection/issues")
       case _ => None
     }
   }

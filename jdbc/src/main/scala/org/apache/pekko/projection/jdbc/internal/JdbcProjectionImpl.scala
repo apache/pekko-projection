@@ -39,6 +39,7 @@ import pekko.projection.internal.HandlerStrategy
 import pekko.projection.internal.InternalProjection
 import pekko.projection.internal.InternalProjectionState
 import pekko.projection.internal.ManagementState
+import pekko.projection.internal.OffsetStoredByHandler
 import pekko.projection.internal.OffsetStrategy
 import pekko.projection.internal.ProjectionSettings
 import pekko.projection.internal.SettingsImpl
@@ -206,7 +207,7 @@ private[projection] class JdbcProjectionImpl[Offset, Envelope, S <: JdbcSession]
       .copy(afterEnvelopes = Some(afterEnvelopes), orAfterDuration = Some(afterDuration)))
 
   /**
-   * Settings for GroupedSlickProjection
+   * Settings for GroupedJdbcProjection
    */
   override def withGroup(
       groupAfterEnvelopes: Int,
@@ -218,8 +219,9 @@ private[projection] class JdbcProjectionImpl[Offset, Envelope, S <: JdbcSession]
   override def withRecoveryStrategy(
       recoveryStrategy: HandlerRecoveryStrategy): JdbcProjectionImpl[Offset, Envelope, S] = {
     val newStrategy = offsetStrategy match {
-      case s: ExactlyOnce => s.copy(recoveryStrategy = Some(recoveryStrategy))
-      case s: AtLeastOnce => s.copy(recoveryStrategy = Some(recoveryStrategy))
+      case s: ExactlyOnce           => s.copy(recoveryStrategy = Some(recoveryStrategy))
+      case s: AtLeastOnce           => s.copy(recoveryStrategy = Some(recoveryStrategy))
+      case s: OffsetStoredByHandler => s.copy(recoveryStrategy = Some(recoveryStrategy))
       // NOTE: AtMostOnce has its own withRecoveryStrategy variant
       // this method is not available for AtMostOnceProjection
       case s: AtMostOnce => s
