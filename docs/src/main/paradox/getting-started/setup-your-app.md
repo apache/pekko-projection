@@ -40,7 +40,7 @@ Java
 @@@ note
 
 For Jackson serialization to work correctly in Java projects you must use the `javac` compiler parameter `-parameters` when building your project.
-In @scala[sbt you can add it your sbt project by adding it to the `javacOptions` Setting: `javacOptions += "-parameters"`]@java[maven you can add an argument to `maven-compiler-plugin` plugin under `compilerArgs` ([see an example here](https://github.com/apache/pekko-samples/blob/2.6/pekko-sample-cqrs-java/pom.xml#L136))].
+In @scala[sbt you can add it your sbt project by adding it to the `javacOptions` Setting: `javacOptions += "-parameters"`]@java[maven you can add an argument to `maven-compiler-plugin` plugin under `compilerArgs`.
 
 @@@
 
