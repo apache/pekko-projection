@@ -61,7 +61,7 @@ Scala
 Java
 :  @@snip [EventSourcedDocExample.java](/examples/src/test/java/jdocs/eventsourced/EventSourcedBySlicesDocExample.java) { #eventsBySlicesSourceProvider }
 
-This example is using the [R2DBC plugin for Pekko Persistence](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/query.html).
+This example is using the @extref:[R2DBC plugin for Pekko Persistence](pekko-persistence-r2dbc:query.html).
 You will use the same plugin as you have configured for the write side that is used by the `EventSourcedBehavior`.
 
 This source is consuming all events from the `ShoppingCart` `EventSourcedBehavior` for the given slice range. In a production application, you would need to start as many instances as the number of slice ranges. That way you consume the events from all entities.

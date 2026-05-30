@@ -6,7 +6,7 @@ consumed with the [changes query](https://pekko.apache.org/docs/pekko/current/du
 Apache Pekko Projections has integration with `changes`, which is described here.
 
 @@@ note { title=Alternative }
-When using the R2DBC plugin an alternative to using a Projection is to [store the query representation](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/durable-state-store.html#storing-query-representation) directly from the write side.
+When using the R2DBC plugin an alternative to using a Projection is to @extref:[store the query representation](pekko-persistence-r2dbc:durable-state-store.html#storing-query-representation) directly from the write side.
 @@@
 
 ## Dependencies
@@ -60,7 +60,7 @@ Scala
 Java
 :  @@snip [DurableStateStoreDocExample.java](/examples/src/test/java/jdocs/state/DurableStateStoreBySlicesDocExample.java) { #changesBySlicesSourceProvider }
 
-This example is using the [R2DBC plugin for Pekko Persistence](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/query.html).
+This example is using the @extref:[R2DBC plugin for Pekko Persistence](pekko-persistence-r2dbc:query.html).
 You will use the same plugin that you configured for the write side. The one that is used by the `DurableStateBehavior`.
 
 This source is consuming all the changes from the `Account` `DurableStateBehavior` for the given slice range. In a production application, you would need to start as many instances as the number of slice ranges. That way you consume the changes from all entities.
