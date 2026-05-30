@@ -275,7 +275,7 @@ The supported offset types of the `CassandraProjection` are:
 @@@ note
 
 The @apidoc[MergeableOffset] that is used for @ref:[messages from Kafka](kafka.md) is not implemented
-for the `CassandraProjection` yet, see [issue #97](https://github.com/apache/incubator-pekko-projection/issues/97).
+for the `CassandraProjection` yet, see [issue #97](https://github.com/akka/akka-projection/issues/97).
 
 @@@
 

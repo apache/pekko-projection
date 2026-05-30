@@ -33,6 +33,6 @@ Scala
 Java
 :  @@snip [ShoppingCartApp.java](/examples/src/test/java/jdocs/guide/ShoppingCartApp.java) { #guideSourceProviderSetup }
 
-Finally, we must configure Pekko Persistence by adding a configuration file `guide-shopping-cart-app.conf` to the `src/main/resources/` directory of the project:
+Finally, we must configure Apache Pekko Persistence by adding a configuration file `guide-shopping-cart-app.conf` to the `src/main/resources/` directory of the project:
 
 @@snip [guide-shopping-cart-app.conf](/examples/src/test/resources/guide-shopping-cart-app.conf) { #guideConfig }

@@ -11,7 +11,7 @@ The `JdbcProjection` @scala[or `SlickProjection`] envelope handler will be run b
 
 @@@ note
 
-Offset storage of Kafka offsets are not implemented for Cassandra yet, see [issue #97](https://github.com/apache/incubator-pekko-projection/issues/97).
+Offset storage of Kafka offsets are not implemented for Cassandra yet, see [issue #97](https://github.com/akka/akka-projection/issues/97).
 
 @@@
 
