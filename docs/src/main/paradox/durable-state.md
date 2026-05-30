@@ -1,7 +1,7 @@
 # Changes from Durable State
 
-A typical source for Projections is the change stored with @apidoc[DurableStateBehavior$] in :[Apache Pekko Persistence](pekko:typed/durable-state/persistence.html). Durable state changes can be :[tagged](pekko:typed/durable-state/persistence.html#tagging) and then
-consumed with the :[changes query](pekko:durable-state/persistence-query.html#using-query-with-pekko-projections).
+A typical source for Projections is the change stored with @apidoc[DurableStateBehavior$] in @extref:[Apache Pekko Persistence](pekko:typed/durable-state/persistence.html). Durable state changes can be @extref:[tagged](pekko:typed/durable-state/persistence.html#tagging) and then
+consumed with the @extref:[changes query](pekko:durable-state/persistence-query.html#using-query-with-pekko-projections).
 
 Apache Pekko Projections has integration with `changes`, which is described here.
 

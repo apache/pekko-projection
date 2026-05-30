@@ -41,11 +41,11 @@ PRIMARY KEY (item_id));
 ```
 
 Source events are generated with the `EventGeneratorApp`.
-This app is configured to use [Apache Pekko Persistence Cassandra](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/index.html) and :[Apache Pekko Cluster](pekko:typed/cluster.html) :[Sharding](pekko:typed/cluster-sharding.html) to persist random `ShoppingCartApp.Events` to a journal.
+This app is configured to use [Apache Pekko Persistence Cassandra](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/index.html) and @extref:[Apache Pekko Cluster](pekko:typed/cluster.html) @extref:[Sharding](pekko:typed/cluster-sharding.html) to persist random `ShoppingCartApp.Events` to a journal.
 It will checkout a shopping cart with random items and quantities every 1 second.
 The app will automatically create all the Apache Pekko Persistence infrastructure tables in the `pekko` keyspace.
 We won't go into any further detail about how this app functions because it falls outside the scope of Apache Pekko Projections.
-To learn more about the writing events with :[Apache Pekko Persistence see the Apache Pekko documentation](pekko:typed/index-persistence.html).
+To learn more about the writing events with @extref:[Apache Pekko Persistence see the Apache Pekko documentation](pekko:typed/index-persistence.html).
 
 Add the Apache Pekko Cluster Sharding library to your project:
 

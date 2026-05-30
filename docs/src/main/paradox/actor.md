@@ -1,6 +1,6 @@
 # Processing with Actor
 
-A good alternative for advanced state management is to implement the handler as an :[actor](pekko:typed/actors.html).
+A good alternative for advanced state management is to implement the handler as an @extref:[actor](pekko:typed/actors.html).
 
 The following example is using the `CassandraProjection` but the handler and actor would be the same if used
 any other @ref:[offset storage](overview.md).

@@ -16,7 +16,7 @@ Pekko cluster with the gRPC replication transport as only connection in between.
 
 @@@ warning
 
-This module is currently marked as :[May Change](pekko:common/may-change.html)
+This module is currently marked as @extref:[May Change](pekko:common/may-change.html)
 in the sense that the API might be changed based on feedback from initial usage.
 However, the module is ready for usage in production and we will not break serialization format of
 messages or stored data.

@@ -1,7 +1,7 @@
 # Pekko Classic
 
-Apache Pekko Projections can be used with the :[new Actor API](pekko:typed/actors.html) or
-the :[classic Actor API](pekko:index-classic.html). The documentation samples
+Apache Pekko Projections can be used with the @extref:[new Actor API](pekko:typed/actors.html) or
+the @extref:[classic Actor API](pekko:index-classic.html). The documentation samples
 show the new Actor API, and this page highlights how to use it with the classic Actor API.
 
 ## Actor System

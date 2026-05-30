@@ -6,7 +6,7 @@ It provides an implementation of an Apache Pekko Projection that uses
 
 @@@ warning
 
-This module is currently marked as :[May Change](pekko:common/may-change.html)
+This module is currently marked as @extref:[May Change](pekko:common/may-change.html)
 in the sense that the API might be changed based on feedback from initial usage.
 However, the module is ready for usage in production and we will not break serialization format of
 messages or stored data.
