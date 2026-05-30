@@ -246,23 +246,13 @@ import scalapb.options.Scalapb
     }
   }
 
-  private def hasExtension[ContainerT <: PBGeneratedMessage.ExtendableMessage[ContainerT], T](
-      msg: PBGeneratedMessage.ExtendableMessageOrBuilder[ContainerT],
-      ext: PBGeneratedMessage.GeneratedExtension[ContainerT, T]
-  ): Boolean = msg.hasExtension(ext)
-
-  private def getExtension[ContainerT <: PBGeneratedMessage.ExtendableMessage[ContainerT], T](
-      msg: PBGeneratedMessage.ExtendableMessageOrBuilder[ContainerT],
-      ext: PBGeneratedMessage.GeneratedExtension[ContainerT, T]
-  ): T = msg.getExtension(ext)
-
   private def tryResolveScalaPbType(typeDescriptor: Descriptors.Descriptor): Option[ScalaPbResolvedType[Nothing]] = {
     // todo - attempt to load the package.proto file for this package to get default options from there
     val fileDescriptor = typeDescriptor.getFile
     val options = fileDescriptor.getOptions
     val scalaOptions: Scalapb.ScalaPbOptions =
-      if (hasExtension(options, Scalapb.options)) {
-        getExtension(options, Scalapb.options)
+      if (options.hasExtension(Scalapb.options)) {
+        options.getExtension(Scalapb.options)
       } else Scalapb.ScalaPbOptions.getDefaultInstance
 
     // Firstly, determine the java package
