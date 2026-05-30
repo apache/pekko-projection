@@ -266,7 +266,7 @@ CREATE TABLE IF NOT EXISTS pekko_projection.projection_management (
 
 The supported offset types of the `CassandraProjection` are:
 
-* `pekko.persistence.query.Offset` types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
+* `org.apache.pekko.persistence.query.Offset` types from @ref:[events from Apache Pekko Persistence](eventsourced.md)
 * `String`
 * @scala[`Int`]@java[Integer]
 * `Long`
