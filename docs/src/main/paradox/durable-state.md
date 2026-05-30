@@ -40,7 +40,7 @@ Scala
 Java
 :  @@snip [DurableStateStoreDocExample.java](/examples/src/test/java/jdocs/state/DurableStateStoreDocExample.java) { #changesByTagSourceProvider }
 
-This example is using the [DurableStateStore JDBC plugin for Pekko Persistence](https://pekko.apache.org/docs/pekko-persistence-jdbc/current/durable-state-store.html).
+This example is using the [DurableStateStore JDBC plugin for Apache Pekko Persistence](https://pekko.apache.org/docs/pekko-persistence-jdbc/current/durable-state-store.html).
 You will use the same plugin that you configured for the write side. The one that is used by the `DurableStateBehavior`.
 
 This source is consuming all the changes from the `Account` `DurableStateBehavior` that are tagged with `"bank-accounts-1"`. In a production application, you would need to start as many instances as the number of different tags you used. That way you consume the changes from all entities.
@@ -60,7 +60,7 @@ Scala
 Java
 :  @@snip [DurableStateStoreDocExample.java](/examples/src/test/java/jdocs/state/DurableStateStoreBySlicesDocExample.java) { #changesBySlicesSourceProvider }
 
-This example is using the @extref:[R2DBC plugin for Pekko Persistence](pekko-persistence-r2dbc:query.html).
+This example is using the @extref:[R2DBC plugin for Apache Pekko Persistence](pekko-persistence-r2dbc:query.html).
 You will use the same plugin that you configured for the write side. The one that is used by the `DurableStateBehavior`.
 
 This source is consuming all the changes from the `Account` `DurableStateBehavior` for the given slice range. In a production application, you would need to start as many instances as the number of slice ranges. That way you consume the changes from all entities.
