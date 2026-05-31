@@ -27,15 +27,12 @@ import pekko.serialization.Serializers
 import com.google.common.base.CaseFormat
 import com.google.protobuf.ByteString
 import com.google.protobuf.Descriptors
-import com.google.protobuf.GeneratedMessageV3
 import com.google.protobuf.Message
 import com.google.protobuf.Parser
 import com.google.protobuf.any.{ Any => ScalaPbAny }
 import com.google.protobuf.{ Any => JavaPbAny }
 import com.google.protobuf.{ Any => PbAny }
 import org.slf4j.LoggerFactory
-import scalapb.GeneratedMessage
-import scalapb.GeneratedMessageCompanion
 import scalapb.options.Scalapb
 
 /**
@@ -140,7 +137,7 @@ import scalapb.options.Scalapb
       case pbAny: PbAny                  => ScalaPbAny.fromJavaProto(pbAny)
       case msg: scalapb.GeneratedMessage =>
         encode(msg)
-      case msg: GeneratedMessageV3 =>
+      case msg: com.google.protobuf.Message =>
         encode(msg)
       case other =>
         // fallback to Pekko serialization
@@ -280,7 +277,7 @@ import scalapb.options.Scalapb
       try {
         log.debug("Attempting to load scalapb.GeneratedMessageCompanion object {}", className)
         val companionObject =
-          system.dynamicAccess.getObjectFor[GeneratedMessageCompanion[GeneratedMessage]](className).get
+          system.dynamicAccess.getObjectFor[scalapb.GeneratedMessageCompanion[scalapb.GeneratedMessage]](className).get
         Some(new ScalaPbResolvedType(companionObject))
       } catch {
         case cnfe: ClassNotFoundException =>
@@ -327,7 +324,7 @@ import scalapb.options.Scalapb
           GoogleTypeUrlPrefix + javaProtoMessage.getDescriptorForType.getFullName,
           javaProtoMessage.toByteString)
 
-      case scalaPbMessage: GeneratedMessage =>
+      case scalaPbMessage: scalapb.GeneratedMessage =>
         ScalaPbAny(GoogleTypeUrlPrefix + scalaPbMessage.companion.scalaDescriptor.fullName, scalaPbMessage.toByteString)
 
       case null =>
