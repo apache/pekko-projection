@@ -1,9 +1,9 @@
 # Events from Apache Pekko Persistence
 
-A typical source for Projections is events stored with @apidoc[EventSourcedBehavior$] in [Apache Pekko Persistence](https://pekko.apache.org/docs/pekko/current/typed/persistence.html). Events can be [tagged](https://pekko.apache.org/docs/pekko/current/typed/persistence.html#tagging) and then
-consumed with the [eventsByTag query](https://pekko.apache.org/docs/pekko/current/persistence-query.html#eventsbytag-and-currenteventsbytag).
+A typical source for Projections is events stored with @apidoc[EventSourcedBehavior$] in @extref:[Apache Pekko Persistence](pekko:typed/persistence.html). Events can be @extref:[tagged](pekko:typed/persistence.html#tagging) and then
+consumed with the @extref:[eventsByTag query](pekko:persistence-query.html#eventsbytag-and-currenteventsbytag).
 
-Apache Pekko Projections has integration with `eventsByTag`, which is described here. 
+Apache Pekko Projections has integration with `eventsByTag`, which is described here.
 
 ## Dependencies
 
@@ -37,7 +37,7 @@ Java
 :  @@snip [EventSourcedDocExample.java](/examples/src/test/java/jdocs/eventsourced/EventSourcedDocExample.java) { #eventsByTagSourceProvider }
 
 This example is using the [Cassandra plugin for Apache Pekko Persistence](https://pekko.apache.org/docs/pekko-persistence-cassandra/current/read-journal.html),
-but same code can be used for other Apache Pekko Persistence plugins by replacing the `CassandraReadJournal.Identifier`.
+but same code can be used for other Pekko Persistence plugins by replacing the `CassandraReadJournal.Identifier`.
 For example the [JDBC plugin](https://pekko.apache.org/docs/pekko-persistence-jdbc/current/) can be used. You will
 use the same plugin as you have configured for the write side that is used by the `EventSourcedBehavior`.
 
@@ -48,7 +48,7 @@ The tags are assigned as described in @ref:[Tagging Events in EventSourcedBehavi
 The @scala[`EventEnvelope[ShoppingCart.Event]`]@java[`EventEnvelope<ShoppingCart.Event>`] is what the `Projection`
 handler will process. It contains the `Event` and additional meta data, such as the offset that will be stored
 by the `Projection`. See @apidoc[pekko.projection.eventsourced.EventEnvelope] for full details of what the
-envelope contains. 
+envelope contains.
 
 ## SourceProvider for eventsBySlices
 
@@ -61,7 +61,7 @@ Scala
 Java
 :  @@snip [EventSourcedDocExample.java](/examples/src/test/java/jdocs/eventsourced/EventSourcedBySlicesDocExample.java) { #eventsBySlicesSourceProvider }
 
-This example is using the [R2DBC plugin for Apache Pekko Persistence](https://pekko.apache.org/docs/pekko-persistence-r2dbc/current/query.html).
+This example is using the @extref:[R2DBC plugin for Apache Pekko Persistence](pekko-persistence-r2dbc:query.html).
 You will use the same plugin as you have configured for the write side that is used by the `EventSourcedBehavior`.
 
 This source is consuming all events from the `ShoppingCart` `EventSourcedBehavior` for the given slice range. In a production application, you would need to start as many instances as the number of slice ranges. That way you consume the events from all entities.

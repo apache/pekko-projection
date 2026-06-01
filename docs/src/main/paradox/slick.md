@@ -123,13 +123,13 @@ than the one that called `process`.
 
 It is important that the `Handler` instance is not shared between several `Projection` instances,
 because then it would be invoked concurrently, which is not how it is intended to be used. Each `Projection`
-instance should use a new `Handler` instance.  
+instance should use a new `Handler` instance.
 
 @@@
 
 ### Async handler
 
-The @apidoc[Handler] can be used with `SlickProjection.atLeastOnceAsync` and 
+The @apidoc[Handler] can be used with `SlickProjection.atLeastOnceAsync` and
 `SlickProjection.groupedWithinAsync` if the handler is not storing the projection result in the database.
 The handler could @ref:[send to a Kafka topic](kafka.md#sending-to-kafka) or integrate with something else.
 
@@ -138,7 +138,7 @@ Same type of handlers can be used with `SlickProjection` instead of `CassandraPr
 
 ### Actor handler
 
-A good alternative for advanced state management is to implement the handler as an [actor](https://pekko.apache.org/docs/pekko/current/typed/actors.html),
+A good alternative for advanced state management is to implement the handler as an @extref:[actor](pekko:typed/actors.html),
 which is described in @ref:[Processing with Actor](actor.md).
 
 ### Flow handler
@@ -174,20 +174,6 @@ H2
 :  @@snip [create-table-h2.sql](/examples/src/test/resources/create-table-h2.sql) { #create-table-h2 }
 
 The schema can be created and dropped using the methods `SlickProjection.createTablesIfNotExists` and `SlickProjection.dropTablesIfExists`. This is particularly useful when writting tests. For production enviornments, we recommend creating the schema before deploying the application.
-
-@@@ warning { title=Important }
-As of version 1.1.0, the schema for PostgreSQL and H2 databases has changed. It now defaults to lowercase table and column names.
-If you have a schema in production, we recommend applying an ALTER table script to change it accordingly.
-
-Alternatively, you can fallback to the uppercase format. You will also need to set `pekko.projection.slick.offset-store.table` as an uppercase value, as this setting is now defaulting to lowercase.
-
-```hocon
-pekko.projection.slick.offset-store {
-  table = "PEKKO_PROJECTION_OFFSET_STORE"
-  use-lowercase-schema = false
-}
-```
-@@@
 
 ## Offset types
 

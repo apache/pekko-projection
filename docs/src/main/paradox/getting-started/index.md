@@ -3,6 +3,8 @@
 By now you should understand the fundamental concepts of how a Projection works by reading about its @ref:[use cases](../use-cases.md).
 This guide will briefly describe the basic components of a Projection and instruct you step-by-step on how to build a functioning application.
 
+The aim is to build a full @ref:[CQRS](../use-cases.md#command-query-responsibility-segregation-cqrs-) (Command Query Responsibility Segregation) ES (Event Sourcing) system using a combination of features from the Apache Pekko toolkit.
+
 @@toc { depth=2 }
 
 @@@ index
@@ -12,7 +14,7 @@ This guide will briefly describe the basic components of a Projection and instru
 * [Build a Stateful Projection handler](projection-handler.md)
 * [Writing tests for a Projection](testing.md)
 * [Running the Projection](running.md)
-* [Running the Projection in Apache Pekko Cluster](running-cluster.md)
+* [Running the Projection in an Apache Pekko Cluster](running-cluster.md)
 
 @@@
 

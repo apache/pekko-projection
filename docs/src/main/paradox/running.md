@@ -4,7 +4,7 @@ Once you have decided how you want to build your projection, the next step is to
 
 ## Dependencies
 
-To distribute the projection over the cluster we recommend the use of [ShardedDaemonProcess](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html). Add the following dependency in your project if not yet using Apache Pekko Cluster Sharding:
+To distribute the projection over the cluster we recommend the use of @extref:[ShardedDaemonProcess](pekko:typed/cluster-sharded-daemon-process.html). Add the following dependency in your project if not yet using Apache Pekko Cluster Sharding:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -14,13 +14,13 @@ To distribute the projection over the cluster we recommend the use of [ShardedDa
 
 Apache Pekko Projections require Pekko $pekko.version$ or later, see @ref:[Pekko version](overview.md#pekko-version).
 
-For more information on using Apache Pekko Cluster consult Pekko's reference documentation on [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/index-cluster.html) and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html).
+For more information on using Apache Pekko Cluster consult Pekko's reference documentation on @extref:[Apache Pekko Cluster](pekko:typed/index-cluster.html) and @extref:[Apache Pekko Cluster Sharding](pekko:typed/cluster-sharding.html).
 
 ## Running with Sharded Daemon Process
 
 The Sharded Daemon Process can be used to distribute `n` instances of a given Projection across the cluster. Therefore, it's important that each Projection instance consumes a subset of the stream of envelopes.
 
-How the subset is created depends on the kind of source we consume. If it's an Apache Pekko Connectors Kafka source, this is done by Kafka consumer groups. When consuming from Apache Pekko Persistence Journal, the events must be sliced by tagging them as demonstrated in the example below.
+How the subset is created depends on the kind of source we consume. If it's an Apache Pekko Connectors Kafka source, this is done by Kafka consumer groups. When consuming from Apache Pekko Persistence Journal, the events must be partitioned by tagging them as demonstrated in the example below, or by the built-in slices in @ref:[Projections R2DBC](r2dbc.md#slices).
 
 ### Tagging Events in EventSourcedBehavior
 
@@ -41,6 +41,10 @@ Projection instance, which is fine. It's good to start with more tags than nodes
 to more nodes later if needed. As a rule of thumb, the number of tags should be a factor of ten greater than the
 planned maximum number of cluster nodes. It doesn't have to be exact.
 
+@@@ note
+When using slices with @ref:[Projections R2DBC](r2dbc.md#slices) it is possible to dynamically change the number of projection instances at runtime.
+@@@
+
 We will use those tags to query the journal and create as many Projections instances, and distribute them in the cluster.
 
 @@@ warning
@@ -48,10 +52,11 @@ When using [Apache Pekko Persistence Cassandra plugin](https://pekko.apache.org/
 not use too many tags for each event. Each tag will result in a copy of the event in a separate table and
 that can impact write performance. Typically, you would use 1 tag per event as illustrated here. Additional
 filtering of events can be done in the Projection handler if it doesn't have to act on certain events.
-The [JDBC plugin](https://pekko.apache.org/docs/pekko-persistence-jdbc/current/) doesn't have this constraint.
+The [JDBC plugin](https://pekko.apache.org/docs/pekko-persistence-jdbc/current/)
+doesn't have this constraint.
 @@@
 
-See also the [Apache Pekko reference documentation for tagging](https://pekko.apache.org/docs/pekko/current/typed/persistence.html#tagging).
+See also the @extref:[Apache Pekko reference documentation for tagging](pekko:typed/persistence.html#tagging).
 
 ### Event Sourced Provider per tag
 
@@ -112,7 +117,7 @@ overwrite each others offset storage with undefined and unpredictable results.
 ## Running in Cluster Singleton
 
 If you know that you only need one or a few projection instances an alternative to @ref:[Sharded Daemon Process](#running-with-sharded-daemon-process)
-is to use [Apache Pekko Cluster Singleton](https://pekko.apache.org/docs/pekko/current/typed/cluster-singleton.html)  
+is to use @extref:[Apache Pekko Cluster Singleton](pekko:typed/cluster-singleton.html)
 
 Scala
 :  @@snip [CassandraProjectionDocExample.scala](/integration-examples/src/test/scala/docs/cassandra/CassandraProjectionDocExample.scala) { #running-with-singleton }

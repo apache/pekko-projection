@@ -1,6 +1,6 @@
 # Testing
 
-Apache Pekko Projections provides a TestKit to ease testing. There are two supported styles of test: running with an assert function and driving it with an Apache Pekko Streams TestKit `TestSubscriber.Probe`.
+Apache Pekko Projections provides a TestKit to ease testing. There are two supported styles of test: running with an assert function and driving it with an Apache Pekko Streams TestKit `TestSink` probe.
 
 ## Dependencies
 
@@ -25,7 +25,7 @@ The table below shows `pekko-projection-testkit`'s direct dependencies and the s
 
 ## Initializing the Projection TestKit
 
-The Projection TestKit requires an instance of `ActorTestKit`. We recommend using Pekko's @scala[`ScalaTestWithActorTestKit`]@java[`TestKitJunitResource`]
+The Projection TestKit requires an instance of `ActorTestKit`. We recommend using Apache Pekko's @scala[`ScalaTestWithActorTestKit`]@java[`TestKitJunitResource`]
 
 Scala
 :  @@snip [TestKitDocExample.scala](/examples/src/test/scala/docs/testkit/TestKitDocExample.scala) { #testkit-import #testkit }
@@ -37,7 +37,7 @@ Java
 
 When testing with an assert function the Projection is started and stopped by the TestKit. While the projection is running, the assert function will be called until it completes without errors (no exceptions or assertion errors are thrown).
 
-In the example below the Projection will update a `CartView`. The test will run until it observes that the `CartView` for id `abc-def` is available in the repository.  
+In the example below the Projection will update a `CartView`. The test will run until it observes that the `CartView` for id `abc-def` is available in the repository.
 
 Scala
 :  @@snip [TestKitDocExample.scala](/examples/src/test/scala/docs/testkit/TestKitDocExample.scala) { #testkit-import #testkit-run }
@@ -54,13 +54,13 @@ Scala
 :  @@snip [TestKitDocExample.scala](/examples/src/test/scala/docs/testkit/TestKitDocExample.scala) { #testkit-duration #testkit-run-max-interval }
 
 Java
-:  @@snip [TestKitDocExample.java](/examples/src/test/java/jdocs/testkit/TestKitDocExample.java) { #testkit-duration #testkit-run-max-interval }  
+:  @@snip [TestKitDocExample.java](/examples/src/test/java/jdocs/testkit/TestKitDocExample.java) { #testkit-duration #testkit-run-max-interval }
 
-## Testing with a TestSubscriber.Probe
+## Testing with a TestSink probe
 
-The [Apache Pekko Stream TestKit](https://pekko.apache.org/docs/pekko/current/stream/stream-testkit.html#using-the-testkit) can be used to drive the pace of envelopes flowing through the Projection.
+The @extref:[Apache Pekko Stream TestKit](pekko:stream/stream-testkit.html#using-the-testkit) can be used to drive the pace of envelopes flowing through the Projection.
 
-The Projection starts as soon as the first element is requested by the `TestSubscriber.Probe`, new elements will be emitted as requested. The Projection is stopped once the assert function completes.
+The Projection starts as soon as the first element is requested by the `TestSink` probe, new elements will be emitted as requested. The Projection is stopped once the assert function completes.
 
 Scala
 :  @@snip [TestKitDocExample.scala](/examples/src/test/scala/docs/testkit/TestKitDocExample.scala) { #testkit-sink-probe }
@@ -76,7 +76,7 @@ The @apidoc[TestProjection] allows you to isolate the runtime of your handler so
 Using a `TestProjection` has the added benefit of being fast, since you can run everything within the JVM that runs your tests.
 
 Alongside the `TestProjection` is the @apidoc[TestSourceProvider] which can be used to provide test data to the `TestProjection` running the handler.
-Test data can be represented in a Pekko streams @apidoc[pekko.stream.(javadsl|scaladsl).Source] that is passed to the `TestSourceProvider` constructor.
+Test data can be represented in an Apache Pekko streams @apidoc[pekko.stream.(javadsl|scaladsl).Source] that is passed to the `TestSourceProvider` constructor.
 
 Scala
 :  @@snip [TestKitDocExample.scala](/examples/src/test/scala/docs/testkit/TestKitDocExample.scala) { #testkit-testprojection }

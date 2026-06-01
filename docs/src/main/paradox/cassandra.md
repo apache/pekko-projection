@@ -1,4 +1,4 @@
-# Offset in Cassandra
+# Offset in Apache Cassandra
 
 The @apidoc[CassandraProjection$] has support for storing the offset in Cassandra.
 
@@ -125,7 +125,7 @@ one envelope at a time and visibility guarantees between the invocations are han
 or other concurrency primitives are needed for managing the state.
 
 The returned @scala[`Future[Done]`]@java[`CompletionStage<Done>`] is to be completed when the processing of the
-`envelope` has finished. The handler will not be invoked with the next envelope until after the returned 
+`envelope` has finished. The handler will not be invoked with the next envelope until after the returned
 @scala[`Future[Done]`]@java[`CompletionStage<Done>`] has been completed.
 
 Scala
@@ -140,7 +140,7 @@ It is important that the `Handler` instance is not shared between several `Proje
 because then it would be invoked concurrently, which is not how it is intended to be used. Each `Projection`
 instance should use a new `Handler` instance. This is the reason why the handler parameter is a factory
 @scala[(`() =>`)]@java[(`Supplier`)] of the handler. A new handler instance is also created when the projection
-is restarted. 
+is restarted.
 
 @@@
 
@@ -149,7 +149,7 @@ error prone to manage the state in variables of the `Handler`. For that purpose 
 is provided.
 
 Let us look at how a `StatefulHandler` can be implemented in the context of a "word count" domain. The purpose is
-to process a stream of words and for each word keep track of how many times it has occurred. 
+to process a stream of words and for each word keep track of how many times it has occurred.
 
 Given an envelope and `SourceProvider` for this example:
 
@@ -177,7 +177,7 @@ Java
 
 The `handler` can be implemented as follows.
 
-A naive approach would be to have one row per word for storing the current count in the database. 
+A naive approach would be to have one row per word for storing the current count in the database.
 The handler could be implemented as a completely stateless handler that for each processed envelope loads the current
 count from the database, increment the count by 1 and saved it again. Typically there will be several instances of the
 `Projection` with different `ProjectionId.id`. Each `Projection` instance would be responsible for processing a subset
@@ -196,7 +196,7 @@ Scala
 Java
 :  @@snip [WordCountDocExample.java](/integration-examples/src/test/java/jdocs/cassandra/WordCountDocExample.java) { #StatefulHandler-imports #loadingInitialState }
 
-The `StatefulHandler` has two methods that needs to be implemented. 
+The `StatefulHandler` has two methods that needs to be implemented.
 
 * `initialState` - Invoked to load the initial state when the projection is started or if previous `process` failed.
 * `process(state, envelope)` - Invoked for each `Envelope`, one at a time. The `state` parameter is the completed
@@ -215,7 +215,7 @@ Java
 
 ### Actor handler
 
-A good alternative for advanced state management is to implement the handler as an [actor](https://pekko.apache.org/docs/pekko/current/typed/actors.html),
+A good alternative for advanced state management is to implement the handler as an @extref:[actor](pekko:typed/actors.html),
 which is described in @ref:[Processing with Actor](actor.md).
 
 ### Flow handler
@@ -308,7 +308,7 @@ pekko.projection.cassandra {
 }
 ```
 
-or share the same Cassandra session as [Pekko Connectors Cassandra](https://pekko.apache.org/docs/pekko-connectors/current/cassandra.html):
+or share the same Cassandra session as [Apache Pekko Connectors Cassandra](https://pekko.apache.org/docs/pekko-connectors/current/cassandra.html):
 
 ```
 pekko.projection.cassandra {
@@ -332,6 +332,6 @@ datastax-java-driver {
 ```
 
 Alternatively, Pekko Discovery can be used for finding the Cassandra server contact points as described
-in the [Pekko Connectors Cassandra documentation](https://pekko.apache.org/docs/pekko-connectors/current/cassandra.html#using-pekko-discovery).
+in the [Apache Pekko Connectors Cassandra documentation](https://pekko.apache.org/docs/pekko-connectors/current/cassandra.html#using-pekko-discovery).
 
 Without any configuration it will use `localhost:9042` as default.

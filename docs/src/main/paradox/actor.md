@@ -1,9 +1,9 @@
 # Processing with Actor
 
-A good alternative for advanced state management is to implement the handler as an [actor](https://pekko.apache.org/docs/pekko/current/typed/actors.html).
+A good alternative for advanced state management is to implement the handler as an @extref:[actor](pekko:typed/actors.html).
 
 The following example is using the `CassandraProjection` but the handler and actor would be the same if used
-any other @ref:[offset storage](overview.md). 
+any other @ref:[offset storage](overview.md).
 
 An actor `Behavior` for the word count example that was introduced in the section about @ref:[Stateful handler](cassandra.md#stateful-handler):
 
@@ -37,10 +37,10 @@ successful or failed.
 The lifecycle of the actor is managed by the `Projection`. The actor is automatically stopped when the `Projection` is stopped.
 
 Another implementation that is loading the current count for a word on demand, and thereafter caches it in the
-in-memory state: 
+in-memory state:
 
 Scala
 :  @@snip [WordCountDocExample.scala](/integration-examples/src/test/scala/docs/cassandra/WordCountDocExample.scala) { #behaviorLoadingOnDemand }
 
 Java
-:  @@snip [WordCountDocExample.java](/integration-examples/src/test/java/jdocs/cassandra/WordCountDocExample.java) { #behaviorLoadingOnDemand }   
+:  @@snip [WordCountDocExample.java](/integration-examples/src/test/java/jdocs/cassandra/WordCountDocExample.java) { #behaviorLoadingOnDemand }

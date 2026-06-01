@@ -19,7 +19,7 @@ Java
 :  @@snip [ShoppingCartEvents.java](/examples/src/test/java/jdocs/guide/ShoppingCartEvents.java) { #guideEvents }
 
 To enable serialization and deserialization of events with Apache Pekko Persistence it's necessary to define a base type for your event type hierarchy.
-In this guide we are using [Jackson Serialization](https://pekko.apache.org/docs/pekko/current/serialization-jackson.html).
+In this guide we are using @extref:[Jackson Serialization](pekko:serialization-jackson.html).
 Add the `CborSerializable` base type to your project:
 
 Scala
@@ -40,12 +40,12 @@ Java
 @@@ note
 
 For Jackson serialization to work correctly in Java projects you must use the `javac` compiler parameter `-parameters` when building your project.
-In @scala[sbt you can add it your sbt project by adding it to the `javacOptions` Setting: `javacOptions += "-parameters"`]@java[maven you can add an argument to `maven-compiler-plugin` plugin under `compilerArgs`].
+In @scala[sbt you can add it your sbt project by adding it to the `javacOptions` Setting: `javacOptions += "-parameters"`]@java[maven you can add an argument to `maven-compiler-plugin` plugin under `compilerArgs`.
 
 @@@
 
 Define the persistence tags to be used in your project.
-Note that partitioned tags will be used later when @ref[running the projection in Apache Pekko Cluster](running-cluster.md).
+Note that partitioned tags will be used later when @ref[running the projection in an Apache Pekko Cluster](running-cluster.md).
 Add `ShoppingCartTags` to your project:
 
 Scala
@@ -54,8 +54,8 @@ Scala
 Java
 :  @@snip [ShoppingCartTags.java](/examples/src/test/java/jdocs/guide/ShoppingCartTags.java) { #guideTags }
 
-Create the `ShoppingCartApp` with an `org.apache.pekko.actor.typed.ActorSystem` (API: @apidoc[pekko.actor.typed.ActorSystem]) for Projections to use.
-Create an empty [Guardian Actor](https://pekko.apache.org/docs/pekko/current/typed/actor-lifecycle.html#the-guardian-actor) (the root Actor of the `ActorSystem`).
+Create the `ShoppingCartApp` with an `pekko.actor.typed.ActorSystem` (API: @apidoc[pekko.actor.typed.ActorSystem]) for Projections to use.
+Create an empty @extref:[Guardian Actor](pekko:typed/actor-lifecycle.html#the-guardian-actor) (the root Actor of the `ActorSystem`).
 We will populate this Actor in the following steps of the guide.
 Note that we are using the @scala[`docs.scaladsl`]@java[`jdocs.scaladsl`] package.
 You may use any package, but we include this package in snippets throughout the guide.

@@ -1,6 +1,6 @@
 # Messages from and to Apache Kafka
 
-A typical source for Projections is messages from Kafka. Apache Pekko Projections supports integration with Kafka using [Pekko Connectors Kafka](https://pekko.apache.org/docs/pekko-connectors-kafka/current/).
+A typical source for Projections is messages from Kafka. Pekko Projections supports integration with Kafka using [Apache Pekko Connectors Kafka](https://pekko.apache.org/docs/pekko-connectors-kafka/current/).
 
 The @apidoc[KafkaSourceProvider$] uses consumer group assignments from Kafka and can resume from offsets stored in a database.
 
@@ -48,7 +48,7 @@ Scala
 Java
 :  @@snip [KafkaDocExample.java](/examples/src/test/java/jdocs/kafka/KafkaDocExample.java) { #imports #sourceProvider }
 
-Please consult the [Pekko Connectors Kafka documentation](https://pekko.apache.org/docs/pekko-connectors-kafka/current/consumer.html) for
+Please consult the [Apache Pekko Connectors Kafka documentation](https://pekko.apache.org/docs/pekko-connectors-kafka/current/consumer.html) for
 specifics around the `ConsumerSettings`. The `KafkaSourceProvider` is using `Consumer.plainPartitionedManualOffsetSource`.
 
 The `Projection` can then be defined as:
@@ -85,7 +85,7 @@ To mitigate that risk, you can increase the value of `pekko.projection.kafka.rea
 
 ## Committing offset in Kafka
 
-When using the approach of committing the offsets back to Kafka the [Pekko Connectors Kafka comittableSource](https://pekko.apache.org/docs/pekko-connectors-kafka/current/consumer.html) can be used, and Apache Pekko Projections is not needed for that usage.
+When using the approach of committing the offsets back to Kafka the [Apache Pekko Connectors Kafka comittableSource](https://pekko.apache.org/docs/pekko-connectors-kafka/current/consumer.html) can be used, and Apache Pekko Projections is not needed for that usage.
 
 ## Sending to Kafka
 
@@ -109,7 +109,7 @@ Scala
 Java
 :  @@snip [KafkaDocExample.java](/examples/src/test/java/jdocs/kafka/KafkaDocExample.java) { #imports-producer #sendProducer }
 
-Please consult the [Pekko Connectors Kafka documentation](https://pekko.apache.org/docs/pekko-connectors-kafka/current/producer.html) for
+Please consult the [Apache Pekko Connectors Kafka documentation](https://pekko.apache.org/docs/pekko-connectors-kafka/current/producer.html) for
 specifics around the `ProducerSettings` and `SendProducer`.
 
 The `Projection` is defined as:

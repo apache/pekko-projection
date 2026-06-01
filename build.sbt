@@ -293,19 +293,29 @@ lazy val docs = project
       "canonical.base_url" -> "https://pekko.apache.org/docs/pekko-projection/current",
       "github.base_url" -> "https://github.com/apache/pekko-projection",
       "pekko.version" -> Dependencies.Versions.pekko,
+      "pekko.r2dbc.version" -> Dependencies.Versions.pekkoPersistenceR2dbc,
       // Pekko
       "extref.pekko.base_url" -> s"https://pekko.apache.org/docs/pekko/${Dependencies.PekkoVersionInDocs}/%s",
       "scaladoc.pekko.base_url" -> s"https://pekko.apache.org/api/pekko/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.pekko.base_url" -> s"https://pekko.apache.org/japi/pekko/${Dependencies.PekkoVersionInDocs}/",
       "javadoc.pekko.link_style" -> "direct",
+      "extref.pekko-grpc.base_url" ->
+      s"https://pekko.apache.org/docs/pekko-grpc/${Dependencies.PekkoGrpcVersionInDocs}/%s",
+      "scaladoc.org.apache.pekko.grpc.base_url" ->
+      s"https://pekko.apache.org/api/pekko-grpc/${Dependencies.PekkoGrpcVersionInDocs}",
+      "javadoc.org.apache.pekko.grpc.base_url" ->
+      s"https://pekko.apache.org/api/pekko-grpc/${Dependencies.PekkoGrpcVersionInDocs}",
+      "javadoc.org.apache.pekko.grpc.link_style" -> "direct",
       "extref.pekko-persistence-r2dbc.base_url" ->
       s"https://pekko.apache.org/docs/pekko-persistence-r2dbc/${Dependencies.PekkoPersistenceR2dbcVersionInDocs}/%s",
       "scaladoc.org.apache.pekko.persistence.r2dbc.base_url" ->
       s"https://pekko.apache.org/api/pekko-persistence-r2dbc/${Dependencies.PekkoPersistenceR2dbcVersionInDocs}",
       "javadoc.org.apache.pekko.persistence.r2dbc.base_url" ->
-      s"https://pekko.apache.org/japi/pekko-persistence-r2dbc/${Dependencies.PekkoPersistenceR2dbcVersionInDocs}",
+      s"https://pekko.apache.org/api/pekko-persistence-r2dbc/${Dependencies.PekkoPersistenceR2dbcVersionInDocs}",
+      "javadoc.org.apache.pekko.persistence.r2dbc.link_style" -> "direct",
       // Java
-      "javadoc.base_url" -> "https://docs.oracle.com/javase/8/docs/api/",
+      "javadoc.base_url" -> "https://docs.oracle.com/en/java/javase/17/docs/api/java.base/",
+      "javadoc.link_style" -> "direct",
       // Scala
       "scaladoc.scala.base_url" -> s"https://www.scala-lang.org/api/${scalaBinaryVersion.value}.x/",
       "scaladoc.pekko.projection.base_url" -> s"/${(Preprocess / siteSubdirName).value}/",

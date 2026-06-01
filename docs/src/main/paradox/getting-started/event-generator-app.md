@@ -3,8 +3,8 @@
 This is a simulation of fake Event Sourced shopping carts. The details of this implementation is not
 important for understanding Projections. It's needed for @ref:[running the example](running.md).
 
-Please look at the [Apache Pekko reference documentation for Event Sourcing](https://pekko.apache.org/docs/pekko/current/typed/persistence.html)
-for how to implement real `EventSourcedBehavior`.  
+Please look at the @extref:[Apache Pekko reference documentation for Event Sourcing](pekko:typed/persistence.html)
+for how to implement real `EventSourcedBehavior`.
 
 Add the `EventGeneratorApp` to your project:
 

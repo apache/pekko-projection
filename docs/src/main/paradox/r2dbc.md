@@ -16,7 +16,7 @@ that @ref:[exactly-once](#exactly-once) processing semantics is supported. It al
 
 ## Dependencies
 
-To use the R2DBC module of Pekko Projections add the following dependency in your project:
+To use the R2DBC module of Apache Pekko Projections add the following dependency in your project:
 
 @@dependency [Maven,sbt,Gradle] {
 group=org.apache.pekko
@@ -27,7 +27,7 @@ artifact2=pekko-persistence-r2dbc_$scala.binary.version$
 version2=$pekko.r2dbc.version$
 }
 
-Pekko Projections R2DBC depends on Pekko $pekko.version$ or later, and note that it is important that all `pekko-*`
+Apache Pekko Projections R2DBC depends on Pekko $pekko.version$ or later, and note that it is important that all `pekko-*`
 dependencies are in the same version, so it is recommended to depend on them explicitly to avoid problems
 with transient dependencies causing an unlucky mix of versions.
 
@@ -50,6 +50,9 @@ PostgreSQL
 
 YugaByte
 :  @@snip [YugaByte Schema](/r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql)
+
+MySQL
+:  @@snip [MySQL Schema](/r2dbc-int-test/ddl-scripts/create_tables_mysql.sql)
 
 ## Configuration
 
@@ -77,7 +80,7 @@ Java
 
 The @ref:[`ShoppingCartHandler` is shown below](#handler).
 
-It is possible to dynamically scale the number of Projection instances as described in @extref:[Sharded Daemon Process documentation](pekko:typed/cluster-sharded-daemon-process.html#dynamic-scaling-of-number-of-workers). 
+It is possible to dynamically scale the number of Projection instances as described in @extref:[Sharded Daemon Process documentation](pekko:typed/cluster-sharded-daemon-process.html#dynamic-scaling-of-number-of-workers).
 
 There are alternative ways of running the `ProjectionBehavior` as described in @ref:[Running a Projection](running.md), but note that when using the R2DBC plugin as `SourceProvider` it is recommended to use `eventsBySlices` and not `eventsByTag`.
 
@@ -222,8 +225,8 @@ A good alternative for advanced state management is to implement the handler as 
 
 ### Flow handler
 
-A Pekko Streams `FlowWithContext` can be used instead of a handler for processing the envelopes,
-which is described in @ref:[Processing with Pekko Streams](flow.md).
+An Apache Pekko Streams `FlowWithContext` can be used instead of a handler for processing the envelopes,
+which is described in @ref:[Processing with Apache Pekko Streams](flow.md).
 
 ### Handler lifecycle
 

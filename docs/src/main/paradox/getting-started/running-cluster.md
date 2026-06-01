@@ -1,9 +1,9 @@
-# Running the Projection in Apache Pekko Cluster
+# Running the Projection in an Apache Pekko Cluster
 
-Running the Projection with [Apache Pekko Cluster](https://pekko.apache.org/docs/pekko/current/typed/cluster.html) allows us to add two important aspects to our system: availability and scalability.
+Running the Projection with @extref:[Apache Pekko Cluster](pekko:typed/cluster.html) allows us to add two important aspects to our system: availability and scalability.
 A Projection running as a single Actor creates a single point of failure (availability), when the app shuts down for any reason, the projection is no longer running until it's started again.
 A Projection running as a single Actor creates a processing bottleneck (scalability), all messages from the @apidoc[SourceProvider] are processed by a single Actor on a single machine.
-By using a [Sharded Daemon Process](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharded-daemon-process.html#sharded-daemon-process) with Apache Pekko Cluster and [Apache Pekko Cluster Sharding](https://pekko.apache.org/docs/pekko/current/typed/cluster-sharding.html) we can scale up the Projection and make it more available by running at least as many instances of the same Projection as we have cluster members.
+By using a @extref:[Sharded Daemon Process](pekko:typed/cluster-sharded-daemon-process.html#sharded-daemon-process) with Apache Pekko Cluster and @extref:[Apache Pekko Cluster Sharding](pekko:typed/cluster-sharding.html) we can scale up the Projection and make it more available by running at least as many instances of the same Projection as we have cluster members.
 As Pekko cluster members join and leave the cluster the Sharded Daemon Process will automatically scale and rebalance Sharded Daemon Processes (Projection instances) accordingly.
 
 Running the Projection as a Sharded Daemon Process requires no changes to our projection handler and repository, we only need to change the way in which the actor that runs the Projection is initialized.
@@ -23,7 +23,7 @@ Scala
 
 Java
 :  @@snip [ShoppingCartClusterApp.java](/examples/src/test/java/jdocs/guide/ShoppingCartClusterApp.java) { #guideClusterSetup }
-    
+
 Before running the app we must first run the `EventGeneratorApp` in `cluster` mode in order to generate new shopping cart events for multiple tags, instead of just one.
 Shopping cart events are tagged in a similar way to the sharded entities themselves.
 Given a sequence of tags from `0..n` a hash is generated using the sharding entity key, the shopping cart id.
@@ -55,7 +55,7 @@ mvn compile exec:java -Dexec.mainClass="jdocs.guide.EventGeneratorApp" -Dexec.ar
 When the app is running you will observe that the logs show events written to different tags (`carts-0`, `carts-1`, etc.), instead of just one (`shopping-cart`).
 
 ```
-[2020-08-13 15:18:58,383] [INFO] [docs.guide.EventGeneratorApp$] [] [EventGenerator-org.apache.pekko.actor.default-dispatcher-19] - id [6059e] tag [carts-1] event: ItemQuantityAdjusted(6059e,cat t-shirt,1,2) MDC: {persistencePhase=persist-evt, pekkoAddress=pekko://EventGenerator@127.0.1.1:73350, pekkoSource=pekko://EventGenerator/system/sharding/shopping-cart-event/903/6059e, sourceActorSystem=EventGenerator, persistenceId=6059e}
+[2020-08-13 15:18:58,383] [INFO] [docs.guide.EventGeneratorApp$] [] [EventGenerator-pekko.actor.default-dispatcher-19] - id [6059e] tag [carts-1] event: ItemQuantityAdjusted(6059e,cat t-shirt,1,2) MDC: {persistencePhase=persist-evt, pekkoAddress=pekko://EventGenerator@127.0.1.1:73350, pekkoSource=pekko://EventGenerator/system/sharding/shopping-cart-event/903/6059e, sourceActorSystem=EventGenerator, persistenceId=6059e}
 ```
 
 Run the first member of your new Pekko cluster:
@@ -82,13 +82,13 @@ mvn compile exec:java -Dexec.mainClass="jdocs.guide.ShoppingCartClusterApp" -Dex
 When the app is running you will observe that it will process all the shopping cart event tags, because it's the only member of the cluster.
 
 ```
-[2020-08-13 15:03:39,809] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-org.apache.pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-1) item popularity for 'pekko t-shirt': [1080] MDC: {}   
-[2020-08-13 15:03:39,810] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-org.apache.pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-2) item popularity for 'bowling shoes': [1241] MDC: {}  
-[2020-08-13 15:03:39,812] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-org.apache.pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-0) item popularity for 'pekko t-shirt': [1080] MDC: {}
+[2020-08-13 15:03:39,809] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-1) item popularity for 'pekko t-shirt': [1080] MDC: {}
+[2020-08-13 15:03:39,810] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-2) item popularity for 'bowling shoes': [1241] MDC: {}
+[2020-08-13 15:03:39,812] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-0) item popularity for 'pekko t-shirt': [1080] MDC: {}
 ...
 ```
 
-Run a second member to expand the Pekko cluster member count to 2.
+Run a second member to expand the Apache Pekko cluster member count to 2.
 
 <!-- run from repo:
 sbt "examples/test:runMain docs.guide.ShoppingCartClusterApp 7335"
@@ -111,26 +111,26 @@ mvn compile exec:java -Dexec.mainClass="jdocs.guide.ShoppingCartClusterApp" -Dex
 
 When the second app is running you will observe a sharding rebalance complete and then see a distinct set of tagged events processed on each cluster member.
 
-A rebalance occurs and tag `carts-0` is assigned to the new cluster member. 
+A rebalance occurs and tag `carts-0` is assigned to the new cluster member.
 Only tags `carts-1` and `carts-2` are processed by the first member.
 
 ```
-[2020-08-13 15:03:59,019] [INFO] [org.apache.pekko.cluster.sharding.DDataShardCoordinator] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-41] - Starting rebalance for shards [0]. Current shards rebalancing: [] MDC: {pekkoAddress=pekko://ShoppingCa
-rtClusterApp@127.0.0.1:7334, sourceThread=ShoppingCartClusterApp-pekko.actor.default-dispatcher-44, pekkoSource=pekko://ShoppingCartClusterApp@127.0.0.1:7334/system/sharding/sharded-daemon-process-shopping-cartsCoordinator/singleton/coordinator, 
-sourceActorSystem=ShoppingCartClusterApp, akkaTimestamp=19:03:59.019UTC}                                                                                                                                                                           
-[2020-08-13 15:04:35,261] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-1) item popularity for 'skis': [1244] MDC: {}           
-[2020-08-13 15:04:36,802] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-2) item popularity for 'skis': [1246] MDC: {}           
-[2020-08-13 15:04:36,805] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-2) item popularity for 'pekko t-shirt': [1136] MDC: {}   
-[2020-08-13 15:04:36,807] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-2) item popularity for 'skis': [1249] MDC: {}           
-[2020-08-13 15:04:39,262] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-41] - ItemPopularityProjectionHandler(carts-1) item popularity for 'cat t-shirt': [1239] MDC: {}                  
+[2020-08-13 15:03:59,019] [INFO] [Apache Pekko.cluster.sharding.DDataShardCoordinator] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-41] - Starting rebalance for shards [0]. Current shards rebalancing: [] MDC: {pekkoAddress=pekko://ShoppingCa
+rtClusterApp@127.0.0.1:7334, sourceThread=ShoppingCartClusterApp-pekko.actor.default-dispatcher-44, pekkoSource=pekko://ShoppingCartClusterApp@127.0.0.1:7334/system/sharding/sharded-daemon-process-shopping-cartsCoordinator/singleton/coordinator,
+sourceActorSystem=ShoppingCartClusterApp, pekkoTimestamp=19:03:59.019UTC}
+[2020-08-13 15:04:35,261] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-1) item popularity for 'skis': [1244] MDC: {}
+[2020-08-13 15:04:36,802] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-2) item popularity for 'skis': [1246] MDC: {}
+[2020-08-13 15:04:36,805] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-2) item popularity for 'pekko t-shirt': [1136] MDC: {}
+[2020-08-13 15:04:36,807] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-43] - ItemPopularityProjectionHandler(carts-2) item popularity for 'skis': [1249] MDC: {}
+[2020-08-13 15:04:39,262] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-41] - ItemPopularityProjectionHandler(carts-1) item popularity for 'cat t-shirt': [1239] MDC: {}
 ...
 ```
 
 When the second member joins the cluster it is assigned tag `carts-0` and begins processing events beginning from the last successfully processed offset.
 
 ```
-[2020-08-13 15:04:02,692] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-5] - ItemPopularityProjectionHandler(carts-0) item popularity for 'bowling shoes': [1275] MDC: {}   
-[2020-08-13 15:04:02,695] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-0) item popularity for 'pekko t-shirt': [1110] MDC: {}   
+[2020-08-13 15:04:02,692] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-5] - ItemPopularityProjectionHandler(carts-0) item popularity for 'bowling shoes': [1275] MDC: {}
+[2020-08-13 15:04:02,695] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-0) item popularity for 'pekko t-shirt': [1110] MDC: {}
 [2020-08-13 15:04:02,699] [INFO] [docs.guide.ItemPopularityProjectionHandler] [] [ShoppingCartClusterApp-pekko.actor.default-dispatcher-40] - ItemPopularityProjectionHandler(carts-0) item popularity for 'cat t-shirt': [1203] MDC: {}
 ...
 ```

@@ -2,7 +2,7 @@
 
 The purpose of Apache Pekko Projections is described in @ref:[Use Cases](use-cases.md).
 
-In Apache Pekko Projections you process a stream of events or records from a source to a projected model or external system.
+In Pekko Projections you process a stream of events or records from a source to a projected model or external system.
 Each event is associated with an offset representing the position in the stream. This offset is used for
 resuming the stream from that position when the projection is restarted.
 
@@ -22,15 +22,6 @@ For the offset storage you can select from:
 Those building blocks are assembled into a `Projection`. You can have many instances of it
 @ref:[automatically distributed and run](running.md) in an Apache Pekko Cluster.
 
-@@@ warning
-
-This module is currently marked as [May Change](https://pekko.apache.org/docs/pekko/current/common/may-change.html)
-in the sense that the API might be changed based on feedback from initial usage.
-However, the module is ready for usage in production and we will not break serialization format of 
-messages or stored data.
-
-@@@
-
 To see a complete example of an Apache Pekko Projections implementation review the @ref:[Getting Started Guide](getting-started/index.md).
 
 ## Dependencies
@@ -45,7 +36,7 @@ each module describes which dependency you should define in your project.
 * @ref:[Offset in a relational DB with JDBC](jdbc.md)
 * @ref:[Offset in a relational DB with Slick](slick.md) (community-driven module)
 
-All of them share a dependency to `pekko-projection-core`: 
+All of them share a dependency to `pekko-projection-core`:
 
 @@dependency [sbt,Maven,Gradle] {
   group=org.apache.pekko
@@ -57,9 +48,9 @@ All of them share a dependency to `pekko-projection-core`:
 
 ### Pekko version
 
-Apache Pekko Projections requires **Pekko $pekko.version$** or later. See [Pekko's Binary Compatibility Rules](https://pekko.apache.org/docs/pekko/current/common/binary-compatibility-rules.html) for details.
+Apache Pekko Projections requires **Pekko $pekko.version$** or later. See @extref:[Apache Pekko's Binary Compatibility Rules](pekko:common/binary-compatibility-rules.html) for details.
 
-It is recommended to use the latest patch version of Pekko. 
+It is recommended to use the latest patch version of Apache Pekko.
 It is important all Pekko dependencies are in the same version, so it is recommended to depend on
 them explicitly to avoid problems with transient dependencies causing an unlucky mix of versions. For example:
 
@@ -87,13 +78,13 @@ See the individual modules for their transitive dependencies.
 
 ### Pekko Classic
 
-Apache Pekko Projections can be used with the [new Actor API](https://pekko.apache.org/docs/pekko/current/typed/actors.html) or
-the [classic Actor API](https://pekko.apache.org/docs/pekko/current/index-classic.html). The documentation samples
-show the new Actor API, and the @ref:[Pekko Classic page](classic.md) highlights how to use it with the classic
+Apache Pekko Projections can be used with the @extref:[new Actor API](pekko:typed/actors.html) or
+the @extref:[classic Actor API](pekko:index-classic.html). The documentation samples
+show the new Actor API, and the @ref:[Apache Pekko Classic page](classic.md) highlights how to use it with the classic
 Actor API.
 
 ## Contributing
 
-Please feel free to contribute to Apache Pekko and Apache Pekko Projections by reporting issues you identify, or by suggesting changes to the code. Please refer to our [contributing instructions](https://github.com/apache/pekko/blob/main/CONTRIBUTING.md) to learn how it can be done.
+Please feel free to contribute to Pekko and Pekko Projections by reporting issues you identify, or by suggesting changes to the code. Please refer to our [contributing instructions](https://github.com/apache/pekko/blob/main/CONTRIBUTING.md) to learn how it can be done.
 
 We want Pekko to strive in a welcoming and open atmosphere and expect all contributors to respect our [code of conduct](https://www.apache.org/foundation/policies/conduct.html).
