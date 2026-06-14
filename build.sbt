@@ -351,11 +351,5 @@ lazy val root = Project(id = "projection", base = file("."))
   .disablePlugins(SitePlugin, MimaPlugin)
 
 // check format and headers
-TaskKey[Unit]("verifyCodeFmt") := {
-  javafmtCheckAll.all(ScopeFilter(inAnyProject)).result.value.toEither.left.foreach { _ =>
-    throw new MessageOnlyException(
-      "Unformatted Java code found. Please run 'javafmtAll' and commit the reformatted code")
-  }
-}
-
-addCommandAlias("verifyCodeStyle", "headerCheckAll; verifyCodeFmt")
+addCommandAlias("checkCodeStyle", "scalafmtCheckAll; scalafmtSbtCheck; javafmtCheckAll; +headerCheckAll")
+addCommandAlias("applyCodeStyle", "+headerCreateAll; scalafmtAll; scalafmtSbt; javafmtAll")
