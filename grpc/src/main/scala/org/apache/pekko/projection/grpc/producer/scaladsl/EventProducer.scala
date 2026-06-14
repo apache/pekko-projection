@@ -109,7 +109,7 @@ object EventProducer {
    */
   @ApiMayChange
   final class Transformation private (
-      private[pekko] val mappers: Map[Class[_], EventEnvelope[Any] => Future[Option[Any]]],
+      private[pekko] val mappers: Map[Class[?], EventEnvelope[Any] => Future[Option[Any]]],
       private[pekko] val orElse: EventEnvelope[Any] => Future[Option[Any]]) {
 
     /**
@@ -156,7 +156,7 @@ object EventProducer {
    * The gRPC route that can be included in a Pekko HTTP server.
    */
   def grpcServiceHandler(source: EventProducerSource)(
-      implicit system: ActorSystem[_]): PartialFunction[HttpRequest, scala.concurrent.Future[HttpResponse]] =
+      implicit system: ActorSystem[?]): PartialFunction[HttpRequest, scala.concurrent.Future[HttpResponse]] =
     grpcServiceHandler(Set(source))
 
   /**
@@ -165,7 +165,7 @@ object EventProducer {
    * @param sources All sources that should be available from this event producer
    */
   def grpcServiceHandler(sources: Set[EventProducerSource])(
-      implicit system: ActorSystem[_]): PartialFunction[HttpRequest, scala.concurrent.Future[HttpResponse]] = {
+      implicit system: ActorSystem[?]): PartialFunction[HttpRequest, scala.concurrent.Future[HttpResponse]] = {
 
     grpcServiceHandler(sources, None)
   }
@@ -177,7 +177,7 @@ object EventProducer {
    * @param interceptor An optional request interceptor applied to each request to the service
    */
   def grpcServiceHandler(sources: Set[EventProducerSource], interceptor: Option[EventProducerInterceptor])(
-      implicit system: ActorSystem[_]): PartialFunction[HttpRequest, scala.concurrent.Future[HttpResponse]] = {
+      implicit system: ActorSystem[?]): PartialFunction[HttpRequest, scala.concurrent.Future[HttpResponse]] = {
 
     EventProducerServicePowerApiHandler.partial(
       new EventProducerServiceImpl(
@@ -193,7 +193,7 @@ object EventProducer {
    */
   private[pekko] def eventsBySlicesQueriesForStreamIds(
       sources: Set[EventProducerSource],
-      system: ActorSystem[_]): Map[String, EventsBySliceQuery] = {
+      system: ActorSystem[?]): Map[String, EventsBySliceQuery] = {
     queriesForStreamIds(sources, system).map {
       case (streamId, q: EventsBySliceQuery) => streamId -> q
       case (_, other)                        =>
@@ -206,7 +206,7 @@ object EventProducer {
    */
   private[pekko] def currentEventsByPersistenceIdQueriesForStreamIds(
       sources: Set[EventProducerSource],
-      system: ActorSystem[_]): Map[String, CurrentEventsByPersistenceIdTypedQuery] = {
+      system: ActorSystem[?]): Map[String, CurrentEventsByPersistenceIdTypedQuery] = {
     queriesForStreamIds(sources, system).map {
       case (streamId, q: CurrentEventsByPersistenceIdTypedQuery) => streamId -> q
       case (_, other)                                            =>
@@ -217,7 +217,7 @@ object EventProducer {
 
   private def queriesForStreamIds(
       sources: Set[EventProducerSource],
-      system: ActorSystem[_]): Map[String, ReadJournal] = {
+      system: ActorSystem[?]): Map[String, ReadJournal] = {
     val streamIds = sources.map(_.streamId)
     require(
       streamIds.size == sources.size,

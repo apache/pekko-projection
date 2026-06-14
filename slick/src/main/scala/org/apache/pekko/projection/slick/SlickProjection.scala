@@ -69,7 +69,7 @@ object SlickProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       databaseConfig: DatabaseConfig[P],
       handler: () => SlickHandler[Envelope])(
-      implicit system: ActorSystem[_]): ExactlyOnceProjection[Offset, Envelope] = {
+      implicit system: ActorSystem[?]): ExactlyOnceProjection[Offset, Envelope] = {
 
     val offsetStore = createOffsetStore(databaseConfig)
 
@@ -77,7 +77,7 @@ object SlickProjection {
       new Handler[Envelope] {
 
         private implicit val ec: ExecutionContext = system.executionContext
-        private val logger = Logging(system.classicSystem, classOf[SlickProjectionImpl[_, _, _]])
+        private val logger = Logging(system.classicSystem, classOf[SlickProjectionImpl[?, ?, ?]])
         private val delegate = handler()
 
         import databaseConfig.profile.api._
@@ -150,7 +150,7 @@ object SlickProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       databaseConfig: DatabaseConfig[P],
       handler: () => SlickHandler[Envelope])(
-      implicit system: ActorSystem[_]): AtLeastOnceProjection[Offset, Envelope] = {
+      implicit system: ActorSystem[?]): AtLeastOnceProjection[Offset, Envelope] = {
 
     import databaseConfig.profile.api._
 
@@ -199,7 +199,7 @@ object SlickProjection {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
       databaseConfig: DatabaseConfig[P],
-      handler: () => Handler[Envelope])(implicit system: ActorSystem[_]): AtLeastOnceProjection[Offset, Envelope] = {
+      handler: () => Handler[Envelope])(implicit system: ActorSystem[?]): AtLeastOnceProjection[Offset, Envelope] = {
 
     new SlickProjectionImpl(
       projectionId,
@@ -228,7 +228,7 @@ object SlickProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       databaseConfig: DatabaseConfig[P],
       handler: () => SlickHandler[immutable.Seq[Envelope]])(
-      implicit system: ActorSystem[_]): GroupedProjection[Offset, Envelope] = {
+      implicit system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val offsetStore = createOffsetStore(databaseConfig)
 
@@ -237,7 +237,7 @@ object SlickProjection {
 
         import databaseConfig.profile.api._
         private implicit val ec: ExecutionContext = system.executionContext
-        private val logger = Logging(system.classicSystem, classOf[SlickProjectionImpl[_, _, _]])
+        private val logger = Logging(system.classicSystem, classOf[SlickProjectionImpl[?, ?, ?]])
         private val delegate = handler()
 
         override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
@@ -309,7 +309,7 @@ object SlickProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       databaseConfig: DatabaseConfig[P],
       handler: () => Handler[immutable.Seq[Envelope]])(
-      implicit system: ActorSystem[_]): GroupedProjection[Offset, Envelope] = {
+      implicit system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val offsetStore = createOffsetStore(databaseConfig)
 
@@ -350,8 +350,8 @@ object SlickProjection {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
       databaseConfig: DatabaseConfig[P],
-      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, _])(
-      implicit system: ActorSystem[_]): AtLeastOnceFlowProjection[Offset, Envelope] = {
+      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, ?])(
+      implicit system: ActorSystem[?]): AtLeastOnceFlowProjection[Offset, Envelope] = {
 
     new SlickProjectionImpl(
       projectionId,
@@ -371,7 +371,7 @@ object SlickProjection {
    * before the system is started.
    */
   def createTablesIfNotExists[P <: JdbcProfile: ClassTag](databaseConfig: DatabaseConfig[P])(
-      implicit system: ActorSystem[_]): Future[Done] = {
+      implicit system: ActorSystem[?]): Future[Done] = {
     createOffsetStore(databaseConfig).createIfNotExists()
   }
 
@@ -379,12 +379,12 @@ object SlickProjection {
    * For testing purposes the projection offset and management tables can be dropped programmatically.
    */
   def dropTablesIfExists[P <: JdbcProfile: ClassTag](databaseConfig: DatabaseConfig[P])(
-      implicit system: ActorSystem[_]): Future[Done] = {
+      implicit system: ActorSystem[?]): Future[Done] = {
     createOffsetStore(databaseConfig).dropIfExists()
   }
 
   private def createOffsetStore[P <: JdbcProfile: ClassTag](databaseConfig: DatabaseConfig[P])(
-      implicit system: ActorSystem[_]) =
+      implicit system: ActorSystem[?]) =
     new SlickOffsetStore(system, databaseConfig, SlickSettings(system))
 }
 

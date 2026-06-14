@@ -66,7 +66,7 @@ import pekko.projection.StatusObserver
       lastOffset: Offset, // used for logging
       abort: Future[Done], // retries can be aborted by failing this Future
       futureCallback: () => Future[Done],
-      onSkip: () => Future[Done] = HandlerRecoveryImpl.defaultOnSkip)(implicit system: ActorSystem[_]): Future[Done] = {
+      onSkip: () => Future[Done] = HandlerRecoveryImpl.defaultOnSkip)(implicit system: ActorSystem[?]): Future[Done] = {
     import HandlerRecoveryStrategy.Internal._
 
     implicit val scheduler: Scheduler = system.classicSystem.scheduler

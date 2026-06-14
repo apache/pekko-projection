@@ -43,7 +43,7 @@ private[projection] object SlickSettings {
 
   val configPath = "pekko.projection.slick"
 
-  def apply(system: ActorSystem[_]): SlickSettings =
+  def apply(system: ActorSystem[?]): SlickSettings =
     SlickSettings(system.settings.config.getConfig(configPath))
 
 }

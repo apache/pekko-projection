@@ -70,7 +70,7 @@ import scala.util.Success
  * INTERNAL API
  */
 @InternalApi private[pekko] class EventProducerServiceImpl(
-    system: ActorSystem[_],
+    system: ActorSystem[?],
     eventsBySlicesQueriesPerStreamId: Map[String, EventsBySliceQuery],
     currentEventsByPersistenceIdQueriesPerStreamId: Map[String, CurrentEventsByPersistenceIdTypedQuery],
     sources: Set[EventProducer.EventProducerSource],
@@ -204,7 +204,7 @@ import scala.util.Success
     Flow.futureFlow(futureFlow).mapMaterializedValue(_ => NotUsed)
   }
 
-  private def protoOffset(env: EventEnvelope[_]): Offset = {
+  private def protoOffset(env: EventEnvelope[?]): Offset = {
     env.offset match {
       case TimestampOffset(timestamp, _, seen) =>
         val protoTimestamp = Timestamp(timestamp)
@@ -218,7 +218,7 @@ import scala.util.Success
     }
   }
 
-  private def transformAndEncodeEvent(transformation: Transformation, env: EventEnvelope[_]): Future[Option[Event]] = {
+  private def transformAndEncodeEvent(transformation: Transformation, env: EventEnvelope[?]): Future[Option[Event]] = {
     env.eventOption match {
       case Some(_) =>
         import system.executionContext

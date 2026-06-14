@@ -98,7 +98,7 @@ trait Telemetry {
  * INTERNAL API
  */
 @InternalApi private[projection] object TelemetryProvider {
-  def start(projectionId: ProjectionId, system: ActorSystem[_]): Telemetry = {
+  def start(projectionId: ProjectionId, system: ActorSystem[?]): Telemetry = {
     if (!system.settings.config.hasPath("pekko.projection.telemetry.implementations")) {
       NoopTelemetry
     } else {
@@ -117,12 +117,12 @@ trait Telemetry {
     }
   }
 
-  def create(projectionId: ProjectionId, system: ActorSystem[_], fqcn: String) = {
+  def create(projectionId: ProjectionId, system: ActorSystem[?], fqcn: String) = {
     val dynamicAccess = system.dynamicAccess
     dynamicAccess
       .createInstanceFor[Telemetry](
         fqcn,
-        immutable.Seq((classOf[ProjectionId], projectionId), (classOf[ActorSystem[_]], system)))
+        immutable.Seq((classOf[ProjectionId], projectionId), (classOf[ActorSystem[?]], system)))
       .get
   }
 }
@@ -151,7 +151,7 @@ trait Telemetry {
 @InternalApi private[projection] class EnsembleTelemetry(
     telemetryFqcns: Seq[String],
     projectionId: ProjectionId,
-    system: ActorSystem[_])
+    system: ActorSystem[?])
     extends Telemetry {
 
   val telemetries = telemetryFqcns.map(fqcn => TelemetryProvider.create(projectionId, system, fqcn))

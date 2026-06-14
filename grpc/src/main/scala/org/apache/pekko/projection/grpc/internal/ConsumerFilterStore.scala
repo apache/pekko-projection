@@ -59,7 +59,7 @@ import org.slf4j.LoggerFactory
   final case class GetFilter(replyTo: ActorRef[ConsumerFilter.CurrentFilter]) extends Command
 
   def apply(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       settings: ConsumerFilterSettings,
       streamId: String,
       notifyUpdatesTo: ActorRef[ConsumerFilterRegistry.FilterUpdated]): Behavior[Command] = {
@@ -71,7 +71,7 @@ import org.slf4j.LoggerFactory
     }
   }
 
-  def useDistributedData(system: ActorSystem[_]): Boolean = {
+  def useDistributedData(system: ActorSystem[?]): Boolean = {
     system.classicSystem
       .asInstanceOf[ExtendedActorSystem]
       .provider
@@ -84,7 +84,7 @@ import org.slf4j.LoggerFactory
    * pekko-cluster-typed dependency is optional so we create the DdataConsumerFilterStore with reflection
    */
   def createDdataConsumerFilterStore(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       settings: ConsumerFilterSettings,
       streamId: String,
       notifyUpdatesTo: ActorRef[ConsumerFilterRegistry.FilterUpdated]): Behavior[Command] = {
@@ -113,7 +113,7 @@ import org.slf4j.LoggerFactory
  */
 @InternalApi private[pekko] object LocalConsumerFilterStore {
   private object StoreExt extends ExtensionId[StoreExt] {
-    override def createExtension(system: ActorSystem[_]): StoreExt = new StoreExt
+    override def createExtension(system: ActorSystem[?]): StoreExt = new StoreExt
   }
 
   private class StoreExt extends Extension {

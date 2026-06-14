@@ -70,7 +70,7 @@ import scalapb.GeneratedMessage
         s"Unimplemented deserialization of message with manifest [$manifest] in [${getClass.getName}]")
   }
 
-  private def orsetToBytes(orset: ORSet[_]): ByteString = {
+  private def orsetToBytes(orset: ORSet[?]): ByteString = {
     toProtoByteStringUnsafe(replicatedDataSerializer.orsetToProto(orset).toByteArray)
   }
 

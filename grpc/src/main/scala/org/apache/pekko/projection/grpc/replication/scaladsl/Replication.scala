@@ -80,7 +80,7 @@ object Replication {
    */
   def grpcReplication[Command, Event, State](settings: ReplicationSettings[Command])(
       replicatedBehaviorFactory: ReplicatedBehaviors[Command, Event, State] => Behavior[Command])(
-      implicit system: ActorSystem[_]): Replication[Command] =
+      implicit system: ActorSystem[?]): Replication[Command] =
     grpcReplication[Command, Event, State](settings, (_: EventEnvelope[Event]) => true)(replicatedBehaviorFactory)
 
   /**
@@ -92,7 +92,7 @@ object Replication {
       settings: ReplicationSettings[Command],
       producerFilter: EventEnvelope[Event] => Boolean)(
       replicatedBehaviorFactory: ReplicatedBehaviors[Command, Event, State] => Behavior[Command])(
-      implicit system: ActorSystem[_]): Replication[Command] = {
+      implicit system: ActorSystem[?]): Replication[Command] = {
 
     val replicatedEntity =
       ReplicatedEntity(

@@ -29,12 +29,12 @@ import scala.jdk.DurationConverters._
 
 @ApiMayChange
 object ProjectionTestKit {
-  def create(system: ActorSystem[_]): ProjectionTestKit =
+  def create(system: ActorSystem[?]): ProjectionTestKit =
     new ProjectionTestKit(system)
 }
 
 @ApiMayChange
-final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
+final class ProjectionTestKit private[projection] (system: ActorSystem[?]) {
   private val delegate = scaladsl.ProjectionTestKit(system)
 
   /**
@@ -51,7 +51,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param projection - the Projection to run
    * @param assertFunction - a function that exercises the test assertions
    */
-  def run(projection: Projection[_], assertFunction: Effect): Unit =
+  def run(projection: Projection[?], assertFunction: Effect): Unit =
     delegate.run(projection)(assertFunction.apply())
 
   /**
@@ -69,7 +69,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param max - Duration delimiting the max duration of the test
    * @param assertFunction - a function that exercises the test assertions
    */
-  def run(projection: Projection[_], max: Duration, assertFunction: Effect): Unit =
+  def run(projection: Projection[?], max: Duration, assertFunction: Effect): Unit =
     delegate.run(projection, max.toScala)(assertFunction.apply())
 
   /**
@@ -89,7 +89,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param interval - Duration defining the interval in each the assert function will be called
    * @param assertFunction - a function that exercises the test assertions
    */
-  def run(projection: Projection[_], max: Duration, interval: Duration, assertFunction: Effect): Unit =
+  def run(projection: Projection[?], max: Duration, interval: Duration, assertFunction: Effect): Unit =
     delegate.run(projection, max.toScala, interval.toScala)(assertFunction.apply())
 
   /**
@@ -105,7 +105,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param projection - the Projection to run
    * @param assertFunction - a function receiving a `TestSubscriber.Probe[Done]`
    */
-  def runWithTestSink(projection: Projection[_], assertFunction: Procedure[TestSubscriber.Probe[Done]]): Unit =
+  def runWithTestSink(projection: Projection[?], assertFunction: Procedure[TestSubscriber.Probe[Done]]): Unit =
     delegate.runWithTestSink(projection)(probe => assertFunction.apply(probe))
 
 }

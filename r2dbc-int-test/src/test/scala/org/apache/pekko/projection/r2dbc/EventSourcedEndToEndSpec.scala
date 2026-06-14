@@ -137,7 +137,7 @@ class EventSourcedEndToEndSpec
     with LogCapturing {
   import EventSourcedEndToEndSpec._
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
 
   private val log = LoggerFactory.getLogger(getClass)
 

@@ -83,7 +83,7 @@ trait Projection[Envelope] {
    * This is mainly intended to be used by the TestKit allowing it to attach a TestSink to it.
    */
   @InternalApi
-  private[projection] def mappedSource()(implicit system: ActorSystem[_]): Source[Done, Future[Done]]
+  private[projection] def mappedSource()(implicit system: ActorSystem[?]): Source[Done, Future[Done]]
 
   /**
    * INTERNAL API
@@ -95,7 +95,7 @@ trait Projection[Envelope] {
    * Return a RunningProjection
    */
   @InternalApi
-  private[projection] def run()(implicit system: ActorSystem[_]): RunningProjection
+  private[projection] def run()(implicit system: ActorSystem[?]): RunningProjection
 
 }
 
@@ -112,7 +112,7 @@ private[projection] object RunningProjection {
    */
   case object AbortProjectionException extends RuntimeException("Projection aborted.") with NoStackTrace
 
-  def withBackoff(source: () => Source[Done, _], settings: ProjectionSettings): Source[Done, _] = {
+  def withBackoff(source: () => Source[Done, ?], settings: ProjectionSettings): Source[Done, ?] = {
     RestartSource
       .onFailuresWithBackoff(settings.restartBackoff) { () =>
         source()

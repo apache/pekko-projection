@@ -36,6 +36,6 @@ private[projection] case class CassandraSettings(config: Config) {
 @InternalApi
 private[projection] object CassandraSettings {
 
-  def apply(system: ActorSystem[_]): CassandraSettings =
+  def apply(system: ActorSystem[?]): CassandraSettings =
     CassandraSettings(system.settings.config.getConfig("pekko.projection.cassandra"))
 }

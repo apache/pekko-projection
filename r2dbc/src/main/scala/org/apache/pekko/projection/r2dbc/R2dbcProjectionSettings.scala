@@ -64,17 +64,17 @@ object R2dbcProjectionSettings {
    * Java API: Load configuration from `pekko.projection.r2dbc`.
    * @since 2.0.0
    */
-  def create(system: ActorSystem[_]): R2dbcProjectionSettings =
+  def create(system: ActorSystem[?]): R2dbcProjectionSettings =
     apply(system)
 
   /**
    * Scala API: Load configuration from `pekko.projection.r2dbc`.
    */
-  def apply(system: ActorSystem[_]): R2dbcProjectionSettings =
+  def apply(system: ActorSystem[?]): R2dbcProjectionSettings =
     apply(system.settings.config.getConfig(DefaultConfigPath))
 
   /** @since 2.0.0 */
-  def apply(config: Config, system: ActorSystem[_]): R2dbcProjectionSettings =
+  def apply(config: Config, system: ActorSystem[?]): R2dbcProjectionSettings =
     apply(config.withFallback(system.settings.config.getConfig(DefaultConfigPath)))
 
   def apply(

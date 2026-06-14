@@ -152,7 +152,7 @@ object ShoppingCart {
   // #tagging
   val EntityKey: EntityTypeKey[Command] = EntityTypeKey[Command]("ShoppingCart")
 
-  def init(system: ActorSystem[_]): Unit = {
+  def init(system: ActorSystem[?]): Unit = {
     ClusterSharding(system).init(Entity(EntityKey) { entityContext =>
       val i = math.abs(entityContext.entityId.hashCode % tags.size)
       val selectedTag = tags(i)

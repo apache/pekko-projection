@@ -29,7 +29,7 @@ import scala.concurrent.duration._
 
 trait TestDbLifecycle extends BeforeAndAfterAll { this: Suite =>
 
-  def typedSystem: ActorSystem[_]
+  def typedSystem: ActorSystem[?]
 
   def testConfigPath: String = "pekko.projection.r2dbc"
 

@@ -51,9 +51,9 @@ import pekko.serialization.SerializerWithStringManifest
   private val SetPausedManifest = "e"
 
   override def manifest(o: AnyRef): String = o match {
-    case _: GetOffset[_]     => GetOffsetManifest
-    case _: CurrentOffset[_] => CurrentOffsetManifest
-    case _: SetOffset[_]     => SetOffsetManifest
+    case _: GetOffset[?]     => GetOffsetManifest
+    case _: CurrentOffset[?] => CurrentOffsetManifest
+    case _: SetOffset[?]     => SetOffsetManifest
     case _: IsPaused         => IsPausedManifest
     case _: SetPaused        => SetPausedManifest
     case _                   =>
@@ -61,23 +61,23 @@ import pekko.serialization.SerializerWithStringManifest
   }
 
   override def toBinary(o: AnyRef): Array[Byte] = o match {
-    case m: GetOffset[_]     => getOffsetToBinary(m)
-    case m: CurrentOffset[_] => currentOffsetToBinary(m)
-    case m: SetOffset[_]     => setOffsetToBinary(m)
+    case m: GetOffset[?]     => getOffsetToBinary(m)
+    case m: CurrentOffset[?] => currentOffsetToBinary(m)
+    case m: SetOffset[?]     => setOffsetToBinary(m)
     case m: IsPaused         => isPausedToBinary(m)
     case m: SetPaused        => setPausedToBinary(m)
     case _                   =>
       throw new IllegalArgumentException(s"Cannot serialize object of type [${o.getClass.getName}]")
   }
 
-  private def getOffsetToBinary(m: GetOffset[_]): Array[Byte] = {
+  private def getOffsetToBinary(m: GetOffset[?]): Array[Byte] = {
     val b = ProjectionMessages.GetOffset.newBuilder()
     b.setProjectionId(projectionIdToProto(m.projectionId))
     b.setReplyTo(resolver.toSerializationFormat(m.replyTo))
     b.build().toByteArray()
   }
 
-  private def currentOffsetToBinary(m: CurrentOffset[_]): Array[Byte] = {
+  private def currentOffsetToBinary(m: CurrentOffset[?]): Array[Byte] = {
     val b = ProjectionMessages.CurrentOffset.newBuilder()
     b.setProjectionId(projectionIdToProto(m.projectionId))
     m.offset.foreach { o =>
@@ -86,7 +86,7 @@ import pekko.serialization.SerializerWithStringManifest
     b.build().toByteArray()
   }
 
-  private def setOffsetToBinary(m: SetOffset[_]): Array[Byte] = {
+  private def setOffsetToBinary(m: SetOffset[?]): Array[Byte] = {
     val b = ProjectionMessages.SetOffset.newBuilder()
     b.setProjectionId(projectionIdToProto(m.projectionId))
     b.setReplyTo(resolver.toSerializationFormat(m.replyTo))

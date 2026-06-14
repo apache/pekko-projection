@@ -61,7 +61,7 @@ import scala.concurrent.Promise
 object EventProducerServiceSpec {
   val grpcPort: Int = SocketUtil.temporaryServerAddress("127.0.0.1").getPort
 
-  class TestEventsBySliceQuery()(implicit system: ActorSystem[_]) extends ReadJournal with EventsBySliceQuery {
+  class TestEventsBySliceQuery()(implicit system: ActorSystem[?]) extends ReadJournal with EventsBySliceQuery {
     private val persistenceExt = Persistence(system)
 
     private val testPublisherPromise =

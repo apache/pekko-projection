@@ -30,7 +30,7 @@ object ItemPopularityProjectionHandler {
   val LogInterval = 10
 }
 
-class ItemPopularityProjectionHandler(tag: String, system: ActorSystem[_], repo: ItemPopularityProjectionRepository)
+class ItemPopularityProjectionHandler(tag: String, system: ActorSystem[?], repo: ItemPopularityProjectionRepository)
     extends Handler[EventEnvelope[ShoppingCartEvents.Event]]() {
   import ShoppingCartEvents._
 

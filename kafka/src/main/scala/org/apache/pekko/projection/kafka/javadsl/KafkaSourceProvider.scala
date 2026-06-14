@@ -33,7 +33,7 @@ object KafkaSourceProvider {
    * Create a [[SourceProvider]] that resumes from externally managed offsets
    */
   def create[K, V](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       settings: ConsumerSettings[K, V],
       topics: java.util.Set[String]): SourceProvider[MergeableOffset[JLong], ConsumerRecord[K, V]] = {
     import scala.jdk.CollectionConverters._

@@ -63,9 +63,9 @@ object JdbcContainerOffsetStoreSpec {
       })
     }
 
-    protected var _container: Option[JdbcDatabaseContainer[_]] = None
+    protected var _container: Option[JdbcDatabaseContainer[?]] = None
 
-    def newContainer(): JdbcDatabaseContainer[_]
+    def newContainer(): JdbcDatabaseContainer[?]
 
     override def initContainer(): Unit = {
       val container = newContainer()
@@ -81,7 +81,7 @@ object JdbcContainerOffsetStoreSpec {
 
   object PostgresSpecConfig extends ContainerJdbcSpecConfig("postgres-dialect") {
     val name = "Postgres Database"
-    override def newContainer(): JdbcDatabaseContainer[_] =
+    override def newContainer(): JdbcDatabaseContainer[?] =
       new PostgreSQLContainer("postgres:18.0").withInitScript("db/default-init.sql")
   }
   object PostgresLegacySchemaSpecConfig extends ContainerJdbcSpecConfig("postgres-dialect") {
@@ -94,20 +94,20 @@ object JdbcContainerOffsetStoreSpec {
         }
         """))
 
-    override def newContainer(): JdbcDatabaseContainer[_] =
+    override def newContainer(): JdbcDatabaseContainer[?] =
       new PostgreSQLContainer("postgres:18.0").withInitScript("db/default-init.sql")
   }
 
   object MySQLSpecConfig extends ContainerJdbcSpecConfig("mysql-dialect") {
     val name = "MySQL Database"
-    override def newContainer(): JdbcDatabaseContainer[_] =
+    override def newContainer(): JdbcDatabaseContainer[?] =
       new MySQLContainer("mysql:9.5.0").withDatabaseName(schemaName)
   }
 
   object MSSQLServerSpecConfig extends ContainerJdbcSpecConfig("mssql-dialect") {
     val name = "MS SQL Server Database"
     override val tag: Tag = TestTags.FlakyDb
-    override def newContainer(): JdbcDatabaseContainer[_] = {
+    override def newContainer(): JdbcDatabaseContainer[?] = {
       val container =
         new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04")
       container.acceptLicense()

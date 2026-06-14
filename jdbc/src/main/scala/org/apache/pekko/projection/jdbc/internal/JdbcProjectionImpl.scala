@@ -59,7 +59,7 @@ import pekko.stream.scaladsl.Source
 private[projection] object JdbcProjectionImpl {
 
   private[projection] def createOffsetStore[S <: JdbcSession](sessionFactory: () => S)(
-      implicit system: ActorSystem[_]) =
+      implicit system: ActorSystem[?]) =
     new JdbcOffsetStore[S](system, JdbcSettings(system), sessionFactory)
 
   private[projection] def adaptedHandlerForExactlyOnce[Offset, Envelope, S <: JdbcSession](
@@ -185,7 +185,7 @@ private[projection] class JdbcProjectionImpl[Offset, Envelope, S <: JdbcSession]
   /*
    * Build the final ProjectionSettings to use, if currently set to None fallback to values in config file
    */
-  private def settingsOrDefaults(implicit system: ActorSystem[_]): ProjectionSettings = {
+  private def settingsOrDefaults(implicit system: ActorSystem[?]): ProjectionSettings = {
     val settings = settingsOpt.getOrElse(ProjectionSettings(system))
     restartBackoffOpt match {
       case None    => settings
@@ -239,7 +239,7 @@ private[projection] class JdbcProjectionImpl[Offset, Envelope, S <: JdbcSession]
    * INTERNAL API
    * Return a RunningProjection
    */
-  override private[projection] def run()(implicit system: ActorSystem[_]): RunningProjection =
+  override private[projection] def run()(implicit system: ActorSystem[?]): RunningProjection =
     new JdbcInternalProjectionState(settingsOrDefaults).newRunningInstance()
 
   /**
@@ -248,10 +248,10 @@ private[projection] class JdbcProjectionImpl[Offset, Envelope, S <: JdbcSession]
    * This method returns the projection Source mapped with user 'handler' function, but before any sink attached.
    * This is mainly intended to be used by the TestKit allowing it to attach a TestSink to it.
    */
-  override private[projection] def mappedSource()(implicit system: ActorSystem[_]): Source[Done, Future[Done]] =
+  override private[projection] def mappedSource()(implicit system: ActorSystem[?]): Source[Done, Future[Done]] =
     new JdbcInternalProjectionState(settingsOrDefaults).mappedSource()
 
-  private class JdbcInternalProjectionState(settings: ProjectionSettings)(implicit val system: ActorSystem[_])
+  private class JdbcInternalProjectionState(settings: ProjectionSettings)(implicit val system: ActorSystem[?])
       extends InternalProjectionState[Offset, Envelope](
         projectionId,
         sourceProvider,
@@ -276,8 +276,8 @@ private[projection] class JdbcProjectionImpl[Offset, Envelope, S <: JdbcSession]
       new JdbcRunningProjection(RunningProjection.withBackoff(() => this.mappedSource(), settings), this)
   }
 
-  private class JdbcRunningProjection(source: Source[Done, _], projectionState: JdbcInternalProjectionState)(
-      implicit system: ActorSystem[_])
+  private class JdbcRunningProjection(source: Source[Done, ?], projectionState: JdbcInternalProjectionState)(
+      implicit system: ActorSystem[?])
       extends RunningProjection
       with RunningProjectionManagement[Offset] {
 

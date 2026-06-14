@@ -181,7 +181,7 @@ private[projection] object R2dbcOffsetStore {
   def fromConfig(
       projectionId: ProjectionId,
       sourceProvider: Option[BySlicesSourceProvider],
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       settings: R2dbcProjectionSettings,
       r2dbcExecutor: R2dbcExecutor,
       clock: Clock = Clock.systemUTC()
@@ -219,7 +219,7 @@ private[projection] object R2dbcOffsetStore {
 private[projection] class R2dbcOffsetStore(
     projectionId: ProjectionId,
     sourceProvider: Option[BySlicesSourceProvider],
-    system: ActorSystem[_],
+    system: ActorSystem[?],
     settings: R2dbcProjectionSettings,
     r2dbcExecutor: R2dbcExecutor,
     clock: Clock = Clock.systemUTC()) {
@@ -443,7 +443,7 @@ private[projection] class R2dbcOffsetStore(
           if (offsets.isEmpty) None
           else if (offsets.forall(_.mergeable)) {
             Some(
-              fromStorageRepresentation[MergeableOffset[_], Offset](MultipleOffsets(offsets.toList))
+              fromStorageRepresentation[MergeableOffset[?], Offset](MultipleOffsets(offsets.toList))
                 .asInstanceOf[Offset])
           } else {
             offsets.find(_.id == projectionId).map(fromStorageRepresentation[Offset, Offset])
@@ -1101,7 +1101,7 @@ private[projection] class R2dbcOffsetStore(
 
   private def createRecordWithOffset[Envelope](envelope: Envelope): Option[RecordWithOffset] = {
     envelope match {
-      case eventEnvelope: EventEnvelope[_] if eventEnvelope.offset.isInstanceOf[TimestampOffset] =>
+      case eventEnvelope: EventEnvelope[?] if eventEnvelope.offset.isInstanceOf[TimestampOffset] =>
         val timestampOffset = eventEnvelope.offset.asInstanceOf[TimestampOffset]
         val slice = persistenceExt.sliceForPersistenceId(eventEnvelope.persistenceId)
         Some(
@@ -1111,7 +1111,7 @@ private[projection] class R2dbcOffsetStore(
             strictSeqNr = true,
             fromBacktracking = EnvelopeOrigin.fromBacktracking(eventEnvelope),
             fromPubSub = EnvelopeOrigin.fromPubSub(eventEnvelope)))
-      case change: UpdatedDurableState[_] if change.offset.isInstanceOf[TimestampOffset] =>
+      case change: UpdatedDurableState[?] if change.offset.isInstanceOf[TimestampOffset] =>
         val timestampOffset = change.offset.asInstanceOf[TimestampOffset]
         val slice = persistenceExt.sliceForPersistenceId(change.persistenceId)
         Some(
@@ -1121,7 +1121,7 @@ private[projection] class R2dbcOffsetStore(
             strictSeqNr = false,
             fromBacktracking = false,
             fromPubSub = false))
-      case change: DeletedDurableState[_] if change.offset.isInstanceOf[TimestampOffset] =>
+      case change: DeletedDurableState[?] if change.offset.isInstanceOf[TimestampOffset] =>
         val timestampOffset = change.offset.asInstanceOf[TimestampOffset]
         val slice = persistenceExt.sliceForPersistenceId(change.persistenceId)
         Some(
@@ -1131,7 +1131,7 @@ private[projection] class R2dbcOffsetStore(
             strictSeqNr = false,
             fromBacktracking = false,
             fromPubSub = false))
-      case change: DurableStateChange[_] if change.offset.isInstanceOf[TimestampOffset] =>
+      case change: DurableStateChange[?] if change.offset.isInstanceOf[TimestampOffset] =>
         // in case additional types are added
         throw new IllegalArgumentException(
           s"DurableStateChange [${change.getClass.getName}] not implemented yet. Please report bug at https://github.com/apache/pekko-projection/issues")

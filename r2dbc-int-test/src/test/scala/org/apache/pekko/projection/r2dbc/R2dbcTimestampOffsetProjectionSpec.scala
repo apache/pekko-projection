@@ -147,7 +147,7 @@ class R2dbcTimestampOffsetProjectionSpec
   import R2dbcProjectionSpec.TestRepository
   import R2dbcTimestampOffsetProjectionSpec._
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
   private implicit val ec: ExecutionContext = system.executionContext
 
   private val logger = LoggerFactory.getLogger(getClass)
@@ -210,7 +210,7 @@ class R2dbcTimestampOffsetProjectionSpec
   }
 
   // TODO: extract this to some utility
-  @tailrec private def eventuallyExpectError(sinkProbe: TestSubscriber.Probe[_]): Throwable = {
+  @tailrec private def eventuallyExpectError(sinkProbe: TestSubscriber.Probe[?]): Throwable = {
     sinkProbe.expectNextOrError() match {
       case Right(_)  => eventuallyExpectError(sinkProbe)
       case Left(exc) => exc

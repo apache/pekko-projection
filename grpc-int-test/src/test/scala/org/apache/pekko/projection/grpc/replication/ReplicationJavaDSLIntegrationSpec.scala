@@ -176,9 +176,9 @@ class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
   def this() = this(new TestContainerConf)
 
   private val logger = LoggerFactory.getLogger(classOf[ReplicationIntegrationSpec])
-  override def typedSystem: ActorSystem[_] = testKit.system
+  override def typedSystem: ActorSystem[?] = testKit.system
 
-  private val systems = Seq[ActorSystem[_]](
+  private val systems = Seq[ActorSystem[?]](
     typedSystem,
     pekko.actor.ActorSystem(
       "ReplicationJavaDSLIntegrationSpecB",
@@ -217,7 +217,7 @@ class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
     }
   }
 
-  def startReplica(replicaSystem: ActorSystem[_], selfReplicaId: ReplicaId): Replication[LWWHelloWorld.Command] = {
+  def startReplica(replicaSystem: ActorSystem[?], selfReplicaId: ReplicaId): Replication[LWWHelloWorld.Command] = {
     val settings = ReplicationSettings.create(
       classOf[LWWHelloWorld.Command],
       "hello-world-java",

@@ -104,7 +104,7 @@ class ProducerFilterEndToEndSpec(testContainerConf: TestContainerConf)
 
   import ProducerFilterEndToEndSpec._
 
-  override def typedSystem: ActorSystem[_] = testKit.system
+  override def typedSystem: ActorSystem[?] = testKit.system
   private implicit val ec: ExecutionContext = typedSystem.executionContext
 
   private val grpcPort: Int = SocketUtil.temporaryServerAddress("127.0.0.1").getPort

@@ -30,12 +30,12 @@ import pekko.stream.testkit.scaladsl.TestSink
 
 @ApiMayChange
 object ProjectionTestKit {
-  def apply(system: ActorSystem[_]): ProjectionTestKit =
+  def apply(system: ActorSystem[?]): ProjectionTestKit =
     new ProjectionTestKit(system)
 }
 
 @ApiMayChange
-final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
+final class ProjectionTestKit private[projection] (system: ActorSystem[?]) {
 
   private val testKit = ActorTestKit(system)
 
@@ -54,7 +54,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param projection - the Projection to run
    * @param assertFunction - a by-name code block that exercise the test assertions
    */
-  def run(projection: Projection[_])(assertFunction: => Unit): Unit =
+  def run(projection: Projection[?])(assertFunction: => Unit): Unit =
     runInternal(projection, assertFunction, testKit.testKitSettings.SingleExpectDefaultTimeout, 100.millis)
 
   /**
@@ -72,7 +72,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param max - FiniteDuration delimiting the max duration of the test
    * @param assertFunction - a by-name code block that exercise the test assertions
    */
-  def run(projection: Projection[_], max: FiniteDuration)(assertFunction: => Unit): Unit =
+  def run(projection: Projection[?], max: FiniteDuration)(assertFunction: => Unit): Unit =
     runInternal(projection, assertFunction, max, 100.millis)
 
   /**
@@ -92,11 +92,11 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param interval - FiniteDuration defining the interval in each the assert function will be called
    * @param assertFunction - a by-name code block that exercise the test assertions
    */
-  def run(projection: Projection[_], max: FiniteDuration, interval: FiniteDuration)(assertFunction: => Unit): Unit =
+  def run(projection: Projection[?], max: FiniteDuration, interval: FiniteDuration)(assertFunction: => Unit): Unit =
     runInternal(projection, assertFunction, max, interval)
 
   private def runInternal(
-      projection: Projection[_],
+      projection: Projection[?],
       assertFunction: => Unit,
       max: FiniteDuration,
       interval: FiniteDuration): Unit = {
@@ -128,9 +128,9 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
    * @param projection - the Projection to run
    * @param assertFunction - a function receiving a `TestSubscriber.Probe[Done]`
    */
-  def runWithTestSink(projection: Projection[_])(assertFunction: TestSubscriber.Probe[Done] => Unit): Unit = {
+  def runWithTestSink(projection: Projection[?])(assertFunction: TestSubscriber.Probe[Done] => Unit): Unit = {
     val actorHandler = spawnActorHandler(projection)
-    implicit val sys: ActorSystem[_] = system
+    implicit val sys: ActorSystem[?] = system
     val sinkProbe = projection.mappedSource().runWith(TestSink[Done]()(testKit.system.classicSystem))
     try {
       assertFunction(sinkProbe)
@@ -140,7 +140,7 @@ final class ProjectionTestKit private[projection] (system: ActorSystem[_]) {
     }
   }
 
-  private def spawnActorHandler(projection: Projection[_]): Option[ActorRef[_]] = {
+  private def spawnActorHandler(projection: Projection[?]): Option[ActorRef[?]] = {
     projection.actorHandlerInit[Any].map { init =>
       val ref = testKit.spawn(Behaviors.supervise(init.behavior).onFailure(SupervisorStrategy.restart))
       init.setActor(ref)

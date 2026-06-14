@@ -189,7 +189,7 @@ class CassandraProjectionSpec
   private def genRandomProjectionId() =
     ProjectionId(UUID.randomUUID().toString, UUID.randomUUID().toString)
 
-  @tailrec private def eventuallyExpectError(sinkProbe: TestSubscriber.Probe[_]): Throwable = {
+  @tailrec private def eventuallyExpectError(sinkProbe: TestSubscriber.Probe[?]): Throwable = {
     sinkProbe.expectNextOrError() match {
       case Right(_)  => eventuallyExpectError(sinkProbe)
       case Left(exc) => exc

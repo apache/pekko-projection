@@ -284,12 +284,12 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
 
   final case class PersistenceIdOffset(persistenceIdId: String, seqNr: Long)
 
-  override def createExtension(system: ActorSystem[_]): ConsumerFilter = new ConsumerFilter(system)
+  override def createExtension(system: ActorSystem[?]): ConsumerFilter = new ConsumerFilter(system)
 
   /**
    * Java API: retrieve the extension instance for the given system.
    */
-  def get(system: ActorSystem[_]): ConsumerFilter = apply(system)
+  def get(system: ActorSystem[?]): ConsumerFilter = apply(system)
 
   /**
    * INTERNAL API
@@ -514,7 +514,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
 
   /** INTERNAL API */
   @InternalApi private[pekko] object ConsumerFilterSettings {
-    def apply(system: ActorSystem[_]): ConsumerFilterSettings =
+    def apply(system: ActorSystem[?]): ConsumerFilterSettings =
       apply(system.settings.config.getConfig("pekko.projection.grpc.consumer.filter"))
 
     def apply(config: Config): ConsumerFilterSettings =
@@ -531,7 +531,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
 }
 
 @ApiMayChange
-class ConsumerFilter(system: ActorSystem[_]) extends Extension {
+class ConsumerFilter(system: ActorSystem[?]) extends Extension {
 
   private val settings = ConsumerFilter.ConsumerFilterSettings(system)
 

@@ -35,13 +35,13 @@ import pekko.projection.ProjectionId
 import pekko.util.Timeout
 
 @ApiMayChange object ProjectionManagement extends ExtensionId[ProjectionManagement] {
-  def createExtension(system: ActorSystem[_]): ProjectionManagement = new ProjectionManagement(system)
+  def createExtension(system: ActorSystem[?]): ProjectionManagement = new ProjectionManagement(system)
 
-  def get(system: ActorSystem[_]): ProjectionManagement = apply(system)
+  def get(system: ActorSystem[?]): ProjectionManagement = apply(system)
 }
 
-@ApiMayChange class ProjectionManagement(system: ActorSystem[_]) extends Extension {
-  private implicit val sys: ActorSystem[_] = system
+@ApiMayChange class ProjectionManagement(system: ActorSystem[?]) extends Extension {
+  private implicit val sys: ActorSystem[?] = system
   private implicit val askTimeout: Timeout = {
     system.settings.config.getDuration("pekko.projection.management.ask-timeout").toScala
   }

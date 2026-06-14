@@ -36,7 +36,7 @@ import com.datastax.oss.driver.api.core.cql.Statement
 /**
  * INTERNAL API
  */
-@InternalApi private[projection] class CassandraOffsetStore(system: ActorSystem[_], clock: Clock) {
+@InternalApi private[projection] class CassandraOffsetStore(system: ActorSystem[?], clock: Clock) {
   private val offsetSerialization = new OffsetSerialization(system)
   import offsetSerialization.fromStorageRepresentation
   import offsetSerialization.toStorageRepresentation
@@ -51,7 +51,7 @@ import com.datastax.oss.driver.api.core.cql.Statement
   val managementTable: String = cassandraSettings.managementTable
   private val cassandraPartitions = 5
 
-  def this(system: ActorSystem[_]) =
+  def this(system: ActorSystem[?]) =
     this(system, Clock.systemUTC())
 
   private def selectOne[T <: Statement[T]](stmt: Statement[T]): Future[Option[Row]] = {
@@ -79,7 +79,7 @@ import com.datastax.oss.driver.api.core.cql.Statement
     // same time let us query all rows for a single projection_name easily
     val partition = idToPartition(projectionId)
     offset match {
-      case _: MergeableOffset[_] =>
+      case _: MergeableOffset[?] =>
         throw new IllegalArgumentException("The CassandraOffsetStore does not currently support MergeableOffset")
       case _ =>
         val SingleOffset(_, manifest, offsetStr, _) =

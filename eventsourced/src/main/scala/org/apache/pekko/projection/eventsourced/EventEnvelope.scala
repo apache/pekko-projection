@@ -74,7 +74,7 @@ final class EventEnvelope[Event](
 
   override def equals(other: Any): Boolean =
     other match {
-      case that: EventEnvelope[_] =>
+      case that: EventEnvelope[?] =>
         offset == that.offset &&
         persistenceId == that.persistenceId &&
         sequenceNr == that.sequenceNr &&

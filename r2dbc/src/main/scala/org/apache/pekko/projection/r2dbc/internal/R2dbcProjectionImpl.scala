@@ -85,7 +85,7 @@ private[projection] object R2dbcProjectionImpl {
   import pekko.persistence.r2dbc.internal.EnvelopeOrigin.fromBacktracking
   import pekko.persistence.r2dbc.internal.EnvelopeOrigin.isFilteredEvent
 
-  val log: Logger = LoggerFactory.getLogger(classOf[R2dbcProjectionImpl[_, _]])
+  val log: Logger = LoggerFactory.getLogger(classOf[R2dbcProjectionImpl[?, ?]])
 
   private val FutureDone: Future[Done] = Future.successful(Done)
 
@@ -93,7 +93,7 @@ private[projection] object R2dbcProjectionImpl {
       projectionId: ProjectionId,
       sourceProvider: Option[BySlicesSourceProvider],
       settings: R2dbcProjectionSettings,
-      connectionFactory: ConnectionFactory)(implicit system: ActorSystem[_]) = {
+      connectionFactory: ConnectionFactory)(implicit system: ActorSystem[?]) = {
     val r2dbcExecutor =
       new R2dbcExecutor(connectionFactory, log, settings.logDbCallsExceeding)(system.executionContext, system)
     R2dbcOffsetStore.fromConfig(projectionId, sourceProvider, system, settings, r2dbcExecutor)
@@ -101,11 +101,11 @@ private[projection] object R2dbcProjectionImpl {
 
   private val loadEnvelopeCounter = new AtomicLong
 
-  def loadEnvelope[Envelope](env: Envelope, sourceProvider: SourceProvider[_, Envelope])(
+  def loadEnvelope[Envelope](env: Envelope, sourceProvider: SourceProvider[?, Envelope])(
       implicit
       ec: ExecutionContext): Future[Envelope] = {
     env match {
-      case eventEnvelope: EventEnvelope[_]
+      case eventEnvelope: EventEnvelope[?]
           if fromBacktracking(eventEnvelope) && eventEnvelope.eventOption.isEmpty && !eventEnvelope.filtered =>
         val pid = eventEnvelope.persistenceId
         val seqNr = eventEnvelope.sequenceNr
@@ -128,12 +128,12 @@ private[projection] object R2dbcProjectionImpl {
           loadedEnv.asInstanceOf[Envelope]
         }
 
-      case upd: UpdatedDurableState[_] if upd.value == null =>
+      case upd: UpdatedDurableState[?] if upd.value == null =>
         val pid = upd.persistenceId
         (sourceProvider match {
-          case store: DurableStateStore[_] =>
+          case store: DurableStateStore[?] =>
             store.getObject(pid)
-          case store: pekko.persistence.state.javadsl.DurableStateStore[_] =>
+          case store: pekko.persistence.state.javadsl.DurableStateStore[?] =>
             import scala.jdk.FutureConverters._
             store.getObject(pid).asScala.map(_.toScala)
           case unknown =>
@@ -173,9 +173,9 @@ private[projection] object R2dbcProjectionImpl {
   private def extractOffsetPidSeqNr[Offset, Envelope](offset: Offset, envelope: Envelope): OffsetPidSeqNr = {
     // we could define a new trait for the SourceProvider to implement this in case other (custom) envelope types are needed
     envelope match {
-      case env: EventEnvelope[_]       => OffsetPidSeqNr(offset, env.persistenceId, env.sequenceNr)
-      case chg: UpdatedDurableState[_] => OffsetPidSeqNr(offset, chg.persistenceId, chg.revision)
-      case del: DeletedDurableState[_] => OffsetPidSeqNr(offset, del.persistenceId, del.revision)
+      case env: EventEnvelope[?]       => OffsetPidSeqNr(offset, env.persistenceId, env.sequenceNr)
+      case chg: UpdatedDurableState[?] => OffsetPidSeqNr(offset, chg.persistenceId, chg.revision)
+      case del: DeletedDurableState[?] => OffsetPidSeqNr(offset, del.persistenceId, del.revision)
       case _                           => OffsetPidSeqNr(offset)
     }
   }
@@ -184,7 +184,7 @@ private[projection] object R2dbcProjectionImpl {
       sourceProvider: SourceProvider[Offset, Envelope],
       handlerFactory: () => R2dbcHandler[Envelope],
       offsetStore: R2dbcOffsetStore,
-      r2dbcExecutor: R2dbcExecutor)(implicit ec: ExecutionContext, system: ActorSystem[_]): () => Handler[Envelope] = {
+      r2dbcExecutor: R2dbcExecutor)(implicit ec: ExecutionContext, system: ActorSystem[?]): () => Handler[Envelope] = {
     () =>
       new AdaptedR2dbcHandler(handlerFactory()) {
         override def process(envelope: Envelope): Future[Done] = {
@@ -232,7 +232,7 @@ private[projection] object R2dbcProjectionImpl {
       r2dbcExecutor: R2dbcExecutor)(
       implicit
       ec: ExecutionContext,
-      system: ActorSystem[_]): () => Handler[immutable.Seq[Envelope]] = { () =>
+      system: ActorSystem[?]): () => Handler[immutable.Seq[Envelope]] = { () =>
     new AdaptedR2dbcHandler(handlerFactory()) {
       override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
         import R2dbcOffsetStore.Validation._
@@ -281,7 +281,7 @@ private[projection] object R2dbcProjectionImpl {
       sourceProvider: SourceProvider[Offset, Envelope],
       handlerFactory: () => R2dbcHandler[Envelope],
       offsetStore: R2dbcOffsetStore,
-      r2dbcExecutor: R2dbcExecutor)(implicit ec: ExecutionContext, system: ActorSystem[_]): () => Handler[Envelope] = {
+      r2dbcExecutor: R2dbcExecutor)(implicit ec: ExecutionContext, system: ActorSystem[?]): () => Handler[Envelope] = {
     () =>
       new AdaptedR2dbcHandler(handlerFactory()) {
         override def process(envelope: Envelope): Future[Done] = {
@@ -325,7 +325,7 @@ private[projection] object R2dbcProjectionImpl {
   private[projection] def adaptedHandlerForAtLeastOnceAsync[Offset, Envelope](
       sourceProvider: SourceProvider[Offset, Envelope],
       handlerFactory: () => Handler[Envelope],
-      offsetStore: R2dbcOffsetStore)(implicit ec: ExecutionContext, system: ActorSystem[_]): () => Handler[Envelope] = {
+      offsetStore: R2dbcOffsetStore)(implicit ec: ExecutionContext, system: ActorSystem[?]): () => Handler[Envelope] = {
     () =>
       new AdaptedHandler(handlerFactory()) {
         override def process(envelope: Envelope): Future[Done] = {
@@ -368,7 +368,7 @@ private[projection] object R2dbcProjectionImpl {
       offsetStore: R2dbcOffsetStore)(
       implicit
       ec: ExecutionContext,
-      system: ActorSystem[_]): () => Handler[immutable.Seq[Envelope]] = { () =>
+      system: ActorSystem[?]): () => Handler[immutable.Seq[Envelope]] = { () =>
     new AdaptedHandler(handlerFactory()) {
       override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
         import R2dbcOffsetStore.Validation._
@@ -411,10 +411,10 @@ private[projection] object R2dbcProjectionImpl {
 
   private[projection] def adaptedHandlerForFlow[Offset, Envelope](
       sourceProvider: SourceProvider[Offset, Envelope],
-      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, _],
+      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, ?],
       offsetStore: R2dbcOffsetStore,
       settings: R2dbcProjectionSettings)(
-      implicit system: ActorSystem[_]): FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, _] = {
+      implicit system: ActorSystem[?]): FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, ?] = {
     import R2dbcOffsetStore.Validation._
     implicit val ec: ExecutionContext = system.executionContext
     FlowWithContext[Envelope, ProjectionContext]
@@ -484,7 +484,7 @@ private[projection] object R2dbcProjectionImpl {
   abstract class AdaptedR2dbcHandler[E](val delegate: R2dbcHandler[E])(
       implicit
       ec: ExecutionContext,
-      system: ActorSystem[_])
+      system: ActorSystem[?])
       extends Handler[E] {
 
     override def start(): Future[Done] =
@@ -495,7 +495,7 @@ private[projection] object R2dbcProjectionImpl {
   }
 
   @nowarn("msg=never used")
-  abstract class AdaptedHandler[E](val delegate: Handler[E])(implicit ec: ExecutionContext, system: ActorSystem[_])
+  abstract class AdaptedHandler[E](val delegate: Handler[E])(implicit ec: ExecutionContext, system: ActorSystem[?])
       extends Handler[E] {
 
     override def start(): Future[Done] =
@@ -554,7 +554,7 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
   /*
    * Build the final ProjectionSettings to use, if currently set to None fallback to values in config file
    */
-  private def settingsOrDefaults(implicit system: ActorSystem[_]): ProjectionSettings = {
+  private def settingsOrDefaults(implicit system: ActorSystem[?]): ProjectionSettings = {
     val settings = settingsOpt.getOrElse(ProjectionSettings(system))
     restartBackoffOpt match {
       case None    => settings
@@ -601,7 +601,7 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
   /**
    * INTERNAL API Return a RunningProjection
    */
-  override private[projection] def run()(implicit system: ActorSystem[_]): RunningProjection =
+  override private[projection] def run()(implicit system: ActorSystem[?]): RunningProjection =
     new R2dbcInternalProjectionState(settingsOrDefaults).newRunningInstance()
 
   /**
@@ -610,10 +610,10 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
    * This method returns the projection Source mapped with user 'handler' function, but before any sink attached. This
    * is mainly intended to be used by the TestKit allowing it to attach a TestSink to it.
    */
-  override private[projection] def mappedSource()(implicit system: ActorSystem[_]): Source[Done, Future[Done]] =
+  override private[projection] def mappedSource()(implicit system: ActorSystem[?]): Source[Done, Future[Done]] =
     new R2dbcInternalProjectionState(settingsOrDefaults).mappedSource()
 
-  private class R2dbcInternalProjectionState(settings: ProjectionSettings)(implicit val system: ActorSystem[_])
+  private class R2dbcInternalProjectionState(settings: ProjectionSettings)(implicit val system: ActorSystem[?])
       extends InternalProjectionState[Offset, Envelope](
         projectionId,
         sourceProvider,
@@ -623,7 +623,7 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
         settings) {
 
     implicit val executionContext: ExecutionContext = system.executionContext
-    override val logger: LoggingAdapter = Logging(system.classicSystem, classOf[R2dbcProjectionImpl[_, _]])
+    override val logger: LoggingAdapter = Logging(system.classicSystem, classOf[R2dbcProjectionImpl[?, ?]])
 
     private val isExactlyOnceWithSkip: Boolean =
       offsetStrategy match {
@@ -710,9 +710,9 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
       new R2dbcRunningProjection(RunningProjection.withBackoff(() => this.mappedSource(), settings), this)
   }
 
-  private class R2dbcRunningProjection(source: Source[Done, _], projectionState: R2dbcInternalProjectionState)(
+  private class R2dbcRunningProjection(source: Source[Done, ?], projectionState: R2dbcInternalProjectionState)(
       implicit
-      system: ActorSystem[_])
+      system: ActorSystem[?])
       extends RunningProjection
       with RunningProjectionManagement[Offset] {
 

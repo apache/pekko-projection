@@ -85,7 +85,7 @@ object ProjectionBehavior {
           ctx.log.debug2("Started actor handler [{}] for projection [{}]", ref, projection.projectionId)
         }
         val running = projection.run()(ctx.system)
-        if (running.isInstanceOf[RunningProjectionManagement[_]])
+        if (running.isInstanceOf[RunningProjectionManagement[?]])
           ProjectionManagement(ctx.system).register(projection.projectionId, ctx.self)
         new ProjectionBehavior[Any, Envelope](ctx, projection, stashBuffer).started(running)
       }
@@ -155,7 +155,7 @@ object ProjectionBehavior {
 
         case isPaused: IsPaused =>
           running match {
-            case mgmt: RunningProjectionManagement[_] =>
+            case mgmt: RunningProjectionManagement[?] =>
               if (isPaused.projectionId == projectionId) {
                 context.pipeToSelf(mgmt.getManagementState()) {
                   case Success(state) => GetManagementStateResult(state, isPaused.replyTo)
@@ -172,7 +172,7 @@ object ProjectionBehavior {
 
         case setPaused: SetPaused =>
           running match {
-            case mgmt: RunningProjectionManagement[_] =>
+            case mgmt: RunningProjectionManagement[?] =>
               if (setPaused.projectionId == projectionId) {
                 context.log.info2(
                   "Running state will be changed to [{}] for projection [{}].",
@@ -246,7 +246,7 @@ object ProjectionBehavior {
     Behaviors.same
   }
 
-  private def settingPaused(setPaused: SetPaused, mgmt: RunningProjectionManagement[_]): Behavior[Command] =
+  private def settingPaused(setPaused: SetPaused, mgmt: RunningProjectionManagement[?]): Behavior[Command] =
     Behaviors.receiveMessage {
       case Stopped =>
         context.log.debug("Projection [{}] stopped", projectionId)

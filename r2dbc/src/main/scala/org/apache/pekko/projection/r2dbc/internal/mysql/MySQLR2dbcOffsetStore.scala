@@ -65,7 +65,7 @@ private[projection] object MySQLR2dbcOffsetStore {
 private[projection] class MySQLR2dbcOffsetStore(
     projectionId: ProjectionId,
     sourceProvider: Option[BySlicesSourceProvider],
-    system: ActorSystem[_],
+    system: ActorSystem[?],
     settings: R2dbcProjectionSettings,
     r2dbcExecutor: R2dbcExecutor,
     clock: Clock = Clock.systemUTC())

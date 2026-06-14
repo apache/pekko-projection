@@ -46,7 +46,7 @@ import org.slf4j.LoggerFactory
  */
 @InternalApi
 class JdbcOffsetStore[S <: JdbcSession](
-    system: ActorSystem[_],
+    system: ActorSystem[?],
     settings: JdbcSettings,
     jdbcSessionFactory: () => S,
     clock: Clock) {
@@ -54,7 +54,7 @@ class JdbcOffsetStore[S <: JdbcSession](
   private val logger = LoggerFactory.getLogger(this.getClass)
   private val verboseLogging = logger.isDebugEnabled() && settings.verboseLoggingEnabled
 
-  def this(system: ActorSystem[_], settings: JdbcSettings, jdbcSessionFactory: () => S) =
+  def this(system: ActorSystem[?], settings: JdbcSettings, jdbcSessionFactory: () => S) =
     this(system, settings, jdbcSessionFactory, Clock.systemUTC())
 
   private val offsetSerialization = new OffsetSerialization(system)
@@ -134,7 +134,7 @@ class JdbcOffsetStore[S <: JdbcSession](
             if (buffer.isEmpty) None
             else if (buffer.forall(_.mergeable)) {
               Some(
-                fromStorageRepresentation[MergeableOffset[_], Offset](MultipleOffsets(buffer.toList))
+                fromStorageRepresentation[MergeableOffset[?], Offset](MultipleOffsets(buffer.toList))
                   .asInstanceOf[Offset])
             } else {
               buffer.find(_.id == projectionId).map(fromStorageRepresentation[Offset, Offset])

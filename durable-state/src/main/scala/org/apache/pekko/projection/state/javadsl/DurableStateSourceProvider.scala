@@ -48,7 +48,7 @@ import pekko.stream.javadsl.Source
 @ApiMayChange
 object DurableStateSourceProvider {
   def changesByTag[A](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       pluginId: String,
       tag: String): SourceProvider[Offset, DurableStateChange[A]] = {
     val durableStateStoreQuery =
@@ -58,7 +58,7 @@ object DurableStateSourceProvider {
   }
 
   def changesByTag[A](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       durableStateStoreQuery: DurableStateStoreQuery[A],
       tag: String): SourceProvider[Offset, DurableStateChange[A]] = {
     new DurableStateStoreQuerySourceProvider(durableStateStoreQuery, tag, system)
@@ -68,7 +68,7 @@ object DurableStateSourceProvider {
   private class DurableStateStoreQuerySourceProvider[A](
       durableStateStoreQuery: DurableStateStoreQuery[A],
       tag: String,
-      system: ActorSystem[_])
+      system: ActorSystem[?])
       extends javadsl.SourceProvider[Offset, DurableStateChange[A]] {
     implicit val executionContext: ExecutionContext = system.executionContext
 
@@ -85,13 +85,13 @@ object DurableStateSourceProvider {
 
     override def extractCreationTime(stateChange: DurableStateChange[A]): Long =
       stateChange match {
-        case u: UpdatedDurableState[_] => u.timestamp
-        case d: DeletedDurableState[_] => d.timestamp
+        case u: UpdatedDurableState[?] => u.timestamp
+        case d: DeletedDurableState[?] => d.timestamp
       }
   }
 
   def changesBySlices[A](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       durableStateStoreQueryPluginId: String,
       entityType: String,
       minSlice: Int,
@@ -103,7 +103,7 @@ object DurableStateSourceProvider {
   }
 
   def changesBySlices[A](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       durableStateStoreQuery: DurableStateStoreBySliceQuery[A],
       entityType: String,
       minSlice: Int,
@@ -112,7 +112,7 @@ object DurableStateSourceProvider {
   }
 
   def sliceForPersistenceId(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       durableStateStoreQueryPluginId: String,
       persistenceId: String): Int =
     DurableStateStoreRegistry(system)
@@ -120,7 +120,7 @@ object DurableStateSourceProvider {
       .sliceForPersistenceId(persistenceId)
 
   def sliceRanges(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       durableStateStoreQueryPluginId: String,
       numberOfRanges: Int): java.util.List[Pair[Integer, Integer]] =
     DurableStateStoreRegistry(system)
@@ -132,7 +132,7 @@ object DurableStateSourceProvider {
       entityType: String,
       override val minSlice: Int,
       override val maxSlice: Int,
-      system: ActorSystem[_])
+      system: ActorSystem[?])
       extends SourceProvider[Offset, DurableStateChange[A]]
       with BySlicesSourceProvider
       with DurableStateStore[A] {
@@ -151,8 +151,8 @@ object DurableStateSourceProvider {
 
     override def extractCreationTime(stateChange: DurableStateChange[A]): Long =
       stateChange match {
-        case u: UpdatedDurableState[_] => u.timestamp
-        case d: DeletedDurableState[_] => d.timestamp
+        case u: UpdatedDurableState[?] => u.timestamp
+        case d: DeletedDurableState[?] => d.timestamp
       }
 
     override def getObject(persistenceId: String): CompletionStage[GetObjectResult[A]] =

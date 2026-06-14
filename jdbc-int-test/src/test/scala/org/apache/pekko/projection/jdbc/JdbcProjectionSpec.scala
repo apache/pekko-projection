@@ -276,7 +276,7 @@ class JdbcProjectionSpec
   }
 
   // TODO: extract this to some utility
-  @tailrec private def eventuallyExpectError(sinkProbe: TestSubscriber.Probe[_]): Throwable = {
+  @tailrec private def eventuallyExpectError(sinkProbe: TestSubscriber.Probe[?]): Throwable = {
     sinkProbe.expectNextOrError() match {
       case Right(_)  => eventuallyExpectError(sinkProbe)
       case Left(exc) => exc

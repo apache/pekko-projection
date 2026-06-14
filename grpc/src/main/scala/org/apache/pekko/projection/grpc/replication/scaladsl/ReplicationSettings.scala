@@ -100,7 +100,7 @@ object ReplicationSettings {
    * client config for reaching the replica from the other replicas.
    */
   def apply[Command](entityTypeName: String, replicationProjectionProvider: scaladsl.ReplicationProjectionProvider)(
-      implicit system: ActorSystem[_],
+      implicit system: ActorSystem[?],
       classTag: ClassTag[Command]): ReplicationSettings[Command] = {
     val config = system.settings.config.getConfig(entityTypeName)
     val entityTypeKey = EntityTypeKey(entityTypeName)

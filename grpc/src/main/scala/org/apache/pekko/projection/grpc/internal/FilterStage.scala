@@ -105,7 +105,7 @@ import org.slf4j.LoggerFactory
      * If an exclude criteria is matching the include criteria are evaluated.
      * Returns `true` if there is a matching include criteria, otherwise `false`.
      */
-    def matches(env: EventEnvelope[_]): Boolean = {
+    def matches(env: EventEnvelope[?]): Boolean = {
       val pid = env.persistenceId
 
       def matchesRegexEntityIds(regexValues: Iterable[Regex]): Boolean = {

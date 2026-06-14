@@ -93,7 +93,7 @@ private[projection] class SlickProjectionImpl[Offset, Envelope, P <: JdbcProfile
   /*
    * Build the final ProjectionSettings to use, if currently set to None fallback to values in config file
    */
-  private def settingsOrDefaults(implicit system: ActorSystem[_]): ProjectionSettings = {
+  private def settingsOrDefaults(implicit system: ActorSystem[?]): ProjectionSettings = {
     val settings = settingsOpt.getOrElse(ProjectionSettings(system))
     restartBackoffOpt match {
       case None    => settings
@@ -160,7 +160,7 @@ private[projection] class SlickProjectionImpl[Offset, Envelope, P <: JdbcProfile
    * Return a RunningProjection
    */
   @InternalApi
-  override private[projection] def run()(implicit system: ActorSystem[_]): RunningProjection = {
+  override private[projection] def run()(implicit system: ActorSystem[?]): RunningProjection = {
     new SlickInternalProjectionState(settingsOrDefaults).newRunningInstance()
   }
 
@@ -170,7 +170,7 @@ private[projection] class SlickProjectionImpl[Offset, Envelope, P <: JdbcProfile
    * This method returns the projection Source mapped with user 'handler' function, but before any sink attached.
    * This is mainly intended to be used by the TestKit allowing it to attach a TestSink to it.
    */
-  override private[projection] def mappedSource()(implicit system: ActorSystem[_]): Source[Done, Future[Done]] =
+  override private[projection] def mappedSource()(implicit system: ActorSystem[?]): Source[Done, Future[Done]] =
     new SlickInternalProjectionState(settingsOrDefaults).mappedSource()
 
   /*
@@ -178,7 +178,7 @@ private[projection] class SlickProjectionImpl[Offset, Envelope, P <: JdbcProfile
    * This internal class will hold the KillSwitch that is needed
    * when building the mappedSource and when running the projection (to stop)
    */
-  private class SlickInternalProjectionState(settings: ProjectionSettings)(implicit val system: ActorSystem[_])
+  private class SlickInternalProjectionState(settings: ProjectionSettings)(implicit val system: ActorSystem[?])
       extends InternalProjectionState[Offset, Envelope](
         projectionId,
         sourceProvider,
@@ -204,8 +204,8 @@ private[projection] class SlickProjectionImpl[Offset, Envelope, P <: JdbcProfile
 
   }
 
-  private class SlickRunningProjection(source: Source[Done, _], projectionState: SlickInternalProjectionState)(
-      implicit system: ActorSystem[_])
+  private class SlickRunningProjection(source: Source[Done, ?], projectionState: SlickInternalProjectionState)(
+      implicit system: ActorSystem[?])
       extends RunningProjection
       with RunningProjectionManagement[Offset] {
 
