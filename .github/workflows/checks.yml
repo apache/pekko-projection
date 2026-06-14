@@ -46,7 +46,7 @@ jobs:
         uses: coursier/cache-action@95e5b1029b6b86e7bac033ee44a0697d8a527d2d # v8.1.1
 
       - name: Code style check and binary-compatibility check
-        run: sbt "verifyCodeStyle; mimaReportBinaryIssues"
+        run: sbt "checkCodeStyle; mimaReportBinaryIssues"
 
   check-code-compilation:
     name: Check Code Compilation
