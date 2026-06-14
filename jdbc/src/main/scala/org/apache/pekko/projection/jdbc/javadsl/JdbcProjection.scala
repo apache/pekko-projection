@@ -59,7 +59,7 @@ object JdbcProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionCreator: Supplier[S],
       handler: Supplier[JdbcHandler[Envelope, S]],
-      system: ActorSystem[_]): ExactlyOnceProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): ExactlyOnceProjection[Offset, Envelope] = {
 
     val sessionFactory = () => sessionCreator.get()
     val javaSourceProvider = new SourceProviderAdapter(sourceProvider)
@@ -102,7 +102,7 @@ object JdbcProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionCreator: Supplier[S],
       handler: Supplier[JdbcHandler[Envelope, S]],
-      system: ActorSystem[_]): AtLeastOnceProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): AtLeastOnceProjection[Offset, Envelope] = {
 
     val sessionFactory = () => sessionCreator.get()
     val offsetStore = JdbcProjectionImpl.createOffsetStore(sessionFactory)(system)
@@ -145,7 +145,7 @@ object JdbcProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionCreator: Supplier[S],
       handler: Supplier[Handler[Envelope]],
-      system: ActorSystem[_]): AtLeastOnceProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): AtLeastOnceProjection[Offset, Envelope] = {
 
     val sessionFactory = () => sessionCreator.get()
     val offsetStore = JdbcProjectionImpl.createOffsetStore(sessionFactory)(system)
@@ -177,7 +177,7 @@ object JdbcProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionCreator: Supplier[S],
       handler: Supplier[JdbcHandler[java.util.List[Envelope], S]],
-      system: ActorSystem[_]): GroupedProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val sessionFactory = () => sessionCreator.get()
     val javaSourceProvider = new SourceProviderAdapter(sourceProvider)
@@ -223,7 +223,7 @@ object JdbcProjection {
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionCreator: Supplier[S],
       handler: Supplier[Handler[java.util.List[Envelope]]],
-      system: ActorSystem[_]): GroupedProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val sessionFactory = () => sessionCreator.get()
     val javaSourceProvider = new SourceProviderAdapter(sourceProvider)
@@ -266,8 +266,8 @@ object JdbcProjection {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionCreator: Supplier[S],
-      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, _],
-      system: ActorSystem[_]): AtLeastOnceFlowProjection[Offset, Envelope] = {
+      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, ?],
+      system: ActorSystem[?]): AtLeastOnceFlowProjection[Offset, Envelope] = {
 
     val sessionFactory = () => sessionCreator.get()
     val javaSourceProvider = new SourceProviderAdapter(sourceProvider)
@@ -292,13 +292,13 @@ object JdbcProjection {
    */
   def createTablesIfNotExists[S <: JdbcSession](
       sessionFactory: Supplier[S],
-      system: ActorSystem[_]): CompletionStage[Done] =
+      system: ActorSystem[?]): CompletionStage[Done] =
     JdbcProjectionImpl.createOffsetStore(() => sessionFactory.get())(system).createIfNotExists().asJava
 
   /**
    * For testing purposes the projection offset and management tables can be dropped programmatically.
    */
-  def dropTablesIfExists[S <: JdbcSession](sessionFactory: Supplier[S], system: ActorSystem[_]): CompletionStage[Done] =
+  def dropTablesIfExists[S <: JdbcSession](sessionFactory: Supplier[S], system: ActorSystem[?]): CompletionStage[Done] =
     JdbcProjectionImpl.createOffsetStore(() => sessionFactory.get())(system).dropIfExists().asJava
 
 }

@@ -87,7 +87,7 @@ object Replication {
   def grpcReplication[Command, Event, State](
       settings: ReplicationSettings[Command],
       replicatedBehaviorFactory: JFunction[ReplicatedBehaviors[Command, Event, State], Behavior[Command]],
-      system: ActorSystem[_]): Replication[Command] = {
+      system: ActorSystem[?]): Replication[Command] = {
     val trueProducerFilter = new Predicate[EventEnvelope[Event]] {
       override def test(env: EventEnvelope[Event]): Boolean = true
     }
@@ -103,7 +103,7 @@ object Replication {
       settings: ReplicationSettings[Command],
       producerFilter: Predicate[EventEnvelope[Event]],
       replicatedBehaviorFactory: JFunction[ReplicatedBehaviors[Command, Event, State], Behavior[Command]],
-      system: ActorSystem[_]): Replication[Command] = {
+      system: ActorSystem[?]): Replication[Command] = {
 
     val scalaReplicationSettings = settings.toScala
 

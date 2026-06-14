@@ -26,7 +26,7 @@ object R2dbcReplication {
    * Creates a projection provider for using R2dbc as backend for the Pekko Projection gRPC transport for Replicated
    * Event Sourcing.
    */
-  def create(system: ActorSystem[_]): ReplicationProjectionProvider =
+  def create(system: ActorSystem[?]): ReplicationProjectionProvider =
     R2dbcProjection.atLeastOnceFlow(
       _,
       Optional.of(R2dbcProjectionSettings(system).withWarnAboutFilteredEventsInFlow(false)),

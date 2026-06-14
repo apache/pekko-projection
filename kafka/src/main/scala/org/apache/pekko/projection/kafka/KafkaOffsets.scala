@@ -27,7 +27,7 @@ object KafkaOffsets {
   private val separator = "-"
   private val RegexTp = """(.+)-(\d+)""".r
 
-  def toMergeableOffset(record: ConsumerRecord[_, _]): MergeableOffset[JLong] = {
+  def toMergeableOffset(record: ConsumerRecord[?, ?]): MergeableOffset[JLong] = {
     val key = partitionToKey(new TopicPartition(record.topic(), record.partition()))
     new MergeableOffset[JLong](Map(key -> record.offset()))
   }

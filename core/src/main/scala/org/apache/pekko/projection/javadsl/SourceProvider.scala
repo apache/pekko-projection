@@ -48,4 +48,4 @@ trait VerifiableSourceProvider[Offset, Envelope] extends SourceProvider[Offset, 
 }
 
 @ApiMayChange
-trait MergeableOffsetSourceProvider[Offset <: MergeableOffset[_], Envelope] extends SourceProvider[Offset, Envelope]
+trait MergeableOffsetSourceProvider[Offset <: MergeableOffset[?], Envelope] extends SourceProvider[Offset, Envelope]

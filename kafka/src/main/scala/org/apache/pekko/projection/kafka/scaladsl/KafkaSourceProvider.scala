@@ -33,7 +33,7 @@ object KafkaSourceProvider {
    * Create a [[SourceProvider]] that resumes from externally managed offsets
    */
   def apply[K, V](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       settings: ConsumerSettings[K, V],
       topics: Set[String]): SourceProvider[MergeableOffset[JLong], ConsumerRecord[K, V]] =
     new KafkaSourceProviderImpl[K, V](

@@ -111,7 +111,7 @@ object R2dbcProjectionSpec {
   }
 
   final case class TestRepository(session: R2dbcSession, settings: R2dbcProjectionSettings)(
-      implicit ec: ExecutionContext, system: ActorSystem[_]) {
+      implicit ec: ExecutionContext, system: ActorSystem[?]) {
     import TestRepository.table
 
     private val logger = LoggerFactory.getLogger(this.getClass)
@@ -193,7 +193,7 @@ class R2dbcProjectionSpec
     with LogCapturing {
   import R2dbcProjectionSpec._
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
   private implicit val ec: ExecutionContext = system.executionContext
 
   private val logger = LoggerFactory.getLogger(getClass)
@@ -248,7 +248,7 @@ class R2dbcProjectionSpec
   }
 
   // TODO: extract this to some utility
-  @tailrec private def eventuallyExpectError(sinkProbe: TestSubscriber.Probe[_]): Throwable = {
+  @tailrec private def eventuallyExpectError(sinkProbe: TestSubscriber.Probe[?]): Throwable = {
     sinkProbe.expectNextOrError() match {
       case Right(_)  => eventuallyExpectError(sinkProbe)
       case Left(exc) => exc

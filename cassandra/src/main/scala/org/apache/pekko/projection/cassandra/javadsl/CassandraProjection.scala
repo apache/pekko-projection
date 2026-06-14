@@ -120,7 +120,7 @@ object CassandraProjection {
   def atLeastOnceFlow[Offset, Envelope](
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
-      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, _])
+      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, ?])
       : AtLeastOnceFlowProjection[Offset, Envelope] =
     new CassandraProjectionImpl(
       projectionId,
@@ -154,7 +154,7 @@ object CassandraProjection {
    * For production it's recommended to create the table with DDL statements
    * before the system is started.
    */
-  def createTablesIfNotExists(system: ActorSystem[_]): CompletionStage[Done] = {
+  def createTablesIfNotExists(system: ActorSystem[?]): CompletionStage[Done] = {
     import scala.jdk.FutureConverters._
     val offsetStore = new CassandraOffsetStore(system)
     offsetStore.createKeyspaceAndTable().asJava

@@ -69,7 +69,7 @@ private[projection] object JdbcSettings {
   val configPath = "pekko.projection.jdbc"
   val dispatcherPath: String = configPath + ".use-dispatcher"
 
-  private def checkDispatcherConfig(system: ActorSystem[_]) = {
+  private def checkDispatcherConfig(system: ActorSystem[?]) = {
 
     val dispatcherConfigPath = system.settings.config.getString(dispatcherPath)
     val config = system.settings.config.getConfig(dispatcherConfigPath)
@@ -105,7 +105,7 @@ private[projection] object JdbcSettings {
     }
   }
 
-  def apply(system: ActorSystem[_]): JdbcSettings = {
+  def apply(system: ActorSystem[?]): JdbcSettings = {
     checkDispatcherConfig(system)
     val dispatcherConfigPath = system.settings.config.getString(dispatcherPath)
     val blockingDbDispatcher = system.dispatchers.lookup(DispatcherSelector.fromConfig(dispatcherConfigPath))

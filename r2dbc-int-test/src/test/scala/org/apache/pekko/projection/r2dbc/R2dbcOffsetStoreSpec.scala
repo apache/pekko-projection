@@ -38,7 +38,7 @@ class R2dbcOffsetStoreSpec
     with TestData
     with LogCapturing {
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
 
   // test clock for testing of the `last_updated` Instant
   private val clock = TestClock.nowMillis()

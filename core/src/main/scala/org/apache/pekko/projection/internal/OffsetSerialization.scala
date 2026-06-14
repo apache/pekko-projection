@@ -46,7 +46,7 @@ import pekko.serialization.Serializers
 /**
  * INTERNAL API
  */
-@InternalApi private[projection] class OffsetSerialization(system: ActorSystem[_]) {
+@InternalApi private[projection] class OffsetSerialization(system: ActorSystem[?]) {
   import OffsetSerialization._
 
   private val serialization = SerializationExtension(system)
@@ -101,7 +101,7 @@ import pekko.serialization.Serializers
       case i: Int                   => SingleOffset(id, IntManifest, i.toString, mergeable)
       case seq: query.Sequence      => SingleOffset(id, SequenceManifest, seq.value.toString, mergeable)
       case tbu: query.TimeBasedUUID => SingleOffset(id, TimeBasedUUIDManifest, tbu.value.toString, mergeable)
-      case mrg: MergeableOffset[_]  =>
+      case mrg: MergeableOffset[?]  =>
         val list = mrg.entries.map {
           case (key, innerOffset) =>
             toStorageRepresentation(ProjectionId(id.name, key), innerOffset, mergeable = true)

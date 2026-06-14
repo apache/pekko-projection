@@ -69,7 +69,7 @@ class R2dbcTimestampOffsetStoreSpec
     with LogCapturing {
   import R2dbcTimestampOffsetStoreSpec.TestTimestampSourceProvider
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
 
   private val clock = TestClock.nowMicros()
   def tick(): Unit = clock.tick(JDuration.ofMillis(1))

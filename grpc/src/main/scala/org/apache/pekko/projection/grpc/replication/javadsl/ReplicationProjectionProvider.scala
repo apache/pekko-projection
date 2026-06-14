@@ -37,6 +37,6 @@ trait ReplicationProjectionProvider {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, EventEnvelope[AnyRef]],
       replicationFlow: FlowWithContext[EventEnvelope[AnyRef], ProjectionContext, Done, ProjectionContext, NotUsed],
-      system: ActorSystem[_]): AtLeastOnceFlowProjection[Offset, EventEnvelope[AnyRef]]
+      system: ActorSystem[?]): AtLeastOnceFlowProjection[Offset, EventEnvelope[AnyRef]]
 
 }

@@ -90,7 +90,7 @@ object ReplicationSettings {
       commandClass: Class[Command],
       entityTypeName: String,
       replicationProjectionProvider: ReplicationProjectionProvider,
-      system: ActorSystem[_]): ReplicationSettings[Command] = {
+      system: ActorSystem[?]): ReplicationSettings[Command] = {
     val config = system.settings.config.getConfig(entityTypeName)
     val selfReplicaId = ReplicaId(config.getString("self-replica-id"))
     val grpcClientFallBack = system.settings.config.getConfig("""pekko.grpc.client."*"""")

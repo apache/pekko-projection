@@ -40,12 +40,12 @@ import slick.jdbc.JdbcProfile
  * INTERNAL API
  */
 @InternalApi private[projection] class SlickOffsetStore[P <: JdbcProfile](
-    system: ActorSystem[_],
+    system: ActorSystem[?],
     databaseConfig: DatabaseConfig[P],
     slickSettings: SlickSettings,
     clock: Clock) {
 
-  def this(system: ActorSystem[_], databaseConfig: DatabaseConfig[P], slickSettings: SlickSettings) =
+  def this(system: ActorSystem[?], databaseConfig: DatabaseConfig[P], slickSettings: SlickSettings) =
     this(system, databaseConfig, slickSettings, Clock.systemUTC())
 
   private[projection] val profile: P = databaseConfig.profile
@@ -94,17 +94,17 @@ import slick.jdbc.JdbcProfile
     results.map {
       case Nil                              => None
       case reps if reps.forall(_.mergeable) =>
-        Some(fromStorageRepresentation[MergeableOffset[_], Offset](MultipleOffsets(reps.toList)).asInstanceOf[Offset])
+        Some(fromStorageRepresentation[MergeableOffset[?], Offset](MultipleOffsets(reps.toList)).asInstanceOf[Offset])
       case reps =>
         reps.find(_.id == projectionId).map(fromStorageRepresentation[Offset, Offset])
     }
   }
 
-  private def newRow[Offset](rep: SingleOffset, millisSinceEpoch: Long): DBIO[_] =
+  private def newRow[Offset](rep: SingleOffset, millisSinceEpoch: Long): DBIO[?] =
     offsetTable.insertOrUpdate(
       OffsetRow(rep.id.name, rep.id.key, rep.offsetStr, rep.manifest, rep.mergeable, millisSinceEpoch))
 
-  def saveOffset[Offset](projectionId: ProjectionId, offset: Offset): slick.dbio.DBIO[_] = {
+  def saveOffset[Offset](projectionId: ProjectionId, offset: Offset): slick.dbio.DBIO[?] = {
     val millisSinceEpoch = clock.instant().toEpochMilli
     toStorageRepresentation(projectionId, offset) match {
       case offset: SingleOffset  => newRow(offset, millisSinceEpoch)
@@ -114,7 +114,7 @@ import slick.jdbc.JdbcProfile
     }
   }
 
-  def clearOffset(projectionId: ProjectionId): slick.dbio.DBIO[_] = {
+  def clearOffset(projectionId: ProjectionId): slick.dbio.DBIO[?] = {
     offsetTable.filter(row => row.projectionName === projectionId.name && row.projectionKey === projectionId.key).delete
   }
 

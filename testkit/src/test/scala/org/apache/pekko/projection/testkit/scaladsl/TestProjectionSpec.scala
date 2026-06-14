@@ -42,7 +42,7 @@ object TestProjectionSpec {
       appender(strBuffer)
   }
 
-  class AppenderActorHandler(behavior: Behavior[Command])(implicit system: ActorSystem[_])
+  class AppenderActorHandler(behavior: Behavior[Command])(implicit system: ActorSystem[?])
       extends ActorHandler[Int, Command](behavior) {
     import pekko.actor.typed.scaladsl.AskPattern._
 

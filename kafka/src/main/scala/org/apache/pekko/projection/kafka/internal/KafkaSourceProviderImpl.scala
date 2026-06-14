@@ -58,7 +58,7 @@ import org.apache.kafka.common.record.TimestampType
  * INTERNAL API
  */
 @InternalApi private[projection] class KafkaSourceProviderImpl[K, V](
-    system: ActorSystem[_],
+    system: ActorSystem[?],
     settings: ConsumerSettings[K, V],
     topics: Set[String],
     metadataClientFactory: () => MetadataClientAdapter,

@@ -33,7 +33,7 @@ object SlickContainerOffsetStoreSpec {
   abstract class ContainerJdbcSpecConfig extends SlickSpecConfig {
 
     val tag: Tag = TestTags.ContainerDb
-    def container: JdbcDatabaseContainer[_]
+    def container: JdbcDatabaseContainer[?]
 
     override def config = {
       baseConfig.withFallback(ConfigFactory.parseString(s"""
@@ -51,7 +51,7 @@ object SlickContainerOffsetStoreSpec {
 
     }
 
-    protected def initContainer(container: JdbcDatabaseContainer[_]): JdbcDatabaseContainer[_] = {
+    protected def initContainer(container: JdbcDatabaseContainer[?]): JdbcDatabaseContainer[?] = {
       container.withStartupCheckStrategy(new IsRunningStartupCheckStrategy)
       container.withStartupAttempts(5)
       container.start()
@@ -110,7 +110,7 @@ object SlickContainerOffsetStoreSpec {
 
     val container = initContainer(new MSSQLServerContainer("mcr.microsoft.com/mssql/server:2019-CU32-ubuntu-20.04"))
 
-    override protected def initContainer(container: JdbcDatabaseContainer[_]): JdbcDatabaseContainer[_] = {
+    override protected def initContainer(container: JdbcDatabaseContainer[?]): JdbcDatabaseContainer[?] = {
       container.asInstanceOf[MSSQLServerContainer].acceptLicense()
       container.withUrlParam("integratedSecurity", "false")
       container.withUrlParam("encrypt", "false")

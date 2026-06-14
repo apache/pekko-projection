@@ -65,7 +65,7 @@ import scalapb.options.Scalapb
   }
 
   private final class ScalaPbResolvedType[T <: scalapb.GeneratedMessage](
-      companion: scalapb.GeneratedMessageCompanion[_])
+      companion: scalapb.GeneratedMessageCompanion[?])
       extends ResolvedType[T] {
     override def parseFrom(bytes: ByteString): T = companion.parseFrom(bytes.newCodedInput()).asInstanceOf[T]
   }
@@ -105,7 +105,7 @@ import scalapb.options.Scalapb
  * INTERNAL API
  */
 @InternalApi private[pekko] class ProtoAnySerialization(
-    system: ActorSystem[_],
+    system: ActorSystem[?],
     descriptors: immutable.Seq[Descriptors.FileDescriptor],
     prefer: ProtoAnySerialization.Prefer) {
   import ProtoAnySerialization._
@@ -124,7 +124,7 @@ import scalapb.options.Scalapb
   /**
    * If only used for encoding messages and not decoding messages.
    */
-  def this(system: ActorSystem[_]) =
+  def this(system: ActorSystem[?]) =
     this(system, descriptors = Nil, ProtoAnySerialization.Prefer.Scala)
 
   def serialize(event: Any): ScalaPbAny = {
@@ -241,7 +241,7 @@ import scalapb.options.Scalapb
       case iae @ (_: IllegalAccessException | _: IllegalArgumentException) =>
         throw SerializationException(s"Could not invoke $className.parser()", iae)
       case cce: ClassCastException =>
-        throw SerializationException(s"$className.parser() did not return a ${classOf[Parser[_]]}", cce)
+        throw SerializationException(s"$className.parser() did not return a ${classOf[Parser[?]]}", cce)
     }
   }
 
@@ -311,7 +311,7 @@ import scalapb.options.Scalapb
         })
       .get
 
-  private def resolveTypeUrl(typeName: String): Option[ResolvedType[_]] =
+  private def resolveTypeUrl(typeName: String): Option[ResolvedType[?]] =
     allTypes.get(typeName).map(resolveTypeDescriptor)
 
   def encode(value: Any): ScalaPbAny =

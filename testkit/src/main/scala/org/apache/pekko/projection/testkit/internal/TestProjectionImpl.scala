@@ -116,7 +116,7 @@ private[projection] class TestProjectionImpl[Offset, Envelope] private[projectio
    * INTERNAL API: To control the [[pekko.projection.internal.InternalProjectionState]] used in the projection.
    */
   @InternalApi
-  private[projection] def newState(implicit system: ActorSystem[_]): TestInternalProjectionState[Offset, Envelope] =
+  private[projection] def newState(implicit system: ActorSystem[?]): TestInternalProjectionState[Offset, Envelope] =
     new TestInternalProjectionState(
       projectionId,
       sourceProvider,
@@ -126,18 +126,18 @@ private[projection] class TestProjectionImpl[Offset, Envelope] private[projectio
       offsetStoreFactory(),
       startOffset)
 
-  private def state(implicit system: ActorSystem[_]): TestInternalProjectionState[Offset, Envelope] = {
+  private def state(implicit system: ActorSystem[?]): TestInternalProjectionState[Offset, Envelope] = {
     if (_state.isEmpty) _state = Some(newState)
     _state.get
   }
 
-  override def run()(implicit system: ActorSystem[_]): RunningProjection = state.newRunningInstance()
+  override def run()(implicit system: ActorSystem[?]): RunningProjection = state.newRunningInstance()
 
   /**
    * INTERNAL API
    */
   @InternalApi
-  private[projection] def mappedSource()(implicit system: ActorSystem[_]): Source[Done, Future[Done]] =
+  private[projection] def mappedSource()(implicit system: ActorSystem[?]): Source[Done, Future[Done]] =
     state.mappedSource()
 }
 
@@ -154,7 +154,7 @@ private[projection] class TestInternalProjectionState[Offset, Envelope](
     offsetStrategy: OffsetStrategy,
     statusObserver: StatusObserver[Envelope],
     offsetStore: TestOffsetStore[Offset],
-    startOffset: Option[Offset])(implicit val system: ActorSystem[_])
+    startOffset: Option[Offset])(implicit val system: ActorSystem[?])
     extends InternalProjectionState[Offset, Envelope](
       projectionId,
       sourceProvider,
@@ -187,8 +187,8 @@ private[projection] class TestInternalProjectionState[Offset, Envelope](
  * INTERNAL API
  */
 @InternalApi
-private[projection] class TestRunningProjection(val source: Source[Done, _], killSwitch: SharedKillSwitch)(
-    implicit val system: ActorSystem[_])
+private[projection] class TestRunningProjection(val source: Source[Done, ?], killSwitch: SharedKillSwitch)(
+    implicit val system: ActorSystem[?])
     extends RunningProjection {
 
   protected val futureDone: Future[Done] = run()

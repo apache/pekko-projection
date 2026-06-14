@@ -98,7 +98,7 @@ class EventSourcedPubSubSpec
   import EventSourcedEndToEndSpec.Persister
   import EventSourcedPubSubSpec._
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
   private implicit val ec: ExecutionContext = system.executionContext
 
   private val log = LoggerFactory.getLogger(getClass)

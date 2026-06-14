@@ -83,7 +83,7 @@ abstract class InternalProjectionStateMetricsSpec
 
   // inspired on ProjectionTestkit's runInternal
   protected def runInternal(
-      projectionState: InMemInternalProjectionState[_, _],
+      projectionState: InMemInternalProjectionState[?, ?],
       max: FiniteDuration = 3.seconds,
       interval: FiniteDuration = 100.millis)(assertFunction: => Unit): Unit = {
 
@@ -135,7 +135,7 @@ object InternalProjectionStateMetricsSpec {
       handlerStrategy: HandlerStrategy,
       numberOfEnvelopes: Int = 6,
       statusObserver: StatusObserver[Envelope] = NoopStatusObserver)(
-      implicit system: ActorSystem[_],
+      implicit system: ActorSystem[?],
       projectionId: ProjectionId) {
 
     private implicit val exCtx: ExecutionContext = system.executionContext
@@ -196,7 +196,7 @@ object InternalProjectionStateMetricsSpec {
       handlerStrategy: HandlerStrategy,
       statusObserver: StatusObserver[Env],
       settings: ProjectionSettings,
-      offsetStore: TestInMemoryOffsetStoreImpl[Offset])(implicit val system: ActorSystem[_])
+      offsetStore: TestInMemoryOffsetStoreImpl[Offset])(implicit val system: ActorSystem[?])
       extends InternalProjectionState[Offset, Env](
         projectionId,
         sourceProvider,
@@ -220,7 +220,7 @@ object InternalProjectionStateMetricsSpec {
     def newRunningInstance(): RunningProjection =
       new TestRunningProjection(RunningProjection.withBackoff(() => mappedSource(), settings), killSwitch)
 
-    class TestRunningProjection(val source: Source[Done, _], killSwitch: SharedKillSwitch) extends RunningProjection {
+    class TestRunningProjection(val source: Source[Done, ?], killSwitch: SharedKillSwitch) extends RunningProjection {
 
       private val futureDone = source.run()
 

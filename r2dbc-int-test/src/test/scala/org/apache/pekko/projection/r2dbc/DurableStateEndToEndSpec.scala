@@ -126,7 +126,7 @@ class DurableStateEndToEndSpec
     with LogCapturing {
   import DurableStateEndToEndSpec._
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
 
   private val settings = R2dbcProjectionSettings(testKit.system)
 

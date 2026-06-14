@@ -86,7 +86,7 @@ class TelemetryProviderEnsembleSpec extends ScalaTestWithActorTestKit(s"""
 object FakeTelemetry {
   val state = new AtomicReference[String]("")
 }
-class FakeTelemetry(projectionId: ProjectionId, system: ActorSystem[_]) extends Telemetry {
+class FakeTelemetry(projectionId: ProjectionId, system: ActorSystem[?]) extends Telemetry {
 
   override def failed(cause: Throwable): Unit = {}
 

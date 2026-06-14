@@ -37,7 +37,7 @@ import pekko.projection.scaladsl.SourceProvider
 import pekko.stream.OverflowStrategy
 import pekko.stream.scaladsl.Source
 
-class TestSourceProviderWithInput()(implicit val system: ActorSystem[_])
+class TestSourceProviderWithInput()(implicit val system: ActorSystem[?])
     extends SourceProvider[TimestampOffset, EventEnvelope[String]]
     with BySlicesSourceProvider
     with EventTimestampQuery

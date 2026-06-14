@@ -52,8 +52,8 @@ import org.apache.kafka.common.TopicPartition
  * INTERNAL API
  */
 @InternalApi private[projection] class MetadataClientAdapterImpl(
-    system: ActorSystem[_],
-    settings: ConsumerSettings[_, _])
+    system: ActorSystem[?],
+    settings: ConsumerSettings[?, ?])
     extends MetadataClientAdapter {
   import MetadataClientAdapterImpl._
 

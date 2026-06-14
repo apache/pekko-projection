@@ -43,7 +43,7 @@ private[projection] final case class ProjectionSettings(
 @InternalApi
 private[projection] object ProjectionSettings {
 
-  def apply(system: ActorSystem[_]): ProjectionSettings = {
+  def apply(system: ActorSystem[?]): ProjectionSettings = {
     fromConfig(system.settings.config.getConfig("pekko.projection"))
   }
 
@@ -94,7 +94,7 @@ private object RecoveryStrategyConfig {
 /**
  * INTERNAL API: mixin to projection impl to not have to implement all overloaded variants in several places
  */
-@InternalApi private[projection] trait SettingsImpl[ProjectionImpl <: Projection[_]] { self: ProjectionImpl =>
+@InternalApi private[projection] trait SettingsImpl[ProjectionImpl <: Projection[?]] { self: ProjectionImpl =>
   def withRestartBackoffSettings(restartBackoff: RestartSettings): ProjectionImpl
 
   def withRestartBackoff(minBackoff: FiniteDuration, maxBackoff: FiniteDuration, randomFactor: Double): ProjectionImpl =

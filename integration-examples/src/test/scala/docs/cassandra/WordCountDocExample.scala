@@ -193,7 +193,7 @@ object WordCountDocExample {
     import org.apache.pekko
     import pekko.projection.scaladsl.ActorHandler
 
-    class WordCountActorHandler(behavior: Behavior[WordCountProcessor.Command])(implicit system: ActorSystem[_])
+    class WordCountActorHandler(behavior: Behavior[WordCountProcessor.Command])(implicit system: ActorSystem[?])
         extends ActorHandler[WordEnvelope, WordCountProcessor.Command](behavior) {
       import pekko.actor.typed.scaladsl.AskPattern._
       import system.executionContext
@@ -294,7 +294,7 @@ object WordCountDocExample {
     import pekko.actor.typed.scaladsl.Behaviors
     import pekko.projection.scaladsl.ActorHandler
 
-    class WordCountActorHandler(behavior: Behavior[WordCountProcessor.Command])(implicit system: ActorSystem[_])
+    class WordCountActorHandler(behavior: Behavior[WordCountProcessor.Command])(implicit system: ActorSystem[?])
         extends ActorHandler[WordEnvelope, WordCountProcessor.Command](behavior) {
       import pekko.actor.typed.scaladsl.AskPattern._
       import system.executionContext

@@ -40,7 +40,7 @@ private[pekko] object ReplicationProjectionProviderAdapter {
         projectionId: ProjectionId,
         sourceProvider: SSourceProvider[Offset, EventEnvelope[AnyRef]],
         replicationFlow: SFlowWithContext[EventEnvelope[AnyRef], ProjectionContext, Done, ProjectionContext, NotUsed],
-        system: ActorSystem[_]) =>
+        system: ActorSystem[?]) =>
       val providerWithSlices = sourceProvider match {
         case withSlices: SSourceProvider[Offset, EventEnvelope[AnyRef]] with BySlicesSourceProvider => withSlices
         case noSlices                                                                               =>

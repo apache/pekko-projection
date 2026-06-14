@@ -30,7 +30,7 @@ object ProducerApiSample {
 
   def otherReplication: Replication[Unit] = ???
   def multiEventProducers(settings: ReplicationSettings[MyCommand], host: String, port: Int)(
-      implicit system: ActorSystem[_]): Unit = {
+      implicit system: ActorSystem[?]): Unit = {
     // #multi-service
     val replication: Replication[MyCommand] =
       Replication.grpcReplication(settings)(MyReplicatedBehavior.apply)

@@ -28,10 +28,10 @@ import pekko.projection.ProjectionId
 import pekko.projection.scaladsl
 
 @ApiMayChange object ProjectionManagement {
-  def get(system: ActorSystem[_]): ProjectionManagement = new ProjectionManagement(system)
+  def get(system: ActorSystem[?]): ProjectionManagement = new ProjectionManagement(system)
 }
 
-@ApiMayChange class ProjectionManagement(system: ActorSystem[_]) {
+@ApiMayChange class ProjectionManagement(system: ActorSystem[?]) {
   private val delegate = scaladsl.ProjectionManagement(system)
   private implicit val ec: ExecutionContext = system.executionContext
 

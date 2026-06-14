@@ -32,7 +32,7 @@ private[projection] final case class KafkaSourceProviderSettings(readOffsetDelay
  */
 @InternalApi
 private[projection] object KafkaSourceProviderSettings {
-  def apply(system: ActorSystem[_]): KafkaSourceProviderSettings = {
+  def apply(system: ActorSystem[?]): KafkaSourceProviderSettings = {
     fromConfig(system.classicSystem.settings.config.getConfig("pekko.projection.kafka"))
   }
 

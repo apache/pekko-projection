@@ -20,7 +20,7 @@ import com.typesafe.config.Config
 
 @ApiMayChange
 object EventProducerSettings {
-  def apply(system: ActorSystem[_]): EventProducerSettings =
+  def apply(system: ActorSystem[?]): EventProducerSettings =
     apply(system.settings.config.getConfig("pekko.projection.grpc.producer"))
 
   def apply(config: Config): EventProducerSettings = {

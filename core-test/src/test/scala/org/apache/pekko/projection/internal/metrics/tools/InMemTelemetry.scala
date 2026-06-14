@@ -30,7 +30,7 @@ import pekko.projection.internal.Telemetry
 
 /**
  */
-class InMemTelemetry(projectionId: ProjectionId, system: ActorSystem[_]) extends Telemetry {
+class InMemTelemetry(projectionId: ProjectionId, system: ActorSystem[?]) extends Telemetry {
   private val instruments: InMemInstruments = InMemInstrumentsRegistry(system).forId(projectionId)
 
   import instruments._
@@ -74,9 +74,9 @@ case class ExternalContext(readyTimestampNanos: Long = System.nanoTime())
 case object TelemetryException extends RuntimeException("Oh, no! Handler errored.") with NoStackTrace
 
 object InMemInstrumentsRegistry extends ExtensionId[InMemInstrumentsRegistry] {
-  override def createExtension(system: ActorSystem[_]): InMemInstrumentsRegistry = new InMemInstrumentsRegistry(system)
+  override def createExtension(system: ActorSystem[?]): InMemInstrumentsRegistry = new InMemInstrumentsRegistry(system)
 }
-class InMemInstrumentsRegistry(system: ActorSystem[_]) extends Extension {
+class InMemInstrumentsRegistry(system: ActorSystem[?]) extends Extension {
   private val instrumentMap = new ConcurrentHashMap[ProjectionId, InMemInstruments]()
   def forId(projectionId: ProjectionId): InMemInstruments = {
     instrumentMap.computeIfAbsent(projectionId,
@@ -86,7 +86,7 @@ class InMemInstrumentsRegistry(system: ActorSystem[_]) extends Extension {
   }
 
   // these are added to use the constructor argument and keep the AkkaDisciplinePlugin happy
-  val observedActorSystem = new AtomicReference[ActorSystem[_]](null)
+  val observedActorSystem = new AtomicReference[ActorSystem[?]](null)
   observedActorSystem.set(system)
 }
 

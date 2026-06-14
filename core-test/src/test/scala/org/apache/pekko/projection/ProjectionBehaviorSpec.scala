@@ -101,7 +101,7 @@ object ProjectionBehaviorSpec {
         () => new TestInMemoryOffsetStoreImpl[Int](),
         None) {
 
-    override private[projection] def newState(implicit system: ActorSystem[_]): TestInternalProjectionState[Int, Int] =
+    override private[projection] def newState(implicit system: ActorSystem[?]): TestInternalProjectionState[Int, Int] =
       new ProjectionBehaviourTestInternalProjectionState(
         projectionId,
         sourceProvider,
@@ -120,7 +120,7 @@ object ProjectionBehaviorSpec {
         statusObserver: StatusObserver[Int],
         offsetStore: TestOffsetStore[Int],
         testProbe: TestProbe[ProbeMessage],
-        failToStop: Boolean)(implicit system: ActorSystem[_])
+        failToStop: Boolean)(implicit system: ActorSystem[?])
         extends TestInternalProjectionState[Int, Int](
           projectionId,
           sourceProvider,
@@ -141,11 +141,11 @@ object ProjectionBehaviorSpec {
 
     private[projection] class ProjectionBehaviourTestRunningProjection(
         projectionId: ProjectionId,
-        source: Source[Done, _],
+        source: Source[Done, ?],
         killSwitch: SharedKillSwitch,
         offsetStore: TestOffsetStore[Int],
         testProbe: TestProbe[ProbeMessage],
-        failToStop: Boolean)(implicit _system: ActorSystem[_])
+        failToStop: Boolean)(implicit _system: ActorSystem[?])
         extends TestRunningProjection(source, killSwitch)
         with RunningProjectionManagement[Int] {
       import system.executionContext

@@ -40,7 +40,7 @@ import pekko.stream.scaladsl.Source
 object EventSourcedProvider {
 
   def eventsByTag[Event](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       readJournalPluginId: String,
       tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
     val eventsByTagQuery =
@@ -49,7 +49,7 @@ object EventSourcedProvider {
   }
 
   def eventsByTag[Event](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       readJournalPluginId: String,
       readJournalConfig: Config,
       tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
@@ -59,7 +59,7 @@ object EventSourcedProvider {
   }
 
   def eventsByTag[Event](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       eventsByTagQuery: EventsByTagQuery,
       tag: String): SourceProvider[Offset, EventEnvelope[Event]] = {
     new EventsByTagSourceProvider(eventsByTagQuery, tag, system)
@@ -68,7 +68,7 @@ object EventSourcedProvider {
   private class EventsByTagSourceProvider[Event](
       eventsByTagQuery: EventsByTagQuery,
       tag: String,
-      system: ActorSystem[_])
+      system: ActorSystem[?])
       extends SourceProvider[Offset, EventEnvelope[Event]] {
     implicit val executionContext: ExecutionContext = system.executionContext
 
@@ -86,7 +86,7 @@ object EventSourcedProvider {
   }
 
   def eventsBySlices[Event](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       readJournalPluginId: String,
       entityType: String,
       minSlice: Int,
@@ -97,7 +97,7 @@ object EventSourcedProvider {
   }
 
   def eventsBySlices[Event](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       readJournalPluginId: String,
       readJournalConfig: Config,
       entityType: String,
@@ -109,7 +109,7 @@ object EventSourcedProvider {
   }
 
   def eventsBySlices[Event](
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       eventsBySlicesQuery: EventsBySliceQuery,
       entityType: String,
       minSlice: Int,
@@ -126,14 +126,14 @@ object EventSourcedProvider {
     }
   }
 
-  def sliceForPersistenceId(system: ActorSystem[_], readJournalPluginId: String, persistenceId: String): Int =
+  def sliceForPersistenceId(system: ActorSystem[?], readJournalPluginId: String, persistenceId: String): Int =
     PersistenceQuery(system)
       .readJournalFor[EventsBySliceQuery](readJournalPluginId)
       .sliceForPersistenceId(persistenceId)
 
   /** @since 2.0.0 */
   def sliceForPersistenceId(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       readJournalPluginId: String,
       readJournalConfig: Config,
       persistenceId: String): Int =
@@ -141,12 +141,12 @@ object EventSourcedProvider {
       .readJournalFor[EventsBySliceQuery](readJournalPluginId, readJournalConfig)
       .sliceForPersistenceId(persistenceId)
 
-  def sliceRanges(system: ActorSystem[_], readJournalPluginId: String, numberOfRanges: Int): immutable.Seq[Range] =
+  def sliceRanges(system: ActorSystem[?], readJournalPluginId: String, numberOfRanges: Int): immutable.Seq[Range] =
     PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId).sliceRanges(numberOfRanges)
 
   /** @since 2.0.0 */
   def sliceRanges(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       readJournalPluginId: String,
       readJournalConfig: Config,
       numberOfRanges: Int): immutable.Seq[Range] =
@@ -159,7 +159,7 @@ object EventSourcedProvider {
       entityType: String,
       override val minSlice: Int,
       override val maxSlice: Int,
-      system: ActorSystem[_])
+      system: ActorSystem[?])
       extends SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]]
       with BySlicesSourceProvider
       with EventTimestampQuery

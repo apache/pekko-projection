@@ -138,7 +138,7 @@ private[projection] final case class GroupedHandlerStrategy[Envelope](
  */
 @InternalApi
 private[projection] final case class FlowHandlerStrategy[Envelope](
-    flowCtx: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, _])
+    flowCtx: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, ?])
     extends HandlerStrategy {
 
   override def recreateHandlerOnNextAccess(): Unit = ()

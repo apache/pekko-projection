@@ -56,7 +56,7 @@ class EventTimestampQuerySpec(testContainerConf: TestContainerConf)
     testContainerConf.stop()
   }
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
   private implicit val ec: ExecutionContext = system.executionContext
   private val entityType = nextEntityType()
   private val streamId = "stream_id_" + entityType

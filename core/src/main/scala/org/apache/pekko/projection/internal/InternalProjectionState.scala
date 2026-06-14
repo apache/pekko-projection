@@ -59,7 +59,7 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
     settings: ProjectionSettings) {
 
   def logger: LoggingAdapter
-  implicit def system: ActorSystem[_]
+  implicit def system: ActorSystem[?]
   implicit def executionContext: ExecutionContext
 
   private var telemetry: Telemetry = NoopTelemetry
@@ -273,10 +273,10 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
       }
 
       sourceProvider match {
-        case _: MergeableOffsetSourceProvider[_, _] =>
+        case _: MergeableOffsetSourceProvider[?, ?] =>
           val batches = envelopesAndOffsets
             .flatMap {
-              case context @ ProjectionContextImpl(offset: MergeableOffset[_] @unchecked, _, _, _) =>
+              case context @ ProjectionContextImpl(offset: MergeableOffset[?] @unchecked, _, _, _) =>
                 offset.entries.toSeq.map {
                   case (key, _) => (key, context)
                 }
@@ -360,7 +360,7 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
               }
           }
 
-      case _: FlowHandlerStrategy[_] =>
+      case _: FlowHandlerStrategy[?] =>
         // not possible, no API for this
         throw new IllegalStateException("Unsupported combination of exactlyOnce and flow")
     }

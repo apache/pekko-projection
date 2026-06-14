@@ -74,7 +74,7 @@ private[pekko] final class ReplicationImpl[Command] private (
 @InternalApi
 private[pekko] object ReplicationImpl {
 
-  private val log = LoggerFactory.getLogger(classOf[ReplicationImpl[_]])
+  private val log = LoggerFactory.getLogger(classOf[ReplicationImpl[?]])
 
   private val filteredEvent = Future.successful(None)
 
@@ -86,7 +86,7 @@ private[pekko] object ReplicationImpl {
   def grpcReplication[Command, Event, State](
       settings: ReplicationSettings[Command],
       producerFilter: EventEnvelope[Event] => Boolean,
-      replicatedEntity: ReplicatedEntity[Command])(implicit system: ActorSystem[_]): ReplicationImpl[Command] = {
+      replicatedEntity: ReplicatedEntity[Command])(implicit system: ActorSystem[?]): ReplicationImpl[Command] = {
     require(
       system.classicSystem.asInstanceOf[ExtendedActorSystem].provider.isInstanceOf[ClusterActorRefProvider],
       "Replicated Event Sourcing over gRPC only possible together with Pekko cluster (pekko.actor.provider = cluster)")
@@ -125,7 +125,7 @@ private[pekko] object ReplicationImpl {
   private def startConsumer[C](
       remoteReplica: Replica,
       settings: ReplicationSettings[C],
-      entityRefFactory: String => EntityRef[C])(implicit system: ActorSystem[_]): Unit = {
+      entityRefFactory: String => EntityRef[C])(implicit system: ActorSystem[?]): Unit = {
     implicit val timeout: Timeout = settings.entityEventReplicationTimeout
     implicit val ec: ExecutionContext = system.executionContext
 

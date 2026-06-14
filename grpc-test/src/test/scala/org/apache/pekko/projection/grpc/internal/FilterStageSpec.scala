@@ -126,7 +126,7 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
       }
 
     private val envPublisherPromise = Promise[TestPublisher.Probe[EventEnvelope[Any]]]()
-    private val envSource: Source[EventEnvelope[Any], _] =
+    private val envSource: Source[EventEnvelope[Any], ?] =
       TestSource()
         .mapMaterializedValue(envPublisherPromise.success)
     private val envFlow: Flow[StreamIn, EventEnvelope[Any], NotUsed] =

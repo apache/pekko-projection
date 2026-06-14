@@ -55,7 +55,7 @@ object R2dbcProjection {
       settings: Optional[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
       handler: Supplier[R2dbcHandler[Envelope]],
-      system: ActorSystem[_]): ExactlyOnceProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): ExactlyOnceProjection[Offset, Envelope] = {
     scaladsl.R2dbcProjection
       .exactlyOnce[Offset, Envelope](
         projectionId,
@@ -84,7 +84,7 @@ object R2dbcProjection {
       settings: Optional[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
       handler: Supplier[R2dbcHandler[Envelope]],
-      system: ActorSystem[_]): AtLeastOnceProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): AtLeastOnceProjection[Offset, Envelope] = {
     scaladsl.R2dbcProjection
       .atLeastOnce[Offset, Envelope](
         projectionId,
@@ -113,7 +113,7 @@ object R2dbcProjection {
       settings: Optional[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
       handler: Supplier[Handler[Envelope]],
-      system: ActorSystem[_]): AtLeastOnceProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): AtLeastOnceProjection[Offset, Envelope] = {
 
     scaladsl.R2dbcProjection
       .atLeastOnceAsync[Offset, Envelope](
@@ -138,7 +138,7 @@ object R2dbcProjection {
       settings: Optional[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
       handler: Supplier[R2dbcHandler[java.util.List[Envelope]]],
-      system: ActorSystem[_]): GroupedProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
     scaladsl.R2dbcProjection
       .groupedWithin[Offset, Envelope](
         projectionId,
@@ -166,7 +166,7 @@ object R2dbcProjection {
       settings: Optional[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
       handler: Supplier[Handler[java.util.List[Envelope]]],
-      system: ActorSystem[_]): GroupedProjection[Offset, Envelope] = {
+      system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
     scaladsl.R2dbcProjection
       .groupedWithinAsync[Offset, Envelope](
         projectionId,
@@ -201,8 +201,8 @@ object R2dbcProjection {
       projectionId: ProjectionId,
       settings: Optional[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
-      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, _],
-      system: ActorSystem[_]): AtLeastOnceFlowProjection[Offset, Envelope] = {
+      handler: FlowWithContext[Envelope, ProjectionContext, Done, ProjectionContext, ?],
+      system: ActorSystem[?]): AtLeastOnceFlowProjection[Offset, Envelope] = {
     scaladsl.R2dbcProjection
       .atLeastOnceFlow[Offset, Envelope](
         projectionId,

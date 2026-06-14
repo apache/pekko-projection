@@ -87,7 +87,7 @@ import pekko.stream.scaladsl.Source
   /*
    * Build the final ProjectionSettings to use, if currently set to None fallback to values in config file
    */
-  private def settingsOrDefaults(implicit system: ActorSystem[_]): ProjectionSettings = {
+  private def settingsOrDefaults(implicit system: ActorSystem[?]): ProjectionSettings = {
     val settings = settingsOpt.getOrElse(ProjectionSettings(system))
     restartBackoffOpt match {
       case None    => settings
@@ -158,7 +158,7 @@ import pekko.stream.scaladsl.Source
    * Return a RunningProjection
    */
   @InternalApi
-  override private[projection] def run()(implicit system: ActorSystem[_]): RunningProjection = {
+  override private[projection] def run()(implicit system: ActorSystem[?]): RunningProjection = {
     new CassandraInternalProjectionState(settingsOrDefaults).newRunningInstance()
   }
 
@@ -169,7 +169,7 @@ import pekko.stream.scaladsl.Source
    * This is mainly intended to be used by the TestKit allowing it to attach a TestSink to it.
    */
   @InternalApi
-  override private[projection] def mappedSource()(implicit system: ActorSystem[_]): Source[Done, Future[Done]] = {
+  override private[projection] def mappedSource()(implicit system: ActorSystem[?]): Source[Done, Future[Done]] = {
     new CassandraInternalProjectionState(settingsOrDefaults).mappedSource()
   }
 
@@ -178,7 +178,7 @@ import pekko.stream.scaladsl.Source
    * This internal class will hold the KillSwitch that is needed
    * when building the mappedSource and when running the projection (to stop)
    */
-  private class CassandraInternalProjectionState(val settings: ProjectionSettings)(implicit val system: ActorSystem[_])
+  private class CassandraInternalProjectionState(val settings: ProjectionSettings)(implicit val system: ActorSystem[?])
       extends InternalProjectionState[Offset, Envelope](
         projectionId,
         sourceProvider,
@@ -210,9 +210,9 @@ import pekko.stream.scaladsl.Source
   }
 
   private class CassandraRunningProjection(
-      source: Source[Done, _],
+      source: Source[Done, ?],
       offsetStore: CassandraOffsetStore,
-      projectionState: CassandraInternalProjectionState)(implicit system: ActorSystem[_])
+      projectionState: CassandraInternalProjectionState)(implicit system: ActorSystem[?])
       extends RunningProjection
       with RunningProjectionManagement[Offset] {
 

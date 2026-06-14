@@ -43,7 +43,7 @@ object EventProducer {
    * @param source The source that should be available from this event producer
    */
   def grpcServiceHandler(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       source: EventProducerSource): JapiFunction[HttpRequest, CompletionStage[HttpResponse]] =
     grpcServiceHandler(system, Collections.singleton(source))
 
@@ -53,7 +53,7 @@ object EventProducer {
    * @param sources All sources that should be available from this event producer
    */
   def grpcServiceHandler(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       sources: java.util.Set[EventProducerSource]): JapiFunction[HttpRequest, CompletionStage[HttpResponse]] =
     grpcServiceHandler(system, sources, Optional.empty())
 
@@ -64,7 +64,7 @@ object EventProducer {
    * @param interceptor An optional request interceptor applied to each request to the service
    */
   def grpcServiceHandler(
-      system: ActorSystem[_],
+      system: ActorSystem[?],
       sources: java.util.Set[EventProducerSource],
       interceptor: Optional[EventProducerInterceptor]): JapiFunction[HttpRequest, CompletionStage[HttpResponse]] = {
     val scalaProducerSources = sources.asScala.map(_.asScala).toSet

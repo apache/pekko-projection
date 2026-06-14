@@ -25,7 +25,7 @@ object ClassicDocExample {
     import pekko.actor.typed.scaladsl.adapter._
 
     private val system = pekko.actor.ActorSystem("Example")
-    private val typedSystem: pekko.actor.typed.ActorSystem[_] = system.toTyped
+    private val typedSystem: pekko.actor.typed.ActorSystem[?] = system.toTyped
     // #system
 
     typedSystem.terminate() // avoid unused warning

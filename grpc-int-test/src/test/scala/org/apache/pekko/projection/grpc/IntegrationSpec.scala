@@ -117,7 +117,7 @@ class IntegrationSpec(testContainerConf: TestContainerConf)
 
   def this() = this(new TestContainerConf)
 
-  override def typedSystem: ActorSystem[_] = system
+  override def typedSystem: ActorSystem[?] = system
   private implicit val ec: ExecutionContext = system.executionContext
   private val numberOfTests = 6
 
