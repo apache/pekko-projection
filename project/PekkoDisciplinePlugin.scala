@@ -45,7 +45,7 @@ object PekkoDisciplinePlugin extends AutoPlugin {
                 // scala/bug#7014 is a false positive compiler warning affecting r2dbc-spi jar loading
                 "-Wconf:msg=scala/bug#7014:s")
             case Some((3, _)) =>
-              Set("-Yfuture-lazy-vals")
+              Set("-Yfuture-lazy-vals", "-release:17")
             case _ =>
               Nil
           }).toSeq,
