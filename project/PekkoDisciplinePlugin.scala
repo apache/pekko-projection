@@ -45,7 +45,20 @@ object PekkoDisciplinePlugin extends AutoPlugin {
                 // scala/bug#7014 is a false positive compiler warning affecting r2dbc-spi jar loading
                 "-Wconf:msg=scala/bug#7014:s")
             case Some((3, _)) =>
-              Set("-Yfuture-lazy-vals", "-release:17")
+              Set(
+                "-Yfuture-lazy-vals",
+                "-release:17",
+                "-Wconf:msg=Implicit parameters should be provided with a `using` clause:s",
+                "-Wconf:msg=is deprecated for wildcard arguments of types:s",
+                "-Wconf:msg=The trailing ` _` for eta-expansion is unnecessary:s",
+                "-Wconf:msg=with as a type operator has been deprecated:s",
+                "-Wconf:msg=Unreachable case except for null:s",
+                "-Wconf:msg=is no longer supported for vararg splices:s",
+                "-Wconf:msg=is not declared infix:s",
+                "-Wconf:msg=Xfatal-warnings is a deprecated alias:s",
+                "-Wconf:msg=Ignoring \\[this\\] qualifier:s",
+                "-Wconf:msg=trait App in package scala is deprecated:s",
+                "-Wconf:msg=bad option.*-Yfuture-lazy-vals:s")
             case _ =>
               Nil
           }).toSeq,

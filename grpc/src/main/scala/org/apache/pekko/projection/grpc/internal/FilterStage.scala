@@ -161,7 +161,7 @@ import org.slf4j.LoggerFactory
   override def createLogic(inheritedAttributes: Attributes): GraphStageLogic =
     new GraphStageLogic(shape) {
 
-      private var persistence: Persistence = _
+      private var persistence: Persistence = null
 
       // only one pull replay stream -> async callback at a time
       private var replayHasBeenPulled = false
