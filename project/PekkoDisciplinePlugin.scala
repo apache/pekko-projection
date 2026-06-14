@@ -44,6 +44,8 @@ object PekkoDisciplinePlugin extends AutoPlugin {
                 "-Xlint:-strict-unsealed-patmat",
                 // scala/bug#7014 is a false positive compiler warning affecting r2dbc-spi jar loading
                 "-Wconf:msg=scala/bug#7014:s")
+            case Some((3, _)) =>
+              Set("-Yfuture-lazy-vals")
             case _ =>
               Nil
           }).toSeq,
