@@ -162,7 +162,7 @@ final class R2dbcProjectionSettings private (
     MurmurHash3.finalizeHash(h, values.size)
   }
 
-  private[this] def copy(
+  private def copy(
       dialect: Dialect = dialect,
       schema: Option[String] = schema,
       offsetTable: String = offsetTable,

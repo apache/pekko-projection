@@ -21,7 +21,7 @@ import pekko.annotation.ApiMayChange
 
 @ApiMayChange abstract class StatefulHandler[State, Envelope] extends Handler[Envelope] {
 
-  private var state: CompletionStage[State] = _
+  private var state: CompletionStage[State] = null
 
   /**
    * Invoked to load the initial state when the projection is started or if previous `process` failed.
