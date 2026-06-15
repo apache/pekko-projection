@@ -56,9 +56,16 @@ jobs:
 
       - name: Start PostgreSQL DB
         run: |-
-          docker compose -f docker-files/docker-compose-postgres.yml up -d
-          # TODO: could we poll the port instead of sleep?
-          sleep 10
+          docker compose -f docker-files/docker-compose-postgres.yml up -d --wait
+          # loop to wait for the DB to be ready
+          for i in {1..8}; do
+            if docker exec -i docker-postgres-db-1 psql -U postgres \
+                -t -c 'SELECT 1;' 2>/dev/null; then
+              break
+            fi
+            echo "Retry $i: SQL check failed, waiting before retry..."
+            sleep $((i * 2))
+          done
           docker exec -i docker-postgres-db-1 psql -U postgres -t < r2dbc-int-test/ddl-scripts/create_tables_postgres.sql
           docker exec -i docker-postgres-db-1 psql -U postgres -t -c 'CREATE DATABASE database1;'
           docker exec -i docker-postgres-db-1 psql -U postgres -t -d database1 < r2dbc-int-test/ddl-scripts/create_tables_postgres.sql
@@ -109,9 +116,16 @@ jobs:
 
       - name: Start YugabyteDB
         run: |-
-          docker compose -f docker-files/docker-compose-yugabyte.yml up -d
-          # TODO: could we poll the port instead of sleep?
-          sleep 10
+          docker compose -f docker-files/docker-compose-yugabyte.yml up -d --wait
+          # loop to wait for the DB to be ready
+          for i in {1..8}; do
+            if docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh \
+                -h yb-tserver-n1 -t -c 'SELECT 1;' 2>/dev/null; then
+              break
+            fi
+            echo "Retry $i: SQL check failed, waiting before retry..."
+            sleep $((i * 2))
+          done
           docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
           docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -c 'CREATE DATABASE database1;'
           docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database1 < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
@@ -163,6 +177,15 @@ jobs:
       - name: Start MySQL
         run: |-
           docker compose -f docker-files/docker-compose-mysql.yml up -d --wait
+          # loop to wait for the DB to be ready
+          for i in {1..8}; do
+            if docker exec -i docker-mysql-db-1 mysql \
+                -h 127.0.0.1 --user=root --password=root --database=mysql -e 'SELECT 1;' 2>/dev/null; then
+              break
+            fi
+            echo "Retry $i: SQL check failed, waiting before retry..."
+            sleep $((i * 2))
+          done
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=mysql < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root -e 'CREATE SCHEMA database1;'
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=database1 < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
