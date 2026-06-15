@@ -23,7 +23,6 @@ lazy val core =
   Project(id = "core", base = file("core"))
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.core)
-    .settings(AutomaticModuleName.settings("pekko.projection.core"))
     .settings(name := "pekko-projection-core")
     .settings(Protobuf.settings)
 
@@ -40,7 +39,6 @@ lazy val testkit =
   Project(id = "testkit", base = file("testkit"))
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.testKit)
-    .settings(AutomaticModuleName.settings("pekko.projection.testkit"))
     .settings(name := "pekko-projection-testkit")
     .dependsOn(core)
 
@@ -49,7 +47,6 @@ lazy val jdbc =
   Project(id = "jdbc", base = file("jdbc"))
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.jdbc)
-    .settings(AutomaticModuleName.settings("pekko.projection.jdbc"))
     .settings(name := "pekko-projection-jdbc")
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
@@ -80,7 +77,6 @@ lazy val slick =
           case _            => Nil
         }))
     .settings(Dependencies.slick)
-    .settings(AutomaticModuleName.settings("pekko.projection.slick"))
     .settings(
       name := "pekko-projection-slick",
       versionScheme := None)
@@ -108,7 +104,6 @@ lazy val cassandra =
   Project(id = "cassandra", base = file("cassandra"))
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.cassandra)
-    .settings(AutomaticModuleName.settings("pekko.projection.cassandra"))
     .settings(name := "pekko-projection-cassandra")
     .dependsOn(core)
 
@@ -129,7 +124,6 @@ lazy val eventsourced =
   Project(id = "eventsourced", base = file("eventsourced"))
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.eventsourced)
-    .settings(AutomaticModuleName.settings("pekko.projection.eventsourced"))
     .settings(name := "pekko-projection-eventsourced")
     .dependsOn(core)
     .dependsOn(testkit % Test)
@@ -139,7 +133,6 @@ lazy val kafka =
   Project(id = "kafka", base = file("kafka"))
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.kafka)
-    .settings(AutomaticModuleName.settings("pekko.projection.kafka"))
     .settings(name := "pekko-projection-kafka")
     .dependsOn(core)
     .dependsOn(testkit % "test")
@@ -160,7 +153,6 @@ lazy val `durable-state` =
   Project(id = "durable-state", base = file("durable-state"))
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.state)
-    .settings(AutomaticModuleName.settings("pekko.projection.durable-state"))
     .settings(name := "pekko-projection-durable-state")
     .dependsOn(core)
     .dependsOn(testkit % Test)
@@ -171,7 +163,6 @@ lazy val grpc =
     .enablePlugins(ReproducibleBuildsPlugin, PekkoGrpcPlugin)
     .disablePlugins(MimaPlugin) // new in 2.0.0
     .settings(Dependencies.grpc)
-    .settings(AutomaticModuleName.settings("pekko.projection.grpc"))
     .settings(
       name := "pekko-projection-grpc",
       pekkoGrpcCodeGeneratorSettings += "server_power_apis")
@@ -184,7 +175,6 @@ lazy val r2dbc =
   Project(id = "r2dbc", base = file("r2dbc"))
     .enablePlugins(ReproducibleBuildsPlugin)
     .settings(Dependencies.r2dbc)
-    .settings(AutomaticModuleName.settings("pekko.projection.r2dbc"))
     .settings(
       name := "pekko-projection-r2dbc")
     .dependsOn(core)
@@ -200,8 +190,7 @@ lazy val grpcTest =
       publish / skip := true,
       // following is needed by Agrona lib
       // https://github.com/aeron-io/agrona/wiki/Change-Log#200-2024-12-17
-      Test / fork := true,
-      Test / javaOptions += "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED")
+      Test / fork := true)
     .dependsOn(grpc % "compile;test->compile")
     .dependsOn(r2dbc % Test)
     .dependsOn(testkit % Test)
@@ -215,8 +204,7 @@ lazy val grpcIntTest =
       publish / skip := true,
       // following is needed by Agrona lib
       // https://github.com/aeron-io/agrona/wiki/Change-Log#200-2024-12-17
-      Test / fork := true,
-      Test / javaOptions += "--add-opens=java.base/jdk.internal.misc=ALL-UNNAMED")
+      Test / fork := true)
     .dependsOn(grpcTest % "test->test;test->compile")
     .dependsOn(eventsourced % Test)
     .dependsOn(r2dbc % Test)
