@@ -185,7 +185,8 @@ jobs:
             fi
             echo "Retry $i: SQL check failed, waiting before retry..."
             sleep $((i * 2))
-          done          docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=mysql < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
+          done
+          docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=mysql < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root -e 'CREATE SCHEMA database1;'
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=database1 < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root -e 'CREATE SCHEMA database2;'
