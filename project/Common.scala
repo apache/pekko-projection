@@ -37,7 +37,8 @@ object Common extends AutoPlugin {
         "Contributors",
         "dev@pekko.apache.org",
         url("https://github.com/apache/pekko-projection/graphs/contributors")),
-      description := "Apache Pekko Projection.")
+      description := "Apache Pekko Projection.",
+      excludeLintKeys ++= Set(mimaPreviousArtifacts))
 
   val mimaCompareVersion = "1.0.0"
 
