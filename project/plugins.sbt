@@ -25,7 +25,7 @@ addSbtPlugin("com.github.sbt" % "sbt-site-paradox" % "1.7.0")
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox-theme" % "0.10.7")
 addSbtPlugin("com.lightbend.paradox" % "sbt-paradox" % "0.10.7")
 
-addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.5")
+addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.6")
 addSbtPlugin("com.lightbend.sbt" % "sbt-bill-of-materials" % "1.0.2")
 
 addSbtPlugin("org.apache.pekko" % "pekko-grpc-sbt-plugin" % "2.0.0-M2")
