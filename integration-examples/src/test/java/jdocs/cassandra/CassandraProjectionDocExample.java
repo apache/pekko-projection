@@ -89,13 +89,12 @@ public interface CassandraProjectionDocExample {
     @Override
     public CompletionStage<Done> process(EventEnvelope<ShoppingCart.Event> envelope) {
       ShoppingCart.Event event = envelope.event();
-      if (event instanceof ShoppingCart.CheckedOut) {
-        ShoppingCart.CheckedOut checkedOut = (ShoppingCart.CheckedOut) event;
+      if (event instanceof ShoppingCart.CheckedOut checkedOut) {
         logger.info(
-            "Shopping cart {} was checked out at {}", checkedOut.cartId, checkedOut.eventTime);
+            "Shopping cart {} was checked out at {}", checkedOut.cartId(), checkedOut.eventTime());
         return CompletableFuture.completedFuture(Done.getInstance());
       } else {
-        logger.debug("Shopping cart {} changed by {}", event.getCartId(), event);
+        logger.debug("Shopping cart {} changed by {}", event.cartId(), event);
         return CompletableFuture.completedFuture(Done.getInstance());
       }
     }
@@ -112,14 +111,13 @@ public interface CassandraProjectionDocExample {
       envelopes.forEach(
           env -> {
             ShoppingCart.Event event = env.event();
-            if (event instanceof ShoppingCart.CheckedOut) {
-              ShoppingCart.CheckedOut checkedOut = (ShoppingCart.CheckedOut) event;
+            if (event instanceof ShoppingCart.CheckedOut checkedOut) {
               logger.info(
                   "Shopping cart {} was checked out at {}",
-                  checkedOut.cartId,
-                  checkedOut.eventTime);
+                  checkedOut.cartId(),
+                  checkedOut.eventTime());
             } else {
-              logger.debug("Shopping cart {} changed by {}", event.getCartId(), event);
+              logger.debug("Shopping cart {} changed by {}", event.cartId(), event);
             }
           });
       return CompletableFuture.completedFuture(Done.getInstance());
@@ -201,14 +199,13 @@ public interface CassandraProjectionDocExample {
                 .map(EventEnvelope::event)
                 .map(
                     event -> {
-                      if (event instanceof ShoppingCart.CheckedOut) {
-                        ShoppingCart.CheckedOut checkedOut = (ShoppingCart.CheckedOut) event;
+                      if (event instanceof ShoppingCart.CheckedOut checkedOut) {
                         logger.info(
                             "Shopping cart {} was checked out at {}",
-                            checkedOut.cartId,
-                            checkedOut.eventTime);
+                            checkedOut.cartId(),
+                            checkedOut.eventTime());
                       } else {
-                        logger.debug("Shopping cart {} changed by {}", event.getCartId(), event);
+                        logger.debug("Shopping cart {} changed by {}", event.cartId(), event);
                       }
                       return Done.getInstance();
                     });

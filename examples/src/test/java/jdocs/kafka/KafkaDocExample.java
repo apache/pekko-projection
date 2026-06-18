@@ -110,15 +110,7 @@ public interface KafkaDocExample {
   // #handler
 
   // #wordSource
-  public class WordEnvelope {
-    public final Long offset;
-    public final String word;
-
-    public WordEnvelope(Long offset, String word) {
-      this.offset = offset;
-      this.word = word;
-    }
-  }
+  public record WordEnvelope(Long offset, String word) {}
 
   class WordSource extends SourceProvider<Long, WordEnvelope> {
 
@@ -138,7 +130,7 @@ public interface KafkaDocExample {
           .thenApply(
               o -> {
                 if (o.isPresent())
-                  return src.dropWhile(envelope -> envelope.offset <= o.get())
+                  return src.dropWhile(envelope -> envelope.offset() <= o.get())
                       .throttle(1, Duration.ofSeconds(1));
                 else return src.throttle(1, Duration.ofSeconds(1));
               });
@@ -146,7 +138,7 @@ public interface KafkaDocExample {
 
     @Override
     public Long extractOffset(WordEnvelope envelope) {
-      return envelope.offset;
+      return envelope.offset();
     }
 
     @Override
@@ -170,7 +162,7 @@ public interface KafkaDocExample {
 
     @Override
     public CompletionStage<Done> process(WordEnvelope envelope) {
-      String word = envelope.word;
+      String word = envelope.word();
       // using the word as the key and `DefaultPartitioner` will select partition based on the key
       // so that same word always ends up in same partition
       String key = word;
@@ -307,7 +299,7 @@ public interface KafkaDocExample {
                     wordEnv ->
                         ProducerMessage.single(
                             new ProducerRecord<String, String>(
-                                topicName, wordEnv.word, wordEnv.word)))
+                                topicName, wordEnv.word(), wordEnv.word())))
                 .via(Producer.flowWithContext(producerSettings))
                 .map(__ -> Done.getInstance());
 

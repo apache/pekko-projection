@@ -59,15 +59,7 @@ public interface WordCountDocExample {
   // #todo
 
   // #envelope
-  public class WordEnvelope {
-    public final Long offset;
-    public final String word;
-
-    public WordEnvelope(Long offset, String word) {
-      this.offset = offset;
-      this.word = word;
-    }
-  }
+  public record WordEnvelope(Long offset, String word) {}
 
   // #envelope
 
@@ -131,13 +123,14 @@ public interface WordCountDocExample {
           .thenCompose(
               done ->
                   session.executeDDL(
-                      "CREATE TABLE IF NOT EXISTS "
-                          + keyspaceTable
-                          + " (\n"
-                          + "  id text, \n"
-                          + "  word text, \n"
-                          + "  count int, \n"
-                          + "  PRIMARY KEY (id, word)) \n"));
+                      """
+                      CREATE TABLE IF NOT EXISTS %s (
+                        id text,
+                        word text,
+                        count int,
+                        PRIMARY KEY (id, word))
+                      """
+                          .formatted(keyspaceTable)));
     }
   }
 
@@ -159,14 +152,14 @@ public interface WordCountDocExample {
           .get()
           .thenApply(
               o -> {
-                if (o.isPresent()) return src.dropWhile(envelope -> envelope.offset <= o.get());
+                if (o.isPresent()) return src.dropWhile(envelope -> envelope.offset() <= o.get());
                 else return src;
               });
     }
 
     @Override
     public Long extractOffset(WordEnvelope envelope) {
-      return envelope.offset;
+      return envelope.offset();
     }
 
     @Override
@@ -185,7 +178,7 @@ public interface WordCountDocExample {
 
       @Override
       public CompletionStage<Done> process(WordEnvelope envelope) {
-        String word = envelope.word;
+        String word = envelope.word();
         int newCount = state.getOrDefault(word, 0) + 1;
         logger.info("Word count for {} is {}", word, newCount);
         state.put(word, newCount);
@@ -214,7 +207,7 @@ public interface WordCountDocExample {
       @Override
       public CompletionStage<Map<String, Integer>> process(
           Map<String, Integer> state, WordEnvelope envelope) {
-        String word = envelope.word;
+        String word = envelope.word();
         int newCount = state.getOrDefault(word, 0) + 1;
         CompletionStage<Map<String, Integer>> newState =
             repository
@@ -250,7 +243,7 @@ public interface WordCountDocExample {
       @Override
       public CompletionStage<Map<String, Integer>> process(
           Map<String, Integer> state, WordEnvelope envelope) {
-        String word = envelope.word;
+        String word = envelope.word();
 
         CompletionStage<Integer> currentCount;
         if (state.containsKey(word))
@@ -300,9 +293,9 @@ public interface WordCountDocExample {
 
         return result.thenCompose(
             r -> {
-              if (r.error.isPresent()) {
+              if (r.error().isPresent()) {
                 CompletableFuture<Done> err = new CompletableFuture<>();
-                err.completeExceptionally(r.error.get());
+                err.completeExceptionally(r.error().get());
                 return err;
               } else {
                 return CompletableFuture.completedFuture(Done.getInstance());
@@ -317,43 +310,14 @@ public interface WordCountDocExample {
     public class WordCountProcessor {
       public interface Command {}
 
-      public static class Handle implements Command {
-        public final WordEnvelope envelope;
-        public final ActorRef<Result> replyTo;
+      public record Handle(WordEnvelope envelope, ActorRef<Result> replyTo) implements Command {}
 
-        public Handle(WordEnvelope envelope, ActorRef<Result> replyTo) {
-          this.envelope = envelope;
-          this.replyTo = replyTo;
-        }
-      }
+      public record Result(Optional<Throwable> error) {}
 
-      public static class Result {
-        public final Optional<Throwable> error;
+      private record InitialState(Map<String, Integer> state) implements Command {}
 
-        public Result(Optional<Throwable> error) {
-          this.error = error;
-        }
-      }
-
-      private static class InitialState implements Command {
-        final Map<String, Integer> state;
-
-        private InitialState(Map<String, Integer> state) {
-          this.state = state;
-        }
-      }
-
-      private static class SaveCompleted implements Command {
-        final String word;
-        final Optional<Throwable> error;
-        final ActorRef<Result> replyTo;
-
-        private SaveCompleted(String word, Optional<Throwable> error, ActorRef<Result> replyTo) {
-          this.word = word;
-          this.error = error;
-          this.replyTo = replyTo;
-        }
-      }
+      private record SaveCompleted(String word, Optional<Throwable> error, ActorRef<Result> replyTo)
+          implements Command {}
 
       public static Behavior<Command> create(
           ProjectionId projectionId, WordCountRepository repository) {
@@ -403,8 +367,8 @@ public interface WordCountDocExample {
         }
 
         private Behavior<Command> onInitalState(InitialState initialState) {
-          getContext().getLog().debug("Initial state [{}]", initialState.state);
-          return buffer.unstashAll(new Active(getContext(), initialState.state));
+          getContext().getLog().debug("Initial state [{}]", initialState.state());
+          return buffer.unstashAll(new Active(getContext(), initialState.state()));
         }
 
         private Behavior<Command> onOther(Command command) {
@@ -431,24 +395,24 @@ public interface WordCountDocExample {
         }
 
         private Behavior<Command> onHandle(Handle command) {
-          String word = command.envelope.word;
+          String word = command.envelope().word();
           int newCount = state.getOrDefault(word, 0) + 1;
           getContext()
               .pipeToSelf(
                   repository.save(projectionId.id(), word, newCount),
                   (done, exc) ->
                       // will reply from SaveCompleted
-                      new SaveCompleted(word, Optional.ofNullable(exc), command.replyTo));
+                      new SaveCompleted(word, Optional.ofNullable(exc), command.replyTo()));
           return this;
         }
 
         private Behavior<Command> onSaveCompleted(SaveCompleted completed) {
-          completed.replyTo.tell(new Result(completed.error));
-          if (completed.error.isPresent()) {
+          completed.replyTo().tell(new Result(completed.error()));
+          if (completed.error().isPresent()) {
             // restart, reload state from db
-            throw new RuntimeException("Save failed.", completed.error.get());
+            throw new RuntimeException("Save failed.", completed.error().get());
           } else {
-            String word = completed.word;
+            String word = completed.word();
             int newCount = state.getOrDefault(word, 0) + 1;
             state.put(word, newCount);
           }
@@ -484,9 +448,9 @@ public interface WordCountDocExample {
 
         return result.thenCompose(
             r -> {
-              if (r.error.isPresent()) {
+              if (r.error().isPresent()) {
                 CompletableFuture<Done> err = new CompletableFuture<>();
-                err.completeExceptionally(r.error.get());
+                err.completeExceptionally(r.error().get());
                 return err;
               } else {
                 return CompletableFuture.completedFuture(Done.getInstance());
@@ -499,47 +463,15 @@ public interface WordCountDocExample {
     public class WordCountProcessor extends AbstractBehavior<WordCountProcessor.Command> {
       public interface Command {}
 
-      public static class Handle implements Command {
-        public final WordEnvelope envelope;
-        public final ActorRef<Result> replyTo;
+      public record Handle(WordEnvelope envelope, ActorRef<Result> replyTo) implements Command {}
 
-        public Handle(WordEnvelope envelope, ActorRef<Result> replyTo) {
-          this.envelope = envelope;
-          this.replyTo = replyTo;
-        }
-      }
+      public record Result(Optional<Throwable> error) {}
 
-      public static class Result {
-        public final Optional<Throwable> error;
+      private record LoadCompleted(String word, Optional<Throwable> error, ActorRef<Result> replyTo)
+          implements Command {}
 
-        public Result(Optional<Throwable> error) {
-          this.error = error;
-        }
-      }
-
-      private static class LoadCompleted implements Command {
-        final String word;
-        final Optional<Throwable> error;
-        final ActorRef<Result> replyTo;
-
-        private LoadCompleted(String word, Optional<Throwable> error, ActorRef<Result> replyTo) {
-          this.word = word;
-          this.error = error;
-          this.replyTo = replyTo;
-        }
-      }
-
-      private static class SaveCompleted implements Command {
-        final String word;
-        final Optional<Throwable> error;
-        final ActorRef<Result> replyTo;
-
-        private SaveCompleted(String word, Optional<Throwable> error, ActorRef<Result> replyTo) {
-          this.word = word;
-          this.error = error;
-          this.replyTo = replyTo;
-        }
-      }
+      private record SaveCompleted(String word, Optional<Throwable> error, ActorRef<Result> replyTo)
+          implements Command {}
 
       public static Behavior<Command> create(
           ProjectionId projectionId, WordCountRepository repository) {
@@ -575,7 +507,7 @@ public interface WordCountDocExample {
       }
 
       private Behavior<Command> onHandle(Handle command) {
-        String word = command.envelope.word;
+        String word = command.envelope().word();
         if (state.containsKey(word)) {
           int newCount = state.get(word) + 1;
           getContext()
@@ -583,42 +515,42 @@ public interface WordCountDocExample {
                   repository.save(projectionId.id(), word, newCount),
                   (done, exc) ->
                       // will reply from SaveCompleted
-                      new SaveCompleted(word, Optional.ofNullable(exc), command.replyTo));
+                      new SaveCompleted(word, Optional.ofNullable(exc), command.replyTo()));
         } else {
           getContext()
               .pipeToSelf(
                   repository.load(projectionId.id(), word),
                   (loadResult, exc) ->
                       // will reply from LoadCompleted
-                      new LoadCompleted(word, Optional.ofNullable(exc), command.replyTo));
+                      new LoadCompleted(word, Optional.ofNullable(exc), command.replyTo()));
         }
         return this;
       }
 
       private Behavior<Command> onLoadCompleted(LoadCompleted completed) {
-        if (completed.error.isPresent()) {
-          completed.replyTo.tell(new Result(completed.error));
+        if (completed.error().isPresent()) {
+          completed.replyTo().tell(new Result(completed.error()));
         } else {
-          String word = completed.word;
+          String word = completed.word();
           int newCount = state.getOrDefault(word, 0) + 1;
           getContext()
               .pipeToSelf(
                   repository.save(projectionId.id(), word, newCount),
                   (done, exc) ->
                       // will reply from SaveCompleted
-                      new SaveCompleted(word, Optional.ofNullable(exc), completed.replyTo));
+                      new SaveCompleted(word, Optional.ofNullable(exc), completed.replyTo()));
         }
         return this;
       }
 
       private Behavior<Command> onSaveCompleted(SaveCompleted completed) {
-        completed.replyTo.tell(new Result(completed.error));
-        if (completed.error.isPresent()) {
+        completed.replyTo().tell(new Result(completed.error()));
+        if (completed.error().isPresent()) {
           // remove the word from the state if the save failed, because it could have been a timeout
           // so that it was actually saved, best to reload
-          state.remove(completed.word);
+          state.remove(completed.word());
         } else {
-          String word = completed.word;
+          String word = completed.word();
           int newCount = state.getOrDefault(word, 0) + 1;
           state.put(word, newCount);
         }

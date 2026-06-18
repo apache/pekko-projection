@@ -47,17 +47,14 @@ public class ItemPopularityProjectionHandler
       throws Exception {
     ShoppingCartEvents.Event event = envelope.event();
 
-    CompletionStage<Done> dbEffect = null;
-    if (event instanceof ShoppingCartEvents.ItemAdded) {
-      ShoppingCartEvents.ItemAdded added = (ShoppingCartEvents.ItemAdded) event;
-      dbEffect = this.repo.update(added.itemId, added.quantity);
-    } else if (event instanceof ShoppingCartEvents.ItemQuantityAdjusted) {
-      ShoppingCartEvents.ItemQuantityAdjusted adjusted =
-          (ShoppingCartEvents.ItemQuantityAdjusted) event;
-      dbEffect = this.repo.update(adjusted.itemId, adjusted.newQuantity - adjusted.oldQuantity);
-    } else if (event instanceof ShoppingCartEvents.ItemRemoved) {
-      ShoppingCartEvents.ItemRemoved removed = (ShoppingCartEvents.ItemRemoved) event;
-      dbEffect = this.repo.update(removed.itemId, 0 - removed.oldQuantity);
+    CompletionStage<Done> dbEffect;
+    if (event instanceof ShoppingCartEvents.ItemAdded added) {
+      dbEffect = this.repo.update(added.itemId(), added.quantity());
+    } else if (event instanceof ShoppingCartEvents.ItemQuantityAdjusted adjusted) {
+      dbEffect =
+          this.repo.update(adjusted.itemId(), adjusted.newQuantity() - adjusted.oldQuantity());
+    } else if (event instanceof ShoppingCartEvents.ItemRemoved removed) {
+      dbEffect = this.repo.update(removed.itemId(), 0 - removed.oldQuantity());
     } else {
       // skip all other events, such as `CheckedOut`
       dbEffect = CompletableFuture.completedFuture(Done.getInstance());
@@ -70,12 +67,11 @@ public class ItemPopularityProjectionHandler
 
   /** Log the popularity of the item in every `ItemEvent` every `LogInterval`. */
   private void logItemCount(ShoppingCartEvents.Event event) {
-    if (event instanceof ShoppingCartEvents.ItemEvent) {
-      ShoppingCartEvents.ItemEvent itemEvent = (ShoppingCartEvents.ItemEvent) event;
+    if (event instanceof ShoppingCartEvents.ItemEvent itemEvent) {
       logCounter += 1;
       if (logCounter == LogInterval) {
         logCounter = 0;
-        String itemId = itemEvent.getItemId();
+        String itemId = itemEvent.itemId();
         repo.getItem(itemId)
             .thenAccept(
                 opt -> {
