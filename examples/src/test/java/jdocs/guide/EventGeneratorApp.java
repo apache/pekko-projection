@@ -115,13 +115,13 @@ class Guardian {
                                       new ArrayList<>();
                                   for (int j = 0; j < adjustments; j++) {
                                     int newQuantity = getRandomNumber(1, MAX_QUANTITY);
-                                    int oldQuantity = itemAdded.quantity;
+                                    int oldQuantity = itemAdded.quantity();
                                     if (!itemQuantityAdjusted.isEmpty()) {
                                       oldQuantity =
                                           ((ShoppingCartEvents.ItemQuantityAdjusted)
                                                   itemQuantityAdjusted.get(
                                                       itemQuantityAdjusted.size() - 1))
-                                              .newQuantity;
+                                              .newQuantity();
                                     }
                                     itemQuantityAdjusted.add(
                                         new ShoppingCartEvents.ItemQuantityAdjusted(
@@ -137,7 +137,7 @@ class Guardian {
                                         ((ShoppingCartEvents.ItemQuantityAdjusted)
                                                 itemQuantityAdjusted.get(
                                                     itemQuantityAdjusted.size() - 1))
-                                            .newQuantity;
+                                            .newQuantity();
                                     itemRemoved.add(
                                         new ShoppingCartEvents.ItemRemoved(
                                             cartId, itemId, oldQuantity));
@@ -160,7 +160,7 @@ class Guardian {
               // send each event to the sharded entity represented by the event's cartId
               .runWith(
                   Sink.foreach(
-                      event -> sharding.entityRefFor(ENTITY_KEY, event.getCartId()).tell(event)),
+                      event -> sharding.entityRefFor(ENTITY_KEY, event.cartId()).tell(event)),
                   system);
 
           return Behaviors.empty();

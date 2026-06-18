@@ -61,17 +61,7 @@ public class JdbcHibernateTest extends JUnitSuite {
 
   private final ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
 
-  static class Envelope {
-    final String id;
-    final long offset;
-    final String message;
-
-    Envelope(String id, long offset, String message) {
-      this.id = id;
-      this.offset = offset;
-      this.message = message;
-    }
-  }
+  record Envelope(String id, long offset, String message) {}
 
   private static final HibernateSessionFactory sessionProvider = new HibernateSessionFactory();
 
@@ -99,7 +89,7 @@ public class JdbcHibernateTest extends JUnitSuite {
                 new Envelope(entityId, 6, "pqr")));
 
     TestSourceProvider<Long, Envelope> sourceProvider =
-        TestSourceProvider.create(envelopes, env -> env.offset)
+        TestSourceProvider.create(envelopes, env -> env.offset())
             .withStartSourceFrom(
                 (Long lastProcessedOffset, Long offset) -> offset <= lastProcessedOffset);
 
@@ -110,7 +100,7 @@ public class JdbcHibernateTest extends JUnitSuite {
     return new JdbcHandler<Envelope, HibernateJdbcSession>() {
       @Override
       public void process(HibernateJdbcSession session, Envelope envelope) {
-        buffer.append(envelope.message).append("|");
+        buffer.append(envelope.message()).append("|");
       }
     };
   }

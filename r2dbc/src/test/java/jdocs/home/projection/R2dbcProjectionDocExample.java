@@ -75,23 +75,10 @@ class R2dbcProjectionDocExample {
     interface Command extends CborSerializable {}
 
     interface Event {
-      String getCartId();
+      String cartId();
     }
 
-    public static class CheckedOut implements Event {
-
-      public final String cartId;
-      public final Instant eventTime;
-
-      public CheckedOut(String cartId, Instant eventTime) {
-        this.cartId = cartId;
-        this.eventTime = eventTime;
-      }
-
-      public String getCartId() {
-        return cartId;
-      }
-
+    public record CheckedOut(String cartId, Instant eventTime) implements Event {
       @Override
       public String toString() {
         return "CheckedOut(" + cartId + "," + eventTime + ")";
@@ -107,20 +94,19 @@ class R2dbcProjectionDocExample {
     public CompletionStage<Done> process(
         R2dbcSession session, EventEnvelope<ShoppingCart.Event> envelope) {
       ShoppingCart.Event event = envelope.event();
-      if (event instanceof ShoppingCart.CheckedOut) {
-        ShoppingCart.CheckedOut checkedOut = (ShoppingCart.CheckedOut) event;
+      if (event instanceof ShoppingCart.CheckedOut checkedOut) {
         logger.info(
-            "Shopping cart {} was checked out at {}", checkedOut.cartId, checkedOut.eventTime);
+            "Shopping cart {} was checked out at {}", checkedOut.cartId(), checkedOut.eventTime());
 
         Statement stmt =
             session
                 .createStatement("INSERT into order (id, time) VALUES ($1, $2)")
-                .bind(0, checkedOut.cartId)
-                .bind(1, checkedOut.eventTime);
+                .bind(0, checkedOut.cartId())
+                .bind(1, checkedOut.eventTime());
         return session.updateOne(stmt).thenApply(rowsUpdated -> Done.getInstance());
 
       } else {
-        logger.debug("Shopping cart {} changed by {}", event.getCartId(), event);
+        logger.debug("Shopping cart {} changed by {}", event.cartId(), event);
         return CompletableFuture.completedFuture(Done.getInstance());
       }
     }
@@ -139,19 +125,18 @@ class R2dbcProjectionDocExample {
       List<Statement> stmts = new ArrayList<>();
       for (EventEnvelope<ShoppingCart.Event> envelope : envelopes) {
         ShoppingCart.Event event = envelope.event();
-        if (event instanceof ShoppingCart.CheckedOut) {
-          ShoppingCart.CheckedOut checkedOut = (ShoppingCart.CheckedOut) event;
+        if (event instanceof ShoppingCart.CheckedOut checkedOut) {
           logger.info(
-              "Shopping cart {} was checked out at {}", checkedOut.cartId, checkedOut.eventTime);
+              "Shopping cart {} was checked out at {}", checkedOut.cartId(), checkedOut.eventTime());
 
           Statement stmt =
               session
                   .createStatement("INSERT into order (id, time) VALUES ($1, $2)")
-                  .bind(0, checkedOut.cartId)
-                  .bind(1, checkedOut.eventTime);
+                  .bind(0, checkedOut.cartId())
+                  .bind(1, checkedOut.eventTime());
           stmts.add(stmt);
         } else {
-          logger.debug("Shopping cart {} changed by {}", event.getCartId(), event);
+          logger.debug("Shopping cart {} changed by {}", event.cartId(), event);
         }
       }
 

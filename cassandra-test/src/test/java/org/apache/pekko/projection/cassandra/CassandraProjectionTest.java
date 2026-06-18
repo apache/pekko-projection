@@ -95,17 +95,7 @@ public class CassandraProjectionTest extends JUnitSuite {
         .get(10, TimeUnit.SECONDS);
   }
 
-  static class Envelope {
-    final String id;
-    final long offset;
-    final String message;
-
-    Envelope(String id, long offset, String message) {
-      this.id = id;
-      this.offset = offset;
-      this.message = message;
-    }
-  }
+  record Envelope(String id, long offset, String message) {}
 
   public static SourceProvider<Long, Envelope> sourceProvider(String entityId) {
     Source<Envelope, NotUsed> envelopes =
@@ -119,7 +109,7 @@ public class CassandraProjectionTest extends JUnitSuite {
                 new Envelope(entityId, 6, "pqr")));
 
     TestSourceProvider<Long, Envelope> sourceProvider =
-        TestSourceProvider.create(envelopes, env -> env.offset)
+        TestSourceProvider.create(envelopes, env -> env.offset())
             .withStartSourceFrom(
                 (Long lastProcessedOffset, Long offset) -> offset <= lastProcessedOffset);
 
@@ -147,23 +137,15 @@ public class CassandraProjectionTest extends JUnitSuite {
   }
 
   static class TestHandlerBehavior {
-    static class Req {
-      public final Envelope envelope;
-      public final ActorRef<Done> replyTo;
-
-      Req(Envelope envelope, ActorRef<Done> replyTo) {
-        this.envelope = envelope;
-        this.replyTo = replyTo;
-      }
-    }
+    record Req(Envelope envelope, ActorRef<Done> replyTo) {}
 
     static Behavior<Req> create(ActorRef<Envelope> receiveProbe, ActorRef<Done> stopProbe) {
       return Behaviors.receive(Req.class)
           .onMessage(
               Req.class,
               req -> {
-                receiveProbe.tell(req.envelope);
-                req.replyTo.tell(Done.getInstance());
+                receiveProbe.tell(req.envelope());
+                req.replyTo().tell(Done.getInstance());
                 return Behaviors.same();
               })
           .onSignal(
@@ -205,7 +187,7 @@ public class CassandraProjectionTest extends JUnitSuite {
   private Handler<Envelope> concatHandler(StringBuffer str) {
     return Handler.fromFunction(
         envelope -> {
-          str.append(envelope.message).append("|");
+          str.append(envelope.message()).append("|");
           return CompletableFuture.completedFuture(Done.getInstance());
         });
   }
@@ -213,8 +195,8 @@ public class CassandraProjectionTest extends JUnitSuite {
   private Handler<Envelope> concatHandlerFail4(StringBuffer str) {
     return Handler.fromFunction(
         envelope -> {
-          if (envelope.offset == 4) throw new RuntimeException("fail on 4");
-          str.append(envelope.message).append("|");
+          if (envelope.offset() == 4) throw new RuntimeException("fail on 4");
+          str.append(envelope.message()).append("|");
           return CompletableFuture.completedFuture(Done.getInstance());
         });
   }
@@ -234,7 +216,7 @@ public class CassandraProjectionTest extends JUnitSuite {
     public CompletionStage<Done> process(List<Envelope> envelopes) {
       handlerProbe.ref().tell(GroupedConcatHandler.handlerCalled);
       for (Envelope env : envelopes) {
-        str.append(env.message).append("|");
+        str.append(env.message()).append("|");
       }
       return CompletableFuture.completedFuture(Done.getInstance());
     }
@@ -402,12 +384,12 @@ public class CassandraProjectionTest extends JUnitSuite {
     ActorRef<ProjectionBehavior.Command> projectionRef =
         testKit.spawn(ProjectionBehavior.create(projection));
 
-    assertEquals("abc", receiveProbe.receiveMessage().message);
-    assertEquals("def", receiveProbe.receiveMessage().message);
-    assertEquals("ghi", receiveProbe.receiveMessage().message);
-    assertEquals("jkl", receiveProbe.receiveMessage().message);
-    assertEquals("mno", receiveProbe.receiveMessage().message);
-    assertEquals("pqr", receiveProbe.receiveMessage().message);
+    assertEquals("abc", receiveProbe.receiveMessage().message());
+    assertEquals("def", receiveProbe.receiveMessage().message());
+    assertEquals("ghi", receiveProbe.receiveMessage().message());
+    assertEquals("jkl", receiveProbe.receiveMessage().message());
+    assertEquals("mno", receiveProbe.receiveMessage().message());
+    assertEquals("pqr", receiveProbe.receiveMessage().message());
 
     projectionRef.tell(ProjectionBehavior.stopMessage());
 

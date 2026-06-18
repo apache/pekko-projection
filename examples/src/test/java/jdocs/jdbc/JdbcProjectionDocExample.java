@@ -51,15 +51,7 @@ class JdbcProjectionDocExample {
   // #todo
 
   // #repository
-  class Order {
-    public final String id;
-    public final Instant time;
-
-    public Order(String id, Instant time) {
-      this.id = id;
-      this.time = time;
-    }
-  }
+  record Order(String id, Instant time) {}
 
   interface OrderRepository {
     void save(EntityManager entityManager, Order order);
@@ -121,17 +113,16 @@ class JdbcProjectionDocExample {
     public void process(HibernateJdbcSession session, EventEnvelope<ShoppingCart.Event> envelope)
         throws Exception {
       ShoppingCart.Event event = envelope.event();
-      if (event instanceof ShoppingCart.CheckedOut) {
-        ShoppingCart.CheckedOut checkedOut = (ShoppingCart.CheckedOut) event;
+      if (event instanceof ShoppingCart.CheckedOut checkedOut) {
         logger.info(
-            "Shopping cart {} was checked out at {}", checkedOut.cartId, checkedOut.eventTime);
+            "Shopping cart {} was checked out at {}", checkedOut.cartId(), checkedOut.eventTime());
 
         // pass the EntityManager created by the projection
         // to the repository in order to use the same transaction
         orderRepository.save(
-            session.entityManager, new Order(checkedOut.cartId, checkedOut.eventTime));
+            session.entityManager, new Order(checkedOut.cartId(), checkedOut.eventTime()));
       } else {
-        logger.debug("Shopping cart {} changed by {}", event.getCartId(), event);
+        logger.debug("Shopping cart {} changed by {}", event.cartId(), event);
       }
     }
   }
@@ -149,18 +140,17 @@ class JdbcProjectionDocExample {
         throws Exception {
       for (EventEnvelope<ShoppingCart.Event> envelope : envelopes) {
         ShoppingCart.Event event = envelope.event();
-        if (event instanceof ShoppingCart.CheckedOut) {
-          ShoppingCart.CheckedOut checkedOut = (ShoppingCart.CheckedOut) event;
+        if (event instanceof ShoppingCart.CheckedOut checkedOut) {
           logger.info(
-              "Shopping cart {} was checked out at {}", checkedOut.cartId, checkedOut.eventTime);
+              "Shopping cart {} was checked out at {}", checkedOut.cartId(), checkedOut.eventTime());
 
           // pass the EntityManager created by the projection
           // to the repository in order to use the same transaction
           orderRepository.save(
-              session.entityManager, new Order(checkedOut.cartId, checkedOut.eventTime));
+              session.entityManager, new Order(checkedOut.cartId(), checkedOut.eventTime()));
 
         } else {
-          logger.debug("Shopping cart {} changed by {}", event.getCartId(), event);
+          logger.debug("Shopping cart {} changed by {}", event.cartId(), event);
         }
       }
     }

@@ -139,17 +139,7 @@ public class JdbcProjectionTest extends JUnitSuite {
     Await.result(offsetStore.createIfNotExists(), awaitTimeout);
   }
 
-  static class Envelope {
-    final String id;
-    final long offset;
-    final String message;
-
-    Envelope(String id, long offset, String message) {
-      this.id = id;
-      this.offset = offset;
-      this.message = message;
-    }
-  }
+  record Envelope(String id, long offset, String message) {}
 
   public static SourceProvider<Long, Envelope> sourceProvider(String entityId) {
     Source<Envelope, NotUsed> envelopes =
@@ -163,7 +153,7 @@ public class JdbcProjectionTest extends JUnitSuite {
                 new Envelope(entityId, 6, "pqr")));
 
     TestSourceProvider<Long, Envelope> sourceProvider =
-        TestSourceProvider.create(envelopes, env -> env.offset)
+        TestSourceProvider.create(envelopes, env -> env.offset())
             .withStartSourceFrom(
                 (Long lastProcessedOffset, Long offset) -> offset <= lastProcessedOffset);
 
@@ -217,11 +207,11 @@ public class JdbcProjectionTest extends JUnitSuite {
       StringBuffer buffer, CountDownLatch latch, Predicate<Long> failPredicate) {
     return JdbcHandler.fromFunction(
         (PureJdbcSession session, Envelope envelope) -> {
-          if (failPredicate.test(envelope.offset)) {
+          if (failPredicate.test(envelope.offset())) {
             latch.countDown();
-            throw new RuntimeException(failMessage(envelope.offset));
+            throw new RuntimeException(failMessage(envelope.offset()));
           } else {
-            buffer.append(envelope.message).append("|");
+            buffer.append(envelope.message()).append("|");
             latch.countDown();
           }
         });
@@ -246,7 +236,7 @@ public class JdbcProjectionTest extends JUnitSuite {
     public void process(PureJdbcSession session, List<Envelope> envelopes) {
       handlerProbe.ref().tell(GroupedConcatHandler.handlerCalled);
       for (Envelope envelope : envelopes) {
-        buffer.append(envelope.message).append("|");
+        buffer.append(envelope.message()).append("|");
       }
     }
   }
@@ -418,7 +408,7 @@ public class JdbcProjectionTest extends JUnitSuite {
         FlowWithContext.<Envelope, ProjectionContext>create()
             .map(
                 envelope -> {
-                  str.append(envelope.message).append("|");
+                  str.append(envelope.message()).append("|");
                   return Done.getInstance();
                 });
 

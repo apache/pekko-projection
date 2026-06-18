@@ -13,7 +13,6 @@
 
 package jdocs.eventsourced;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
@@ -103,56 +102,22 @@ public class ShoppingCart
    * <p>It can reply with `Confirmation`, which is sent back to the caller when all the events
    * emitted by this command are successfully persisted.
    */
-  public static class AddItem implements Command {
-    public final String itemId;
-    public final int quantity;
-    public final ActorRef<Confirmation> replyTo;
+  public record AddItem(String itemId, int quantity, ActorRef<Confirmation> replyTo)
+      implements Command {}
 
-    public AddItem(String itemId, int quantity, ActorRef<Confirmation> replyTo) {
-      this.itemId = itemId;
-      this.quantity = quantity;
-      this.replyTo = replyTo;
-    }
-  }
-
-  /** A command to remove an item from the cart. */
-  public static class RemoveItem implements Command {
-    public final String itemId;
-    public final ActorRef<Confirmation> replyTo;
-
-    @JsonCreator
-    public RemoveItem(String itemId, ActorRef<Confirmation> replyTo) {
-      this.itemId = itemId;
-      this.replyTo = replyTo;
-    }
-  }
+  /** A command to remove an item in the cart. */
+  public record RemoveItem(String itemId, ActorRef<Confirmation> replyTo) implements Command {}
 
   /** A command to adjust the quantity of an item in the cart. */
-  public static class AdjustItemQuantity implements Command {
-    public final String itemId;
-    public final int quantity;
-    public final ActorRef<Confirmation> replyTo;
-
-    public AdjustItemQuantity(String itemId, int quantity, ActorRef<Confirmation> replyTo) {
-      this.itemId = itemId;
-      this.quantity = quantity;
-      this.replyTo = replyTo;
-    }
-  }
+  public record AdjustItemQuantity(String itemId, int quantity, ActorRef<Confirmation> replyTo)
+      implements Command {}
 
   /**
    * A command to get the current state of the shopping cart.
    *
    * <p>The reply type is the {@link Summary}
    */
-  public static class Get implements Command {
-    public final ActorRef<Summary> replyTo;
-
-    @JsonCreator
-    public Get(ActorRef<Summary> replyTo) {
-      this.replyTo = replyTo;
-    }
-  }
+  public record Get(ActorRef<Summary> replyTo) implements Command {}
 
   /**
    * A command to checkout the shopping cart.
@@ -160,125 +125,47 @@ public class ShoppingCart
    * <p>The reply type is the {@link Confirmation}, which will be returned when the events have been
    * emitted.
    */
-  public static class Checkout implements Command {
-    public final ActorRef<Confirmation> replyTo;
-
-    @JsonCreator
-    public Checkout(ActorRef<Confirmation> replyTo) {
-      this.replyTo = replyTo;
-    }
-  }
+  public record Checkout(ActorRef<Confirmation> replyTo) implements Command {}
 
   /** Summary of the shopping cart state, used in reply messages. */
-  public static final class Summary implements CborSerializable {
-    public final Map<String, Integer> items;
-    public final boolean checkedOut;
-
-    public Summary(Map<String, Integer> items, boolean checkedOut) {
-      // Summary is included in messages and should therefore be immutable
-      this.items = Collections.unmodifiableMap(new HashMap<>(items));
-      this.checkedOut = checkedOut;
+  public record Summary(Map<String, Integer> items, boolean checkedOut) implements CborSerializable {
+    public Summary {
+      items = Collections.unmodifiableMap(new HashMap<>(items));
     }
   }
 
   public interface Confirmation extends CborSerializable {}
 
-  public static class Accepted implements Confirmation {
-    public final Summary summary;
+  public record Accepted(Summary summary) implements Confirmation {}
 
-    @JsonCreator
-    public Accepted(Summary summary) {
-      this.summary = summary;
-    }
-  }
-
-  public static class Rejected implements Confirmation {
-    public final String reason;
-
-    public Rejected(String reason) {
-      this.reason = reason;
-    }
-  }
+  public record Rejected(String reason) implements Confirmation {}
 
   public interface Event extends CborSerializable {
-    public String getCartId();
+    String cartId();
   }
 
-  public static final class ItemAdded implements Event {
-    public final String cartId;
-    public final String itemId;
-    public final int quantity;
-
-    public ItemAdded(String cartId, String itemId, int quantity) {
-      this.cartId = cartId;
-      this.itemId = itemId;
-      this.quantity = quantity;
-    }
-
-    public String getCartId() {
-      return cartId;
-    }
-
+  public record ItemAdded(String cartId, String itemId, int quantity) implements Event {
     @Override
     public String toString() {
       return "ItemAdded(" + cartId + "," + itemId + "," + quantity + ")";
     }
   }
 
-  public static final class ItemRemoved implements Event {
-    public final String cartId;
-    public final String itemId;
-
-    public ItemRemoved(String cartId, String itemId) {
-      this.cartId = cartId;
-      this.itemId = itemId;
-    }
-
-    public String getCartId() {
-      return cartId;
-    }
-
+  public record ItemRemoved(String cartId, String itemId) implements Event {
     @Override
     public String toString() {
       return "ItemRemoved(" + cartId + "," + itemId + ")";
     }
   }
 
-  public static final class ItemQuantityAdjusted implements Event {
-    public final String cartId;
-    public final String itemId;
-    public final int quantity;
-
-    public ItemQuantityAdjusted(String cartId, String itemId, int quantity) {
-      this.cartId = cartId;
-      this.itemId = itemId;
-      this.quantity = quantity;
-    }
-
-    public String getCartId() {
-      return cartId;
-    }
-
+  public record ItemQuantityAdjusted(String cartId, String itemId, int quantity) implements Event {
     @Override
     public String toString() {
       return "ItemQuantityAdjusted(" + cartId + "," + itemId + "," + quantity + ")";
     }
   }
 
-  public static class CheckedOut implements Event {
-
-    public final String cartId;
-    public final Instant eventTime;
-
-    public CheckedOut(String cartId, Instant eventTime) {
-      this.cartId = cartId;
-      this.eventTime = eventTime;
-    }
-
-    public String getCartId() {
-      return cartId;
-    }
-
+  public record CheckedOut(String cartId, Instant eventTime) implements Event {
     @Override
     public String toString() {
       return "CheckedOut(" + cartId + "," + eventTime + ")";
@@ -361,61 +248,61 @@ public class ShoppingCart
   }
 
   private ReplyEffect<Event, State> onGet(State state, Get cmd) {
-    return Effect().reply(cmd.replyTo, state.toSummary());
+    return Effect().reply(cmd.replyTo(), state.toSummary());
   }
 
   private class OpenShoppingCartCommandHandlers {
 
     public ReplyEffect<Event, State> onAddItem(State state, AddItem cmd) {
-      if (state.hasItem(cmd.itemId)) {
+      if (state.hasItem(cmd.itemId())) {
         return Effect()
             .reply(
-                cmd.replyTo,
-                new Rejected("Item '" + cmd.itemId + "' was already added to this shopping cart"));
-      } else if (cmd.quantity <= 0) {
-        return Effect().reply(cmd.replyTo, new Rejected("Quantity must be greater than zero"));
+                cmd.replyTo(),
+                new Rejected("Item '" + cmd.itemId() + "' was already added to this shopping cart"));
+      } else if (cmd.quantity() <= 0) {
+        return Effect().reply(cmd.replyTo(), new Rejected("Quantity must be greater than zero"));
       } else {
         return Effect()
-            .persist(new ItemAdded(cartId, cmd.itemId, cmd.quantity))
-            .thenReply(cmd.replyTo, updatedCart -> new Accepted(updatedCart.toSummary()));
+            .persist(new ItemAdded(cartId, cmd.itemId(), cmd.quantity()))
+            .thenReply(cmd.replyTo(), updatedCart -> new Accepted(updatedCart.toSummary()));
       }
     }
 
     public ReplyEffect<Event, State> onRemoveItem(State state, RemoveItem cmd) {
-      if (state.hasItem(cmd.itemId)) {
+      if (state.hasItem(cmd.itemId())) {
         return Effect()
-            .persist(new ItemRemoved(cartId, cmd.itemId))
-            .thenReply(cmd.replyTo, updatedCart -> new Accepted(updatedCart.toSummary()));
+            .persist(new ItemRemoved(cartId, cmd.itemId()))
+            .thenReply(cmd.replyTo(), updatedCart -> new Accepted(updatedCart.toSummary()));
       } else {
-        return Effect().reply(cmd.replyTo, new Accepted(state.toSummary()));
+        return Effect().reply(cmd.replyTo(), new Accepted(state.toSummary()));
       }
     }
 
     public ReplyEffect<Event, State> onAdjustItemQuantity(State state, AdjustItemQuantity cmd) {
-      if (cmd.quantity <= 0) {
-        return Effect().reply(cmd.replyTo, new Rejected("Quantity must be greater than zero"));
-      } else if (state.hasItem(cmd.itemId)) {
+      if (cmd.quantity() <= 0) {
+        return Effect().reply(cmd.replyTo(), new Rejected("Quantity must be greater than zero"));
+      } else if (state.hasItem(cmd.itemId())) {
         return Effect()
-            .persist(new ItemQuantityAdjusted(cartId, cmd.itemId, cmd.quantity))
-            .thenReply(cmd.replyTo, updatedCart -> new Accepted(updatedCart.toSummary()));
+            .persist(new ItemQuantityAdjusted(cartId, cmd.itemId(), cmd.quantity()))
+            .thenReply(cmd.replyTo(), updatedCart -> new Accepted(updatedCart.toSummary()));
       } else {
         return Effect()
             .reply(
-                cmd.replyTo,
+                cmd.replyTo(),
                 new Rejected(
                     "Cannot adjust quantity for item '"
-                        + cmd.itemId
+                        + cmd.itemId()
                         + "'. Item not present on cart"));
       }
     }
 
     public ReplyEffect<Event, State> onCheckout(State state, Checkout cmd) {
       if (state.isEmpty()) {
-        return Effect().reply(cmd.replyTo, new Rejected("Cannot checkout an empty shopping cart"));
+        return Effect().reply(cmd.replyTo(), new Rejected("Cannot checkout an empty shopping cart"));
       } else {
         return Effect()
             .persist(new CheckedOut(cartId, Instant.now()))
-            .thenReply(cmd.replyTo, updatedCart -> new Accepted(updatedCart.toSummary()));
+            .thenReply(cmd.replyTo(), updatedCart -> new Accepted(updatedCart.toSummary()));
       }
     }
   }
@@ -424,27 +311,27 @@ public class ShoppingCart
     ReplyEffect<Event, State> onAddItem(AddItem cmd) {
       return Effect()
           .reply(
-              cmd.replyTo,
+              cmd.replyTo(),
               new Rejected("Can't add an item to an already checked out shopping cart"));
     }
 
     ReplyEffect<Event, State> onRemoveItem(RemoveItem cmd) {
       return Effect()
           .reply(
-              cmd.replyTo,
+              cmd.replyTo(),
               new Rejected("Can't remove an item from an already checked out shopping cart"));
     }
 
     ReplyEffect<Event, State> onAdjustItemQuantity(AdjustItemQuantity cmd) {
       return Effect()
           .reply(
-              cmd.replyTo,
+              cmd.replyTo(),
               new Rejected("Can't adjust item on an already checked out shopping cart"));
     }
 
     ReplyEffect<Event, State> onCheckout(Checkout cmd) {
       return Effect()
-          .reply(cmd.replyTo, new Rejected("Can't checkout already checked out shopping cart"));
+          .reply(cmd.replyTo(), new Rejected("Can't checkout already checked out shopping cart"));
     }
   }
 
@@ -452,12 +339,12 @@ public class ShoppingCart
   public EventHandler<State, Event> eventHandler() {
     return newEventHandlerBuilder()
         .forAnyState()
-        .onEvent(ItemAdded.class, (state, event) -> state.updateItem(event.itemId, event.quantity))
-        .onEvent(ItemRemoved.class, (state, event) -> state.removeItem(event.itemId))
+        .onEvent(ItemAdded.class, (state, event) -> state.updateItem(event.itemId(), event.quantity()))
+        .onEvent(ItemRemoved.class, (state, event) -> state.removeItem(event.itemId()))
         .onEvent(
             ItemQuantityAdjusted.class,
-            (state, event) -> state.updateItem(event.itemId, event.quantity))
-        .onEvent(CheckedOut.class, (state, event) -> state.checkout(event.eventTime))
+            (state, event) -> state.updateItem(event.itemId(), event.quantity()))
+        .onEvent(CheckedOut.class, (state, event) -> state.checkout(event.eventTime()))
         .build();
   }
 
