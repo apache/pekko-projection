@@ -32,7 +32,7 @@ object R2dbcProjectionSettings {
   def apply(config: Config): R2dbcProjectionSettings = {
     val logDbCallsExceeding: FiniteDuration =
       config.getString("log-db-calls-exceeding").toLowerCase(Locale.ROOT) match {
-        case "off" => -1.millis
+        case "off" => (-1).millis
         case _     => config.getDuration("log-db-calls-exceeding").toScala
       }
 

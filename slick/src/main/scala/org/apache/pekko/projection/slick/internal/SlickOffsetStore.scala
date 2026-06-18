@@ -25,7 +25,6 @@ import pekko.projection.MergeableOffset
 import pekko.projection.ProjectionId
 import pekko.projection.internal.ManagementState
 import pekko.projection.internal.OffsetSerialization
-import pekko.projection.jdbc.internal.Dialect
 import pekko.projection.jdbc.internal.H2Dialect
 import pekko.projection.jdbc.internal.JdbcSessionUtil
 import pekko.projection.jdbc.internal.MSSQLServerDialect
@@ -54,7 +53,7 @@ import slick.jdbc.JdbcProfile
   import OffsetSerialization.MultipleOffsets
   import OffsetSerialization.SingleOffset
 
-  val (dialect, useLowerCase): (Dialect, Boolean) = {
+  val (dialect, useLowerCase) = {
 
     val useLowerCase = slickSettings.useLowerCase
 

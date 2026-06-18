@@ -46,7 +46,6 @@ object PekkoDisciplinePlugin extends AutoPlugin {
                 "-Wconf:msg=scala/bug#7014:s")
             case Some((3, _)) =>
               Set(
-                "-Yfuture-lazy-vals",
                 "-release:17",
                 "-Wconf:msg=Implicit parameters should be provided with a `using` clause:s",
                 "-Wconf:msg=is deprecated for wildcard arguments of types:s",
@@ -57,8 +56,10 @@ object PekkoDisciplinePlugin extends AutoPlugin {
                 "-Wconf:msg=is not declared infix:s",
                 "-Wconf:msg=Xfatal-warnings is a deprecated alias:s",
                 "-Wconf:msg=Ignoring \\[this\\] qualifier:s",
-                "-Wconf:msg=trait App in package scala is deprecated:s",
-                "-Wconf:msg=bad option.*-Yfuture-lazy-vals:s")
+                "-Wconf:msg=trait App in package scala is deprecated:s") ++
+              (if (CrossVersion.partialVersion(scalaVersion.value).exists(_._2 < 9))
+                 Seq("-Yfuture-lazy-vals", "-Wconf:msg=bad option.*-Yfuture-lazy-vals:s")
+               else Seq.empty)
             case _ =>
               Nil
           }).toSeq,
