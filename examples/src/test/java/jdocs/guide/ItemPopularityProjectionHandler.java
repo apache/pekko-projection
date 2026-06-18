@@ -51,7 +51,8 @@ public class ItemPopularityProjectionHandler
     if (event instanceof ShoppingCartEvents.ItemAdded added) {
       dbEffect = this.repo.update(added.itemId(), added.quantity());
     } else if (event instanceof ShoppingCartEvents.ItemQuantityAdjusted adjusted) {
-      dbEffect = this.repo.update(adjusted.itemId(), adjusted.newQuantity() - adjusted.oldQuantity());
+      dbEffect =
+          this.repo.update(adjusted.itemId(), adjusted.newQuantity() - adjusted.oldQuantity());
     } else if (event instanceof ShoppingCartEvents.ItemRemoved removed) {
       dbEffect = this.repo.update(removed.itemId(), 0 - removed.oldQuantity());
     } else {

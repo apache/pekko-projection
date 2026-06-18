@@ -127,7 +127,9 @@ class R2dbcProjectionDocExample {
         ShoppingCart.Event event = envelope.event();
         if (event instanceof ShoppingCart.CheckedOut checkedOut) {
           logger.info(
-              "Shopping cart {} was checked out at {}", checkedOut.cartId(), checkedOut.eventTime());
+              "Shopping cart {} was checked out at {}",
+              checkedOut.cartId(),
+              checkedOut.eventTime());
 
           Statement stmt =
               session

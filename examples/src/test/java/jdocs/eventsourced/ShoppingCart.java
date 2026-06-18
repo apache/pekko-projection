@@ -128,7 +128,8 @@ public class ShoppingCart
   public record Checkout(ActorRef<Confirmation> replyTo) implements Command {}
 
   /** Summary of the shopping cart state, used in reply messages. */
-  public record Summary(Map<String, Integer> items, boolean checkedOut) implements CborSerializable {
+  public record Summary(Map<String, Integer> items, boolean checkedOut)
+      implements CborSerializable {
     public Summary {
       items = Collections.unmodifiableMap(new HashMap<>(items));
     }
@@ -258,7 +259,8 @@ public class ShoppingCart
         return Effect()
             .reply(
                 cmd.replyTo(),
-                new Rejected("Item '" + cmd.itemId() + "' was already added to this shopping cart"));
+                new Rejected(
+                    "Item '" + cmd.itemId() + "' was already added to this shopping cart"));
       } else if (cmd.quantity() <= 0) {
         return Effect().reply(cmd.replyTo(), new Rejected("Quantity must be greater than zero"));
       } else {
@@ -298,7 +300,8 @@ public class ShoppingCart
 
     public ReplyEffect<Event, State> onCheckout(State state, Checkout cmd) {
       if (state.isEmpty()) {
-        return Effect().reply(cmd.replyTo(), new Rejected("Cannot checkout an empty shopping cart"));
+        return Effect()
+            .reply(cmd.replyTo(), new Rejected("Cannot checkout an empty shopping cart"));
       } else {
         return Effect()
             .persist(new CheckedOut(cartId, Instant.now()))
@@ -339,7 +342,8 @@ public class ShoppingCart
   public EventHandler<State, Event> eventHandler() {
     return newEventHandlerBuilder()
         .forAnyState()
-        .onEvent(ItemAdded.class, (state, event) -> state.updateItem(event.itemId(), event.quantity()))
+        .onEvent(
+            ItemAdded.class, (state, event) -> state.updateItem(event.itemId(), event.quantity()))
         .onEvent(ItemRemoved.class, (state, event) -> state.removeItem(event.itemId()))
         .onEvent(
             ItemQuantityAdjusted.class,

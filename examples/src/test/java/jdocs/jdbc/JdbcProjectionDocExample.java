@@ -142,7 +142,9 @@ class JdbcProjectionDocExample {
         ShoppingCart.Event event = envelope.event();
         if (event instanceof ShoppingCart.CheckedOut checkedOut) {
           logger.info(
-              "Shopping cart {} was checked out at {}", checkedOut.cartId(), checkedOut.eventTime());
+              "Shopping cart {} was checked out at {}",
+              checkedOut.cartId(),
+              checkedOut.eventTime());
 
           // pass the EntityManager created by the projection
           // to the repository in order to use the same transaction
