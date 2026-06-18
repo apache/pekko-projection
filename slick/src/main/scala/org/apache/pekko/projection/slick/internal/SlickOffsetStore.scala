@@ -25,7 +25,6 @@ import pekko.projection.MergeableOffset
 import pekko.projection.ProjectionId
 import pekko.projection.internal.ManagementState
 import pekko.projection.internal.OffsetSerialization
-import pekko.projection.jdbc.internal.Dialect
 import pekko.projection.jdbc.internal.H2Dialect
 import pekko.projection.jdbc.internal.JdbcSessionUtil
 import pekko.projection.jdbc.internal.MSSQLServerDialect

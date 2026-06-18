@@ -57,7 +57,9 @@ object PekkoDisciplinePlugin extends AutoPlugin {
                 "-Wconf:msg=Xfatal-warnings is a deprecated alias:s",
                 "-Wconf:msg=Ignoring \\[this\\] qualifier:s",
                 "-Wconf:msg=trait App in package scala is deprecated:s") ++
-              (if (CrossVersion.partialVersion(scalaVersion.value).exists(_._2 < 9)) Seq("-Yfuture-lazy-vals", "-Wconf:msg=bad option.*-Yfuture-lazy-vals:s") else Seq.empty)
+              (if (CrossVersion.partialVersion(scalaVersion.value).exists(_._2 < 9))
+                 Seq("-Yfuture-lazy-vals", "-Wconf:msg=bad option.*-Yfuture-lazy-vals:s")
+               else Seq.empty)
             case _ =>
               Nil
           }).toSeq,
