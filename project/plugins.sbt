@@ -29,3 +29,6 @@ addSbtPlugin("com.typesafe" % "sbt-mima-plugin" % "1.1.6")
 addSbtPlugin("com.lightbend.sbt" % "sbt-bill-of-materials" % "1.0.2")
 
 addSbtPlugin("org.apache.pekko" % "pekko-grpc-sbt-plugin" % "2.0.0-M2")
+
+// https://eed3si9n.com/reducing-scaladoc-file-size-with-sbt-salad-days/
+addSbtPlugin("com.eed3si9n" % "sbt-salad-days" % "0.1.0")
