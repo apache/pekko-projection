@@ -66,7 +66,7 @@ object Dependencies {
 
     val r2dbcSpi = "io.r2dbc" % "r2dbc-spi" % "1.0.0.RELEASE"
     val r2dbcPool = "io.r2dbc" % "r2dbc-pool" % "1.0.2.RELEASE"
-    val r2dbcPostgres = "org.postgresql" % "r2dbc-postgresql" % "1.1.1.RELEASE"
+    val r2dbcPostgres = "org.postgresql" % "r2dbc-postgresql" % "1.1.2.RELEASE"
     val r2dbcMysql = "io.asyncer" % "r2dbc-mysql" % "1.4.2"
   }
 
