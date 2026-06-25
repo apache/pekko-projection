@@ -19,7 +19,6 @@ import com.typesafe.config.ConfigFactory;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import java.util.stream.Stream;
 import org.apache.pekko.actor.typed.ActorSystem;
@@ -155,7 +154,7 @@ class Guardian {
                     return Stream.concat(
                             itemEvents,
                             Stream.of(new ShoppingCartEvents.CheckedOut(cartId, Instant.now())))
-                        .collect(Collectors.toList());
+                        .toList();
                   })
               // send each event to the sharded entity represented by the event's cartId
               .runWith(
