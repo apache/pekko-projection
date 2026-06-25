@@ -14,11 +14,11 @@
 package jdocs.kafka;
 
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Supplier;
 
@@ -116,7 +116,7 @@ public interface KafkaDocExample {
 
     private final Source<WordEnvelope, NotUsed> src =
         Source.from(
-            Arrays.asList(
+            List.of(
                 new WordEnvelope(1L, "abc"),
                 new WordEnvelope(2L, "def"),
                 new WordEnvelope(3L, "ghi"),
@@ -199,7 +199,7 @@ public interface KafkaDocExample {
             .withProperty(ConsumerConfig.AUTO_OFFSET_RESET_CONFIG, "earliest");
 
     SourceProvider<MergeableOffset<Long>, ConsumerRecord<String, String>> sourceProvider =
-        KafkaSourceProvider.create(system, consumerSettings, Collections.singleton(topicName));
+        KafkaSourceProvider.create(system, consumerSettings, Set.of(topicName));
     // #sourceProvider
 
     return sourceProvider;

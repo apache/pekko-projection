@@ -60,7 +60,7 @@ public class EventGeneratorApp {
 
 class Guardian {
   static final List<String> PRODUCTS =
-      Arrays.asList("cat t-shirt", "pekko t-shirt", "skis", "bowling shoes");
+      List.of("cat t-shirt", "pekko t-shirt", "skis", "bowling shoes");
 
   static final int MAX_QUANTITY = 5;
   static final int MAX_ITEMS = 3;
@@ -197,7 +197,7 @@ class Guardian {
     public CartPersistentBehavior(PersistenceId persistenceId, String tag) {
       super(persistenceId);
       this.tag = tag;
-      this.tags = new HashSet<>(Collections.singletonList(tag));
+      this.tags = new HashSet<>(List.of(tag));
     }
 
     @Override

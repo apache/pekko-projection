@@ -16,7 +16,6 @@ package org.apache.pekko.projection.cassandra;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -100,7 +99,7 @@ public class CassandraProjectionTest extends JUnitSuite {
   public static SourceProvider<Long, Envelope> sourceProvider(String entityId) {
     Source<Envelope, NotUsed> envelopes =
         Source.from(
-            Arrays.asList(
+            List.of(
                 new Envelope(entityId, 1, "abc"),
                 new Envelope(entityId, 2, "def"),
                 new Envelope(entityId, 3, "ghi"),

@@ -34,8 +34,8 @@ import org.apache.pekko.actor.typed.javadsl.Receive;
 // #ActorHandler-imports
 
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -139,7 +139,7 @@ public interface WordCountDocExample {
 
     private final Source<WordEnvelope, NotUsed> src =
         Source.from(
-            Arrays.asList(
+            List.of(
                 new WordEnvelope(1L, "abc"),
                 new WordEnvelope(2L, "def"),
                 new WordEnvelope(3L, "ghi"),

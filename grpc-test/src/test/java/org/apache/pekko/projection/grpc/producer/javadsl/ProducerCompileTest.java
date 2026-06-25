@@ -23,8 +23,8 @@ import org.apache.pekko.japi.function.Function;
 import org.apache.pekko.persistence.query.typed.EventEnvelope;
 import org.apache.pekko.projection.grpc.producer.EventProducerSettings;
 
-import java.util.Collections;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 
@@ -60,7 +60,7 @@ public class ProducerCompileTest {
     Function<HttpRequest, CompletionStage<HttpResponse>> eventProducerService =
         EventProducer.grpcServiceHandler(system, source);
     Function<HttpRequest, CompletionStage<HttpResponse>> eventProducerServiceWithMultiple =
-        EventProducer.grpcServiceHandler(system, Collections.singleton(source));
+        EventProducer.grpcServiceHandler(system, Set.of(source));
 
     @SuppressWarnings("unchecked")
     Function<HttpRequest, CompletionStage<HttpResponse>> service =
