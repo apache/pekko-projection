@@ -13,8 +13,6 @@
 
 package org.apache.pekko.projection.grpc.consumer.javadsl;
 
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -68,7 +66,7 @@ public class ConsumerCompileTest {
             GrpcClientSettings.fromConfig(
                 system.settings().config().getConfig("pekko.projection.grpc.consumer.client"),
                 system),
-            Collections.singletonList(ShoppingcartApiProto.javaDescriptor()));
+            List.of(ShoppingcartApiProto.javaDescriptor()));
 
     ShardedDaemonProcess.get(system)
         .init(
@@ -106,7 +104,7 @@ public class ConsumerCompileTest {
         system.settings().config().getString("pekko.projection.grpc.consumer.stream-id");
 
     List<ConsumerFilter.FilterCriteria> criteria =
-        Arrays.asList(
+        List.of(
             new ConsumerFilter.ExcludeTags(excludeTags),
             new ConsumerFilter.IncludeTags(includeTags));
 

@@ -17,8 +17,8 @@ import static org.junit.Assert.assertEquals;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
@@ -80,7 +80,7 @@ public class JdbcHibernateTest extends JUnitSuite {
   public static SourceProvider<Long, Envelope> sourceProvider(String entityId) {
     Source<Envelope, NotUsed> envelopes =
         Source.from(
-            Arrays.asList(
+            List.of(
                 new Envelope(entityId, 1, "abc"),
                 new Envelope(entityId, 2, "def"),
                 new Envelope(entityId, 3, "ghi"),

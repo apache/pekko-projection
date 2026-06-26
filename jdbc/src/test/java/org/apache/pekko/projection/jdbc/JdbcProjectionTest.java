@@ -22,7 +22,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.Duration;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -144,7 +143,7 @@ public class JdbcProjectionTest extends JUnitSuite {
   public static SourceProvider<Long, Envelope> sourceProvider(String entityId) {
     Source<Envelope, NotUsed> envelopes =
         Source.from(
-            Arrays.asList(
+            List.of(
                 new Envelope(entityId, 1, "abc"),
                 new Envelope(entityId, 2, "def"),
                 new Envelope(entityId, 3, "ghi"),

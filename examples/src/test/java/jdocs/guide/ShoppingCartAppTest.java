@@ -17,8 +17,8 @@ package jdocs.guide;
 import static org.junit.Assert.assertEquals;
 
 import java.time.Instant;
-import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -60,7 +60,7 @@ public class ShoppingCartAppTest {
 
     Source<EventEnvelope<ShoppingCartEvents.Event>, NotUsed> events =
         Source.from(
-            Arrays.asList(
+            List.of(
                 createEnvelope(
                     new ShoppingCartEvents.ItemAdded("a7098", "bowling shoes", 1), 0L, 0L),
                 createEnvelope(
