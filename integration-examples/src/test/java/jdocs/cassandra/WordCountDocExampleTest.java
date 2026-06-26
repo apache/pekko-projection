@@ -26,6 +26,7 @@ import java.util.concurrent.TimeUnit;
 import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
 import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturingExtension;
 import org.apache.pekko.actor.typed.ActorSystem;
+import com.typesafe.config.ConfigFactory;
 import org.apache.pekko.projection.Projection;
 import org.apache.pekko.projection.ProjectionId;
 import org.apache.pekko.projection.cassandra.ContainerSessionProvider;
@@ -45,10 +46,11 @@ public class WordCountDocExampleTest {
   private static ActorTestKit testKit;
   private static CassandraSession session;
   private static CassandraWordCountRepository repository;
+  private static ProjectionTestKit projectionTestKit;
 
   @BeforeAll
   static void setup() throws Exception {
-    testKit = ActorTestKit.create();
+    testKit = ActorTestKit.create(ConfigFactory.parseString(ContainerSessionProvider.Config()));
 
     Await.result(
         ContainerSessionProvider.started(),
@@ -63,6 +65,8 @@ public class WordCountDocExampleTest {
 
     repository = new CassandraWordCountRepository(session);
     repository.createKeyspaceAndTable().toCompletableFuture().get(10, TimeUnit.SECONDS);
+
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
   }
 
   @AfterAll
@@ -79,8 +83,6 @@ public class WordCountDocExampleTest {
     }
     if (testKit != null) testKit.shutdownTestKit();
   }
-
-  private ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
 
   private ProjectionId genRandomProjectionId() {
     return ProjectionId.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());

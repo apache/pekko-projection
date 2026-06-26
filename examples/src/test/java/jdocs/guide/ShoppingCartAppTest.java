@@ -46,19 +46,18 @@ import org.junit.jupiter.api.Test;
 public class ShoppingCartAppTest {
 
   private static ActorTestKit testKit;
+  private static ProjectionTestKit projectionTestKit;
 
   @BeforeAll
   static void setup() {
     testKit = ActorTestKit.create();
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
   }
 
   @AfterAll
   static void teardown() {
     testKit.shutdownTestKit();
   }
-
-  public static final ProjectionTestKit projectionTestKit =
-      ProjectionTestKit.create(testKit.system());
 
   EventEnvelope<ShoppingCartEvents.Event> createEnvelope(
       ShoppingCartEvents.Event event, Long seqNo, Long timestamp) {

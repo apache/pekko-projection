@@ -60,6 +60,7 @@ public class JdbcHibernateTest {
   private static ActorTestKit testKit;
   private static JdbcSettings jdbcSettings;
   private static JdbcOffsetStore<HibernateJdbcSession> offsetStore;
+  private static ProjectionTestKit projectionTestKit;
 
   private static final HibernateSessionFactory sessionProvider = new HibernateSessionFactory();
 
@@ -73,14 +74,13 @@ public class JdbcHibernateTest {
     offsetStore =
         new JdbcOffsetStore<>(testKit.system(), jdbcSettings, () -> sessionProvider.newInstance());
     Await.result(offsetStore.createIfNotExists(), awaitTimeout);
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
   }
 
   @AfterAll
   static void teardown() {
     if (testKit != null) testKit.shutdownTestKit();
   }
-
-  private final ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
 
   record Envelope(String id, long offset, String message) {}
 

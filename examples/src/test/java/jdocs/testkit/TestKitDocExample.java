@@ -70,18 +70,18 @@ public class TestKitDocExample {
 
   // #testkit
   static ActorTestKit testKit;
+  static ProjectionTestKit projectionTestKit;
 
   @BeforeAll
   static void setup() {
     testKit = ActorTestKit.create();
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
   }
 
   @AfterAll
   static void teardown() {
     testKit.shutdownTestKit();
   }
-
-  ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
   // #testkit
 
   Projection<String> projection = TestProjection.create(null, null, null);

@@ -50,10 +50,12 @@ import scala.jdk.javaapi.FutureConverters;
 public class ProjectionTestKitTest {
 
   private static ActorTestKit testKit;
+  private static ProjectionTestKit projectionTestKit;
 
   @BeforeAll
   static void setup() {
     testKit = ActorTestKit.create();
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
   }
 
   @AfterAll
@@ -70,8 +72,6 @@ public class ProjectionTestKitTest {
         () -> DelayStrategy.linearIncreasingDelay(Duration.ofMillis(delayedBy), __ -> true),
         DelayOverflowStrategy.backpressure());
   }
-
-  private final ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
 
   @Test
   public void assertProgressOfAProjection() {

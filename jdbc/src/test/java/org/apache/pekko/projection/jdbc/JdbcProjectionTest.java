@@ -79,6 +79,7 @@ public class JdbcProjectionTest {
   private static ActorTestKit testKit;
   private static JdbcSettings jdbcSettings;
   private static JdbcOffsetStore<PureJdbcSession> offsetStore;
+  private static ProjectionTestKit projectionTestKit;
 
   static class PureJdbcSession implements JdbcSession {
 
@@ -135,6 +136,7 @@ public class JdbcProjectionTest {
     jdbcSettings = JdbcSettings.apply(testKit.system());
     offsetStore = new JdbcOffsetStore<>(testKit.system(), jdbcSettings, jdbcSessionCreator::get);
     Await.result(offsetStore.createIfNotExists(), awaitTimeout);
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
   }
 
   @AfterAll
@@ -162,8 +164,6 @@ public class JdbcProjectionTest {
 
     return sourceProvider;
   }
-
-  private final ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
 
   private ProjectionId genRandomProjectionId() {
     return ProjectionId.of(UUID.randomUUID().toString(), "00");

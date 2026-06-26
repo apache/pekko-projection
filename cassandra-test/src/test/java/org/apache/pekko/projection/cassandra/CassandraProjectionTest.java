@@ -27,6 +27,7 @@ import org.apache.pekko.NotUsed;
 import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
 import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturingExtension;
 import org.apache.pekko.actor.testkit.typed.javadsl.TestProbe;
+import com.typesafe.config.ConfigFactory;
 import org.apache.pekko.actor.typed.ActorRef;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.actor.typed.Behavior;
@@ -60,10 +61,11 @@ public class CassandraProjectionTest {
   private static ActorTestKit testKit;
   private static CassandraSession session;
   private static CassandraOffsetStore offsetStore;
+  private static ProjectionTestKit projectionTestKit;
 
   @BeforeAll
   static void setup() throws Exception {
-    testKit = ActorTestKit.create();
+    testKit = ActorTestKit.create(ConfigFactory.parseString(ContainerSessionProvider.Config()));
 
     // don't use futureValue (patience) here because it can take a while to start the test container
     Await.result(
@@ -87,6 +89,8 @@ public class CassandraProjectionTest {
     Await.result(
         FutureConverters.asScala(createTableAttempts),
         scala.concurrent.duration.Duration.create(60, TimeUnit.SECONDS));
+
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
   }
 
   @AfterAll
@@ -162,8 +166,6 @@ public class CassandraProjectionTest {
           .build();
     }
   }
-
-  private ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
 
   private ProjectionId genRandomProjectionId() {
     return ProjectionId.of(UUID.randomUUID().toString(), UUID.randomUUID().toString());
