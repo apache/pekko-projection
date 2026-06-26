@@ -14,7 +14,7 @@
 // #testKitSpec
 package jdocs.guide;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.time.Instant;
 import java.util.HashMap;
@@ -26,8 +26,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.stream.IntStream;
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
+import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
 import org.apache.pekko.actor.testkit.typed.javadsl.LoggingTestKit;
-import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
 import org.apache.pekko.persistence.query.Offset;
 import org.apache.pekko.projection.ProjectionId;
 import org.apache.pekko.projection.eventsourced.EventEnvelope;
@@ -39,13 +39,25 @@ import org.apache.pekko.projection.testkit.javadsl.TestProjection;
 import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 // #testKitImports
 import org.apache.pekko.stream.javadsl.Source;
-import org.junit.ClassRule;
-import org.junit.Test;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 
 public class ShoppingCartAppTest {
-  @ClassRule public static final TestKitJunitResource testKit = new TestKitJunitResource();
-  public static final ProjectionTestKit projectionTestKit =
-      ProjectionTestKit.create(testKit.system());
+
+  private static ActorTestKit testKit;
+  private static ProjectionTestKit projectionTestKit;
+
+  @BeforeAll
+  static void setup() {
+    testKit = ActorTestKit.create();
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
+  }
+
+  @AfterAll
+  static void teardown() {
+    testKit.shutdownTestKit();
+  }
 
   EventEnvelope<ShoppingCartEvents.Event> createEnvelope(
       ShoppingCartEvents.Event event, Long seqNo, Long timestamp) {
@@ -91,10 +103,10 @@ public class ShoppingCartAppTest {
     projectionTestKit.run(
         projection,
         () -> {
-          assertEquals(repo.counts.size(), 3);
-          assertEquals(repo.counts.get("bowling shoes"), Long.valueOf(2L));
-          assertEquals(repo.counts.get("pekko t-shirt"), Long.valueOf(1L));
-          assertEquals(repo.counts.get("skis"), Long.valueOf(0L));
+          assertEquals(3, repo.counts.size());
+          assertEquals(Long.valueOf(2L), repo.counts.get("bowling shoes"));
+          assertEquals(Long.valueOf(1L), repo.counts.get("pekko t-shirt"));
+          assertEquals(Long.valueOf(0L), repo.counts.get("skis"));
         });
   }
 

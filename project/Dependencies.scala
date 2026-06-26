@@ -83,6 +83,11 @@ object Dependencies {
     val scalatestJUnit = "org.scalatestplus" %% "junit-4-13" % (Versions.scalaTest + ".0")
     val junit = "junit" % "junit" % Versions.junit % "test"
 
+    val junitJupiterApi = "org.junit.jupiter" % "junit-jupiter-api" % "6.1.0" % "test"
+    val junitJupiterEngine = "org.junit.jupiter" % "junit-jupiter-engine" % "6.1.0" % "test"
+    val jupiterInterface = "com.github.sbt.junit" % "jupiter-interface" % "0.19.0" % "test"
+    val junitPlatformLauncher = "org.junit.platform" % "junit-platform-launcher" % "6.1.0" % "test"
+
     val h2Driver = "com.h2database" % "h2" % Versions.h2Driver % "test"
     val postgresDriver = "org.postgresql" % "postgresql" % "42.7.11" % "test"
     val mysqlDriver = "com.mysql" % "mysql-connector-j" % "9.7.0" % "test"
@@ -139,8 +144,10 @@ object Dependencies {
       Test.pekkoTypedTestkit,
       Test.pekkoStreamTestkit,
       Test.scalatest,
-      Test.scalatestJUnit,
-      Test.junit,
+      Test.junitJupiterApi,
+      Test.junitJupiterEngine,
+      Test.jupiterInterface,
+      Test.junitPlatformLauncher,
       Test.logback)
 
   val testKit =
@@ -148,8 +155,10 @@ object Dependencies {
       Compile.pekkoTypedTestkit,
       Compile.pekkoStreamTestkit,
       Test.scalatest,
-      Test.scalatestJUnit,
-      Test.junit,
+      Test.junitJupiterApi,
+      Test.junitJupiterEngine,
+      Test.jupiterInterface,
+      Test.junitPlatformLauncher,
       Test.logback)
 
   val eventsourced =
@@ -171,7 +180,11 @@ object Dependencies {
       Test.msSQLServerContainer,
       Test.oracleDriver,
       Test.oracleDbContainer,
-      Test.logback)
+      Test.logback,
+      Test.junitJupiterApi,
+      Test.junitJupiterEngine,
+      Test.jupiterInterface,
+      Test.junitPlatformLauncher)
 
   val slick =
     deps ++= Seq(
@@ -197,7 +210,10 @@ object Dependencies {
       Test.logback,
       Test.cassandraContainer,
       Test.scalatest,
-      Test.scalatestJUnit)
+      Test.junitJupiterApi,
+      Test.junitJupiterEngine,
+      Test.jupiterInterface,
+      Test.junitPlatformLauncher)
 
   val kafka =
     deps ++= Seq(
@@ -273,8 +289,7 @@ object Dependencies {
       Test.pekkoTypedTestkit,
       Test.pekkoStreamTestkit,
       Test.connectorsKafkaTestkit,
-      Test.logback,
-      Test.scalatestJUnit)
+      Test.logback)
 
   val examples =
     deps ++= Seq(
@@ -286,5 +301,9 @@ object Dependencies {
       Test.h2Driver,
       Test.pekkoTypedTestkit,
       Test.logback,
-      Test.cassandraContainer)
+      Test.cassandraContainer,
+      Test.junitJupiterApi,
+      Test.junitJupiterEngine,
+      Test.jupiterInterface,
+      Test.junitPlatformLauncher)
 }

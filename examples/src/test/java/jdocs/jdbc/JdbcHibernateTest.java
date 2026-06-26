@@ -13,7 +13,7 @@
 
 package jdocs.jdbc;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -23,8 +23,8 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import org.apache.pekko.NotUsed;
-import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
-import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
+import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturingExtension;
 import org.apache.pekko.projection.Projection;
 import org.apache.pekko.projection.ProjectionId;
 import org.apache.pekko.projection.javadsl.SourceProvider;
@@ -35,16 +35,16 @@ import org.apache.pekko.projection.jdbc.javadsl.JdbcProjection;
 import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
 import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.apache.pekko.stream.javadsl.Source;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.scalatestplus.junit.JUnitSuite;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import scala.Option;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-public class JdbcHibernateTest extends JUnitSuite {
+@ExtendWith(LogCapturingExtension.class)
+public class JdbcHibernateTest {
   private static final Map<String, Object> configuration = new HashMap<>();
 
   static {
@@ -56,26 +56,33 @@ public class JdbcHibernateTest extends JUnitSuite {
   }
 
   private static final Config config = ConfigFactory.parseMap(configuration);
-  @ClassRule public static final TestKitJunitResource testKit = new TestKitJunitResource(config);
-  @Rule public final LogCapturing logCapturing = new LogCapturing();
 
-  private final ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
-
-  record Envelope(String id, long offset, String message) {}
+  private static ActorTestKit testKit;
+  private static JdbcSettings jdbcSettings;
+  private static JdbcOffsetStore<HibernateJdbcSession> offsetStore;
+  private static ProjectionTestKit projectionTestKit;
 
   private static final HibernateSessionFactory sessionProvider = new HibernateSessionFactory();
-
-  private static final JdbcSettings jdbcSettings = JdbcSettings.apply(testKit.system());
-  private static final JdbcOffsetStore<HibernateJdbcSession> offsetStore =
-      new JdbcOffsetStore<>(testKit.system(), jdbcSettings, () -> sessionProvider.newInstance());
 
   private static final scala.concurrent.duration.Duration awaitTimeout =
       scala.concurrent.duration.Duration.create(3, TimeUnit.SECONDS);
 
-  @BeforeClass
-  public static void beforeAll() throws Exception {
+  @BeforeAll
+  static void setup() throws Exception {
+    testKit = ActorTestKit.create(config);
+    jdbcSettings = JdbcSettings.apply(testKit.system());
+    offsetStore =
+        new JdbcOffsetStore<>(testKit.system(), jdbcSettings, () -> sessionProvider.newInstance());
     Await.result(offsetStore.createIfNotExists(), awaitTimeout);
+    projectionTestKit = ProjectionTestKit.create(testKit.system());
   }
+
+  @AfterAll
+  static void teardown() {
+    if (testKit != null) testKit.shutdownTestKit();
+  }
+
+  record Envelope(String id, long offset, String message) {}
 
   public static SourceProvider<Long, Envelope> sourceProvider(String entityId) {
     Source<Envelope, NotUsed> envelopes =
