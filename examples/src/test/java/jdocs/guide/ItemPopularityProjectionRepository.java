@@ -48,7 +48,8 @@ class ItemPopularityProjectionRepositoryImpl implements ItemPopularityProjection
   public CompletionStage<Optional<Long>> getItem(String itemId) {
     return session
         .selectOne(
-            "SELECT item_id, count FROM %s.%s WHERE item_id = ?".formatted(Keyspace, PopularityTable),
+            "SELECT item_id, count FROM %s.%s WHERE item_id = ?"
+                .formatted(Keyspace, PopularityTable),
             itemId)
         .thenApply(opt -> opt.map(row -> row.getLong("count")));
   }
