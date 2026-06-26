@@ -7,6 +7,7 @@
  * This file is part of the Apache Pekko project, which was derived from Akka.
  */
 
+import com.github.sbt.junit.jupiter.sbt.Import.JupiterKeys
 import net.bzzt.reproduciblebuilds.ReproducibleBuildsPlugin.reproducibleBuildsCheckResolver
 import org.apache.pekko.projections.Dependencies
 
@@ -18,6 +19,9 @@ ThisBuild / evictionErrorLevel := Level.Info
 ThisBuild / resolvers += Resolver.ApacheMavenSnapshotsRepo
 ThisBuild / reproducibleBuildsCheckResolver := Resolver.ApacheMavenStagingRepo
 ThisBuild / javafmtFormatterCompatibleJavaVersion := 17
+
+ThisBuild / JupiterKeys.junitJupiterVersion := "6.1.0"
+ThisBuild / JupiterKeys.junitPlatformVersion := "6.1.0"
 
 lazy val core =
   Project(id = "core", base = file("core"))

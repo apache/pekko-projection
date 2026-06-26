@@ -13,7 +13,8 @@
 
 package org.apache.pekko.projection.testkit.javadsl;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.Duration;
 import java.util.List;
@@ -23,7 +24,7 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
-import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.japi.function.Function;
 import org.apache.pekko.projection.Projection;
@@ -38,17 +39,27 @@ import org.apache.pekko.stream.SharedKillSwitch;
 import org.apache.pekko.stream.javadsl.DelayStrategy;
 import org.apache.pekko.stream.javadsl.Sink;
 import org.apache.pekko.stream.javadsl.Source;
-import org.junit.Assert;
-import org.junit.ClassRule;
-import org.junit.ComparisonFailure;
-import org.junit.Test;
-import org.scalatestplus.junit.JUnitSuite;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
 import scala.Option;
 import scala.concurrent.Future;
 import scala.concurrent.duration.FiniteDuration;
 import scala.jdk.javaapi.FutureConverters;
 
-public class ProjectionTestKitTest extends JUnitSuite {
+public class ProjectionTestKitTest {
+
+  private static ActorTestKit testKit;
+
+  @BeforeAll
+  static void setup() {
+    testKit = ActorTestKit.create();
+  }
+
+  @AfterAll
+  static void teardown() {
+    testKit.shutdownTestKit();
+  }
 
   private final List<Integer> elements = IntStream.rangeClosed(1, 20).boxed().toList();
 
@@ -60,10 +71,7 @@ public class ProjectionTestKitTest extends JUnitSuite {
         DelayOverflowStrategy.backpressure());
   }
 
-  @ClassRule public static final TestKitJunitResource testKitJunit = new TestKitJunitResource();
-
-  private final ProjectionTestKit projectionTestKit =
-      ProjectionTestKit.create(testKitJunit.system());
+  private final ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
 
   @Test
   public void assertProgressOfAProjection() {
@@ -91,8 +99,8 @@ public class ProjectionTestKitTest extends JUnitSuite {
     try {
       projectionTestKit.run(
           prj, Duration.ofSeconds(1), () -> assertEquals("1-2", strBuffer.toString()));
-      Assert.fail("should not reach that line");
-    } catch (ComparisonFailure failure) {
+      fail("should not reach that line");
+    } catch (AssertionError failure) {
       // that was expected
     }
   }
@@ -114,9 +122,9 @@ public class ProjectionTestKitTest extends JUnitSuite {
 
     try {
       projectionTestKit.run(prj, () -> assertEquals("1-2-3-4", strBuffer.toString()));
-      Assert.fail("should not reach that line");
+      fail("should not reach that line");
     } catch (RuntimeException ex) {
-      assertEquals(ex.getMessage(), streamFailureMsg);
+      assertEquals(streamFailureMsg, ex.getMessage());
     }
   }
 
@@ -133,9 +141,9 @@ public class ProjectionTestKitTest extends JUnitSuite {
 
     try {
       projectionTestKit.run(prj, () -> assertEquals("1-2-3-4", strBuffer.toString()));
-      Assert.fail("should not reach that line");
+      fail("should not reach that line");
     } catch (RuntimeException ex) {
-      assertEquals(ex.getMessage(), streamFailureMsg);
+      assertEquals(streamFailureMsg, ex.getMessage());
     }
   }
 
@@ -155,7 +163,7 @@ public class ProjectionTestKitTest extends JUnitSuite {
           sinkProbe.expectComplete();
         });
 
-    assertEquals(strBuffer.toString(), "1-2-3-4-5");
+    assertEquals("1-2-3-4-5", strBuffer.toString());
   }
 
   private class TestProjection implements Projection<Integer> {

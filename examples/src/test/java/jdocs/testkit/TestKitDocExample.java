@@ -25,9 +25,10 @@ import java.util.concurrent.CompletionStage;
 
 // #testkit-import
 import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
-import org.junit.ClassRule;
-import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
 import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.AfterAll;
 
 // #testkit-import
 
@@ -68,7 +69,18 @@ public class TestKitDocExample {
   }
 
   // #testkit
-  @ClassRule static final TestKitJunitResource testKit = new TestKitJunitResource();
+  static ActorTestKit testKit;
+
+  @BeforeAll
+  static void setup() {
+    testKit = ActorTestKit.create();
+  }
+
+  @AfterAll
+  static void teardown() {
+    testKit.shutdownTestKit();
+  }
+
   ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());
   // #testkit
 

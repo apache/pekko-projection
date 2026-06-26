@@ -17,14 +17,14 @@ import static jdocs.cassandra.WordCountDocExample.*;
 import static jdocs.cassandra.WordCountDocExample.IllstrateActorLoadingInitialState.WordCountActorHandler;
 import static jdocs.cassandra.WordCountDocExample.IllstrateActorLoadingInitialState.WordCountProcessor;
 import static jdocs.cassandra.WordCountDocExample.IllustrateStatefulHandlerLoadingInitialState.WordCountHandler;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
-import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
+import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturingExtension;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.projection.Projection;
 import org.apache.pekko.projection.ProjectionId;
@@ -33,24 +33,23 @@ import org.apache.pekko.projection.cassandra.javadsl.CassandraProjection;
 import org.apache.pekko.projection.testkit.javadsl.ProjectionTestKit;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
-import org.junit.AfterClass;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.scalatestplus.junit.JUnitSuite;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import scala.concurrent.Await;
 
-public class WordCountDocExampleTest extends JUnitSuite {
-  @ClassRule public static final TestKitJunitResource testKit = new TestKitJunitResource();
+@ExtendWith(LogCapturingExtension.class)
+public class WordCountDocExampleTest {
 
-  @Rule public final LogCapturing logCapturing = new LogCapturing();
-
+  private static ActorTestKit testKit;
   private static CassandraSession session;
   private static CassandraWordCountRepository repository;
 
-  @BeforeClass
-  public static void beforeAll() throws Exception {
+  @BeforeAll
+  static void setup() throws Exception {
+    testKit = ActorTestKit.create();
+
     Await.result(
         ContainerSessionProvider.started(),
         scala.concurrent.duration.Duration.create(30, TimeUnit.SECONDS));
@@ -66,16 +65,19 @@ public class WordCountDocExampleTest extends JUnitSuite {
     repository.createKeyspaceAndTable().toCompletableFuture().get(10, TimeUnit.SECONDS);
   }
 
-  @AfterClass
-  public static void afterAll() throws Exception {
-    session
-        .executeDDL("DROP keyspace pekko_projection.offset_store")
-        .toCompletableFuture()
-        .get(10, TimeUnit.SECONDS);
-    session
-        .executeDDL("DROP keyspace " + repository.keyspace)
-        .toCompletableFuture()
-        .get(10, TimeUnit.SECONDS);
+  @AfterAll
+  static void teardown() throws Exception {
+    if (session != null) {
+      session
+          .executeDDL("DROP keyspace pekko_projection.offset_store")
+          .toCompletableFuture()
+          .get(10, TimeUnit.SECONDS);
+      session
+          .executeDDL("DROP keyspace " + repository.keyspace)
+          .toCompletableFuture()
+          .get(10, TimeUnit.SECONDS);
+    }
+    if (testKit != null) testKit.shutdownTestKit();
   }
 
   private ProjectionTestKit projectionTestKit = ProjectionTestKit.create(testKit.system());

@@ -13,7 +13,8 @@
 
 package org.apache.pekko.projection.cassandra;
 
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.Duration;
 import java.util.List;
@@ -23,8 +24,8 @@ import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
-import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
-import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
+import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturingExtension;
 import org.apache.pekko.actor.testkit.typed.javadsl.TestProbe;
 import org.apache.pekko.actor.typed.ActorRef;
 import org.apache.pekko.actor.typed.ActorSystem;
@@ -46,21 +47,23 @@ import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
 import org.apache.pekko.stream.javadsl.Source;
-import org.junit.*;
-import org.scalatestplus.junit.JUnitSuite;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import scala.concurrent.Await;
 import scala.jdk.javaapi.FutureConverters;
 
-public class CassandraProjectionTest extends JUnitSuite {
-  @ClassRule public static final TestKitJunitResource testKit = new TestKitJunitResource();
+@ExtendWith(LogCapturingExtension.class)
+public class CassandraProjectionTest {
 
-  @Rule public final LogCapturing logCapturing = new LogCapturing();
-
+  private static ActorTestKit testKit;
   private static CassandraSession session;
   private static CassandraOffsetStore offsetStore;
 
-  @BeforeClass
-  public static void beforeAll() throws Exception {
+  @BeforeAll
+  static void setup() throws Exception {
+    testKit = ActorTestKit.create();
 
     // don't use futureValue (patience) here because it can take a while to start the test container
     Await.result(
@@ -86,12 +89,15 @@ public class CassandraProjectionTest extends JUnitSuite {
         scala.concurrent.duration.Duration.create(60, TimeUnit.SECONDS));
   }
 
-  @AfterClass
-  public static void afterAll() throws Exception {
-    session
-        .executeDDL("DROP keyspace " + offsetStore.keyspace())
-        .toCompletableFuture()
-        .get(10, TimeUnit.SECONDS);
+  @AfterAll
+  static void teardown() throws Exception {
+    if (session != null) {
+      session
+          .executeDDL("DROP keyspace " + offsetStore.keyspace())
+          .toCompletableFuture()
+          .get(10, TimeUnit.SECONDS);
+    }
+    if (testKit != null) testKit.shutdownTestKit();
   }
 
   record Envelope(String id, long offset, String message) {}
@@ -260,7 +266,7 @@ public class CassandraProjectionTest extends JUnitSuite {
           () -> {
             assertEquals("abc|def|ghi|", str.toString());
           });
-      Assert.fail("Expected exception");
+      fail("Expected exception");
     } catch (RuntimeException e) {
       assertEquals("fail on 4", e.getMessage());
     }
@@ -342,7 +348,7 @@ public class CassandraProjectionTest extends JUnitSuite {
           () -> {
             assertEquals("abc|def|ghi|", str.toString());
           });
-      Assert.fail("Expected exception");
+      fail("Expected exception");
     } catch (RuntimeException e) {
       assertEquals("fail on 4", e.getMessage());
     }

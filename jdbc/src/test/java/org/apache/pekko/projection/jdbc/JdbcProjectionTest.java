@@ -13,8 +13,8 @@
 
 package org.apache.pekko.projection.jdbc;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
@@ -32,8 +32,8 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
-import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturing;
-import org.apache.pekko.actor.testkit.typed.javadsl.TestKitJunitResource;
+import org.apache.pekko.actor.testkit.typed.javadsl.ActorTestKit;
+import org.apache.pekko.actor.testkit.typed.javadsl.LogCapturingExtension;
 import org.apache.pekko.actor.testkit.typed.javadsl.TestProbe;
 import org.apache.pekko.japi.function.Function;
 import org.apache.pekko.japi.pf.Match;
@@ -50,17 +50,17 @@ import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.apache.pekko.stream.javadsl.FlowWithContext;
 import org.apache.pekko.stream.javadsl.Source;
 import org.apache.pekko.stream.testkit.TestSubscriber;
-import org.junit.BeforeClass;
-import org.junit.ClassRule;
-import org.junit.Rule;
-import org.junit.Test;
-import org.scalatestplus.junit.JUnitSuite;
+import org.junit.jupiter.api.AfterAll;
+import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import scala.Option;
 import scala.PartialFunction;
 import scala.concurrent.Await;
 import scala.concurrent.Future;
 
-public class JdbcProjectionTest extends JUnitSuite {
+@ExtendWith(LogCapturingExtension.class)
+public class JdbcProjectionTest {
 
   private static final Map<String, Object> configuration = new HashMap<>();
 
@@ -76,9 +76,9 @@ public class JdbcProjectionTest extends JUnitSuite {
 
   private static final Config config = ConfigFactory.parseMap(configuration);
 
-  @ClassRule public static final TestKitJunitResource testKit = new TestKitJunitResource(config);
-
-  @Rule public final LogCapturing logCapturing = new LogCapturing();
+  private static ActorTestKit testKit;
+  private static JdbcSettings jdbcSettings;
+  private static JdbcOffsetStore<PureJdbcSession> offsetStore;
 
   static class PureJdbcSession implements JdbcSession {
 
@@ -126,16 +126,20 @@ public class JdbcProjectionTest extends JUnitSuite {
 
   private static final JdbcSessionCreator jdbcSessionCreator = new JdbcSessionCreator();
 
-  private static final JdbcSettings jdbcSettings = JdbcSettings.apply(testKit.system());
-  private static final JdbcOffsetStore<PureJdbcSession> offsetStore =
-      new JdbcOffsetStore<>(testKit.system(), jdbcSettings, jdbcSessionCreator::get);
-
   private static final scala.concurrent.duration.Duration awaitTimeout =
       scala.concurrent.duration.Duration.create(3, TimeUnit.SECONDS);
 
-  @BeforeClass
-  public static void beforeAll() throws Exception {
+  @BeforeAll
+  static void setup() throws Exception {
+    testKit = ActorTestKit.create(config);
+    jdbcSettings = JdbcSettings.apply(testKit.system());
+    offsetStore = new JdbcOffsetStore<>(testKit.system(), jdbcSettings, jdbcSessionCreator::get);
     Await.result(offsetStore.createIfNotExists(), awaitTimeout);
+  }
+
+  @AfterAll
+  static void teardown() {
+    if (testKit != null) testKit.shutdownTestKit();
   }
 
   record Envelope(String id, long offset, String message) {}
