@@ -131,7 +131,7 @@ public class ShoppingCart
   public record Summary(Map<String, Integer> items, boolean checkedOut)
       implements CborSerializable {
     public Summary {
-      items = Collections.unmodifiableMap(new HashMap<>(items));
+      items = Map.copyOf(items);
     }
   }
 
