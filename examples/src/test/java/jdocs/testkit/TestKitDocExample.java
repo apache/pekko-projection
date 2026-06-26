@@ -82,6 +82,7 @@ public class TestKitDocExample {
   static void teardown() {
     testKit.shutdownTestKit();
   }
+
   // #testkit
 
   Projection<String> projection = TestProjection.create(null, null, null);
