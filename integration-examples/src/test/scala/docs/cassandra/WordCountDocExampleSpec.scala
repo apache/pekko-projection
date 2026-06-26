@@ -56,7 +56,7 @@ class WordCountDocExampleSpec
 
   override protected def afterAll(): Unit = {
     Await.ready(for {
-        _ <- session.executeDDL(s"DROP keyspace pekko_projection.offset_store")
+        _ <- session.executeDDL(s"DROP keyspace pekko_projection")
         _ <- session.executeDDL(s"DROP keyspace ${repository.keyspace}")
       } yield Done, 30.seconds)
     super.afterAll()

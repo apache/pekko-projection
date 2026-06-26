@@ -73,7 +73,7 @@ public class WordCountDocExampleTest {
   static void teardown() throws Exception {
     if (session != null) {
       session
-          .executeDDL("DROP keyspace pekko_projection.offset_store")
+          .executeDDL("DROP keyspace pekko_projection")
           .toCompletableFuture()
           .get(10, TimeUnit.SECONDS);
       session
