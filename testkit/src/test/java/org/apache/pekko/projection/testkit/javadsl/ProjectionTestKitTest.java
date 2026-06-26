@@ -20,7 +20,6 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.apache.pekko.Done;
 import org.apache.pekko.NotUsed;
@@ -51,8 +50,7 @@ import scala.jdk.javaapi.FutureConverters;
 
 public class ProjectionTestKitTest extends JUnitSuite {
 
-  private final List<Integer> elements =
-      IntStream.rangeClosed(1, 20).boxed().collect(Collectors.toList());
+  private final List<Integer> elements = IntStream.rangeClosed(1, 20).boxed().toList();
 
   private final Source<Integer, NotUsed> src = Source.from(elements);
 
@@ -145,7 +143,7 @@ public class ProjectionTestKitTest extends JUnitSuite {
   public void runAProjectionWithATestSink() {
 
     StringBuffer strBuffer = new StringBuffer();
-    List<Integer> elements = IntStream.rangeClosed(1, 5).boxed().collect(Collectors.toList());
+    List<Integer> elements = IntStream.rangeClosed(1, 5).boxed().toList();
 
     TestProjection prj = new TestProjection(Source.from(elements), strBuffer, i -> i <= 5);
 
