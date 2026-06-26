@@ -197,7 +197,7 @@ class Guardian {
     public CartPersistentBehavior(PersistenceId persistenceId, String tag) {
       super(persistenceId);
       this.tag = tag;
-      this.tags = new HashSet<>(List.of(tag));
+      this.tags = Set.of(tag);
     }
 
     @Override
