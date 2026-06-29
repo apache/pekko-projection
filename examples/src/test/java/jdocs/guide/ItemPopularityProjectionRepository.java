@@ -39,8 +39,7 @@ class ItemPopularityProjectionRepositoryImpl implements ItemPopularityProjection
   @Override
   public CompletionStage<Done> update(String itemId, int delta) {
     return session.executeWrite(
-        String.format(
-            "UPDATE %s.%s SET count = count + ? WHERE item_id = ?", Keyspace, PopularityTable),
+        "UPDATE %s.%s SET count = count + ? WHERE item_id = ?".formatted(Keyspace, PopularityTable),
         (long) delta,
         itemId);
   }
@@ -49,8 +48,8 @@ class ItemPopularityProjectionRepositoryImpl implements ItemPopularityProjection
   public CompletionStage<Optional<Long>> getItem(String itemId) {
     return session
         .selectOne(
-            String.format(
-                "SELECT item_id, count FROM %s.%s WHERE item_id = ?", Keyspace, PopularityTable),
+            "SELECT item_id, count FROM %s.%s WHERE item_id = ?"
+                .formatted(Keyspace, PopularityTable),
             itemId)
         .thenApply(opt -> opt.map(row -> row.getLong("count")));
   }
