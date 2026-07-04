@@ -105,11 +105,11 @@ object R2dbcProjection {
    * This means that if the projection is restarted from previously stored offset then some elements may be processed
    * more than once.
    *
-   * The [[R2dbcHandler.process()]] in `handler` will be wrapped in a transaction. The transaction will be committed
-   * after invoking [[R2dbcHandler.process()]].
+   * The `R2dbcHandler.process()` in `handler` will be wrapped in a transaction. The transaction will be committed
+   * after invoking `R2dbcHandler.process()`.
    *
    * The offset is stored after a time window, or limited by a number of envelopes, whatever happens first. This window
-   * can be defined with [[AtLeastOnceProjection.withSaveOffset]] of the returned `AtLeastOnceProjection`. The default
+   * can be defined with `AtLeastOnceProjection.withSaveOffset` of the returned `AtLeastOnceProjection`. The default
    * settings for the window is defined in configuration section `pekko.projection.at-least-once`.
    */
   def atLeastOnce[Offset, Envelope](
@@ -161,7 +161,7 @@ object R2dbcProjection {
   /**
    * Create a [[pekko.projection.Projection]] with at-least-once processing semantics.
    *
-   * Compared to [[R2dbcProjection.atLeastOnce]] the [[Handler]] is not storing the projected result in the database,
+   * Compared to `R2dbcProjection.atLeastOnce` the `Handler` is not storing the projected result in the database,
    * but is integrating with something else.
    *
    * It stores the offset in a relational database table using R2DBC after the `handler` has processed the envelope.
@@ -169,7 +169,7 @@ object R2dbcProjection {
    * more than once.
    *
    * The offset is stored after a time window, or limited by a number of envelopes, whatever happens first. This window
-   * can be defined with [[AtLeastOnceProjection.withSaveOffset]] of the returned `AtLeastOnceProjection`. The default
+   * can be defined with `AtLeastOnceProjection.withSaveOffset` of the returned `AtLeastOnceProjection`. The default
    * settings for the window is defined in configuration section `pekko.projection.at-least-once`.
    */
   def atLeastOnceAsync[Offset, Envelope](
@@ -216,7 +216,7 @@ object R2dbcProjection {
   /**
    * Create a [[pekko.projection.Projection]] that groups envelopes and calls the `handler` with a group of `Envelopes`.
    * The envelopes are grouped within a time window, or limited by a number of envelopes, whatever happens first. This
-   * window can be defined with [[GroupedProjection.withGroup]] of the returned `GroupedProjection`. The default
+   * window can be defined with `GroupedProjection.withGroup` of the returned `GroupedProjection`. The default
    * settings for the window is defined in configuration section `pekko.projection.grouped`.
    *
    * It stores the offset in a relational database table using R2DBC in the same transaction as the user defined
@@ -271,10 +271,10 @@ object R2dbcProjection {
   /**
    * Create a [[pekko.projection.Projection]] that groups envelopes and calls the `handler` with a group of `Envelopes`.
    * The envelopes are grouped within a time window, or limited by a number of envelopes, whatever happens first. This
-   * window can be defined with [[GroupedProjection.withGroup]] of the returned `GroupedProjection`. The default
+   * window can be defined with `GroupedProjection.withGroup` of the returned `GroupedProjection`. The default
    * settings for the window is defined in configuration section `pekko.projection.grouped`.
    *
-   * Compared to [[R2dbcProjection.groupedWithin]] the [[Handler]] is not storing the projected result in the database,
+   * Compared to `R2dbcProjection.groupedWithin` the `Handler` is not storing the projected result in the database,
    * but is integrating with something else.
    *
    * It stores the offset in a relational database table using R2DBC immediately after the `handler` has processed the
@@ -325,7 +325,7 @@ object R2dbcProjection {
   }
 
   /**
-   * Create a [[pekko.projection.Projection]] with a [[FlowWithContext]] as the envelope handler. It has at-least-once
+   * Create a [[pekko.projection.Projection]] with a `FlowWithContext` as the envelope handler. It has at-least-once
    * processing semantics.
    *
    * The flow should emit a `Done` element for each completed envelope. The offset of the envelope is carried in the

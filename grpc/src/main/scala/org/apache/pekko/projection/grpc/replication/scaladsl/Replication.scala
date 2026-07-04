@@ -33,7 +33,7 @@ import scala.concurrent.Future
 import pekko.persistence.query.typed.EventEnvelope
 
 /**
- * Created using [[Replication.grpcReplication]], which starts sharding with the entity and
+ * Created using `Replication.grpcReplication`, which starts sharding with the entity and
  * replication stream consumers but not the replication endpoint needed to publish events to other replication places.
  *
  * @tparam Command The type of commands the Replicated Event Sourced Entity accepts

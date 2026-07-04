@@ -30,7 +30,7 @@ import pekko.japi.function.{ Function => JFunction }
  * the transaction. It's paramount to configure the connection to NOT use `auto-commit` in order to guarantee that the
  * event handling and offset persistence operations participate on the same transaction.
  *
- * The only requirement to implement a [[JdbcSession]] is to have access to the underlying JDBC [[Connection]].
+ * The only requirement to implement a [[JdbcSession]] is to have access to the underlying JDBC `Connection`.
  * When using plain JDBC, one can initialize a connection directly, but when relying on a JDBC framework like JPA it will depend on the
  * chosen implementation. Hibernate for instance provides indirect access to the underlying connection through a
  * lambda call and therefore can be used (see [[JdbcSession#withConnection]] method). Other JPA implementations may not provide this feature.
@@ -50,7 +50,7 @@ trait JdbcSession {
 
   /**
    * Commits the transaction after processing.
-   * Should delegate to [[Connection#commit()]] or equivalent depending on underlying JDBC framework.
+   * Should delegate to `Connection#commit()` or equivalent depending on underlying JDBC framework.
    *
    * @throws java.sql.SQLException
    */
@@ -59,7 +59,7 @@ trait JdbcSession {
 
   /**
    * Rollback the transaction in case of failures.
-   * Should delegate to [[Connection#rollback()]] or equivalent depending on underlying JDBC framework.
+   * Should delegate to `Connection#rollback()` or equivalent depending on underlying JDBC framework.
    *
    * @throws java.sql.SQLException
    */
@@ -68,7 +68,7 @@ trait JdbcSession {
 
   /**
    * Closes the connection after use.
-   * Should delegate to [[Connection#close()]] or equivalent depending on underlying JDBC framework.
+   * Should delegate to `Connection#close()` or equivalent depending on underlying JDBC framework.
    *
    * @throws java.sql.SQLException
    */

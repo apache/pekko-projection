@@ -72,7 +72,7 @@ object ProjectionId {
    *
    * @param name - the projection name
    * @param keys  - the Set of keys to associated with the passed name.
-   * @return an [[immutable.Set]] of [[ProjectionId]]s
+   * @return an `immutable.Set` of [[ProjectionId]]s
    */
   def apply(name: String, keys: immutable.Set[String]): immutable.Set[ProjectionId] =
     keys.map(key => new ProjectionId(name, key))

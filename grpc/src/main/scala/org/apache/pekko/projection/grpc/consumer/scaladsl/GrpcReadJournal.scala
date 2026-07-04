@@ -237,7 +237,7 @@ final class GrpcReadJournal private (
    * The consumer can keep track of its current position in the event stream by storing the `offset` and restart the
    * query from a given `offset` after a crash/restart.
    *
-   * The supported offset is [[TimestampOffset]] and [[Offset.noOffset]].
+   * The supported offset is `TimestampOffset` and `Offset.noOffset`.
    *
    * The timestamp is based on the database `transaction_timestamp()` when the event was stored.
    * `transaction_timestamp()` is the time when the transaction started, not when it was committed. This means that a

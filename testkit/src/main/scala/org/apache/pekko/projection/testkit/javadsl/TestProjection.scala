@@ -77,7 +77,7 @@ trait TestProjection[Offset, Envelope] extends Projection[Envelope] {
 
   /**
    * The offset store factory. The offset store has the same lifetime as the Projection. It is instantiated when the
-   * projection is first run and is created with [[newState]].
+   * projection is first run and is created with `newState`.
    */
   def withOffsetStoreFactory(factory: Supplier[TestOffsetStore[Offset]]): TestProjection[Offset, Envelope]
 

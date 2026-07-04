@@ -52,7 +52,7 @@ abstract class TestSourceProvider[Offset, Envelope] extends VerifiableSourceProv
       extractCreationTimeFn: java.util.function.Function[Envelope, Long]): TestSourceProvider[Offset, Envelope]
 
   /**
-   * Allow the [[sourceEvents]] Source to complete or stay open indefinitely.
+   * Allow the `sourceEvents` Source to complete or stay open indefinitely.
    */
   def withAllowCompletion(allowCompletion: Boolean): TestSourceProvider[Offset, Envelope]
 
@@ -66,7 +66,7 @@ abstract class TestSourceProvider[Offset, Envelope] extends VerifiableSourceProv
    * A user-defined function to compare the last offset returned by the offset store with the offset in the source
    * to filter out previously processed offsets.
    *
-   * First parameter: Last offset processed. Second parameter this envelope's offset from [[sourceEvents]].
+   * First parameter: Last offset processed. Second parameter this envelope's offset from `sourceEvents`.
    */
   def withStartSourceFrom(startSourceFromFn: java.util.function.BiFunction[Offset, Offset, java.lang.Boolean])
       : TestSourceProvider[Offset, Envelope]

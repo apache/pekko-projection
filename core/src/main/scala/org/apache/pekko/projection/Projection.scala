@@ -31,7 +31,7 @@ import pekko.stream.scaladsl.Source
 /**
  * The core abstraction in Pekko Projections.
  *
- * A projection instance may share the same name and [[Envelope]], but must have a unique key. The key is used
+ * A projection instance may share the same name and `Envelope`, but must have a unique key. The key is used
  * to achieve processing parallelism for a projection.
  *
  * For example, many projections may share the same name "user-events-projection", but can process events for

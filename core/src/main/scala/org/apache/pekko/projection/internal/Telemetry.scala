@@ -29,7 +29,7 @@ import pekko.projection.ProjectionId
  * Service Provider Interface (SPI) for collecting metrics from projections.
  *
  * Implementations must include a single constructor with two arguments: [[ProjectionId]]
- * and [[ActorSystem]].  To setup your implementation, add a setting on your `application.conf`:
+ * and `ActorSystem`.  To setup your implementation, add a setting on your `application.conf`:
  *
  * {{{
  * pekko.projection.telemetry.implementations += com.example.MyMetrics
