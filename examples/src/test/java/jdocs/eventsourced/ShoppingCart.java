@@ -122,8 +122,8 @@ public class ShoppingCart
   /**
    * A command to checkout the shopping cart.
    *
-   * <p>The reply type is the {@link ShoppingCart.Confirmation}, which will be returned when the events have been
-   * emitted.
+   * <p>The reply type is the {@link ShoppingCart.Confirmation}, which will be returned when the
+   * events have been emitted.
    */
   public record Checkout(ActorRef<Confirmation> replyTo) implements Command {}
 
