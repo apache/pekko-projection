@@ -26,6 +26,7 @@ jobs:
         include:
           - { java-version: 17, scala-version: 2.13,  sbt-opts: '' }
           - { java-version: 17, scala-version: 3.3,   sbt-opts: '' }
+          - { java-version: 17, scala-version: next,   sbt-opts: '' }
     steps:
       - name: Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7.0.0
@@ -52,7 +53,9 @@ jobs:
         uses: coursier/cache-action@95e5b1029b6b86e7bac033ee44a0697d8a527d2d # v8.1.1
 
       - name: Run all integration tests with Scala ${{ matrix.scala-version }} and Java ${{ matrix.java-version }}
-        run: sbt ++${{ matrix.scala-version }} cassandra-test/test ${{ matrix.sbt-opts }}
+        run: |-
+          scala_version="$(bash .github/scripts/resolve-scala-version.sh "${{ matrix.scala-version }}")"
+          sbt "++${scala_version}!" cassandra-test/test ${{ matrix.sbt-opts }}
         env: # Disable Ryuk resource reaper since we always spin up fresh VMs
           TESTCONTAINERS_RYUK_DISABLED: true
 

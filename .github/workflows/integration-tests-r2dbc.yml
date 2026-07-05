@@ -28,6 +28,7 @@ jobs:
       matrix:
         include:
           - { java-version: 17, scala-version: 2.13,  sbt-opts: '' }
+          - { java-version: 17, scala-version: next,   sbt-opts: '' }
 
     steps:
       - name: Checkout
@@ -73,7 +74,9 @@ jobs:
           docker exec -i docker-postgres-db-1 psql -U postgres -t -d database2 < r2dbc-int-test/ddl-scripts/create_tables_postgres.sql
 
       - name: Run all integration tests with default Scala and Java ${{ matrix.java-version }}
-        run: sbt ++${{ matrix.scala-version }} "r2dbc-int-test/test" ${{ matrix.extraOpts }}
+        run: |-
+          scala_version="$(bash .github/scripts/resolve-scala-version.sh "${{ matrix.scala-version }}")"
+          sbt "++${scala_version}!" "r2dbc-int-test/test" ${{ matrix.sbt-opts }}
 
       - name: Print logs on failure
         if: ${{ failure() }}
@@ -88,6 +91,7 @@ jobs:
       matrix:
         include:
           - { java-version: 17, scala-version: 2.13,  sbt-opts: '' }
+          - { java-version: 17, scala-version: next,   sbt-opts: '' }
 
     steps:
       - name: Checkout
@@ -133,7 +137,9 @@ jobs:
           docker exec -i yb-tserver-n1 /home/yugabyte/bin/ysqlsh -h yb-tserver-n1 -t -d database2 < r2dbc-int-test/ddl-scripts/create_tables_yugabyte.sql
 
       - name: test
-        run: sbt -Dpekko.persistence.r2dbc.dialect=yugabyte -Dpekko.projection.r2dbc.dialect=yugabyte ++${{ matrix.scala-version }} "r2dbc-int-test/test" ${{ matrix.extraOpts }}
+        run: |-
+          scala_version="$(bash .github/scripts/resolve-scala-version.sh "${{ matrix.scala-version }}")"
+          sbt -Dpekko.persistence.r2dbc.dialect=yugabyte -Dpekko.projection.r2dbc.dialect=yugabyte "++${scala_version}!" "r2dbc-int-test/test" ${{ matrix.sbt-opts }}
 
       - name: Print logs on failure
         if: ${{ failure() }}
@@ -148,6 +154,7 @@ jobs:
       matrix:
         include:
           - { java-version: 17, scala-version: 2.13,  sbt-opts: '' }
+          - { java-version: 17, scala-version: next,   sbt-opts: '' }
 
     steps:
       - name: Checkout
@@ -193,7 +200,9 @@ jobs:
           docker exec -i docker-mysql-db-1 mysql -h 127.0.0.1 --user=root --password=root --database=database2 < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
 
       - name: test
-        run: sbt -Dpekko.persistence.r2dbc.dialect=mysql -Dpekko.projection.r2dbc.dialect=mysql ++${{ matrix.scala-version }} "r2dbc-int-test/test" ${{ matrix.extraOpts }}
+        run: |-
+          scala_version="$(bash .github/scripts/resolve-scala-version.sh "${{ matrix.scala-version }}")"
+          sbt -Dpekko.persistence.r2dbc.dialect=mysql -Dpekko.projection.r2dbc.dialect=mysql "++${scala_version}!" "r2dbc-int-test/test" ${{ matrix.sbt-opts }}
 
       - name: Print logs on failure
         if: ${{ failure() }}

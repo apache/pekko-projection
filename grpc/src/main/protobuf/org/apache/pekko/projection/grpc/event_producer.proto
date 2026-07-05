@@ -15,7 +15,6 @@ package org.apache.pekko.projection.grpc;
 
 import "google/protobuf/any.proto";
 import "google/protobuf/timestamp.proto";
-import "google/protobuf/empty.proto";
 
 option java_package = "org.apache.pekko.projection.grpc.internal.proto";
 
@@ -204,5 +203,4 @@ message LoadEventResponse {
     FilteredEvent filtered_event = 2;
   }
 }
-
 
