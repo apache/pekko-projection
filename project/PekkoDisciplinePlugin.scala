@@ -44,10 +44,15 @@ object PekkoDisciplinePlugin extends AutoPlugin {
                 "-Xlint:-strict-unsealed-patmat",
                 // scala/bug#7014 is a false positive compiler warning affecting r2dbc-spi jar loading
                 "-Wconf:msg=scala/bug#7014:s")
+            case _ =>
+              Nil
+          }).toSeq,
+        scalacOptions ++=
+          (CrossVersion.partialVersion(scalaVersion.value) match {
             case Some((3, _)) =>
               Set(
                 "-release:17",
-                "-Wconf:msg=Implicit parameters should be provided with a `using` clause:s",
+                "-Wconf:msg=.*Implicit parameters should be provided with a.*using.*clause.*:s",
                 "-Wconf:msg=is deprecated for wildcard arguments of types:s",
                 "-Wconf:msg=The trailing ` _` for eta-expansion is unnecessary:s",
                 "-Wconf:msg=with as a type operator has been deprecated:s",
@@ -57,7 +62,7 @@ object PekkoDisciplinePlugin extends AutoPlugin {
                 "-Wconf:msg=Xfatal-warnings is a deprecated alias:s",
                 "-Wconf:msg=Ignoring \\[this\\] qualifier:s",
                 "-Wconf:msg=trait App in package scala is deprecated:s") ++
-              (if (CrossVersion.partialVersion(scalaVersion.value).exists(_._2 < 9))
+              (if (scalaVersion.value.startsWith("3.3."))
                  Seq("-Yfuture-lazy-vals", "-Wconf:msg=bad option.*-Yfuture-lazy-vals:s")
                else Seq.empty)
             case _ =>

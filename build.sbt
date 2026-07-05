@@ -22,6 +22,7 @@ ThisBuild / javafmtFormatterCompatibleJavaVersion := 17
 
 ThisBuild / JupiterKeys.junitJupiterVersion := "6.1.0"
 ThisBuild / JupiterKeys.junitPlatformVersion := "6.1.0"
+Global / excludeLintKeys ++= Set(JupiterKeys.junitJupiterVersion, JupiterKeys.junitPlatformVersion)
 
 lazy val core =
   Project(id = "core", base = file("core"))
@@ -235,10 +236,14 @@ lazy val r2dbcIntTest =
       publish / skip := true,
       Test / parallelExecution := false,
       // there are some compile warnings in the test code (Scala 2.13)
-      scalacOptions ++= Seq(
-        "-Wconf:msg=Implicit resolves to enclosing:s",
-        "-Wconf:msg=outer reference in this type test:s",
-        "-Wconf:cat=lint:s"))
+      scalacOptions ++= {
+        if (scalaVersion.value.startsWith("2."))
+          Seq(
+            "-Wconf:msg=Implicit resolves to enclosing:s",
+            "-Wconf:msg=outer reference in this type test:s",
+            "-Wconf:cat=lint:s")
+        else Seq.empty
+      })
     .dependsOn(core)
     .dependsOn(coreTest % "test->test")
     .dependsOn(r2dbc % "test->test;test->compile")
@@ -289,6 +294,7 @@ lazy val docs = project
     publish / skip := true,
     makeSite := makeSite.dependsOn(LocalRootProject / ScalaUnidoc / doc).value,
     previewPath := (Paradox / siteSubdirName).value,
+    Global / excludeLintKeys += previewPath,
     Preprocess / siteSubdirName := s"api/pekko-projection/${projectInfoVersion.value}",
     Preprocess / sourceDirectory := (LocalRootProject / ScalaUnidoc / unidoc / target).value,
     Paradox / siteSubdirName := s"docs/pekko-projection/${projectInfoVersion.value}",
