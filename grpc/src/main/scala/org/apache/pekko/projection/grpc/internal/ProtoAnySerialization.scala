@@ -14,6 +14,7 @@
 package org.apache.pekko.projection.grpc.internal
 
 import java.lang.invoke.{ MethodHandle, MethodHandles, MethodType }
+import java.util.concurrent.ConcurrentHashMap
 
 import scala.collection.concurrent.TrieMap
 import scala.collection.immutable
@@ -45,8 +46,9 @@ import scalapb.options.Scalapb
   final val PekkoSerializationTypeUrlPrefix = "ser.pekko.io/"
   final val PekkoTypeUrlManifestSeparator = ':'
   private final val ProtoAnyTypeUrl = GoogleTypeUrlPrefix + "google.protobuf.Any"
+  private val publicLookup = MethodHandles.publicLookup()
   private val parserMethodType = MethodType.methodType(classOf[Parser[?]])
-  private val parserHandles = TrieMap.empty[Class[?], MethodHandle]
+  private val parserHandles = new ConcurrentHashMap[Class[?], MethodHandle]
 
   private val log = LoggerFactory.getLogger(classOf[ProtoAnySerialization])
 
@@ -246,8 +248,15 @@ import scalapb.options.Scalapb
     }
   }
 
-  private def parserHandle(clazz: Class[?]): MethodHandle =
-    parserHandles.getOrElseUpdate(clazz, MethodHandles.publicLookup().findStatic(clazz, "parser", parserMethodType))
+  private def parserHandle(clazz: Class[?]): MethodHandle = {
+    val cached = parserHandles.get(clazz)
+    if (cached ne null) cached
+    else {
+      val handle = publicLookup.findStatic(clazz, "parser", parserMethodType)
+      val existing = parserHandles.putIfAbsent(clazz, handle)
+      if (existing eq null) handle else existing
+    }
+  }
 
   private def hasExtension[ContainerT <: com.google.protobuf.GeneratedMessage.ExtendableMessage[ContainerT], T](
       msg: com.google.protobuf.GeneratedMessage.ExtendableMessageOrBuilder[ContainerT],
