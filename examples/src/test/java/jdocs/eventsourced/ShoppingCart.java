@@ -115,15 +115,15 @@ public class ShoppingCart
   /**
    * A command to get the current state of the shopping cart.
    *
-   * <p>The reply type is the {@link Summary}
+   * <p>The reply type is the {@link ShoppingCart.Summary}
    */
   public record Get(ActorRef<Summary> replyTo) implements Command {}
 
   /**
    * A command to checkout the shopping cart.
    *
-   * <p>The reply type is the {@link Confirmation}, which will be returned when the events have been
-   * emitted.
+   * <p>The reply type is the {@link ShoppingCart.Confirmation}, which will be returned when the
+   * events have been emitted.
    */
   public record Checkout(ActorRef<Confirmation> replyTo) implements Command {}
 
