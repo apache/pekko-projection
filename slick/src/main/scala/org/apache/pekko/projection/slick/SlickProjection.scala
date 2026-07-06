@@ -133,7 +133,7 @@ object SlickProjection {
   /**
    * Create a [[pekko.projection.Projection]] with at-least-once processing semantics.
    *
-   * The DBIO returned by the [[SlickHandler.process()]] of the provided [[handler]] will be
+   * The DBIO returned by the `SlickHandler.process()` of the provided `handler` will be
    * wrapped in a transaction.
    *
    * It stores the offset in a relational database table using Slick after the `handler` has processed the envelope.
@@ -141,7 +141,7 @@ object SlickProjection {
    * more than once.
    *
    * The offset is stored after a time window, or limited by a number of envelopes, whatever happens first.
-   * This window can be defined with [[AtLeastOnceProjection.withSaveOffset]] of the returned
+   * This window can be defined with `AtLeastOnceProjection.withSaveOffset` of the returned
    * `AtLeastOnceProjection`. The default settings for the window is defined in configuration
    * section `pekko.projection.at-least-once`.
    */
@@ -183,7 +183,7 @@ object SlickProjection {
   /**
    * Create a [[pekko.projection.Projection]] with at-least-once processing semantics.
    *
-   * Compared to [[SlickProjection.atLeastOnce]] the [[Handler]] is not storing the projected result in the
+   * Compared to [[SlickProjection.atLeastOnce]] the `Handler` is not storing the projected result in the
    * database, but is integrating with something else.
    *
    * It stores the offset in a relational database table using Slick after the `handler` has processed the envelope.
@@ -191,7 +191,7 @@ object SlickProjection {
    * more than once.
    *
    * The offset is stored after a time window, or limited by a number of envelopes, whatever happens first.
-   * This window can be defined with [[AtLeastOnceProjection.withSaveOffset]] of the returned
+   * This window can be defined with `AtLeastOnceProjection.withSaveOffset` of the returned
    * `AtLeastOnceProjection`. The default settings for the window is defined in configuration
    * section `pekko.projection.at-least-once`.
    */
@@ -216,7 +216,7 @@ object SlickProjection {
   /**
    * Create a [[pekko.projection.Projection]] that groups envelopes and calls the `handler` with a group of `Envelopes`.
    * The envelopes are grouped within a time window, or limited by a number of envelopes,
-   * whatever happens first. This window can be defined with [[GroupedProjection.withGroup]] of
+   * whatever happens first. This window can be defined with `GroupedProjection.withGroup` of
    * the returned `GroupedProjection`. The default settings for the window is defined in configuration
    * section `pekko.projection.grouped`.
    *
@@ -292,11 +292,11 @@ object SlickProjection {
   /**
    * Create a [[pekko.projection.Projection]] that groups envelopes and calls the `handler` with a group of `Envelopes`.
    * The envelopes are grouped within a time window, or limited by a number of envelopes,
-   * whatever happens first. This window can be defined with [[GroupedProjection.withGroup]] of
+   * whatever happens first. This window can be defined with `GroupedProjection.withGroup` of
    * the returned `GroupedProjection`. The default settings for the window is defined in configuration
    * section `pekko.projection.grouped`.
    *
-   * Compared to [[SlickProjection.groupedWithin]] the [[Handler]] is not storing the projected result in the
+   * Compared to [[SlickProjection.groupedWithin]] the `Handler` is not storing the projected result in the
    * database, but is integrating with something else.
    *
    * It stores the offset in  a relational database table using Slick immediately after the `handler` has
@@ -326,7 +326,7 @@ object SlickProjection {
   }
 
   /**
-   * Create a [[pekko.projection.Projection]] with a [[FlowWithContext]] as the envelope handler. It has at-least-once processing
+   * Create a [[pekko.projection.Projection]] with a `FlowWithContext` as the envelope handler. It has at-least-once processing
    * semantics.
    *
    * The flow should emit a `Done` element for each completed envelope. The offset of the envelope is carried

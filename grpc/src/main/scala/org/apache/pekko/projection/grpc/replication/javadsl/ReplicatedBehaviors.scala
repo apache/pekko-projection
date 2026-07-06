@@ -23,7 +23,7 @@ import pekko.persistence.typed.javadsl.ReplicationContext
 /**
  * Dynamically provides factory methods for creating replicated event sourced behaviors.
  *
- * Must be used to create an event sourced behavior to be replicated with [[Replication.grpcReplication]].
+ * Must be used to create an event sourced behavior to be replicated with `Replication.grpcReplication`.
  *
  * Can optionally be composed with other Behavior factories, to get access to actor context or timers.
  */
