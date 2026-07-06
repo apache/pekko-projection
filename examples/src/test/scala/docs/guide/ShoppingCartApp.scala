@@ -39,41 +39,43 @@ import pekko.stream.connectors.cassandra.scaladsl.CassandraSessionRegistry
 
 //#guideSetup
 
-object ShoppingCartApp extends App {
-  val config = ConfigFactory.load("guide-shopping-cart-app.conf")
+object ShoppingCartApp {
+  def main(args: Array[String]): Unit = {
+    val config = ConfigFactory.load("guide-shopping-cart-app.conf")
 
-  ActorSystem(
-    Behaviors.setup[String] { context =>
-      val system = context.system
+    ActorSystem(
+      Behaviors.setup[String] { context =>
+        val system = context.system
 
-      // ...
+        // ...
 
-      // #guideSetup
-      // #guideSourceProviderSetup
-      val sourceProvider: SourceProvider[Offset, EventEnvelope[ShoppingCartEvents.Event]] =
-        EventSourcedProvider
-          .eventsByTag[ShoppingCartEvents.Event](
-            system,
-            readJournalPluginId = CassandraReadJournal.Identifier,
-            tag = ShoppingCartTags.Single)
-      // #guideSourceProviderSetup
+        // #guideSetup
+        // #guideSourceProviderSetup
+        val sourceProvider: SourceProvider[Offset, EventEnvelope[ShoppingCartEvents.Event]] =
+          EventSourcedProvider
+            .eventsByTag[ShoppingCartEvents.Event](
+              system,
+              readJournalPluginId = CassandraReadJournal.Identifier,
+              tag = ShoppingCartTags.Single)
+        // #guideSourceProviderSetup
 
-      // #guideProjectionSetup
-      implicit val ec = system.executionContext
-      val session = CassandraSessionRegistry(system).sessionFor("pekko.projection.cassandra.session-config")
-      val repo = new ItemPopularityProjectionRepositoryImpl(session)
-      val projection = CassandraProjection.atLeastOnce(
-        projectionId = ProjectionId("shopping-carts", ShoppingCartTags.Single),
-        sourceProvider,
-        handler = () => new ItemPopularityProjectionHandler(ShoppingCartTags.Single, system, repo))
+        // #guideProjectionSetup
+        implicit val ec = system.executionContext
+        val session = CassandraSessionRegistry(system).sessionFor("pekko.projection.cassandra.session-config")
+        val repo = new ItemPopularityProjectionRepositoryImpl(session)
+        val projection = CassandraProjection.atLeastOnce(
+          projectionId = ProjectionId("shopping-carts", ShoppingCartTags.Single),
+          sourceProvider,
+          handler = () => new ItemPopularityProjectionHandler(ShoppingCartTags.Single, system, repo))
 
-      context.spawn(ProjectionBehavior(projection), projection.projectionId.id)
-      // #guideProjectionSetup
+        context.spawn(ProjectionBehavior(projection), projection.projectionId.id)
+        // #guideProjectionSetup
 
-      // #guideSetup
-      Behaviors.empty
-    },
-    "ShoppingCartApp",
-    config)
+        // #guideSetup
+        Behaviors.empty
+      },
+      "ShoppingCartApp",
+      config)
+  }
 }
 //#guideSetup
