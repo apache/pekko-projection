@@ -84,8 +84,8 @@ object Dependencies {
     val scalatestJUnit = "org.scalatestplus" %% "junit-4-13" % (Versions.scalaTest + ".0")
     val junit = "junit" % "junit" % Versions.junit % "test"
 
-    val junitJupiterApi = "org.junit.jupiter" % "junit-jupiter-api" % "6.1.1" % "test"
-    val junitJupiterEngine = "org.junit.jupiter" % "junit-jupiter-engine" % "6.1.1" % "test"
+    val junitJupiterApi = "org.junit.jupiter" % "junit-jupiter-api" % "6.1.2" % "test"
+    val junitJupiterEngine = "org.junit.jupiter" % "junit-jupiter-engine" % "6.1.2" % "test"
     val jupiterInterface = "com.github.sbt.junit" % "jupiter-interface" % "0.19.0" % "test"
     val junitPlatformLauncher = "org.junit.platform" % "junit-platform-launcher" % "6.1.1" % "test"
 
