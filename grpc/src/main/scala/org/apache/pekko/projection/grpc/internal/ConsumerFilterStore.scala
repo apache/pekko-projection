@@ -13,6 +13,7 @@
 
 package org.apache.pekko.projection.grpc.internal
 
+import java.lang.invoke.{ MethodHandle, MethodHandles, MethodType }
 import java.util.ConcurrentModificationException
 import java.util.concurrent.ConcurrentHashMap
 
@@ -54,6 +55,15 @@ import org.slf4j.LoggerFactory
 @InternalApi private[pekko] object ConsumerFilterStore {
   sealed trait Command
 
+  private val lookup = MethodHandles.lookup()
+  private val ddataApplyHandles = new ConcurrentHashMap[Class[?], MethodHandle]
+  private val ddataApplyMethodType =
+    MethodType.methodType(
+      classOf[Behavior[?]],
+      classOf[ConsumerFilterSettings],
+      classOf[String],
+      classOf[ActorRef[ConsumerFilterRegistry.FilterUpdated]])
+
   final case class UpdateFilter(criteria: immutable.Seq[FilterCriteria]) extends Command
 
   final case class GetFilter(replyTo: ActorRef[ConsumerFilter.CurrentFilter]) extends Command
@@ -94,15 +104,22 @@ import org.slf4j.LoggerFactory
       .dynamicAccess
       .getObjectFor[Any]("org.apache.pekko.projection.grpc.internal.DdataConsumerFilterStore") match {
       case Success(companion) =>
-        val applyMethod = companion.getClass.getMethod(
-          "apply",
-          classOf[ConsumerFilterSettings],
-          classOf[String],
-          classOf[ActorRef[ConsumerFilterRegistry.FilterUpdated]])
-        applyMethod.invoke(companion, settings, streamId, notifyUpdatesTo).asInstanceOf[Behavior[Command]]
+        ddataApplyHandle(companion.getClass)
+          .invoke(companion, settings, streamId, notifyUpdatesTo)
+          .asInstanceOf[Behavior[Command]]
       case Failure(exc) =>
         LoggerFactory.getLogger(className).error2("Couldn't create instance of [{}]", className, exc)
         throw exc
+    }
+  }
+
+  private def ddataApplyHandle(companionClass: Class[?]): MethodHandle = {
+    val cached = ddataApplyHandles.get(companionClass)
+    if (cached ne null) cached
+    else {
+      val handle = lookup.findVirtual(companionClass, "apply", ddataApplyMethodType)
+      val existing = ddataApplyHandles.putIfAbsent(companionClass, handle)
+      if (existing eq null) handle else existing
     }
   }
 

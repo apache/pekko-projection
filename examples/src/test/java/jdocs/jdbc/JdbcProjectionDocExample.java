@@ -34,9 +34,10 @@ import jakarta.persistence.EntityManager;
 
 // #jdbc-session-imports
 import org.apache.pekko.projection.jdbc.JdbcSession;
+import java.lang.invoke.MethodHandles;
+import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import java.sql.Connection;
 
 // #jdbc-session-imports
 
@@ -73,10 +74,11 @@ class JdbcProjectionDocExample {
 
     public PlainJdbcSession() {
       try {
-        Class.forName("org.h2.Driver");
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        lookup.ensureInitialized(lookup.findClass("org.h2.Driver"));
         this.connection = DriverManager.getConnection("jdbc:h2:mem:test;DB_CLOSE_DELAY=-1");
         connection.setAutoCommit(false);
-      } catch (ClassNotFoundException | SQLException e) {
+      } catch (ReflectiveOperationException | SQLException e) {
         throw new RuntimeException(e);
       }
     }
