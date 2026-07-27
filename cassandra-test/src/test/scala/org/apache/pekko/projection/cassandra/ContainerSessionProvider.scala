@@ -58,5 +58,6 @@ object ContainerSessionProvider {
     else
       """
       pekko.projection.cassandra.session-config.session-provider = "org.apache.pekko.projection.cassandra.ContainerSessionProvider"
+      datastax-java-driver.basic.request.timeout = 10 seconds
       """
 }
