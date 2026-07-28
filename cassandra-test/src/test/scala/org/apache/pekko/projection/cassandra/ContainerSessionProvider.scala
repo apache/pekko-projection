@@ -19,7 +19,7 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Try
 
-import com.typesafe.config.{Config => TypesafeConfig}
+import com.typesafe.config.{ Config => TypesafeConfig }
 import org.apache.pekko.actor.ClassicActorSystemProvider
 import org.apache.pekko.stream.connectors.cassandra.CqlSessionProvider
 import com.datastax.oss.driver.api.core.CqlSession
