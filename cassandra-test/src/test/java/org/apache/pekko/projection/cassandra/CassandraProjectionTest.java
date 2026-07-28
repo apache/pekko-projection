@@ -281,6 +281,7 @@ public class CassandraProjectionTest {
           assertEquals("fail on 4", error.getMessage());
         });
 
+    assertEquals("abc|def|ghi|", str.toString());
     assertStoredOffset(projectionId, 3L);
 
     // re-run projection without failing function
@@ -360,6 +361,7 @@ public class CassandraProjectionTest {
           assertEquals("fail on 4", error.getMessage());
         });
 
+    assertEquals("abc|def|ghi|", str.toString());
     assertStoredOffset(projectionId, 4L);
 
     // re-run projection without failing function
