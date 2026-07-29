@@ -14,7 +14,6 @@
 package org.apache.pekko.projection.cassandra;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.fail;
 
 import java.time.Duration;
 import java.util.List;
@@ -48,12 +47,14 @@ import org.apache.pekko.projection.testkit.javadsl.TestSourceProvider;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSession;
 import org.apache.pekko.stream.connectors.cassandra.javadsl.CassandraSessionRegistry;
 import org.apache.pekko.stream.javadsl.Source;
+import org.apache.pekko.stream.testkit.TestSubscriber;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import scala.concurrent.Await;
 import scala.jdk.javaapi.FutureConverters;
+import scala.util.Either;
 
 @ExtendWith(LogCapturingExtension.class)
 public class CassandraProjectionTest {
@@ -191,6 +192,16 @@ public class CassandraProjectionTest {
             });
   }
 
+  @SuppressWarnings({"unchecked", "deprecation"})
+  private Throwable eventuallyExpectError(TestSubscriber.Probe<?> sinkProbe) {
+    while (true) {
+      Either<Throwable, ?> result = (Either<Throwable, ?>) sinkProbe.expectNextOrError();
+      if (result.isLeft()) {
+        return result.left().get();
+      }
+    }
+  }
+
   private Handler<Envelope> concatHandler(StringBuffer str) {
     return Handler.fromFunction(
         envelope -> {
@@ -262,17 +273,15 @@ public class CassandraProjectionTest {
                 projectionId, sourceProvider(entityId), () -> concatHandlerFail4(str))
             .withSaveOffset(1, Duration.ZERO);
 
-    try {
-      projectionTestKit.run(
-          projection,
-          () -> {
-            assertEquals("abc|def|ghi|", str.toString());
-          });
-      fail("Expected exception");
-    } catch (RuntimeException e) {
-      assertEquals("fail on 4", e.getMessage());
-    }
+    projectionTestKit.runWithTestSink(
+        projection,
+        sinkProbe -> {
+          sinkProbe.request(1000);
+          Throwable error = eventuallyExpectError(sinkProbe);
+          assertEquals("fail on 4", error.getMessage());
+        });
 
+    assertEquals("abc|def|ghi|", str.toString());
     assertStoredOffset(projectionId, 3L);
 
     // re-run projection without failing function
@@ -344,17 +353,15 @@ public class CassandraProjectionTest {
         CassandraProjection.atMostOnce(
             projectionId, sourceProvider(entityId), () -> concatHandlerFail4(str));
 
-    try {
-      projectionTestKit.run(
-          projection,
-          () -> {
-            assertEquals("abc|def|ghi|", str.toString());
-          });
-      fail("Expected exception");
-    } catch (RuntimeException e) {
-      assertEquals("fail on 4", e.getMessage());
-    }
+    projectionTestKit.runWithTestSink(
+        projection,
+        sinkProbe -> {
+          sinkProbe.request(1000);
+          Throwable error = eventuallyExpectError(sinkProbe);
+          assertEquals("fail on 4", error.getMessage());
+        });
 
+    assertEquals("abc|def|ghi|", str.toString());
     assertStoredOffset(projectionId, 4L);
 
     // re-run projection without failing function

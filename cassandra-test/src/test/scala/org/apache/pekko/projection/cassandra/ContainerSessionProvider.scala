@@ -19,23 +19,29 @@ import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.util.Try
 
+import org.apache.pekko.actor.ActorSystem
 import org.apache.pekko.stream.connectors.cassandra.CqlSessionProvider
 import com.datastax.oss.driver.api.core.CqlSession
+import com.datastax.oss.driver.internal.core.config.typesafe.DefaultDriverConfigLoader
 import com.datastax.oss.driver.internal.core.metadata.DefaultEndPoint
+import com.typesafe.config.Config
 import org.testcontainers.cassandra.CassandraContainer
 import org.testcontainers.utility.DockerImageName
 
 /**
  * Use testcontainers to lazily provide a single CqlSession for all Cassandra tests
  */
-final class ContainerSessionProvider extends CqlSessionProvider {
+final class ContainerSessionProvider(system: ActorSystem, sessionConfig: Config) extends CqlSessionProvider {
   import ContainerSessionProvider._
+
+  private val driverConfig = CqlSessionProvider.driverConfig(system, sessionConfig)
 
   override def connect()(implicit ec: ExecutionContext): Future[CqlSession] = started.map { _ =>
     CqlSession.builder
       .addContactEndPoint(new DefaultEndPoint(InetSocketAddress
         .createUnresolved(container.getHost, container.getFirstMappedPort.intValue())))
       .withLocalDatacenter("datacenter1")
+      .withConfigLoader(new DefaultDriverConfigLoader(() => driverConfig))
       .build()
   }
 }
