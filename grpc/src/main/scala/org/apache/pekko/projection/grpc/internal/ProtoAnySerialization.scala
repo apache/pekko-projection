@@ -13,6 +13,9 @@
 
 package org.apache.pekko.projection.grpc.internal
 
+import java.lang.invoke.{ MethodHandle, MethodHandles, MethodType }
+import java.util.concurrent.ConcurrentHashMap
+
 import scala.collection.concurrent.TrieMap
 import scala.collection.immutable
 import scala.jdk.CollectionConverters._
@@ -43,6 +46,9 @@ import scalapb.options.Scalapb
   final val PekkoSerializationTypeUrlPrefix = "ser.pekko.io/"
   final val PekkoTypeUrlManifestSeparator = ':'
   private final val ProtoAnyTypeUrl = GoogleTypeUrlPrefix + "google.protobuf.Any"
+  private val publicLookup = MethodHandles.publicLookup()
+  private val parserMethodType = MethodType.methodType(classOf[Parser[?]])
+  private val parserHandles = new ConcurrentHashMap[Class[?], MethodHandle]
 
   private val log = LoggerFactory.getLogger(classOf[ProtoAnySerialization])
 
@@ -218,10 +224,7 @@ import scalapb.options.Scalapb
       log.debug("tryResolveJavaPbType attempting to load class {}", className)
 
       val clazz = system.dynamicAccess.getClassFor[Any](className).get
-      val parser = clazz
-        .getMethod("parser")
-        .invoke(null)
-        .asInstanceOf[Parser[com.google.protobuf.Message]]
+      val parser = parserHandle(clazz).invoke().asInstanceOf[Parser[com.google.protobuf.Message]]
       Some(new JavaPbResolvedType(parser))
 
     } catch {
@@ -229,19 +232,29 @@ import scalapb.options.Scalapb
         log.debug2("Failed to load class [{}] because: {}", className, cnfe.getMessage)
         None
       case nsme: NoSuchElementException =>
-        // Not sure this is exception is thrown. NoSuchMethodException is thrown from getMethod("parser").
+        // Not sure this is exception is thrown. NoSuchMethodException is thrown from the parser MethodHandle lookup.
         // It was like this in the original Kalix JVM SDK.
         throw SerializationException(
           s"Found com.google.protobuf.Message class $className to deserialize protobuf ${typeDescriptor.getFullName} but it didn't have a static parser() method on it.",
           nsme)
       case _: NoSuchMethodException =>
-        // NoSuchMethodException may be thrown from getMethod("parser") if the ScalaPB class can be loaded,
+        // NoSuchMethodException may be thrown from the MethodHandle lookup if the ScalaPB class can be loaded,
         // but the ScalaPB class doesn't have the parser method.
         None
       case iae @ (_: IllegalAccessException | _: IllegalArgumentException) =>
         throw SerializationException(s"Could not invoke $className.parser()", iae)
       case cce: ClassCastException =>
         throw SerializationException(s"$className.parser() did not return a ${classOf[Parser[?]]}", cce)
+    }
+  }
+
+  private def parserHandle(clazz: Class[?]): MethodHandle = {
+    val cached = parserHandles.get(clazz)
+    if (cached ne null) cached
+    else {
+      val handle = publicLookup.findStatic(clazz, "parser", parserMethodType)
+      val existing = parserHandles.putIfAbsent(clazz, handle)
+      if (existing eq null) handle else existing
     }
   }
 
