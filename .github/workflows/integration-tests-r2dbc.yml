@@ -53,7 +53,7 @@ jobs:
           distribution: temurin
 
       - name: Install sbt
-        uses: sbt/setup-sbt@bfea3c5f48abd221b04a6df4798aa5eb8b6a2baf # v1.5.6
+        uses: sbt/setup-sbt@8feba82adc7f01ddcf8165b86f778bdb5b82cebc # v1.5.7
 
       - name: Start PostgreSQL DB
         run: |-
@@ -116,7 +116,7 @@ jobs:
           distribution: temurin
 
       - name: Install sbt
-        uses: sbt/setup-sbt@bfea3c5f48abd221b04a6df4798aa5eb8b6a2baf # v1.5.6
+        uses: sbt/setup-sbt@8feba82adc7f01ddcf8165b86f778bdb5b82cebc # v1.5.7
 
       - name: Start YugabyteDB
         run: |-
@@ -179,7 +179,7 @@ jobs:
           distribution: temurin
 
       - name: Install sbt
-        uses: sbt/setup-sbt@bfea3c5f48abd221b04a6df4798aa5eb8b6a2baf # v1.5.6
+        uses: sbt/setup-sbt@8feba82adc7f01ddcf8165b86f778bdb5b82cebc # v1.5.7
 
       - name: Start MySQL
         run: |-
