@@ -18,6 +18,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.typesafe.config.Config;
 import com.typesafe.config.ConfigFactory;
+import java.lang.invoke.MethodHandles;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
@@ -87,11 +88,12 @@ public class JdbcProjectionTest {
 
     public PureJdbcSession() {
       try {
-        Class.forName("org.h2.Driver");
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        lookup.ensureInitialized(lookup.findClass("org.h2.Driver"));
         Connection c = DriverManager.getConnection("jdbc:h2:mem:test-java;DB_CLOSE_DELAY=-1");
         c.setAutoCommit(false);
         this.connection = c;
-      } catch (ClassNotFoundException | SQLException e) {
+      } catch (ReflectiveOperationException | SQLException e) {
         throw new RuntimeException(e);
       }
     }
