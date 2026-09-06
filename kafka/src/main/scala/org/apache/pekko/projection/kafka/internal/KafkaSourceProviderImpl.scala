@@ -94,23 +94,30 @@ import org.apache.kafka.common.record.TimestampType
         })
 
   override def source(readOffsets: ReadOffsets): Future[Source[ConsumerRecord[K, V], NotUsed]] = {
-    // get the total number of partitions to configure the `breadth` parameter, or we could just use a really large
-    // number.  i don't think using a large number would present a problem.
-    val metadataClient = metadataClientFactory()
-    val numPartitionsF = metadataClient.numPartitions(topics)
-    numPartitionsF.failed.foreach(_ => metadataClient.stop())
-    numPartitionsF.map { numPartitions =>
-      _source(readOffsets, numPartitions, metadataClient)
-        .mapMaterializedValue { m =>
-          control = Some(m)
-          m
+    // The metadata client is created when the source is materialized, and stopped when the stream terminates.
+    // Creating it eagerly here would leak the client, and its Kafka consumer actor, when the returned source is
+    // never materialized, such as when the projection is stopped while it is starting up.
+    val source =
+      Source.lazyFutureSource[ConsumerRecord[K, V], NotUsed] { () =>
+        // get the total number of partitions to configure the `breadth` parameter, or we could just use a really large
+        // number.  i don't think using a large number would present a problem.
+        val metadataClient = metadataClientFactory()
+        val numPartitionsF = metadataClient.numPartitions(topics)
+        numPartitionsF.failed.foreach(_ => metadataClient.stop())
+        numPartitionsF.map { numPartitions =>
+          _source(readOffsets, numPartitions, metadataClient)
+            .mapMaterializedValue { m =>
+              control = Some(m)
+              m
+            }
+            .watchTermination(Keep.right)
+            .mapMaterializedValue { terminated =>
+              terminated.onComplete(_ => metadataClient.stop())
+              NotUsed
+            }
         }
-        .watchTermination(Keep.right)
-        .mapMaterializedValue { terminated =>
-          terminated.onComplete(_ => metadataClient.stop())
-          NotUsed
-        }
-    }
+      }
+    Future.successful(source.mapMaterializedValue(_ => NotUsed))
   }
 
   override def source(readOffsets: Supplier[CompletionStage[Optional[MergeableOffset[JLong]]]])
