@@ -62,7 +62,7 @@ class JdbcSessionUtilSpec extends TestSuite with Matchers with AnyWordSpecLike w
 
       result shouldBe "result"
       factory.created.toList should have size 1
-      passedToFunc should be theSameInstanceAs factory.created.head
+      assert(passedToFunc eq factory.created.head)
       passedToFunc.closeCount shouldBe 1
     }
 
