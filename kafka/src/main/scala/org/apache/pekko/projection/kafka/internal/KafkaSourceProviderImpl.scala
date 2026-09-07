@@ -100,7 +100,7 @@ import org.apache.kafka.common.record.TimestampType
     val source =
       Source.lazyFutureSource[ConsumerRecord[K, V], NotUsed] { () =>
         // get the total number of partitions to configure the `breadth` parameter, or we could just use a really large
-        // number.  i don't think using a large number would present a problem.
+        // number. I don't think using a large number would present a problem.
         val metadataClient = metadataClientFactory()
         val numPartitionsF = metadataClient.numPartitions(topics)
         numPartitionsF.failed.foreach(_ => metadataClient.stop())
