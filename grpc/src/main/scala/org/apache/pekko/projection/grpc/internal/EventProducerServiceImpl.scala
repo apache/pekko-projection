@@ -95,7 +95,7 @@ import scala.util.Success
     sources.map(s => s.streamId -> s).toMap
 
   log.info(
-    s"Event producer gRPC service created with available sources [{}]",
+    "Event producer gRPC service created with available sources [{}]",
     sources
       .map(s => s"(stream id: [${s.streamId}], entity type: [${s.entityType}])")
       .mkString(", "))

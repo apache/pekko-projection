@@ -1042,7 +1042,7 @@ private[projection] class R2dbcOffsetStore(
               .bind(2, projectionId.name)
           }
           .map { n =>
-            logger.debug(s"clearing timestamp offset for [{}] - executed statement returned [{}]", projectionId, n)
+            logger.debug("clearing timestamp offset for [{}] - executed statement returned [{}]", projectionId, n)
             Done
           }
       case None =>
@@ -1061,7 +1061,7 @@ private[projection] class R2dbcOffsetStore(
             .bind(1, projectionId.key)
         }
         .map { n =>
-          logger.debug(s"clearing offset for [{}] - executed statement returned [{}]", projectionId, n)
+          logger.debug("clearing offset for [{}] - executed statement returned [{}]", projectionId, n)
           Done
         }
     } else {

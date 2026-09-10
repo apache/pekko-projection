@@ -207,8 +207,13 @@ private[pekko] object ReplicationImpl {
                             replicatedEventMetadata.version)),
                           Some(replyTo)))
                       askResult.failed.foreach(error =>
-                        log.warn(
-                          s"Failing replication stream [$projectionName/$projectionKey] from [${remoteReplica.replicaId.id}], event pid [${envelope.persistenceId}], seq_nr [${envelope.sequenceNr}]",
+                        log.warnN(
+                          "Failing replication stream [{}/{}] from [{}], event pid [{}], seq_nr [{}]",
+                          projectionName,
+                          projectionKey,
+                          remoteReplica.replicaId.id,
+                          envelope.persistenceId,
+                          envelope.sequenceNr,
                           error))
                       askResult
 

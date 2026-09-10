@@ -99,7 +99,7 @@ class JdbcOffsetStore[S <: JdbcSession](
         stmt.setString(1, projectionId.name)
         stmt.setString(2, projectionId.key)
         val i = stmt.executeUpdate()
-        logger.debug(s"clearing offset for [{}] - executed statement returned [{}]", projectionId, i)
+        logger.debug("clearing offset for [{}] - executed statement returned [{}]", projectionId, i)
         Done
       }
     }
@@ -291,7 +291,7 @@ class JdbcOffsetStore[S <: JdbcSession](
 
         if (verboseLogging) {
           logger.debugN(
-            s"tried to update paused [{}] for [{}], statement result [{}]",
+            "tried to update paused [{}] for [{}], statement result [{}]",
             paused,
             projectionId,
             tryUpdateResult)
