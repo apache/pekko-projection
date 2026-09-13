@@ -19,7 +19,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
-import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -702,7 +701,7 @@ class SlickProjectionSpec
             databaseConfig = dbConfig,
             // build event handler from simple lambda
             handler = () =>
-              SlickHandler[immutable.Seq[Envelope]] { envelopes =>
+              SlickHandler[Seq[Envelope]] { envelopes =>
                 handlerProbe.ref ! handlerCalled
                 val dbios = envelopes.map(env => repository.concatToText(env.id, env.message))
                 DBIOAction.sequence(dbios).map(_ => Done)
@@ -734,8 +733,8 @@ class SlickProjectionSpec
 
       val result = new StringBuffer()
 
-      def handler(): Handler[immutable.Seq[Envelope]] = new Handler[immutable.Seq[Envelope]] {
-        override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+      def handler(): Handler[Seq[Envelope]] = new Handler[Seq[Envelope]] {
+        override def process(envelopes: Seq[Envelope]): Future[Done] = {
           Future {
             envelopes.foreach(env => result.append(env.message).append("|"))
           }.map(_ => Done)

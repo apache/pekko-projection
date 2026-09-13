@@ -15,7 +15,6 @@ package org.apache.pekko.projection.internal.metrics.tools
 
 import java.util.UUID
 
-import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -161,8 +160,8 @@ object InternalProjectionStateMetricsSpec {
           }
           case groupedHandlerStrategy: GroupedHandlerStrategy[Envelope] @unchecked => {
             val adaptedHandler = () =>
-              new Handler[immutable.Seq[Envelope]] {
-                override def process(envelopes: immutable.Seq[Envelope]): Future[Done] =
+              new Handler[Seq[Envelope]] {
+                override def process(envelopes: Seq[Envelope]): Future[Done] =
                   groupedHandlerStrategy.handlerFactory().process(envelopes).flatMap { _ =>
                     offsetStore.saveOffset(projectionId, envelopes.last.offset)
                   }

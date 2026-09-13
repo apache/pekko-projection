@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
-import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -584,10 +583,10 @@ class CassandraProjectionSpec
       val entityId = UUID.randomUUID().toString
       val projectionId = genRandomProjectionId()
 
-      def groupedHandler(): Handler[immutable.Seq[Envelope]] = new Handler[immutable.Seq[Envelope]] {
+      def groupedHandler(): Handler[Seq[Envelope]] = new Handler[Seq[Envelope]] {
         private var state: Future[Option[ConcatStr]] = repository.findById(entityId)
 
-        override def process(group: immutable.Seq[Envelope]): Future[Done] = {
+        override def process(group: Seq[Envelope]): Future[Done] = {
           val newState = state.flatMap { s =>
             val concatStr = group.foldLeft(s) {
               case (None, env)      => Some(ConcatStr(env.id, env.message))

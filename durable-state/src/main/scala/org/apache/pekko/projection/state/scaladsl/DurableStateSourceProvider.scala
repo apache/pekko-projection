@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.state.scaladsl
 
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -112,7 +111,7 @@ object DurableStateSourceProvider {
   def sliceRanges(
       system: ActorSystem[?],
       durableStateStoreQueryPluginId: String,
-      numberOfRanges: Int): immutable.Seq[Range] =
+      numberOfRanges: Int): Seq[Range] =
     DurableStateStoreRegistry(system)
       .durableStateStoreFor[DurableStateStoreBySliceQuery[Any]](durableStateStoreQueryPluginId)
       .sliceRanges(numberOfRanges)

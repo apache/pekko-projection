@@ -80,15 +80,13 @@ object R2dbcProjectionDocExample {
   // #handler
 
   // #grouped-handler
-  import scala.collection.immutable
-
   class GroupedShoppingCartHandler()(implicit ec: ExecutionContext)
-      extends R2dbcHandler[immutable.Seq[EventEnvelope[ShoppingCart.Event]]] {
+      extends R2dbcHandler[Seq[EventEnvelope[ShoppingCart.Event]]] {
     private val logger = LoggerFactory.getLogger(getClass)
 
     override def process(
         session: R2dbcSession,
-        envelopes: immutable.Seq[EventEnvelope[ShoppingCart.Event]]): Future[Done] = {
+        envelopes: Seq[EventEnvelope[ShoppingCart.Event]]): Future[Done] = {
 
       // save all events in DB
       val stmts = envelopes

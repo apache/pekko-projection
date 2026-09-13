@@ -76,12 +76,10 @@ object CassandraProjectionDocExample {
   // #handler
 
   // #grouped-handler
-  import scala.collection.immutable
-
-  class GroupedShoppingCartHandler extends Handler[immutable.Seq[EventEnvelope[ShoppingCart.Event]]] {
+  class GroupedShoppingCartHandler extends Handler[Seq[EventEnvelope[ShoppingCart.Event]]] {
     private val logger = LoggerFactory.getLogger(getClass)
 
-    override def process(envelopes: immutable.Seq[EventEnvelope[ShoppingCart.Event]]): Future[Done] = {
+    override def process(envelopes: Seq[EventEnvelope[ShoppingCart.Event]]): Future[Done] = {
       envelopes.map(_.event).foreach {
         case ShoppingCart.CheckedOut(cartId, time) =>
           logger.info2("Shopping cart {} was checked out at {}", cartId, time)

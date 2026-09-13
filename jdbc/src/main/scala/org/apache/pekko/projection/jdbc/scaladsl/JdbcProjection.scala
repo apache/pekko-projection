@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.jdbc.scaladsl
 
-import scala.collection.immutable
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
@@ -166,7 +165,7 @@ object JdbcProjection {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionFactory: () => S,
-      handler: () => JdbcHandler[immutable.Seq[Envelope], S])(
+      handler: () => JdbcHandler[Seq[Envelope], S])(
       implicit system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val offsetStore = JdbcProjectionImpl.createOffsetStore(sessionFactory)
@@ -205,7 +204,7 @@ object JdbcProjection {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionFactory: () => S,
-      handler: () => Handler[immutable.Seq[Envelope]])(
+      handler: () => Handler[Seq[Envelope]])(
       implicit system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val offsetStore = JdbcProjectionImpl.createOffsetStore(sessionFactory)

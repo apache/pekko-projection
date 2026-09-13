@@ -693,7 +693,7 @@ private[projection] class R2dbcOffsetStore(
       case None         => 0L
     }
 
-  def validateAll[Envelope](envelopes: immutable.Seq[Envelope]): Future[immutable.Seq[(Envelope, Validation)]] = {
+  def validateAll[Envelope](envelopes: Seq[Envelope]): Future[Seq[(Envelope, Validation)]] = {
     import Validation._
     envelopes
       .foldLeft(Future.successful((getInflight(), Vector.empty[(Envelope, Validation)]))) { (acc, envelope) =>
@@ -869,7 +869,7 @@ private[projection] class R2dbcOffsetStore(
     }
   }
 
-  @tailrec final def addInflights[Envelope](envelopes: immutable.Seq[Envelope]): Unit = {
+  @tailrec final def addInflights[Envelope](envelopes: Seq[Envelope]): Unit = {
     val currentInflight = getInflight()
     val entries = envelopes.iterator.map(createRecordWithOffset).collect {
       case Some(r) =>

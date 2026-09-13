@@ -14,7 +14,6 @@
 package org.apache.pekko.projection.grpc.internal
 
 import scala.collection.concurrent.TrieMap
-import scala.collection.immutable
 import scala.jdk.CollectionConverters._
 import scala.util.Try
 
@@ -106,7 +105,7 @@ import scalapb.options.Scalapb
  */
 @InternalApi private[pekko] class ProtoAnySerialization(
     system: ActorSystem[?],
-    descriptors: immutable.Seq[Descriptors.FileDescriptor],
+    descriptors: Seq[Descriptors.FileDescriptor],
     prefer: ProtoAnySerialization.Prefer) {
   import ProtoAnySerialization._
 

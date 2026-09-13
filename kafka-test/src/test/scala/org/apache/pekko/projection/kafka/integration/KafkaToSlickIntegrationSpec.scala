@@ -16,8 +16,6 @@ package org.apache.pekko.projection.kafka.integration
 import java.lang.{ Long => JLong }
 import java.util.concurrent.atomic.AtomicBoolean
 
-import scala.collection.immutable
-import scala.collection.immutable.Seq
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -331,7 +329,7 @@ class KafkaToSlickIntegrationSpec extends KafkaSpecBase(ConfigFactory.load().wit
     }
   }
 
-  def produceEvents(topic: String, range: immutable.Seq[UserEvent], partition: Int = 0): Future[Done] =
+  def produceEvents(topic: String, range: Seq[UserEvent], partition: Int = 0): Future[Done] =
     Source(range)
       .map(e => new ProducerRecord(topic, partition, e.userId, e.eventType))
       .runWith(Producer.plainSink(producerDefaults.withProducer(testProducer)))

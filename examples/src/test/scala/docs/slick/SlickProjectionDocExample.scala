@@ -94,13 +94,11 @@ class SlickProjectionDocExample {
   // #handler
 
   // #grouped-handler
-  import scala.collection.immutable
-
   class GroupedShoppingCartHandler(repository: OrderRepository)(implicit ec: ExecutionContext)
-      extends SlickHandler[immutable.Seq[EventEnvelope[ShoppingCart.Event]]] {
+      extends SlickHandler[Seq[EventEnvelope[ShoppingCart.Event]]] {
     private val logger = LoggerFactory.getLogger(getClass)
 
-    override def process(envelopes: immutable.Seq[EventEnvelope[ShoppingCart.Event]]): DBIO[Done] = {
+    override def process(envelopes: Seq[EventEnvelope[ShoppingCart.Event]]): DBIO[Done] = {
       val dbios = envelopes.map(_.event).map {
         case ShoppingCart.CheckedOut(cartId, time) =>
           logger.info(s"Shopping cart $cartId was checked out at $time")

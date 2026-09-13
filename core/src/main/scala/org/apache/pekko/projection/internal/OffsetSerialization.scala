@@ -16,8 +16,6 @@ package org.apache.pekko.projection.internal
 import java.util.Base64
 import java.util.UUID
 
-import scala.collection.immutable
-
 import org.apache.pekko
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.InternalApi
@@ -34,7 +32,7 @@ import pekko.serialization.Serializers
   sealed trait StorageRepresentation
   final case class SingleOffset(id: ProjectionId, manifest: String, offsetStr: String, mergeable: Boolean = false)
       extends StorageRepresentation
-  final case class MultipleOffsets(reps: immutable.Seq[SingleOffset]) extends StorageRepresentation
+  final case class MultipleOffsets(reps: Seq[SingleOffset]) extends StorageRepresentation
 
   final val StringManifest = "STR"
   final val LongManifest = "LNG"

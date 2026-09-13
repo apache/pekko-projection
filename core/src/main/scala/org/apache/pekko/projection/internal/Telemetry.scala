@@ -15,7 +15,6 @@ package org.apache.pekko.projection.internal
 
 import java.util
 
-import scala.collection.immutable
 import scala.jdk.CollectionConverters._
 
 import org.apache.pekko
@@ -122,7 +121,7 @@ trait Telemetry {
     dynamicAccess
       .createInstanceFor[Telemetry](
         fqcn,
-        immutable.Seq((classOf[ProjectionId], projectionId), (classOf[ActorSystem[?]], system)))
+        Seq((classOf[ProjectionId], projectionId), (classOf[ActorSystem[?]], system)))
       .get
   }
 }

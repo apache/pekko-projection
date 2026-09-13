@@ -16,7 +16,6 @@ package org.apache.pekko.projection.grpc.internal
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
 
-import scala.collection.immutable
 import scala.concurrent.duration._
 import scala.util.Failure
 import scala.util.Success
@@ -39,7 +38,7 @@ import pekko.util.Timeout
 
   sealed trait InternalCommand extends Command
 
-  final case class FilterUpdated(streamId: String, criteria: immutable.Seq[FilterCriteria]) extends InternalCommand
+  final case class FilterUpdated(streamId: String, criteria: Seq[FilterCriteria]) extends InternalCommand
 
   private final case class SubscriberTerminated(subscriber: Subscriber) extends InternalCommand
 
@@ -64,7 +63,7 @@ import pekko.util.Timeout
   import ConsumerFilterRegistry._
 
   private def behavior(
-      subscribers: Map[Subscriber, immutable.Seq[FilterCriteria]],
+      subscribers: Map[Subscriber, Seq[FilterCriteria]],
       stores: Map[String, ActorRef[ConsumerFilterStore.Command]]): Behavior[Command] = {
 
     def getOrCreateStore(streamId: String): ActorRef[ConsumerFilterStore.Command] = {
@@ -79,7 +78,7 @@ import pekko.util.Timeout
 
     def publishUpdatedFilterToSubscribers(
         streamId: String,
-        filter: immutable.Seq[FilterCriteria]): Map[Subscriber, immutable.Seq[FilterCriteria]] = {
+        filter: Seq[FilterCriteria]): Map[Subscriber, Seq[FilterCriteria]] = {
       subscribers.map {
         case (sub, subFilter) =>
           if (sub.streamId == streamId) {

@@ -82,7 +82,7 @@ The envelopes are grouped within a time window, or limited by a number of envelo
 This window can be defined with `withGroup` of the returned `GroupedProjection`. The default settings for
 the window is defined in configuration section `pekko.projection.grouped`.
 
-When using `groupedWithin` the handler is a @scala[`Handler[immutable.Seq[EventEnvelope[ShoppingCart.Event]]]`]@java[`Handler<List<EventEnvelope<ShoppingCart.Event>>>`].
+When using `groupedWithin` the handler is a @scala[`Handler[Seq[EventEnvelope[ShoppingCart.Event]]]`]@java[`Handler<List<EventEnvelope<ShoppingCart.Event>>>`].
 The @ref:[`GroupedShoppingCartHandler` is shown below](#grouped-handler).
 
 It stores the offset in Cassandra immediately after the `handler` has processed the envelopes, but that

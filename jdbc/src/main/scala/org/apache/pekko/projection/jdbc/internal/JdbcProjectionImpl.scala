@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.jdbc.internal
 
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
@@ -104,10 +103,10 @@ private[projection] object JdbcProjectionImpl {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
       sessionFactory: () => S,
-      handlerFactory: () => JdbcHandler[immutable.Seq[Envelope], S],
-      offsetStore: JdbcOffsetStore[S]): () => Handler[immutable.Seq[Envelope]] = { () =>
+      handlerFactory: () => JdbcHandler[Seq[Envelope], S],
+      offsetStore: JdbcOffsetStore[S]): () => Handler[Seq[Envelope]] = { () =>
     new AdaptedJdbcHandler(handlerFactory(), offsetStore.executionContext) {
-      override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+      override def process(envelopes: Seq[Envelope]): Future[Done] = {
         val offset = sourceProvider.extractOffset(envelopes.last)
         JdbcSessionUtil
           .withSession(sessionFactory) { sess =>

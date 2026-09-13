@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.internal
 
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.Promise
@@ -89,7 +88,7 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
 
   protected def saveOffsetsAndReport(
       projectionId: ProjectionId,
-      batch: immutable.Seq[ProjectionContextImpl[Offset, Envelope]]): Future[Done] = {
+      batch: Seq[ProjectionContextImpl[Offset, Envelope]]): Future[Done] = {
 
     // The batch contains multiple projections contexts. Each of these contexts may represent
     // a single envelope or a group of envelopes. The size of the batch and the size of the
@@ -103,15 +102,15 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
   /**
    * A convenience method to serialize asynchronous operations to occur one after another is complete
    */
-  private def serialize(batches: Map[String, immutable.Seq[ProjectionContextImpl[Offset, Envelope]]])(
-      op: (String, immutable.Seq[ProjectionContextImpl[Offset, Envelope]]) => Future[Done]): Future[Done] = {
+  private def serialize(batches: Map[String, Seq[ProjectionContextImpl[Offset, Envelope]]])(
+      op: (String, Seq[ProjectionContextImpl[Offset, Envelope]]) => Future[Done]): Future[Done] = {
 
     val logProgressEvery: Int = 5
     val size = batches.size
     logger.debug("Processing [{}] partitioned batches serially", size)
 
     def loop(
-        remaining: List[(String, immutable.Seq[ProjectionContextImpl[Offset, Envelope]])],
+        remaining: List[(String, Seq[ProjectionContextImpl[Offset, Envelope]])],
         n: Int): Future[Done] = {
       remaining match {
         case Nil                  => Future.successful(Done)
@@ -247,11 +246,11 @@ private[projection] abstract class InternalProjectionState[Offset, Envelope](
       HandlerRecoveryImpl[Offset, Envelope](projectionId, recoveryStrategy, logger, statusObserver, telemetry)
 
     def processGrouped(
-        handler: Handler[immutable.Seq[Envelope]],
+        handler: Handler[Seq[Envelope]],
         handlerRecovery: HandlerRecoveryImpl[Offset, Envelope],
-        envelopesAndOffsets: immutable.Seq[ProjectionContextImpl[Offset, Envelope]]): Future[Done] = {
+        envelopesAndOffsets: Seq[ProjectionContextImpl[Offset, Envelope]]): Future[Done] = {
 
-      def processEnvelopes(partitioned: immutable.Seq[ProjectionContextImpl[Offset, Envelope]]): Future[Done] = {
+      def processEnvelopes(partitioned: Seq[ProjectionContextImpl[Offset, Envelope]]): Future[Done] = {
         val first = partitioned.head
         val firstOffset = first.offset
         val lastOffset = partitioned.last.offset

@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.internal
 
-import scala.collection.immutable
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
@@ -55,13 +54,13 @@ import pekko.projection.scaladsl
 }
 
 /**
- * INTERNAL API: Adapter from `javadsl.Handler[java.util.List[Envelope]]` to `scaladsl.Handler[immutable.Seq[Envelope]]`
+ * INTERNAL API: Adapter from `javadsl.Handler[java.util.List[Envelope]]` to `scaladsl.Handler[Seq[Envelope]]`
  */
 @InternalApi private[projection] class GroupedHandlerAdapter[Envelope](
     delegate: javadsl.Handler[java.util.List[Envelope]])
-    extends scaladsl.Handler[immutable.Seq[Envelope]] {
+    extends scaladsl.Handler[Seq[Envelope]] {
 
-  override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+  override def process(envelopes: Seq[Envelope]): Future[Done] = {
     delegate.process(envelopes.asJava).asScala
   }
 

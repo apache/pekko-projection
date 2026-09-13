@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.slick
 
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
@@ -227,20 +226,20 @@ object SlickProjection {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
       databaseConfig: DatabaseConfig[P],
-      handler: () => SlickHandler[immutable.Seq[Envelope]])(
+      handler: () => SlickHandler[Seq[Envelope]])(
       implicit system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val offsetStore = createOffsetStore(databaseConfig)
 
-    val adaptedSlickHandler: () => Handler[immutable.Seq[Envelope]] = () =>
-      new Handler[immutable.Seq[Envelope]] {
+    val adaptedSlickHandler: () => Handler[Seq[Envelope]] = () =>
+      new Handler[Seq[Envelope]] {
 
         import databaseConfig.profile.api._
         private implicit val ec: ExecutionContext = system.executionContext
         private val logger = Logging(system.classicSystem, classOf[SlickProjectionImpl[?, ?, ?]])
         private val delegate = handler()
 
-        override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+        override def process(envelopes: Seq[Envelope]): Future[Done] = {
 
           val lastOffset = sourceProvider.extractOffset(envelopes.last)
           val processedDBIO = offsetStore
@@ -308,7 +307,7 @@ object SlickProjection {
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
       databaseConfig: DatabaseConfig[P],
-      handler: () => Handler[immutable.Seq[Envelope]])(
+      handler: () => Handler[Seq[Envelope]])(
       implicit system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val offsetStore = createOffsetStore(databaseConfig)

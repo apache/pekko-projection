@@ -54,7 +54,6 @@ import org.scalatest.wordspec.AnyWordSpecLike
 
 import java.time.Instant
 import java.util.concurrent.ConcurrentHashMap
-import scala.collection.immutable
 import scala.concurrent.Future
 import scala.concurrent.Promise
 
@@ -92,7 +91,7 @@ object EventProducerServiceSpec {
     override def sliceForPersistenceId(persistenceId: String): Int =
       persistenceExt.sliceForPersistenceId(persistenceId)
 
-    override def sliceRanges(numberOfRanges: Int): immutable.Seq[Range] =
+    override def sliceRanges(numberOfRanges: Int): Seq[Range] =
       persistenceExt.sliceRanges(numberOfRanges)
   }
 }

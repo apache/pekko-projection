@@ -13,8 +13,6 @@
 
 package org.apache.pekko.projection.r2dbc.scaladsl
 
-import scala.collection.immutable
-
 import org.apache.pekko
 import pekko.Done
 import pekko.actor.typed.ActorSystem
@@ -226,7 +224,7 @@ object R2dbcProjection {
       projectionId: ProjectionId,
       settings: Option[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
-      handler: () => R2dbcHandler[immutable.Seq[Envelope]])(implicit
+      handler: () => R2dbcHandler[Seq[Envelope]])(implicit
       system: ActorSystem[?]): GroupedProjection[Offset, Envelope] =
     groupedWithin(projectionId, ConfigFactory.empty(), settings, sourceProvider, handler)
 
@@ -236,7 +234,7 @@ object R2dbcProjection {
       config: Config,
       settings: Option[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
-      handler: () => R2dbcHandler[immutable.Seq[Envelope]])(implicit
+      handler: () => R2dbcHandler[Seq[Envelope]])(implicit
       system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val r2dbcSettings = settings.getOrElse(R2dbcProjectionSettings(config, system))
@@ -285,7 +283,7 @@ object R2dbcProjection {
       projectionId: ProjectionId,
       settings: Option[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
-      handler: () => Handler[immutable.Seq[Envelope]])(implicit
+      handler: () => Handler[Seq[Envelope]])(implicit
       system: ActorSystem[?]): GroupedProjection[Offset, Envelope] =
     groupedWithinAsync(projectionId, ConfigFactory.empty(), settings, sourceProvider, handler)
 
@@ -295,7 +293,7 @@ object R2dbcProjection {
       config: Config,
       settings: Option[R2dbcProjectionSettings],
       sourceProvider: SourceProvider[Offset, Envelope],
-      handler: () => Handler[immutable.Seq[Envelope]])(implicit
+      handler: () => Handler[Seq[Envelope]])(implicit
       system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val r2dbcSettings = settings.getOrElse(R2dbcProjectionSettings(config, system))

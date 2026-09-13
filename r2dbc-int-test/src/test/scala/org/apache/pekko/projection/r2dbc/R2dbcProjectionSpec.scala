@@ -18,7 +18,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
-import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -598,7 +597,7 @@ class R2dbcProjectionSpec
             Some(settings),
             sourceProvider = sourceProvider(entityId),
             handler = () =>
-              R2dbcHandler[immutable.Seq[Envelope]] { (session, envelopes) =>
+              R2dbcHandler[Seq[Envelope]] { (session, envelopes) =>
                 handlerProbe.ref ! handlerCalled
                 if (envelopes.isEmpty)
                   Future.successful(Done)
@@ -633,8 +632,8 @@ class R2dbcProjectionSpec
 
       val result = new StringBuffer()
 
-      def handler(): Handler[immutable.Seq[Envelope]] = new Handler[immutable.Seq[Envelope]] {
-        override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+      def handler(): Handler[Seq[Envelope]] = new Handler[Seq[Envelope]] {
+        override def process(envelopes: Seq[Envelope]): Future[Done] = {
           Future {
             envelopes.foreach(env => result.append(env.message).append("|"))
           }.map(_ => Done)

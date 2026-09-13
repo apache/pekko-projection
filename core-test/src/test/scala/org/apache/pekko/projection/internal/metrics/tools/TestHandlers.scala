@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.internal.metrics.tools
 
-import scala.collection.immutable
 import scala.concurrent.Future
 
 import org.apache.pekko
@@ -71,13 +70,13 @@ object TestHandlers {
    *                       trigger an error and then be removed from the stack. To fail an item multiple times
    *                       add its offset repeatedly. Uses `Int` instead of `Long` for convenience.
    */
-  def groupedWithErrors(erroredOffsets: Int*): () => Handler[immutable.Seq[Envelope]] = {
+  def groupedWithErrors(erroredOffsets: Int*): () => Handler[Seq[Envelope]] = {
     var nextProcessStrategy = ProcessStrategy(erroredOffsets.map {
       _.toLong
     }.toList)
     () =>
-      new Handler[immutable.Seq[Envelope]] {
-        override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+      new Handler[Seq[Envelope]] {
+        override def process(envelopes: Seq[Envelope]): Future[Done] = {
           nextProcessStrategy match {
             case SomeFailures(nextFail :: tail)
                 if envelopes

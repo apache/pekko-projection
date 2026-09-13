@@ -16,7 +16,6 @@ package org.apache.pekko.projection.grpc.consumer.scaladsl
 import java.time.Instant
 import java.util.concurrent.TimeUnit
 
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 
@@ -101,7 +100,7 @@ object GrpcReadJournal {
    * Note that the `protobufDescriptors` is a list of the `javaDescriptor` for the used protobuf messages. It is
    * defined in the ScalaPB generated `Proto` companion object.
    */
-  def apply(protobufDescriptors: immutable.Seq[Descriptors.FileDescriptor])(
+  def apply(protobufDescriptors: Seq[Descriptors.FileDescriptor])(
       implicit system: ClassicActorSystemProvider): GrpcReadJournal =
     apply(
       GrpcQuerySettings(system),
@@ -118,7 +117,7 @@ object GrpcReadJournal {
   def apply(
       settings: GrpcQuerySettings,
       clientSettings: GrpcClientSettings,
-      protobufDescriptors: immutable.Seq[Descriptors.FileDescriptor])(
+      protobufDescriptors: Seq[Descriptors.FileDescriptor])(
       implicit system: ClassicActorSystemProvider): GrpcReadJournal =
     apply(settings, clientSettings, protobufDescriptors, ProtoAnySerialization.Prefer.Scala)
 
@@ -128,7 +127,7 @@ object GrpcReadJournal {
   @InternalApi private[pekko] def apply(
       settings: GrpcQuerySettings,
       clientSettings: GrpcClientSettings,
-      protobufDescriptors: immutable.Seq[Descriptors.FileDescriptor],
+      protobufDescriptors: Seq[Descriptors.FileDescriptor],
       protobufPrefer: ProtoAnySerialization.Prefer)(implicit system: ClassicActorSystemProvider): GrpcReadJournal = {
 
     // FIXME issue #702 This probably means that one GrpcReadJournal instance is created for each Projection instance,
@@ -220,7 +219,7 @@ final class GrpcReadJournal private (
   override def sliceForPersistenceId(persistenceId: String): Int =
     persistenceExt.sliceForPersistenceId(persistenceId)
 
-  override def sliceRanges(numberOfRanges: Int): immutable.Seq[Range] =
+  override def sliceRanges(numberOfRanges: Int): Seq[Range] =
     persistenceExt.sliceRanges(numberOfRanges)
 
   /**
@@ -296,7 +295,7 @@ final class GrpcReadJournal private (
           throw new IllegalArgumentException(s"Expected TimestampOffset or NoOffset, but got [$offset]")
       }
 
-    def inReqSource(initCriteria: immutable.Seq[ConsumerFilter.FilterCriteria]): Source[StreamIn, NotUsed] =
+    def inReqSource(initCriteria: Seq[ConsumerFilter.FilterCriteria]): Source[StreamIn, NotUsed] =
       Source
         .actorRef[ConsumerFilter.SubscriberCommand](
           completionMatcher = PartialFunction.empty,
@@ -390,7 +389,7 @@ final class GrpcReadJournal private (
     }
   }
 
-  private def toProtoFilterCriteria(criteria: immutable.Seq[ConsumerFilter.FilterCriteria]): Seq[FilterCriteria] = {
+  private def toProtoFilterCriteria(criteria: Seq[ConsumerFilter.FilterCriteria]): Seq[FilterCriteria] = {
     criteria.map {
       case ConsumerFilter.ExcludeTags(tags) =>
         FilterCriteria(FilterCriteria.Message.ExcludeTags(ExcludeTags(tags.toVector)))

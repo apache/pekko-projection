@@ -17,8 +17,6 @@ import java.nio.charset.StandardCharsets
 import java.util.Base64
 import java.util.UUID
 
-import scala.collection.immutable
-
 import org.apache.pekko
 import pekko.actor.ExtendedActorSystem
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
@@ -140,7 +138,7 @@ class OffsetSerializationSpec
       }
 
       val storageRepresentation = MultipleOffsets(
-        immutable.Seq(SingleOffset(ProjectionId(id.name, surrogateProjectionKey), LongManifest, "1", mergeable = true)))
+        Seq(SingleOffset(ProjectionId(id.name, surrogateProjectionKey), LongManifest, "1", mergeable = true)))
 
       actualRep shouldBe storageRepresentation
 
@@ -155,7 +153,7 @@ class OffsetSerializationSpec
       val mergeableOffset =
         MergeableOffset(Map(surrogateProjectionKey1 -> 1L, surrogateProjectionKey2 -> 2L))
       val storageRepresentation = MultipleOffsets(
-        immutable.Seq(
+        Seq(
           SingleOffset(ProjectionId(projectionName, surrogateProjectionKey1), LongManifest, "1", mergeable = true),
           SingleOffset(ProjectionId(projectionName, surrogateProjectionKey2), LongManifest, "2", mergeable = true)))
 

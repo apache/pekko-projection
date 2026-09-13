@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.internal
 
-import scala.collection.immutable
 import scala.concurrent.duration.FiniteDuration
 
 import org.apache.pekko
@@ -128,10 +127,10 @@ private[projection] final case class SingleHandlerStrategy[Envelope](handlerFact
  */
 @InternalApi
 private[projection] final case class GroupedHandlerStrategy[Envelope](
-    handlerFactory: () => Handler[immutable.Seq[Envelope]],
+    handlerFactory: () => Handler[Seq[Envelope]],
     afterEnvelopes: Option[Int] = None,
     orAfterDuration: Option[FiniteDuration] = None)
-    extends FunctionHandlerStrategy[immutable.Seq[Envelope]](handlerFactory)
+    extends FunctionHandlerStrategy[Seq[Envelope]](handlerFactory)
 
 /**
  * INTERNAL API

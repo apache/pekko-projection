@@ -15,7 +15,6 @@ package org.apache.pekko.projection.eventsourced.scaladsl
 
 import java.time.Instant
 
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import com.typesafe.config.Config
@@ -141,7 +140,7 @@ object EventSourcedProvider {
       .readJournalFor[EventsBySliceQuery](readJournalPluginId, readJournalConfig)
       .sliceForPersistenceId(persistenceId)
 
-  def sliceRanges(system: ActorSystem[?], readJournalPluginId: String, numberOfRanges: Int): immutable.Seq[Range] =
+  def sliceRanges(system: ActorSystem[?], readJournalPluginId: String, numberOfRanges: Int): Seq[Range] =
     PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId).sliceRanges(numberOfRanges)
 
   /** @since 2.0.0 */
@@ -149,7 +148,7 @@ object EventSourcedProvider {
       system: ActorSystem[?],
       readJournalPluginId: String,
       readJournalConfig: Config,
-      numberOfRanges: Int): immutable.Seq[Range] =
+      numberOfRanges: Int): Seq[Range] =
     PersistenceQuery(system)
       .readJournalFor[EventsBySliceQuery](readJournalPluginId, readJournalConfig)
       .sliceRanges(numberOfRanges)

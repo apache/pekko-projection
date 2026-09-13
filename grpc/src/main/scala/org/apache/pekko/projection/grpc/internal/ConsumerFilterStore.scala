@@ -16,7 +16,6 @@ package org.apache.pekko.projection.grpc.internal
 import java.util.ConcurrentModificationException
 import java.util.concurrent.ConcurrentHashMap
 
-import scala.collection.immutable
 import scala.util.Failure
 import scala.util.Success
 
@@ -54,7 +53,7 @@ import org.slf4j.LoggerFactory
 @InternalApi private[pekko] object ConsumerFilterStore {
   sealed trait Command
 
-  final case class UpdateFilter(criteria: immutable.Seq[FilterCriteria]) extends Command
+  final case class UpdateFilter(criteria: Seq[FilterCriteria]) extends Command
 
   final case class GetFilter(replyTo: ActorRef[ConsumerFilter.CurrentFilter]) extends Command
 
@@ -117,7 +116,7 @@ import org.slf4j.LoggerFactory
   }
 
   private class StoreExt extends Extension {
-    val filtersByStreamId = new ConcurrentHashMap[String, immutable.Seq[FilterCriteria]]
+    val filtersByStreamId = new ConcurrentHashMap[String, Seq[FilterCriteria]]
   }
 
   def apply(
@@ -146,10 +145,10 @@ import org.slf4j.LoggerFactory
   // The state must survive the actor lifecycle so keeping the state in an Extension. Single writer per streamId.
   private val storeExt = LocalConsumerFilterStore.StoreExt(context.system)
 
-  def getState(): immutable.Seq[FilterCriteria] =
+  def getState(): Seq[FilterCriteria] =
     storeExt.filtersByStreamId.computeIfAbsent(streamId, _ => Vector.empty[FilterCriteria])
 
-  def setState(old: immutable.Seq[FilterCriteria], filterCriteria: immutable.Seq[FilterCriteria]): Unit = {
+  def setState(old: Seq[FilterCriteria], filterCriteria: Seq[FilterCriteria]): Unit = {
     if (!storeExt.filtersByStreamId.replace(streamId, old, filterCriteria))
       throw new ConcurrentModificationException(s"Unexpected concurrent update of streamId [$streamId]")
     context.log.debug2("Updated filter for streamId [{}] to [{}]", streamId, filterCriteria)
@@ -207,7 +206,7 @@ import org.slf4j.LoggerFactory
 
     // FIXME implement delta crdt
 
-    def updated(filterCriteria: immutable.Seq[ConsumerFilter.FilterCriteria])(
+    def updated(filterCriteria: Seq[ConsumerFilter.FilterCriteria])(
         implicit node: SelfUniqueAddress): State = {
 
       var newExcludeTags = excludeTags
@@ -277,7 +276,7 @@ import org.slf4j.LoggerFactory
         includeEntityOffsets = newIncludeEntityOffsets)
     }
 
-    lazy val toFilterCriteria: immutable.Seq[ConsumerFilter.FilterCriteria] = {
+    lazy val toFilterCriteria: Seq[ConsumerFilter.FilterCriteria] = {
       Vector(
         if (excludeTags.isEmpty) None
         else Some(ConsumerFilter.ExcludeTags(excludeTags.elements)),

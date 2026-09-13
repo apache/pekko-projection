@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.r2dbc.internal
 
-import scala.collection.immutable
 import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
@@ -45,13 +44,13 @@ import pekko.projection.r2dbc.scaladsl
 
 /**
  * INTERNAL API: Adapter from `javadsl.R2dbcHandler[java.util.List[Envelope]]` to
- * `scaladsl.R2dbcHandler[immutable.Seq[Envelope]]`
+ * `scaladsl.R2dbcHandler[Seq[Envelope]]`
  */
 @InternalApi private[projection] class R2dbcGroupedHandlerAdapter[Envelope](
     delegate: javadsl.R2dbcHandler[java.util.List[Envelope]])
-    extends scaladsl.R2dbcHandler[immutable.Seq[Envelope]] {
+    extends scaladsl.R2dbcHandler[Seq[Envelope]] {
 
-  override def process(session: scaladsl.R2dbcSession, envelopes: immutable.Seq[Envelope]): Future[Done] = {
+  override def process(session: scaladsl.R2dbcSession, envelopes: Seq[Envelope]): Future[Done] = {
     delegate.process(new R2dbcSession(session.connection)(session.ec, session.system), envelopes.asJava).asScala
   }
 

@@ -13,8 +13,6 @@
 
 package org.apache.pekko.projection.jdbc.internal
 
-import scala.collection.immutable
-
 import org.apache.pekko
 import pekko.annotation.InternalApi
 import pekko.util.Helpers.toRootLowerCase
@@ -40,7 +38,7 @@ private[projection] trait Dialect {
   def tableName: String
   def managementTableName: String
 
-  def createTableStatements: immutable.Seq[String]
+  def createTableStatements: Seq[String]
   def dropTableStatement: String
 
   def readOffsetQuery: String
@@ -48,7 +46,7 @@ private[projection] trait Dialect {
   def insertStatement(): String
   def updateStatement(): String
 
-  def createManagementTableStatements: immutable.Seq[String]
+  def createManagementTableStatements: Seq[String]
   def dropManagementTableStatement: String
   def readManagementStateQuery: String
   def insertManagementStatement(): String
@@ -63,8 +61,8 @@ private[projection] trait Dialect {
 @InternalApi
 private[projection] object DialectDefaults {
 
-  def createTableStatement(table: String): immutable.Seq[String] =
-    immutable.Seq(
+  def createTableStatement(table: String): Seq[String] =
+    Seq(
       s"""CREATE TABLE IF NOT EXISTS $table (
          |  "PROJECTION_NAME" VARCHAR(255) NOT NULL,
          |  "PROJECTION_KEY" VARCHAR(255) NOT NULL,
@@ -125,8 +123,8 @@ private[projection] object DialectDefaults {
     val PROJECTION_KEY = 6
   }
 
-  def createManagementTableStatement(table: String): immutable.Seq[String] =
-    immutable.Seq(s"""CREATE TABLE IF NOT EXISTS $table (
+  def createManagementTableStatement(table: String): Seq[String] =
+    Seq(s"""CREATE TABLE IF NOT EXISTS $table (
          |  "PROJECTION_NAME" VARCHAR(255) NOT NULL,
          |  "PROJECTION_KEY" VARCHAR(255) NOT NULL,
          |  "PAUSED" BOOLEAN NOT NULL,
@@ -196,7 +194,7 @@ private[projection] case class H2Dialect(
   private val managementTable = transform(
     schema.map(s => s""""$s"."$managementTableName"""").getOrElse(s""""$managementTableName""""))
 
-  override val createTableStatements: immutable.Seq[String] =
+  override val createTableStatements: Seq[String] =
     DialectDefaults.createTableStatement(table).map(s => transform(s))
 
   override val dropTableStatement: String = transform(DialectDefaults.dropTableStatement(table))
@@ -209,7 +207,7 @@ private[projection] case class H2Dialect(
 
   override def updateStatement(): String = transform(DialectDefaults.updateStatement(table))
 
-  override val createManagementTableStatements: immutable.Seq[String] =
+  override val createManagementTableStatements: Seq[String] =
     DialectDefaults.createManagementTableStatement(managementTable).map(s => transform(s))
 
   override val dropManagementTableStatement: String = transform(
@@ -308,7 +306,7 @@ private[projection] case class MySQLDialect(schema: Option[String], tableName: S
   private val managementTable = schema.map(s => s"$s.$managementTableName").getOrElse(managementTableName)
 
   override val createTableStatements =
-    immutable.Seq(
+    Seq(
       s"""CREATE TABLE IF NOT EXISTS $table (
          |  projection_name VARCHAR(255) NOT NULL,
          |  projection_key VARCHAR(255) NOT NULL,
@@ -337,7 +335,7 @@ private[projection] case class MySQLDialect(schema: Option[String], tableName: S
     Dialect.removeQuotes(DialectDefaults.updateStatement(table))
 
   override val createManagementTableStatements =
-    immutable.Seq(s"""CREATE TABLE IF NOT EXISTS $managementTable (
+    Seq(s"""CREATE TABLE IF NOT EXISTS $managementTable (
          |  projection_name VARCHAR(255) NOT NULL,
          |  projection_key VARCHAR(255) NOT NULL,
          |  paused BOOLEAN NOT NULL,
@@ -375,7 +373,7 @@ private[projection] case class MSSQLServerDialect(
   private val managementTable = schema.map(s => s"""$s.$managementTableName""").getOrElse(s"""$managementTableName""")
 
   override val createTableStatements =
-    immutable.Seq(
+    Seq(
       s"""IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'$table') AND type in (N'U'))
          |begin
          |  create table $table (
@@ -403,7 +401,7 @@ private[projection] case class MSSQLServerDialect(
   override def updateStatement(): String = DialectDefaults.updateStatement(table)
 
   override val createManagementTableStatements =
-    immutable.Seq(
+    Seq(
       s"""IF NOT EXISTS (SELECT 1 FROM sys.objects WHERE object_id = OBJECT_ID(N'$managementTable') AND type in (N'U'))
          |begin
          |  create table $managementTable (
@@ -446,7 +444,7 @@ private[projection] case class OracleDialect(_schema: Option[String], _tableName
     schema.map(s => s""""$s"."$managementTableName"""").getOrElse(s""""$managementTableName"""")
 
   override val createTableStatements =
-    immutable.Seq(s"""
+    Seq(s"""
          |BEGIN
          |
          |  execute immediate 'create table $table ("PROJECTION_NAME" VARCHAR2(255) NOT NULL,"PROJECTION_KEY" VARCHAR2(255) NOT NULL,"CURRENT_OFFSET" VARCHAR2(255) NOT NULL,"MANIFEST" VARCHAR2(4) NOT NULL,"MERGEABLE" CHAR(1) NOT NULL check ("MERGEABLE" in (0, 1)),"LAST_UPDATED" NUMBER(19) NOT NULL) ';
@@ -480,7 +478,7 @@ private[projection] case class OracleDialect(_schema: Option[String], _tableName
   override def updateStatement(): String = DialectDefaults.updateStatement(table)
 
   override val createManagementTableStatements =
-    immutable.Seq(s"""
+    Seq(s"""
          |BEGIN
          |
          |  execute immediate 'create table $managementTable ("PROJECTION_NAME" VARCHAR2(255) NOT NULL,"PROJECTION_KEY" VARCHAR2(255) NOT NULL,"PAUSED" CHAR(1) NOT NULL check ("PAUSED" in (0, 1)),"LAST_UPDATED" NUMBER(19) NOT NULL) ';

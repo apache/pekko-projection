@@ -17,7 +17,6 @@ import java.util.{ List => JList }
 import java.util.{ Set => JSet }
 
 import scala.annotation.tailrec
-import scala.collection.immutable
 import scala.concurrent.duration.FiniteDuration
 
 import org.apache.pekko
@@ -57,7 +56,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
    */
   @InternalApi private[pekko] final case class Subscribe(
       streamId: String,
-      initCriteria: immutable.Seq[FilterCriteria],
+      initCriteria: Seq[FilterCriteria],
       subscriber: ActorRef[SubscriberCommand])
       extends Command
 
@@ -70,7 +69,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
    * If no matching include criteria the event is discarded.
    * If matching include criteria the event is emitted.
    */
-  final case class UpdateFilter(streamId: String, criteria: immutable.Seq[FilterCriteria]) extends SubscriberCommand {
+  final case class UpdateFilter(streamId: String, criteria: Seq[FilterCriteria]) extends SubscriberCommand {
 
     /** Java API */
     def this(streamId: String, criteria: JList[FilterCriteria]) =
@@ -79,7 +78,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
 
   final case class GetFilter(streamId: String, replyTo: ActorRef[CurrentFilter]) extends Command
 
-  final case class CurrentFilter(streamId: String, criteria: immutable.Seq[FilterCriteria]) {
+  final case class CurrentFilter(streamId: String, criteria: Seq[FilterCriteria]) {
 
     /** Java API */
     def getCriteria(): JList[FilterCriteria] =
@@ -295,8 +294,8 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
    * INTERNAL API
    */
   @InternalApi private[pekko] def mergeFilter(
-      currentFilter: immutable.Seq[FilterCriteria],
-      update: immutable.Seq[FilterCriteria]): immutable.Seq[FilterCriteria] = {
+      currentFilter: Seq[FilterCriteria],
+      update: Seq[FilterCriteria]): Seq[FilterCriteria] = {
 
     val both = currentFilter ++ update
 
@@ -376,8 +375,8 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
    * INTERNAL API
    */
   @InternalApi private[pekko] def createDiff(
-      a: immutable.Seq[FilterCriteria],
-      b: immutable.Seq[FilterCriteria]): immutable.Seq[FilterCriteria] = {
+      a: Seq[FilterCriteria],
+      b: Seq[FilterCriteria]): Seq[FilterCriteria] = {
 
     require(!hasRemoveCriteria(a), "Unexpected RemoveCriteria in a when creating diff, use mergeFilter first.")
     require(!hasRemoveCriteria(b), "Unexpected RemoveCriteria in b when creating diff, use mergeFilter first.")
@@ -461,7 +460,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
   }
 
   /** INTERNAL API */
-  @InternalApi private[pekko] def includeEntityOffsets(filter: immutable.Seq[FilterCriteria]): Set[EntityIdOffset] = {
+  @InternalApi private[pekko] def includeEntityOffsets(filter: Seq[FilterCriteria]): Set[EntityIdOffset] = {
     filter.flatMap {
       case inc: IncludeEntityIds => inc.entityOffsets
       case _                     => Set.empty[EntityIdOffset]
@@ -469,7 +468,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
   }
 
   /** INTERNAL API */
-  @InternalApi private[pekko] def excludeTags(filter: immutable.Seq[FilterCriteria]): Set[String] = {
+  @InternalApi private[pekko] def excludeTags(filter: Seq[FilterCriteria]): Set[String] = {
     filter.flatMap {
       case exl: ExcludeTags => exl.tags
       case _                => Set.empty[String]
@@ -477,7 +476,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
   }
 
   /** INTERNAL API */
-  @InternalApi private[pekko] def includeTags(filter: immutable.Seq[FilterCriteria]): Set[String] = {
+  @InternalApi private[pekko] def includeTags(filter: Seq[FilterCriteria]): Set[String] = {
     filter.flatMap {
       case incl: IncludeTags => incl.tags
       case _                 => Set.empty[String]
@@ -485,7 +484,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
   }
 
   /** INTERNAL API */
-  @InternalApi private[pekko] def excludeEntityIds(filter: immutable.Seq[FilterCriteria]): Set[String] = {
+  @InternalApi private[pekko] def excludeEntityIds(filter: Seq[FilterCriteria]): Set[String] = {
     filter.flatMap {
       case exl: ExcludeEntityIds => exl.entityIds
       case _                     => Set.empty[String]
@@ -493,7 +492,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
   }
 
   /** INTERNAL API */
-  @InternalApi private[pekko] def excludeRegexEntityIds(filter: immutable.Seq[FilterCriteria]): Set[String] = {
+  @InternalApi private[pekko] def excludeRegexEntityIds(filter: Seq[FilterCriteria]): Set[String] = {
     filter.flatMap {
       case rxp: ExcludeRegexEntityIds => rxp.matching
       case _                          => Set.empty[String]
@@ -501,7 +500,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
   }
 
   /** INTERNAL API */
-  @InternalApi private[pekko] def includeRegexEntityIds(filter: immutable.Seq[FilterCriteria]): Set[String] = {
+  @InternalApi private[pekko] def includeRegexEntityIds(filter: Seq[FilterCriteria]): Set[String] = {
     filter.flatMap {
       case rxp: IncludeRegexEntityIds => rxp.matching
       case _                          => Set.empty[String]
@@ -509,7 +508,7 @@ object ConsumerFilter extends ExtensionId[ConsumerFilter] {
   }
 
   /** INTERNAL API */
-  @InternalApi private[pekko] def hasRemoveCriteria(filter: immutable.Seq[FilterCriteria]): Boolean =
+  @InternalApi private[pekko] def hasRemoveCriteria(filter: Seq[FilterCriteria]): Boolean =
     filter.exists(_.isInstanceOf[RemoveCriteria])
 
   /** INTERNAL API */

@@ -99,15 +99,13 @@ object JdbcProjectionDocExample {
   // #handler
 
   // #grouped-handler
-  import scala.collection.immutable
-
   class GroupedShoppingCartHandler(repository: OrderRepository)
-      extends JdbcHandler[immutable.Seq[EventEnvelope[ShoppingCart.Event]], PlainJdbcSession] {
+      extends JdbcHandler[Seq[EventEnvelope[ShoppingCart.Event]], PlainJdbcSession] {
     private val logger = LoggerFactory.getLogger(getClass)
 
     override def process(
         session: PlainJdbcSession,
-        envelopes: immutable.Seq[EventEnvelope[ShoppingCart.Event]]): Unit = {
+        envelopes: Seq[EventEnvelope[ShoppingCart.Event]]): Unit = {
 
       // save all events in DB
       envelopes.map(_.event).foreach {

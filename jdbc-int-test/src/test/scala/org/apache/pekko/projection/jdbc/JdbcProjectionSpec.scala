@@ -20,7 +20,6 @@ import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicReference
 
 import scala.annotation.tailrec
-import scala.collection.immutable
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -631,7 +630,7 @@ class JdbcProjectionSpec
             sourceProvider = sourceProvider(entityId),
             jdbcSessionFactory,
             handler = () =>
-              JdbcHandler[PureJdbcSession, immutable.Seq[Envelope]] { (sess, envelopes) =>
+              JdbcHandler[PureJdbcSession, Seq[Envelope]] { (sess, envelopes) =>
                 handlerProbe.ref ! handlerCalled
                 sess.withConnection { conn =>
                   envelopes.foreach { envelope =>
@@ -658,8 +657,8 @@ class JdbcProjectionSpec
 
       val result = new StringBuffer()
 
-      def handler(): Handler[immutable.Seq[Envelope]] = new Handler[immutable.Seq[Envelope]] {
-        override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+      def handler(): Handler[Seq[Envelope]] = new Handler[Seq[Envelope]] {
+        override def process(envelopes: Seq[Envelope]): Future[Done] = {
           Future {
             envelopes.foreach(env => result.append(env.message).append("|"))
           }.map(_ => Done)

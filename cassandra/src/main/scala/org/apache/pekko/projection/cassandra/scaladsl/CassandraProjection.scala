@@ -13,7 +13,6 @@
 
 package org.apache.pekko.projection.cassandra.scaladsl
 
-import scala.collection.immutable
 import scala.concurrent.Future
 import scala.concurrent.duration.Duration
 
@@ -88,7 +87,7 @@ object CassandraProjection {
   def groupedWithin[Offset, Envelope](
       projectionId: ProjectionId,
       sourceProvider: SourceProvider[Offset, Envelope],
-      handler: () => Handler[immutable.Seq[Envelope]]): GroupedProjection[Offset, Envelope] =
+      handler: () => Handler[Seq[Envelope]]): GroupedProjection[Offset, Envelope] =
     new CassandraProjectionImpl(
       projectionId,
       sourceProvider,

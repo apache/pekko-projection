@@ -16,7 +16,6 @@ package org.apache.pekko.projection.r2dbc.internal
 import java.util.concurrent.atomic.AtomicLong
 
 import scala.annotation.nowarn
-import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
 import scala.concurrent.duration.FiniteDuration
@@ -227,14 +226,14 @@ private[projection] object R2dbcProjectionImpl {
 
   private[projection] def adaptedHandlerForGrouped[Offset, Envelope](
       sourceProvider: SourceProvider[Offset, Envelope],
-      handlerFactory: () => R2dbcHandler[immutable.Seq[Envelope]],
+      handlerFactory: () => R2dbcHandler[Seq[Envelope]],
       offsetStore: R2dbcOffsetStore,
       r2dbcExecutor: R2dbcExecutor)(
       implicit
       ec: ExecutionContext,
-      system: ActorSystem[?]): () => Handler[immutable.Seq[Envelope]] = { () =>
+      system: ActorSystem[?]): () => Handler[Seq[Envelope]] = { () =>
     new AdaptedR2dbcHandler(handlerFactory()) {
-      override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+      override def process(envelopes: Seq[Envelope]): Future[Done] = {
         import R2dbcOffsetStore.Validation._
         offsetStore.validateAll(envelopes).flatMap { isAcceptedEnvelopes =>
           isAcceptedEnvelopes.foreach {
@@ -364,13 +363,13 @@ private[projection] object R2dbcProjectionImpl {
 
   private[projection] def adaptedHandlerForGroupedAsync[Offset, Envelope](
       sourceProvider: SourceProvider[Offset, Envelope],
-      handlerFactory: () => Handler[immutable.Seq[Envelope]],
+      handlerFactory: () => Handler[Seq[Envelope]],
       offsetStore: R2dbcOffsetStore)(
       implicit
       ec: ExecutionContext,
-      system: ActorSystem[?]): () => Handler[immutable.Seq[Envelope]] = { () =>
+      system: ActorSystem[?]): () => Handler[Seq[Envelope]] = { () =>
     new AdaptedHandler(handlerFactory()) {
-      override def process(envelopes: immutable.Seq[Envelope]): Future[Done] = {
+      override def process(envelopes: Seq[Envelope]): Future[Done] = {
         import R2dbcOffsetStore.Validation._
         offsetStore.validateAll(envelopes).flatMap { isAcceptedEnvelopes =>
           isAcceptedEnvelopes.foreach {
@@ -673,7 +672,7 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
 
     override protected def saveOffsetsAndReport(
         projectionId: ProjectionId,
-        batch: immutable.Seq[ProjectionContextImpl[Offset, Envelope]]): Future[Done] = {
+        batch: Seq[ProjectionContextImpl[Offset, Envelope]]): Future[Done] = {
       import R2dbcProjectionImpl.FutureDone
 
       val acceptedContexts =
