@@ -13,6 +13,8 @@
 
 package org.apache.pekko.projection.kafka.internal
 
+import java.util.concurrent.atomic.AtomicInteger
+
 import scala.concurrent.duration._
 import scala.concurrent.{ ExecutionContext, Future }
 
@@ -28,6 +30,7 @@ import pekko.projection.ProjectionId
 import pekko.projection.scaladsl.Handler
 import pekko.projection.testkit.scaladsl.ProjectionTestKit
 import pekko.projection.testkit.scaladsl.TestProjection
+import pekko.stream.scaladsl.Sink
 import pekko.stream.scaladsl.Source
 import org.apache.kafka.clients.consumer.ConsumerRecord
 import org.apache.kafka.common.TopicPartition
@@ -133,6 +136,54 @@ class KafkaSourceProviderImplSpec extends ScalaTestWithActorTestKit with LogCapt
           records.count(_.partition() == tp0.partition()) shouldBe tp0Expect
           records.count(_.partition() == tp1.partition()) shouldBe 0
         }
+      }
+    }
+
+    "create the metadata client when the source is materialized and stop it when the stream completes" in {
+      val topic = "topic"
+      val partitions = 2
+      val settings = ConsumerSettings(system, new StringDeserializer, new StringDeserializer)
+        .withBootstrapServers("localhost:9092")
+        .withGroupId("group-id")
+
+      val createdClients = new AtomicInteger()
+      val stoppedClients = new AtomicInteger()
+      val metadataClientFactory = () => {
+        createdClients.incrementAndGet()
+        new TestMetadataClientAdapter(partitions) {
+          override def stop(): Unit = stoppedClients.incrementAndGet()
+        }
+      }
+
+      val consumerSource = Source
+        .single(new ConsumerRecord(topic, 0, 0L, "key", "value"))
+        .mapMaterializedValue(_ => Consumer.NoopControl)
+
+      val provider =
+        new KafkaSourceProviderImpl(
+          system,
+          settings,
+          Set(topic),
+          metadataClientFactory,
+          KafkaSourceProviderSettings(system)) {
+          override protected[internal] def _source(
+              readOffsets: () => Future[Option[MergeableOffset[java.lang.Long]]],
+              numPartitions: Int,
+              metadataClient: MetadataClientAdapter): Source[ConsumerRecord[String, String], Consumer.Control] =
+            consumerSource
+        }
+
+      val source = provider.source(() => Future.successful(None)).futureValue
+
+      withClue("checking: no metadata client is created for a source that is not materialized") {
+        createdClients.get() shouldBe 0
+      }
+
+      source.runWith(Sink.ignore).futureValue
+
+      createdClients.get() shouldBe 1
+      eventually {
+        stoppedClients.get() shouldBe 1
       }
     }
   }
