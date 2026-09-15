@@ -125,6 +125,9 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
         }
       }
 
+    def currentEventsByPersistenceIdQuery: CurrentEventsByPersistenceIdTypedQuery =
+      testCurrentEventsByPersistenceIdQuery(allEnvelopes)
+
     private val envPublisherPromise = Promise[TestPublisher.Probe[EventEnvelope[Any]]]()
     private val envSource: Source[EventEnvelope[Any], ?] =
       TestSource()
@@ -137,7 +140,7 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
             entityType,
             0 until persistence.numberOfSlices,
             initFilter,
-            testCurrentEventsByPersistenceIdQuery(allEnvelopes),
+            currentEventsByPersistenceIdQuery,
             producerFilter = initProducerFilter,
             replayParallelism = producerSettings.replayParallelism))
         .join(Flow.fromSinkAndSource(Sink.ignore, envSource))
@@ -327,6 +330,37 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
       outProbe.expectNoMessage()
 
       envPublisher.sendComplete()
+    }
+
+    "cancel replay streams that are still in progress when stopped" in new Setup {
+      val replayStarted = createTestProbe[String]()
+      val replayCancelled = createTestProbe[String]()
+
+      override def currentEventsByPersistenceIdQuery: CurrentEventsByPersistenceIdTypedQuery =
+        new CurrentEventsByPersistenceIdTypedQuery {
+          override def currentEventsByPersistenceIdTyped[Event](
+              persistenceId: String,
+              fromSequenceNr: Long,
+              toSequenceNr: Long): Source[EventEnvelope[Event], NotUsed] =
+            // never emits, so that the replay is still in progress when the stage is stopped
+            Source
+              .never[EventEnvelope[Event]]
+              .watchTermination { (_, terminated) =>
+                replayStarted.ref ! persistenceId
+                terminated.onComplete(_ => replayCancelled.ref ! persistenceId)(system.executionContext)
+                NotUsed
+              }
+        }
+
+      val pid = PersistenceId(entityType, "b").id
+      outProbe.request(10)
+      inPublisher.sendNext(StreamIn(StreamIn.Message.Replay(ReplayReq(List(PersistenceIdSeqNr(pid, 1L))))))
+
+      replayStarted.expectMessage(pid)
+      replayCancelled.expectNoMessage()
+
+      outProbe.cancel()
+      replayCancelled.expectMessage(pid)
     }
 
   }
