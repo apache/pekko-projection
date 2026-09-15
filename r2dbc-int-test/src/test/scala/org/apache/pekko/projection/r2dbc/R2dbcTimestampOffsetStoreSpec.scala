@@ -18,8 +18,10 @@ import java.time.{ Duration => JDuration }
 import java.util.UUID
 
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
 import org.apache.pekko
+import pekko.Done
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorSystem
@@ -963,6 +965,7 @@ class R2dbcTimestampOffsetStoreSpec
           .withDeleteInterval(JDuration.ofMillis(500))
       import deleteSettings._
       val offsetStore = createOffsetStore(projectionId, deleteSettings)
+      offsetStore.startDeleteTask()
 
       val startTime = TestClock.nowMicros().instant()
       log.debug("Start time [{}]", startTime)
@@ -992,6 +995,41 @@ class R2dbcTimestampOffsetStoreSpec
         offsetStore.readOffset().futureValue // this will load from database
         offsetStore.getState().byPid.keySet shouldBe Set(p3)
       }
+    }
+
+    "stop the periodic delete of old records when the projection is stopped" in {
+      val projectionId = genRandomProjectionId()
+      val deleteInterval = JDuration.ofMillis(100)
+      val deleteSettings = settings.withDeleteInterval(deleteInterval)
+      val deleteProbe = createTestProbe[Done]()
+      val offsetStore =
+        new R2dbcOffsetStore(
+          projectionId,
+          Some(new TestTimestampSourceProvider(0, persistenceExt.numberOfSlices - 1, clock)),
+          system,
+          deleteSettings,
+          r2dbcExecutor) {
+          override def deleteOldTimestampOffsets(): Future[Long] = {
+            deleteProbe.ref ! Done
+            super.deleteOldTimestampOffsets()
+          }
+        }
+
+      val startTime = System.nanoTime()
+      offsetStore.startDeleteTask()
+      offsetStore.startDeleteTask() // idempotent, only one task is scheduled
+      deleteProbe.receiveMessages(5)
+      // 5 ticks take 5 delete intervals with one task, but only 3 with two tasks
+      (System.nanoTime() - startTime).nanos should be >= (deleteInterval.toMillis * 4).millis
+
+      // cancelled right after a tick, so the next tick would not be due until one delete interval later
+      offsetStore.stopDeleteTask()
+      deleteProbe.expectNoMessage(deleteInterval.toMillis.millis * 10)
+
+      // started again when a stopped projection is started again
+      offsetStore.startDeleteTask()
+      deleteProbe.receiveMessages(2)
+      offsetStore.stopDeleteTask()
     }
 
     "set offset" in {
