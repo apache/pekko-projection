@@ -26,3 +26,5 @@ ProblemFilters.exclude[IncompatibleSignatureProblem]("org.apache.pekko.projectio
 ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.isDuplicate")
 ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.filterAccepted")
 ProblemFilters.exclude[DirectMissingMethodProblem]("org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore.isAccepted")
+# Reported since MiMa 1.2.1: the companion object was public in 1.0.0 but is now private[projection]
+ProblemFilters.exclude[ClassNoLongerCheckedProblem]("org.apache.pekko.projection.r2dbc.internal.R2dbcOffsetStore$")
