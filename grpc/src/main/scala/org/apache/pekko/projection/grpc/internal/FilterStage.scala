@@ -275,8 +275,9 @@ import org.slf4j.LoggerFactory
         }
       }
 
+      // extractEntityType may throw for malformed persistence ids, which are then treated as not handled
       private def entityTypeHandledByThisStream(pid: String): Boolean =
-        PersistenceId.extractEntityType(pid) == entityType
+        Try(PersistenceId.extractEntityType(pid)).toOption.contains(entityType)
 
       private def sliceHandledByThisStream(pid: String): Boolean = {
         val slice = persistence.sliceForPersistenceId(pid)

@@ -304,7 +304,7 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
       outProbe.expectNoMessage()
     }
 
-    "ignore ReplayReq for persistence ids of other entity types" in new Setup {
+    "ignore ReplayReq for persistence ids of other entity types or malformed persistence ids" in new Setup {
       override lazy val allEnvelopes = envelopes ++
         Vector(
           createEnvelope(PersistenceId(otherEntityType, "x"), 1, "x1"),
@@ -315,6 +315,8 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
           StreamIn.Message.Replay(ReplayReq(List(
             PersistenceIdSeqNr(PersistenceId(otherEntityType, "x").id, 1L),
             PersistenceIdSeqNr(ReplicationId(otherEntityType, "y", ReplicaId("A")).persistenceId.id, 1L),
+            // malformed persistence id, trailing separator
+            PersistenceIdSeqNr(s"$entityType|z|", 1L),
             PersistenceIdSeqNr(PersistenceId(entityType, "b").id, 1L))))))
 
       outProbe.request(10)
