@@ -220,6 +220,10 @@ import scala.util.Success
 
   private def transformAndEncodeEvent(transformation: Transformation, env: EventEnvelope[?]): Future[Option[Event]] = {
     env.eventOption match {
+      case None if env.filtered =>
+        // filtered envelopes have no payload, they are emitted as FilteredEvent
+        Future.successful(None)
+
       case Some(_) =>
         import system.executionContext
         val mappedFuture: Future[Option[Any]] = transformation(env.asInstanceOf[EventEnvelope[Any]])
@@ -293,6 +297,10 @@ import scala.util.Success
         case q: LoadEventQuery =>
           import system.executionContext
           q.loadEnvelope[Any](req.persistenceId, req.seqNr)
+            .map { env =>
+              // the producer filter has higher priority, events excluded by it are returned as FilteredEvent
+              if (producerSource.producerFilter(env)) env else FilterStage.filteredEnvelope(env)
+            }
             .flatMap { env =>
               transformAndEncodeEvent(producerSource.transformation, env).map {
                 case Some(event) =>

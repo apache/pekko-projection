@@ -58,6 +58,7 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
     """) with AnyWordSpecLike with LogCapturing {
   private val entityType = "EntityA"
   private val streamId = "EntityAStream"
+  private val otherEntityType = "EntityB"
 
   private val persistence = Persistence(system)
 
@@ -300,6 +301,49 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
       inPublisher.sendNext(
         StreamIn(StreamIn.Message.Replay(
           ReplayReq(List(PersistenceIdSeqNr(ReplicationId(entityType, "a", ReplicaId("B")).persistenceId.id, 1L))))))
+      outProbe.expectNoMessage()
+    }
+
+    "ignore ReplayReq for persistence ids of other entity types" in new Setup {
+      override lazy val allEnvelopes = envelopes ++
+        Vector(
+          createEnvelope(PersistenceId(otherEntityType, "x"), 1, "x1"),
+          createEnvelope(ReplicationId(otherEntityType, "y", ReplicaId("A")).persistenceId, 1, "y1"))
+
+      inPublisher.sendNext(
+        StreamIn(
+          StreamIn.Message.Replay(ReplayReq(List(
+            PersistenceIdSeqNr(PersistenceId(otherEntityType, "x").id, 1L),
+            PersistenceIdSeqNr(ReplicationId(otherEntityType, "y", ReplicaId("A")).persistenceId.id, 1L),
+            PersistenceIdSeqNr(PersistenceId(entityType, "b").id, 1L))))))
+
+      outProbe.request(10)
+      outProbe.expectNext().event shouldBe "b1"
+      outProbe.expectNoMessage()
+    }
+
+    "apply producer filter to replayed events" in new Setup {
+      override def initProducerFilter = envelope => !envelope.tags.contains("internal-only")
+
+      override lazy val allEnvelopes = envelopes ++
+        Vector(
+          createEnvelope(PersistenceId(entityType, "d"), 1, "d1", tags = Set("internal-only")),
+          createEnvelope(PersistenceId(entityType, "d"), 2, "d2"))
+
+      inPublisher.sendNext(
+        StreamIn(StreamIn.Message.Replay(ReplayReq(List(PersistenceIdSeqNr(PersistenceId(entityType, "d").id, 1L))))))
+
+      outProbe.request(10)
+      // excluded by the producer filter, emitted without payload so that the consumer sees no seqNr gap
+      val filtered = outProbe.expectNext()
+      filtered.persistenceId shouldBe PersistenceId(entityType, "d").id
+      filtered.sequenceNr shouldBe 1L
+      filtered.filtered shouldBe true
+      filtered.eventOption shouldBe None
+      val notFiltered = outProbe.expectNext()
+      notFiltered.sequenceNr shouldBe 2L
+      notFiltered.filtered shouldBe false
+      notFiltered.event shouldBe "d2"
       outProbe.expectNoMessage()
     }
 

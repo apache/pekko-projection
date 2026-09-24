@@ -29,10 +29,12 @@ import pekko.persistence.query.scaladsl.ReadJournal
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.query.typed.scaladsl.CurrentEventsByPersistenceIdTypedQuery
 import pekko.persistence.query.typed.scaladsl.EventsBySliceQuery
+import pekko.persistence.query.typed.scaladsl.LoadEventQuery
 import pekko.persistence.typed.PersistenceId
 import pekko.projection.grpc.internal.proto.EventTimestampRequest
 import pekko.projection.grpc.internal.proto.InitReq
 import pekko.projection.grpc.internal.proto.LoadEventRequest
+import pekko.projection.grpc.internal.proto.LoadEventResponse
 import pekko.projection.grpc.internal.proto.StreamIn
 import pekko.projection.grpc.internal.proto.StreamOut
 import pekko.projection.grpc.producer.EventProducerSettings
@@ -94,6 +96,19 @@ object EventProducerServiceSpec {
     override def sliceRanges(numberOfRanges: Int): Seq[Range] =
       persistenceExt.sliceRanges(numberOfRanges)
   }
+
+  class TestEventsBySliceAndLoadEventQuery(envelopes: => Vector[EventEnvelope[String]])(
+      implicit system: ActorSystem[?])
+      extends TestEventsBySliceQuery
+      with LoadEventQuery {
+    override def loadEnvelope[Event](persistenceId: String, sequenceNr: Long): Future[EventEnvelope[Event]] =
+      envelopes.find(env => env.persistenceId == persistenceId && env.sequenceNr == sequenceNr) match {
+        case Some(env) => Future.successful(env.asInstanceOf[EventEnvelope[Event]])
+        case None      =>
+          Future.failed(
+            new NoSuchElementException(s"Event with persistenceId [$persistenceId] and seqNr [$sequenceNr] not found"))
+      }
+  }
 }
 
 class EventProducerServiceSpec
@@ -120,6 +135,9 @@ class EventProducerServiceSpec
   val streamId1 = "stream_id_" + entityType1
   val entityType2 = nextEntityType()
   val streamId2 = "stream_id_" + entityType2
+  val entityType3 = nextEntityType()
+  val streamId3 = "stream_id_" + entityType3
+  private val pid3 = nextPid(entityType3)
 
   private val notUsedCurrentEventsByPersistenceIdQuery = new CurrentEventsByPersistenceIdTypedQuery {
 
@@ -130,13 +148,23 @@ class EventProducerServiceSpec
       throw new IllegalStateException("Unexpected use of currentEventsByPersistenceId")
   }
   private val notUsedCurrentEventsByPersistenceIdQueries =
-    Map(streamId1 -> notUsedCurrentEventsByPersistenceIdQuery, streamId2 -> notUsedCurrentEventsByPersistenceIdQuery)
+    Map(
+      streamId1 -> notUsedCurrentEventsByPersistenceIdQuery,
+      streamId2 -> notUsedCurrentEventsByPersistenceIdQuery,
+      streamId3 -> notUsedCurrentEventsByPersistenceIdQuery)
+
+  private val eventsBySlicesQuery3 = new TestEventsBySliceAndLoadEventQuery(
+    Vector(
+      createEnvelope(streamId3, pid3, 1L, "e-1"),
+      createEnvelope(streamId3, pid3, 2L, "e-2", tags = Set("internal-only"))))
 
   private val eventProducerSources = Set(
     EventProducerSource(entityType1, streamId1, transformation, settings),
-    EventProducerSource(entityType2, streamId2, transformation, settings))
+    EventProducerSource(entityType2, streamId2, transformation, settings),
+    EventProducerSource(entityType3, streamId3, transformation, settings)
+      .withProducerFilter[String](env => !env.tags.contains("internal-only")))
   val queries =
-    Map(streamId1 -> eventsBySlicesQuery1, streamId2 -> eventsBySlicesQuery2)
+    Map(streamId1 -> eventsBySlicesQuery1, streamId2 -> eventsBySlicesQuery2, streamId3 -> eventsBySlicesQuery3)
   private val eventProducerService =
     new EventProducerServiceImpl(
       system,
@@ -242,6 +270,42 @@ class EventProducerServiceSpec
       out3.message.isEvent shouldBe true
       out3.getEvent.persistenceId shouldBe env3.persistenceId
       out3.getEvent.seqNr shouldBe env3.sequenceNr
+    }
+
+    "emit filtered envelopes as FilteredEvent" in {
+      val initReq = InitReq(streamId3, 0, 1023, offset = None)
+      val streamIn = Source
+        .single(StreamIn(StreamIn.Message.Init(initReq)))
+        .concat(Source.maybe)
+
+      val probe = runEventsBySlices(streamIn)
+
+      probe.request(100)
+      val testPublisher =
+        eventsBySlicesQuery3.testPublisher(entityType3).futureValue
+
+      val pid = nextPid(entityType3)
+      val env1 = createEnvelope(streamId3, pid, 1L, "e-1")
+      testPublisher.sendNext(
+        FilterStage.filteredEnvelope(env1.asInstanceOf[EventEnvelope[Any]]).asInstanceOf[EventEnvelope[String]])
+
+      val out1 = probe.expectNext()
+      out1.message.isFilteredEvent shouldBe true
+      out1.getFilteredEvent.persistenceId shouldBe env1.persistenceId
+      out1.getFilteredEvent.seqNr shouldBe env1.sequenceNr
+    }
+
+    "apply producer filter to loadEvent" in {
+      val loaded =
+        eventProducerService.loadEvent(LoadEventRequest(streamId3, pid3.id, 1L), MetadataBuilder.empty).futureValue
+      loaded.message.isEvent shouldBe true
+      loaded.getEvent.seqNr shouldBe 1L
+
+      val filtered =
+        eventProducerService.loadEvent(LoadEventRequest(streamId3, pid3.id, 2L), MetadataBuilder.empty).futureValue
+      filtered.message shouldBe a[LoadEventResponse.Message.FilteredEvent]
+      filtered.getFilteredEvent.persistenceId shouldBe pid3.id
+      filtered.getFilteredEvent.seqNr shouldBe 2L
     }
 
     "intercept and fail requests" in {

@@ -130,6 +130,24 @@ import org.slf4j.LoggerFactory
     }
   }
 
+  /**
+   * Envelope without the event payload, marked as `filtered`. Used for events that are excluded by the
+   * producer filter but still need to be emitted so that the consumer can keep track of the sequence numbers.
+   */
+  def filteredEnvelope(env: EventEnvelope[Any]): EventEnvelope[Any] =
+    new EventEnvelope[Any](
+      env.offset,
+      env.persistenceId,
+      env.sequenceNr,
+      eventOption = None,
+      env.timestamp,
+      eventMetadata = None,
+      env.entityType,
+      env.slice,
+      filtered = true,
+      env.source,
+      env.tags)
+
   private case class ReplayEnvelope(persistenceId: String, env: Option[EventEnvelope[Any]])
 
   private case class ReplaySession(fromSeqNr: Long, queue: SinkQueueWithCancel[EventEnvelope[Any]])
@@ -195,13 +213,25 @@ import org.slf4j.LoggerFactory
         replayEnv match {
           case ReplayEnvelope(_, Some(env)) =>
             // the predicate to replay events from start for a given pid
-            // Note: we do not apply the filter here as that may be what triggered the replay
-            log.traceN(
-              "Stream [{}]: Push replayed event persistenceId [{}], seqNr [{}]",
-              logPrefix,
-              env.persistenceId,
-              env.sequenceNr)
-            push(outEnv, env)
+            // Note: we do not apply the consumer filter here as that may be what triggered the replay,
+            // but the producer filter has higher priority and must always be applied. Events excluded
+            // by the producer filter are emitted without payload so that the consumer doesn't see a
+            // gap in the sequence numbers (which would trigger yet another replay).
+            if (producerFilter(env)) {
+              log.traceN(
+                "Stream [{}]: Push replayed event persistenceId [{}], seqNr [{}]",
+                logPrefix,
+                env.persistenceId,
+                env.sequenceNr)
+              push(outEnv, env)
+            } else {
+              log.debugN(
+                "Stream [{}]: Push filtered replayed event persistenceId [{}], seqNr [{}]",
+                logPrefix,
+                env.persistenceId,
+                env.sequenceNr)
+              push(outEnv, filteredEnvelope(env))
+            }
 
           case ReplayEnvelope(persistenceId, None) =>
             log.debug2("Stream [{}]: Completed replay of persistenceId [{}]", logPrefix, persistenceId)
@@ -275,6 +305,9 @@ import org.slf4j.LoggerFactory
         }
       }
 
+      private def entityTypeHandledByThisStream(pid: String): Boolean =
+        PersistenceId.extractEntityType(pid) == entityType
+
       private def sliceHandledByThisStream(pid: String): Boolean = {
         val slice = persistence.sliceForPersistenceId(pid)
         sliceRange.contains(slice)
@@ -327,7 +360,13 @@ import org.slf4j.LoggerFactory
       private def replay(persistenceIdOffset: PersistenceIdSeqNr): Unit = {
         val fromSeqNr = persistenceIdOffset.seqNr
         val pid = persistenceIdOffset.persistenceId
-        if (replicaIdHandledByThisStream(pid) && sliceHandledByThisStream(pid)) {
+        if (!entityTypeHandledByThisStream(pid)) {
+          log.debugN(
+            "Stream [{}]: Ignoring replay of persistenceId [{}], entity type is not [{}]",
+            logPrefix,
+            pid,
+            entityType)
+        } else if (replicaIdHandledByThisStream(pid) && sliceHandledByThisStream(pid)) {
           val sameInProgress =
             replayInProgress.get(pid) match {
               case Some(replay) if replay.fromSeqNr == fromSeqNr =>
