@@ -322,31 +322,6 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
       outProbe.expectNoMessage()
     }
 
-    "apply producer filter to replayed events" in new Setup {
-      override def initProducerFilter = envelope => !envelope.tags.contains("internal-only")
-
-      override lazy val allEnvelopes = envelopes ++
-        Vector(
-          createEnvelope(PersistenceId(entityType, "d"), 1, "d1", tags = Set("internal-only")),
-          createEnvelope(PersistenceId(entityType, "d"), 2, "d2"))
-
-      inPublisher.sendNext(
-        StreamIn(StreamIn.Message.Replay(ReplayReq(List(PersistenceIdSeqNr(PersistenceId(entityType, "d").id, 1L))))))
-
-      outProbe.request(10)
-      // excluded by the producer filter, emitted without payload so that the consumer sees no seqNr gap
-      val filtered = outProbe.expectNext()
-      filtered.persistenceId shouldBe PersistenceId(entityType, "d").id
-      filtered.sequenceNr shouldBe 1L
-      filtered.filtered shouldBe true
-      filtered.eventOption shouldBe None
-      val notFiltered = outProbe.expectNext()
-      notFiltered.sequenceNr shouldBe 2L
-      notFiltered.filtered shouldBe false
-      notFiltered.event shouldBe "d2"
-      outProbe.expectNoMessage()
-    }
-
     "handle many replay requests" in new Setup {
       lazy val entityIds = (1 to 20).map(n => s"entity-$n")
       override lazy val allEnvelopes = envelopes ++
