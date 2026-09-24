@@ -285,7 +285,7 @@ import org.slf4j.LoggerFactory
         if (entityId.indexOf(ReplicationIdSeparator) < 0)
           PersistenceId(entityType, entityId).id
         else
-          ReplicationId.fromString(s"$streamId$ReplicationIdSeparator$entityId").persistenceId.id
+          ReplicationId.fromString(s"$entityType$ReplicationIdSeparator$entityId").persistenceId.id
       }
 
       // Translate the streamId to the entityType and thereby constructing the full persistenceId.
