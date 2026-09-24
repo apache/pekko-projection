@@ -303,6 +303,32 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
       outProbe.expectNoMessage()
     }
 
+    "map replicated entity ids in filter criteria with the entity type" in new Setup {
+      // streamId is different from entityType in this spec
+      override lazy val allEnvelopes = envelopes ++
+        Vector(
+          createEnvelope(ReplicationId(entityType, "a", ReplicaId("A")).persistenceId, 1, "a1"),
+          createEnvelope(ReplicationId(entityType, "a", ReplicaId("A")).persistenceId, 2, "a2"),
+          createEnvelope(ReplicationId(entityType, "b", ReplicaId("A")).persistenceId, 1, "b1"))
+
+      val filterCriteria = List(
+        FilterCriteria(FilterCriteria.Message.IncludeEntityIds(IncludeEntityIds(List(EntityIdOffset("a|A", 1L))))),
+        FilterCriteria(FilterCriteria.Message.ExcludeEntityIds(ExcludeEntityIds(List("b|A")))))
+      inPublisher.sendNext(StreamIn(StreamIn.Message.Filter(FilterReq(filterCriteria))))
+
+      outProbe.request(10)
+      // replay of a|A triggered by IncludeEntityIds
+      outProbe.expectNext().event shouldBe "a1"
+      outProbe.expectNext().event shouldBe "a2"
+      outProbe.expectNoMessage()
+
+      // b|A excluded by ExcludeEntityIds
+      envPublisher.sendNext(allEnvelopes.last)
+      outProbe.expectNoMessage()
+      envPublisher.sendNext(envelopesFor("c").head)
+      outProbe.expectNext().event shouldBe "c1"
+    }
+
     "handle many replay requests" in new Setup {
       lazy val entityIds = (1 to 20).map(n => s"entity-$n")
       override lazy val allEnvelopes = envelopes ++
