@@ -275,6 +275,10 @@ import org.slf4j.LoggerFactory
         }
       }
 
+      // extractEntityType may throw for malformed persistence ids, which are then treated as not handled
+      private def entityTypeHandledByThisStream(pid: String): Boolean =
+        Try(PersistenceId.extractEntityType(pid)).toOption.contains(entityType)
+
       private def sliceHandledByThisStream(pid: String): Boolean = {
         val slice = persistence.sliceForPersistenceId(pid)
         sliceRange.contains(slice)
@@ -327,7 +331,13 @@ import org.slf4j.LoggerFactory
       private def replay(persistenceIdOffset: PersistenceIdSeqNr): Unit = {
         val fromSeqNr = persistenceIdOffset.seqNr
         val pid = persistenceIdOffset.persistenceId
-        if (replicaIdHandledByThisStream(pid) && sliceHandledByThisStream(pid)) {
+        if (!entityTypeHandledByThisStream(pid)) {
+          log.debugN(
+            "Stream [{}]: Ignoring replay of persistenceId [{}], entity type is not [{}]",
+            logPrefix,
+            pid,
+            entityType)
+        } else if (replicaIdHandledByThisStream(pid) && sliceHandledByThisStream(pid)) {
           val sameInProgress =
             replayInProgress.get(pid) match {
               case Some(replay) if replay.fromSeqNr == fromSeqNr =>
