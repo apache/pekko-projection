@@ -117,7 +117,7 @@ object Dependencies {
   }
 
   object Examples {
-    val hibernate = "org.hibernate" % "hibernate-core" % "7.4.11.Final"
+    val hibernate = "org.hibernate" % "hibernate-core" % "7.4.12.Final"
 
     val pekkoClusterShardingTyped = Compile.pekkoClusterShardingTyped
     val pekkoPersistenceCassandra =
