@@ -58,6 +58,7 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
     """) with AnyWordSpecLike with LogCapturing {
   private val entityType = "EntityA"
   private val streamId = "EntityAStream"
+  private val otherEntityType = "EntityB"
 
   private val persistence = Persistence(system)
 
@@ -300,6 +301,26 @@ class FilterStageSpec extends ScalaTestWithActorTestKit("""
       inPublisher.sendNext(
         StreamIn(StreamIn.Message.Replay(
           ReplayReq(List(PersistenceIdSeqNr(ReplicationId(entityType, "a", ReplicaId("B")).persistenceId.id, 1L))))))
+      outProbe.expectNoMessage()
+    }
+
+    "ignore ReplayReq for persistence ids of other entity types or malformed persistence ids" in new Setup {
+      override lazy val allEnvelopes = envelopes ++
+        Vector(
+          createEnvelope(PersistenceId(otherEntityType, "x"), 1, "x1"),
+          createEnvelope(ReplicationId(otherEntityType, "y", ReplicaId("A")).persistenceId, 1, "y1"))
+
+      inPublisher.sendNext(
+        StreamIn(
+          StreamIn.Message.Replay(ReplayReq(List(
+            PersistenceIdSeqNr(PersistenceId(otherEntityType, "x").id, 1L),
+            PersistenceIdSeqNr(ReplicationId(otherEntityType, "y", ReplicaId("A")).persistenceId.id, 1L),
+            // malformed persistence id, trailing separator
+            PersistenceIdSeqNr(s"$entityType|z|", 1L),
+            PersistenceIdSeqNr(PersistenceId(entityType, "b").id, 1L))))))
+
+      outProbe.request(10)
+      outProbe.expectNext().event shouldBe "b1"
       outProbe.expectNoMessage()
     }
 
