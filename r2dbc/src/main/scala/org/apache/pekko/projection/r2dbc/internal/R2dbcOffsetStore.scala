@@ -27,6 +27,7 @@ import scala.concurrent.Future
 
 import org.apache.pekko
 import pekko.Done
+import pekko.actor.Cancellable
 import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.annotation.InternalApi
@@ -319,11 +320,32 @@ private[projection] class R2dbcOffsetStore(
   // To avoid delete requests when no new offsets have been stored since previous delete
   private val idle = new AtomicBoolean(false)
 
-  system.scheduler.scheduleWithFixedDelay(
-    settings.deleteInterval,
-    settings.deleteInterval,
-    () => deleteOldTimestampOffsets(),
-    system.executionContext)
+  // Scheduled deletes of old timestamp offsets are only running while the projection is running, otherwise the
+  // scheduled task would keep this offset store (and everything it references) alive for the lifetime of the
+  // ActorSystem, also for projections that have been stopped.
+  private val deleteTask = new AtomicReference(Option.empty[Cancellable])
+
+  /**
+   * Start the periodic deletion of old timestamp offsets. Called when the projection is started. Idempotent, and can
+   * be called again after `stopDeleteTask`, such as when a stopped projection is started again.
+   */
+  def startDeleteTask(): Unit = {
+    if (deleteTask.get().isEmpty) {
+      val task = system.scheduler.scheduleWithFixedDelay(
+        settings.deleteInterval,
+        settings.deleteInterval,
+        () => deleteOldTimestampOffsets(),
+        system.executionContext)
+      if (!deleteTask.compareAndSet(None, Some(task)))
+        task.cancel() // concurrent start, keep the already registered task
+    }
+  }
+
+  /**
+   * Cancel the periodic deletion of old timestamp offsets. Called when the projection is stopped.
+   */
+  def stopDeleteTask(): Unit =
+    deleteTask.getAndSet(None).foreach(_.cancel())
 
   private def timestampOffsetBySlicesSourceProvider: BySlicesSourceProvider =
     sourceProvider match {
