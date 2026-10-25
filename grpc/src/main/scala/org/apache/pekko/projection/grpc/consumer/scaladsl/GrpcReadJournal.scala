@@ -94,6 +94,34 @@ object GrpcReadJournal {
     LoggerFactory.getLogger(classOf[GrpcReadJournal])
 
   /**
+   * INTERNAL API
+   */
+  @InternalApi private[grpc] def timestampOffset(
+      protoOffset: org.apache.pekko.projection.grpc.internal.proto.Offset): TimestampOffset = {
+    val timestamp = protoOffset.timestamp.get.asJavaInstant
+    val seen = protoOffset.seen.map {
+      case PersistenceIdSeqNr(pid, seqNr, _) =>
+        pid -> seqNr
+    }.toMap
+    TimestampOffset(timestamp, seen)
+  }
+
+  /**
+   * INTERNAL API: The `seen` of the protocol offset is optional. If empty it is assumed
+   * to be the persistenceId -> seqNr of the enclosing `Event` or `FilteredEvent`.
+   */
+  @InternalApi private[grpc] def timestampOffset(
+      protoOffset: org.apache.pekko.projection.grpc.internal.proto.Offset,
+      persistenceId: String,
+      seqNr: Long): TimestampOffset = {
+    val offset = timestampOffset(protoOffset)
+    if (offset.seen.isEmpty)
+      TimestampOffset(offset.timestamp, offset.readTimestamp, seen = Map(persistenceId -> seqNr))
+    else
+      offset
+  }
+
+  /**
    * Construct a gRPC read journal from configuration `pekko.projection.grpc.consumer`. The `stream-id` must
    * be defined in the configuration.
    *
@@ -367,7 +395,7 @@ final class GrpcReadJournal private (
             clientSettings.serviceName,
             event.persistenceId,
             event.seqNr,
-            timestampOffset(event.offset.get).timestamp,
+            GrpcReadJournal.timestampOffset(event.offset.get).timestamp,
             event.source)
 
         eventToEnvelope(event, streamId)
@@ -379,7 +407,7 @@ final class GrpcReadJournal private (
             clientSettings.serviceName,
             filteredEvent.persistenceId,
             filteredEvent.seqNr,
-            timestampOffset(filteredEvent.offset.get).timestamp,
+            GrpcReadJournal.timestampOffset(filteredEvent.offset.get).timestamp,
             filteredEvent.source)
 
         filteredEventToEnvelope(filteredEvent, streamId)
@@ -428,7 +456,7 @@ final class GrpcReadJournal private (
       // not the normal entity type which is internal to the producing side
       streamId: String): EventEnvelope[Evt] = {
     require(streamId == settings.streamId, s"Stream id mismatch, was [$streamId], expected [${settings.streamId}]")
-    val eventOffset = timestampOffset(event.offset.get)
+    val eventOffset = GrpcReadJournal.timestampOffset(event.offset.get, event.persistenceId, event.seqNr)
     val evt =
       event.payload.map(protoAnySerialization.deserialize(_).asInstanceOf[Evt])
 
@@ -449,7 +477,8 @@ final class GrpcReadJournal private (
   }
 
   private def filteredEventToEnvelope[Evt](filteredEvent: FilteredEvent, entityType: String): EventEnvelope[Evt] = {
-    val eventOffset = timestampOffset(filteredEvent.offset.get)
+    val eventOffset =
+      GrpcReadJournal.timestampOffset(filteredEvent.offset.get, filteredEvent.persistenceId, filteredEvent.seqNr)
     new EventEnvelope(
       eventOffset,
       filteredEvent.persistenceId,
@@ -461,15 +490,6 @@ final class GrpcReadJournal private (
       filteredEvent.slice,
       filtered = true,
       source = filteredEvent.source)
-  }
-
-  private def timestampOffset(protoOffset: org.apache.pekko.projection.grpc.internal.proto.Offset): TimestampOffset = {
-    val timestamp = protoOffset.timestamp.get.asJavaInstant
-    val seen = protoOffset.seen.map {
-      case PersistenceIdSeqNr(pid, seqNr, _) =>
-        pid -> seqNr
-    }.toMap
-    TimestampOffset(timestamp, seen)
   }
 
   // EventTimestampQuery
