@@ -97,13 +97,27 @@ object GrpcReadJournal {
    * Construct a gRPC read journal from configuration `pekko.projection.grpc.consumer`. The `stream-id` must
    * be defined in the configuration.
    *
+   * Configuration from `pekko.projection.grpc.consumer.client` will be used to connect to the remote producer.
+   *
    * Note that the `protobufDescriptors` is a list of the `javaDescriptor` for the used protobuf messages. It is
    * defined in the ScalaPB generated `Proto` companion object.
    */
   def apply(protobufDescriptors: Seq[Descriptors.FileDescriptor])(
       implicit system: ClassicActorSystemProvider): GrpcReadJournal =
+    apply(GrpcQuerySettings(system), protobufDescriptors)
+
+  /**
+   * Construct a gRPC read journal for the given settings.
+   *
+   * Configuration from `pekko.projection.grpc.consumer.client` will be used to connect to the remote producer.
+   *
+   * Note that the `protobufDescriptors` is a list of the `javaDescriptor` for the used protobuf messages. It is
+   * defined in the ScalaPB generated `Proto` companion object.
+   */
+  def apply(settings: GrpcQuerySettings, protobufDescriptors: Seq[Descriptors.FileDescriptor])(
+      implicit system: ClassicActorSystemProvider): GrpcReadJournal =
     apply(
-      GrpcQuerySettings(system),
+      settings,
       GrpcClientSettings.fromConfig(system.classicSystem.settings.config.getConfig(Identifier + ".client")),
       protobufDescriptors)
 

@@ -98,6 +98,13 @@ public class ConsumerCompileTest {
             ProjectionBehavior.stopMessage());
   }
 
+  static GrpcReadJournal readJournalWithClientFromConfig(ActorSystem<?> system) {
+    return GrpcReadJournal.create(
+        system,
+        GrpcQuerySettings.create("ShoppingCart"),
+        List.of(ShoppingcartApiProto.javaDescriptor()));
+  }
+
   static void updateConsumerFilter(
       ActorSystem<?> system, Set<String> excludeTags, Set<String> includeTags) {
     String streamId =
