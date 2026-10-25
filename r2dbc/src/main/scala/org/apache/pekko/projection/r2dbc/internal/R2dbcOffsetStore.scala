@@ -70,6 +70,7 @@ private[projection] object R2dbcOffsetStore {
       strictSeqNr: Boolean,
       fromBacktracking: Boolean,
       fromPubSub: Boolean)
+  final case class RecordWithProjectionKey(record: Record, projectionKey: String)
 
   object State {
     val empty: State = State(Map.empty, Vector.empty, Instant.EPOCH, 0)
@@ -247,7 +248,7 @@ private[projection] class R2dbcOffsetStore(
   private[projection] implicit val executionContext: ExecutionContext = system.executionContext
 
   private val selectTimestampOffsetSql: String = sql"""
-    SELECT slice, persistence_id, seq_nr, timestamp_offset
+    SELECT projection_key, slice, persistence_id, seq_nr, timestamp_offset
     FROM $timestampOffsetTable WHERE slice BETWEEN ? AND ? AND projection_name = ?"""
 
   protected val insertTimestampOffsetSql: String = sql"""
@@ -395,14 +396,15 @@ private[projection] class R2dbcOffsetStore(
           .bind(2, projectionId.name)
       },
       row => {
+        val projectionKey = row.get("projection_key", classOf[String])
         val slice = row.get("slice", classOf[java.lang.Integer])
         val pid = row.get("persistence_id", classOf[String])
         val seqNr = row.get("seq_nr", classOf[java.lang.Long])
         val timestamp = row.get("timestamp_offset", classOf[Instant])
-        Record(slice, pid, seqNr, timestamp)
+        RecordWithProjectionKey(Record(slice, pid, seqNr, timestamp), projectionKey)
       })
-    recordsFut.map { records =>
-      val newState = State(records)
+    recordsFut.map { recordsWithKey =>
+      val newState = State(recordsWithKey.map(_.record))
       logger.debugN(
         "readTimestampOffset state with [{}] persistenceIds, oldest [{}], latest [{}]",
         newState.byPid.size,
@@ -413,9 +415,27 @@ private[projection] class R2dbcOffsetStore(
       clearInflight()
       if (newState == State.empty) {
         None
+      } else if (moreThanOneProjectionKey(recordsWithKey)) {
+        // When downscaling projection instances (changing slice distribution) there
+        // is a possibility that one of the previous projection instances was further behind than the backtracking
+        // window, which would cause missed events if we started from latest. In that case we use the latest
+        // offset of the earliest slice
+        val latestBySlice = newState.latestBySlice
+        val earliest = latestBySlice.minBy(_.timestamp)
+        // there could be other with same timestamp, but not important to reconstruct exactly the right `seen`
+        Some(TimestampOffset(earliest.timestamp, Map(earliest.pid -> earliest.seqNr)))
       } else {
         newState.latestOffset
       }
+    }
+  }
+
+  private def moreThanOneProjectionKey(recordsWithKey: immutable.IndexedSeq[RecordWithProjectionKey]): Boolean = {
+    if (recordsWithKey.isEmpty)
+      false
+    else {
+      val key = recordsWithKey.head.projectionKey
+      recordsWithKey.exists(_.projectionKey != key)
     }
   }
 
