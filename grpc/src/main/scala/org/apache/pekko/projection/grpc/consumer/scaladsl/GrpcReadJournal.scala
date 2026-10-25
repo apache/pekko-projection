@@ -29,6 +29,7 @@ import pekko.actor.typed.scaladsl.adapter._
 import pekko.annotation.ApiMayChange
 import pekko.annotation.InternalApi
 import pekko.grpc.GrpcClientSettings
+import pekko.grpc.GrpcServiceException
 import pekko.grpc.scaladsl.BytesEntry
 import pekko.grpc.scaladsl.SingleResponseRequestBuilder
 import pekko.grpc.scaladsl.StreamResponseRequestBuilder
@@ -47,6 +48,7 @@ import pekko.projection.grpc.consumer.ConsumerFilter
 import pekko.projection.grpc.consumer.GrpcQuerySettings
 import pekko.projection.grpc.consumer.scaladsl
 import pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal.withChannelBuilderOverrides
+import pekko.projection.grpc.internal.ConnectionException
 import pekko.projection.grpc.internal.ProtoAnySerialization
 import pekko.projection.grpc.internal.proto
 import pekko.projection.grpc.internal.proto.EntityIdOffset
@@ -82,6 +84,7 @@ import pekko.util.Timeout
 import com.google.protobuf.Descriptors
 import com.google.protobuf.timestamp.Timestamp
 import com.typesafe.config.Config
+import io.grpc.Status
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -355,6 +358,13 @@ final class GrpcReadJournal private (
       addRequestHeaders(client.eventsBySlices())
         .invoke(streamIn)
         .recover {
+          case ex: GrpcServiceException if ex.status.getCode == Status.Code.UNAVAILABLE =>
+            // this means we couldn't connect, will be retried, relatively common, so make it less noisy
+            throw new ConnectionException(
+              clientSettings.serviceName,
+              clientSettings.servicePortName.getOrElse(clientSettings.defaultPort.toString),
+              streamId)
+
           case th: Throwable =>
             throw new RuntimeException(s"Failure to consume gRPC event stream for [${streamId}]", th)
         }
