@@ -16,10 +16,11 @@ package org.apache.pekko.projection.r2dbc.scaladsl
 import scala.collection.immutable
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
+import scala.util.control.NonFatal
 
 import org.apache.pekko
 import pekko.actor.typed.ActorSystem
-import pekko.annotation.InternalApi
+import pekko.annotation.ApiMayChange
 import pekko.persistence.r2dbc.ConnectionFactoryProvider
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
 import pekko.projection.r2dbc.R2dbcProjectionSettings
@@ -28,6 +29,7 @@ import io.r2dbc.spi.Row
 import io.r2dbc.spi.Statement
 import org.slf4j.LoggerFactory
 
+@ApiMayChange
 object R2dbcSession {
   private val log = LoggerFactory.getLogger(classOf[R2dbcSession])
 
@@ -40,7 +42,7 @@ object R2dbcSession {
    * @since 2.0.0
    */
   def withSession[A](system: ActorSystem[?])(fun: R2dbcSession => Future[A]): Future[A] =
-    withSession(system, connectionFactoryConfigPath(system))(fun)
+    runWithSession(system, None, fun)
 
   /**
    * Runs the passed function using a R2dbcSession with a new transaction. The connection is closed and the
@@ -51,22 +53,26 @@ object R2dbcSession {
    * @since 2.0.0
    */
   def withSession[A](system: ActorSystem[?], connectionFactoryConfigPath: String)(
-      fun: R2dbcSession => Future[A]): Future[A] = {
-    val connectionFactory = ConnectionFactoryProvider(system).connectionFactoryFor(connectionFactoryConfigPath)
-    val r2dbcExecutor =
-      new R2dbcExecutor(connectionFactory, log, R2dbcProjectionSettings(system).logDbCallsExceeding)(
-        system.executionContext,
-        system)
-    r2dbcExecutor.withConnection("R2dbcSession") { connection =>
-      fun(new R2dbcSession(connection)(system.executionContext, system))
-    }
-  }
+      fun: R2dbcSession => Future[A]): Future[A] =
+    runWithSession(system, Some(connectionFactoryConfigPath), fun)
 
-  /**
-   * INTERNAL API
-   */
-  @InternalApi private[pekko] def connectionFactoryConfigPath(system: ActorSystem[?]): String =
-    system.settings.config.getConfig(R2dbcProjectionSettings.DefaultConfigPath).getString("use-connection-factory")
+  private def runWithSession[A](
+      system: ActorSystem[?],
+      connectionFactoryConfigPath: Option[String],
+      fun: R2dbcSession => Future[A]): Future[A] =
+    try {
+      val settings = R2dbcProjectionSettings(system)
+      val connectionFactory = ConnectionFactoryProvider(system).connectionFactoryFor(
+        connectionFactoryConfigPath.getOrElse(settings.useConnectionFactory))
+      val r2dbcExecutor =
+        new R2dbcExecutor(connectionFactory, log, settings.logDbCallsExceeding)(system.executionContext, system)
+      r2dbcExecutor.withConnection("R2dbcSession") { connection =>
+        fun(new R2dbcSession(connection)(system.executionContext, system))
+      }
+    } catch {
+      // config errors are reported as a failed Future, also for javadsl callers using the CompletionStage
+      case NonFatal(e) => Future.failed(e)
+    }
 }
 
 final class R2dbcSession(val connection: Connection)(implicit val ec: ExecutionContext, val system: ActorSystem[?]) {

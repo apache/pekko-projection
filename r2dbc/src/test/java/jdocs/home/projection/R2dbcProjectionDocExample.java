@@ -267,4 +267,18 @@ class R2dbcProjectionDocExample {
             projectionId, settings, sourceProvider, ShoppingCartHandler::new, system);
     // #projectionSettings
   }
+
+  {
+    // #withSession
+    CompletionStage<Long> numberOfOrders =
+        R2dbcSession.withSession(
+            system,
+            session ->
+                session
+                    .selectOne(
+                        session.createStatement("SELECT count(*) FROM order"),
+                        row -> row.get(0, Long.class))
+                    .thenApply(count -> count.orElse(0L)));
+    // #withSession
+  }
 }

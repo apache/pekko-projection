@@ -104,6 +104,14 @@ class R2dbcSessionSpec
 
       exists("scala-rollback") shouldBe false
     }
+
+    "fail the returned Future for an unknown connection factory config path" in {
+      // not thrown from withSession, and the function is not run
+      val result = scaladsl.R2dbcSession.withSession(system, "pekko.projection.r2dbc.no-such-connection-factory") {
+        _ => fail("function must not be run")
+      }
+      result.failed.futureValue shouldBe a[com.typesafe.config.ConfigException]
+    }
   }
 
   "javadsl R2dbcSession.withSession" must {
@@ -134,6 +142,14 @@ class R2dbcSessionSpec
       failure.getMessage shouldBe "boom"
 
       exists("java-rollback") shouldBe false
+    }
+
+    "fail the returned CompletionStage for an unknown connection factory config path" in {
+      val result = javadsl.R2dbcSession.withSession[String](
+        system,
+        "pekko.projection.r2dbc.no-such-connection-factory",
+        (_: javadsl.R2dbcSession) => fail("function must not be run"))
+      result.asScala.failed.futureValue shouldBe a[com.typesafe.config.ConfigException]
     }
   }
 

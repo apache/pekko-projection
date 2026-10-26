@@ -14,10 +14,6 @@ The target database operations can be run in the same transaction as the storage
 that @ref:[exactly-once](#exactly-once) processing semantics is supported. It also offers
 @ref:[at-least-once](#at-least-once) semantics.
 
-An `R2dbcSession` can also be used outside of a projection handler, for example to query the projected data.
-`R2dbcSession.withSession` runs the given function with a new transaction that is committed when the returned
-@scala[`Future`]@java[`CompletionStage`] completes successfully, and rolled back if it fails.
-
 ## Dependencies
 
 To use the R2DBC module of Apache Pekko Projections add the following dependency in your project:
@@ -239,6 +235,20 @@ before first envelope is processed and resource cleanup when the projection is s
 Those methods are also called when the `Projection` is restarted after failure.
 
 See also @ref:[error handling](error.md).
+
+### Using R2dbcSession outside a handler
+
+An `R2dbcSession` can also be used outside of a projection handler, for example to query the projected data.
+@apidoc[R2dbcSession$] `withSession` runs the given function with a new transaction that is committed when the returned
+@scala[`Future`]@java[`CompletionStage`] completes successfully, and rolled back if it fails. The connection factory
+is the one configured by `pekko.projection.r2dbc.use-connection-factory`, unless another connection factory config path
+is given.
+
+Scala
+:  @@snip [R2dbcProjectionDocExample.scala](/r2dbc/src/test/scala/docs/home/projection/R2dbcProjectionDocExample.scala) { #withSession }
+
+Java
+:  @@snip [R2dbcProjectionDocExample.java](/r2dbc/src/test/java/jdocs/home/projection/R2dbcProjectionDocExample.java) { #withSession }
 
 ## Offset types
 

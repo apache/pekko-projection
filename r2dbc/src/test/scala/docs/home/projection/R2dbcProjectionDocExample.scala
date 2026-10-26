@@ -223,6 +223,18 @@ object R2dbcProjectionDocExample {
     // #grouped
   }
 
+  object IllustrateWithSession {
+    // #withSession
+    val numberOfOrders: Future[Long] =
+      R2dbcSession.withSession(system) { session =>
+        session
+          .selectOne(session.createStatement("SELECT count(*) FROM order"))(row =>
+            row.get(0, classOf[java.lang.Long]).longValue)
+          .map(_.getOrElse(0L))
+      }
+    // #withSession
+  }
+
   // Ignore Scala 2.13 compiler warning
   @nowarn("msg=possible missing interpolator")
   object IllustrateSettings {

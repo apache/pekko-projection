@@ -18,6 +18,7 @@ import java.util.concurrent.CompletionStage
 import java.util.function.{ Function => JFunction }
 
 import scala.concurrent.ExecutionContext
+import scala.concurrent.Future
 import scala.jdk.CollectionConverters._
 import scala.jdk.FutureConverters._
 import scala.jdk.OptionConverters._
@@ -31,6 +32,7 @@ import io.r2dbc.spi.Connection
 import io.r2dbc.spi.Row
 import io.r2dbc.spi.Statement
 
+@ApiMayChange
 object R2dbcSession {
 
   /**
@@ -42,7 +44,7 @@ object R2dbcSession {
    * @since 2.0.0
    */
   def withSession[A](system: ActorSystem[?], fun: JFunction[R2dbcSession, CompletionStage[A]]): CompletionStage[A] =
-    withSession(system, scaladsl.R2dbcSession.connectionFactoryConfigPath(system), fun)
+    scaladsl.R2dbcSession.withSession(system)(adaptFun(system, fun)).asJava
 
   /**
    * Runs the passed function using a R2dbcSession with a new transaction. The connection is closed and the
@@ -56,12 +58,14 @@ object R2dbcSession {
       system: ActorSystem[?],
       connectionFactoryConfigPath: String,
       fun: JFunction[R2dbcSession, CompletionStage[A]]): CompletionStage[A] =
-    scaladsl.R2dbcSession
-      .withSession(system, connectionFactoryConfigPath) { scaladslSession =>
-        val javadslSession = new R2dbcSession(scaladslSession.connection)(system.executionContext, system)
-        fun(javadslSession).asScala
-      }
-      .asJava
+    scaladsl.R2dbcSession.withSession(system, connectionFactoryConfigPath)(adaptFun(system, fun)).asJava
+
+  private def adaptFun[A](
+      system: ActorSystem[?],
+      fun: JFunction[R2dbcSession, CompletionStage[A]]): scaladsl.R2dbcSession => Future[A] = { scaladslSession =>
+    val javadslSession = new R2dbcSession(scaladslSession.connection)(system.executionContext, system)
+    fun(javadslSession).asScala
+  }
 
 }
 
