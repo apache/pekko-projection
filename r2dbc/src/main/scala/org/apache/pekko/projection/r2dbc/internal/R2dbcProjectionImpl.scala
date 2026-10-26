@@ -716,13 +716,16 @@ private[projection] class R2dbcProjectionImpl[Offset, Envelope](
       extends RunningProjection
       with RunningProjectionManagement[Offset] {
 
-    // the periodic deletes of old timestamp offsets are only running while the projection is running
-    offsetStore.startDeleteTask()
-
     private val streamDone = source.run()
 
+    // The periodic deletes of old timestamp offsets are only running while this run of the projection is running.
+    // Scheduled after source.run(), so that nothing is scheduled if the materialization throws. Cancelled when the
+    // stream completes, also when it gives up after max-restarts, and each run only cancels its own task.
+    private val deleteTask = offsetStore.scheduleDeleteTask()
+    streamDone.onComplete(_ => deleteTask.cancel())(ExecutionContext.parasitic)
+
     override def stop(): Future[Done] = {
-      offsetStore.stopDeleteTask()
+      deleteTask.cancel()
       projectionState.killSwitch.shutdown()
       // if the handler is retrying it will be aborted by this,
       // otherwise the stream would not be completed by the killSwitch until after all retries

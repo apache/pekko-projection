@@ -320,32 +320,18 @@ private[projection] class R2dbcOffsetStore(
   // To avoid delete requests when no new offsets have been stored since previous delete
   private val idle = new AtomicBoolean(false)
 
-  // Scheduled deletes of old timestamp offsets are only running while the projection is running, otherwise the
-  // scheduled task would keep this offset store (and everything it references) alive for the lifetime of the
-  // ActorSystem, also for projections that have been stopped.
-  private val deleteTask = new AtomicReference(Option.empty[Cancellable])
-
   /**
-   * Start the periodic deletion of old timestamp offsets. Called when the projection is started. Idempotent, and can
-   * be called again after `stopDeleteTask`, such as when a stopped projection is started again.
+   * Schedule the periodic deletion of old timestamp offsets. Called by each run of the projection, which must cancel
+   * the returned `Cancellable` when it stops. It is not scheduled when the offset store is created, because the
+   * scheduled task would keep this offset store (and everything it references) alive for the lifetime of the
+   * ActorSystem, also for projections that have been stopped or were never started.
    */
-  def startDeleteTask(): Unit = {
-    if (deleteTask.get().isEmpty) {
-      val task = system.scheduler.scheduleWithFixedDelay(
-        settings.deleteInterval,
-        settings.deleteInterval,
-        () => deleteOldTimestampOffsets(),
-        system.executionContext)
-      if (!deleteTask.compareAndSet(None, Some(task)))
-        task.cancel() // concurrent start, keep the already registered task
-    }
-  }
-
-  /**
-   * Cancel the periodic deletion of old timestamp offsets. Called when the projection is stopped.
-   */
-  def stopDeleteTask(): Unit =
-    deleteTask.getAndSet(None).foreach(_.cancel())
+  def scheduleDeleteTask(): Cancellable =
+    system.scheduler.scheduleWithFixedDelay(
+      settings.deleteInterval,
+      settings.deleteInterval,
+      () => deleteOldTimestampOffsets(),
+      system.executionContext)
 
   private def timestampOffsetBySlicesSourceProvider: BySlicesSourceProvider =
     sourceProvider match {

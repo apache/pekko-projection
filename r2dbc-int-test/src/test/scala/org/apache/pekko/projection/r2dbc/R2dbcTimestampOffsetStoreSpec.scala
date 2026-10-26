@@ -965,39 +965,42 @@ class R2dbcTimestampOffsetStoreSpec
           .withDeleteInterval(JDuration.ofMillis(500))
       import deleteSettings._
       val offsetStore = createOffsetStore(projectionId, deleteSettings)
-      offsetStore.startDeleteTask()
+      val deleteTask = offsetStore.scheduleDeleteTask()
+      try {
+        val startTime = TestClock.nowMicros().instant()
+        log.debug("Start time [{}]", startTime)
 
-      val startTime = TestClock.nowMicros().instant()
-      log.debug("Start time [{}]", startTime)
+        // these pids have the same slice 645, otherwise it will keep one for each slice
+        val p1 = "p500"
+        val p2 = "p621"
+        val p3 = "p742"
 
-      // these pids have the same slice 645, otherwise it will keep one for each slice
-      val p1 = "p500"
-      val p2 = "p621"
-      val p3 = "p742"
+        offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
+        offsetStore
+          .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map(p2 -> 1L)), p2, 1L))
+          .futureValue
+        eventually {
+          offsetStore.readOffset().futureValue // this will load from database
+          offsetStore.getState().byPid.keySet shouldBe Set(p2)
+        }
 
-      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
-      offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map(p2 -> 1L)), p2, 1L))
-        .futureValue
-      eventually {
-        offsetStore.readOffset().futureValue // this will load from database
-        offsetStore.getState().byPid.keySet shouldBe Set(p2)
-      }
-
-      offsetStore
-        .saveOffset(
-          OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(timeWindow.multipliedBy(2).plusSeconds(2)), Map(p3 -> 1L)),
-            p3,
-            1L))
-        .futureValue
-      eventually {
-        offsetStore.readOffset().futureValue // this will load from database
-        offsetStore.getState().byPid.keySet shouldBe Set(p3)
+        offsetStore
+          .saveOffset(
+            OffsetPidSeqNr(
+              TimestampOffset(startTime.plus(timeWindow.multipliedBy(2).plusSeconds(2)), Map(p3 -> 1L)),
+              p3,
+              1L))
+          .futureValue
+        eventually {
+          offsetStore.readOffset().futureValue // this will load from database
+          offsetStore.getState().byPid.keySet shouldBe Set(p3)
+        }
+      } finally {
+        deleteTask.cancel()
       }
     }
 
-    "stop the periodic delete of old records when the projection is stopped" in {
+    "stop the periodic delete of old records when the scheduled task is cancelled" in {
       val projectionId = genRandomProjectionId()
       val deleteInterval = JDuration.ofMillis(100)
       val deleteSettings = settings.withDeleteInterval(deleteInterval)
@@ -1015,21 +1018,20 @@ class R2dbcTimestampOffsetStoreSpec
           }
         }
 
-      val startTime = System.nanoTime()
-      offsetStore.startDeleteTask()
-      offsetStore.startDeleteTask() // idempotent, only one task is scheduled
-      deleteProbe.receiveMessages(5)
-      // 5 ticks take 5 delete intervals with one task, but only 3 with two tasks
-      (System.nanoTime() - startTime).nanos should be >= (deleteInterval.toMillis * 4).millis
+      // nothing is scheduled when the offset store is created
+      deleteProbe.expectNoMessage(deleteInterval.toMillis.millis * 5)
 
+      val deleteTask1 = offsetStore.scheduleDeleteTask()
+      deleteProbe.receiveMessages(3)
       // cancelled right after a tick, so the next tick would not be due until one delete interval later
-      offsetStore.stopDeleteTask()
+      deleteTask1.cancel()
       deleteProbe.expectNoMessage(deleteInterval.toMillis.millis * 10)
 
-      // started again when a stopped projection is started again
-      offsetStore.startDeleteTask()
+      // scheduled again when a stopped projection is started again
+      val deleteTask2 = offsetStore.scheduleDeleteTask()
       deleteProbe.receiveMessages(2)
-      offsetStore.stopDeleteTask()
+      deleteTask2.cancel()
+      deleteProbe.expectNoMessage(deleteInterval.toMillis.millis * 10)
     }
 
     "set offset" in {
