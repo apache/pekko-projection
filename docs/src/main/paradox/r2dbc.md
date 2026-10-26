@@ -239,7 +239,7 @@ See also @ref:[error handling](error.md).
 ### Using R2dbcSession outside a handler
 
 An `R2dbcSession` can also be used outside of a projection handler, for example to query the projected data.
-@apidoc[R2dbcSession$] `withSession` runs the given function with a new transaction that is committed when the returned
+@apidoc[projection.r2dbc.*.R2dbcSession$] `withSession` runs the given function with a new transaction that is committed when the returned
 @scala[`Future`]@java[`CompletionStage`] completes successfully, and rolled back if it fails. The connection factory
 is the one configured by `pekko.projection.r2dbc.use-connection-factory`, unless another connection factory config path
 is given.
