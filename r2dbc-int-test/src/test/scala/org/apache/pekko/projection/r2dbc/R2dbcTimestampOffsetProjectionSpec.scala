@@ -37,6 +37,7 @@ import pekko.persistence.query.TimestampOffset
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
 import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.persistence.r2dbc.Dialect
 import pekko.persistence.r2dbc.internal.EnvelopeOrigin
 import pekko.persistence.typed.PersistenceId
 import pekko.projection.BySlicesSourceProvider
@@ -52,6 +53,7 @@ import pekko.projection.internal.NoopStatusObserver
 import pekko.projection.internal.SingleHandlerStrategy
 import pekko.projection.r2dbc.internal.R2dbcOffsetStore
 import pekko.projection.r2dbc.internal.R2dbcProjectionImpl
+import pekko.projection.r2dbc.internal.mysql.MySQLR2dbcOffsetStore
 import pekko.projection.r2dbc.scaladsl.R2dbcHandler
 import pekko.projection.r2dbc.scaladsl.R2dbcProjection
 import pekko.projection.r2dbc.scaladsl.R2dbcSession
@@ -1460,18 +1462,26 @@ class R2dbcTimestampOffsetProjectionSpec
     def createSpyOffsetStore(
         projectionId: ProjectionId,
         sourceProvider: TestTimestampSourceProvider,
-        deleteCount: AtomicInteger): R2dbcOffsetStore =
-      new R2dbcOffsetStore(
-        projectionId,
-        Some(sourceProvider),
-        system,
-        settings.withDeleteInterval(JDuration.ofMillis(deleteInterval.toMillis)),
-        r2dbcExecutor) {
-        override def deleteOldTimestampOffsets(): Future[Long] = {
-          deleteCount.incrementAndGet()
-          super.deleteOldTimestampOffsets()
-        }
+        deleteCount: AtomicInteger): R2dbcOffsetStore = {
+      val spySettings = settings.withDeleteInterval(JDuration.ofMillis(deleteInterval.toMillis))
+      // same dialect selection as R2dbcOffsetStore.fromConfig
+      settings.dialect match {
+        case Dialect.Postgres | Dialect.Yugabyte =>
+          new R2dbcOffsetStore(projectionId, Some(sourceProvider), system, spySettings, r2dbcExecutor) {
+            override def deleteOldTimestampOffsets(): Future[Long] = {
+              deleteCount.incrementAndGet()
+              super.deleteOldTimestampOffsets()
+            }
+          }
+        case Dialect.MySQL =>
+          new MySQLR2dbcOffsetStore(projectionId, Some(sourceProvider), system, spySettings, r2dbcExecutor) {
+            override def deleteOldTimestampOffsets(): Future[Long] = {
+              deleteCount.incrementAndGet()
+              super.deleteOldTimestampOffsets()
+            }
+          }
       }
+    }
 
     def createProjection(
         projectionId: ProjectionId,
