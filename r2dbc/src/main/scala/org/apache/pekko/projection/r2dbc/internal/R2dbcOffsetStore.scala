@@ -27,6 +27,7 @@ import scala.concurrent.Future
 
 import org.apache.pekko
 import pekko.Done
+import pekko.actor.Cancellable
 import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.scaladsl.LoggerOps
 import pekko.annotation.InternalApi
@@ -320,11 +321,18 @@ private[projection] class R2dbcOffsetStore(
   // To avoid delete requests when no new offsets have been stored since previous delete
   private val idle = new AtomicBoolean(false)
 
-  system.scheduler.scheduleWithFixedDelay(
-    settings.deleteInterval,
-    settings.deleteInterval,
-    () => deleteOldTimestampOffsets(),
-    system.executionContext)
+  /**
+   * Schedule the periodic deletion of old timestamp offsets. Called by each run of the projection, which must cancel
+   * the returned `Cancellable` when it stops. It is not scheduled when the offset store is created, because the
+   * scheduled task would keep this offset store (and everything it references) alive for the lifetime of the
+   * ActorSystem, also for projections that have been stopped or were never started.
+   */
+  def scheduleDeleteTask(): Cancellable =
+    system.scheduler.scheduleWithFixedDelay(
+      settings.deleteInterval,
+      settings.deleteInterval,
+      () => deleteOldTimestampOffsets(),
+      system.executionContext)
 
   private def timestampOffsetBySlicesSourceProvider: BySlicesSourceProvider =
     sourceProvider match {
