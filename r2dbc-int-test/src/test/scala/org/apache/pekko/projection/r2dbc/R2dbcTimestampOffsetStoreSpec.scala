@@ -18,8 +18,10 @@ import java.time.{ Duration => JDuration }
 import java.util.UUID
 
 import scala.concurrent.Future
+import scala.concurrent.duration._
 
 import org.apache.pekko
+import pekko.Done
 import pekko.actor.testkit.typed.scaladsl.LogCapturing
 import pekko.actor.testkit.typed.scaladsl.ScalaTestWithActorTestKit
 import pekko.actor.typed.ActorSystem
@@ -963,35 +965,73 @@ class R2dbcTimestampOffsetStoreSpec
           .withDeleteInterval(JDuration.ofMillis(500))
       import deleteSettings._
       val offsetStore = createOffsetStore(projectionId, deleteSettings)
+      val deleteTask = offsetStore.scheduleDeleteTask()
+      try {
+        val startTime = TestClock.nowMicros().instant()
+        log.debug("Start time [{}]", startTime)
 
-      val startTime = TestClock.nowMicros().instant()
-      log.debug("Start time [{}]", startTime)
+        // these pids have the same slice 645, otherwise it will keep one for each slice
+        val p1 = "p500"
+        val p2 = "p621"
+        val p3 = "p742"
 
-      // these pids have the same slice 645, otherwise it will keep one for each slice
-      val p1 = "p500"
-      val p2 = "p621"
-      val p3 = "p742"
+        offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
+        offsetStore
+          .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map(p2 -> 1L)), p2, 1L))
+          .futureValue
+        eventually {
+          offsetStore.readOffset().futureValue // this will load from database
+          offsetStore.getState().byPid.keySet shouldBe Set(p2)
+        }
 
-      offsetStore.saveOffset(OffsetPidSeqNr(TimestampOffset(startTime, Map(p1 -> 1L)), p1, 1L)).futureValue
-      offsetStore
-        .saveOffset(OffsetPidSeqNr(TimestampOffset(startTime.plus(timeWindow.plusSeconds(1)), Map(p2 -> 1L)), p2, 1L))
-        .futureValue
-      eventually {
-        offsetStore.readOffset().futureValue // this will load from database
-        offsetStore.getState().byPid.keySet shouldBe Set(p2)
+        offsetStore
+          .saveOffset(
+            OffsetPidSeqNr(
+              TimestampOffset(startTime.plus(timeWindow.multipliedBy(2).plusSeconds(2)), Map(p3 -> 1L)),
+              p3,
+              1L))
+          .futureValue
+        eventually {
+          offsetStore.readOffset().futureValue // this will load from database
+          offsetStore.getState().byPid.keySet shouldBe Set(p3)
+        }
+      } finally {
+        deleteTask.cancel()
       }
+    }
 
-      offsetStore
-        .saveOffset(
-          OffsetPidSeqNr(
-            TimestampOffset(startTime.plus(timeWindow.multipliedBy(2).plusSeconds(2)), Map(p3 -> 1L)),
-            p3,
-            1L))
-        .futureValue
-      eventually {
-        offsetStore.readOffset().futureValue // this will load from database
-        offsetStore.getState().byPid.keySet shouldBe Set(p3)
-      }
+    "stop the periodic delete of old records when the scheduled task is cancelled" in {
+      val projectionId = genRandomProjectionId()
+      val deleteInterval = JDuration.ofMillis(100)
+      val deleteSettings = settings.withDeleteInterval(deleteInterval)
+      val deleteProbe = createTestProbe[Done]()
+      val offsetStore =
+        new R2dbcOffsetStore(
+          projectionId,
+          Some(new TestTimestampSourceProvider(0, persistenceExt.numberOfSlices - 1, clock)),
+          system,
+          deleteSettings,
+          r2dbcExecutor) {
+          override def deleteOldTimestampOffsets(): Future[Long] = {
+            deleteProbe.ref ! Done
+            super.deleteOldTimestampOffsets()
+          }
+        }
+
+      // nothing is scheduled when the offset store is created
+      deleteProbe.expectNoMessage(deleteInterval.toMillis.millis * 5)
+
+      val deleteTask1 = offsetStore.scheduleDeleteTask()
+      deleteProbe.receiveMessages(3)
+      // cancelled right after a tick, so the next tick would not be due until one delete interval later
+      deleteTask1.cancel()
+      deleteProbe.expectNoMessage(deleteInterval.toMillis.millis * 10)
+
+      // scheduled again when a stopped projection is started again
+      val deleteTask2 = offsetStore.scheduleDeleteTask()
+      deleteProbe.receiveMessages(2)
+      deleteTask2.cancel()
+      deleteProbe.expectNoMessage(deleteInterval.toMillis.millis * 10)
     }
 
     "set offset" in {
@@ -1051,6 +1091,58 @@ class R2dbcTimestampOffsetStoreSpec
 
       offsetStore.savePaused(paused = false).futureValue
       offsetStore.readManagementState().futureValue shouldBe Some(ManagementState(paused = false))
+    }
+
+    "start from earliest slice when projection key is changed" in {
+      val projectionId1 = ProjectionId(UUID.randomUUID().toString, "512-767")
+      val projectionId2 = ProjectionId(projectionId1.name, "768-1023")
+      val projectionId3 = ProjectionId(projectionId1.name, "512-1023")
+      val offsetStore1 = R2dbcOffsetStore.fromConfig(
+        projectionId1,
+        Some(new TestTimestampSourceProvider(512, 767, clock)),
+        system,
+        settings,
+        r2dbcExecutor)
+      val offsetStore2 = R2dbcOffsetStore.fromConfig(
+        projectionId2,
+        Some(new TestTimestampSourceProvider(768, 1023, clock)),
+        system,
+        settings,
+        r2dbcExecutor)
+
+      val p1 = "p500" // slice 645
+      val p2 = "p863" // slice 645
+      val p3 = "p11" // slice 656
+      val p4 = "p92" // slice 905
+
+      val time1 = TestClock.nowMicros().instant()
+      val time2 = time1.plusSeconds(1)
+      val time3 = time1.plusSeconds(2)
+      val time4 = time1.plusSeconds(3 * 60) // far ahead
+
+      offsetStore1.saveOffset(OffsetPidSeqNr(TimestampOffset(time1, Map(p1 -> 1L)), p1, 1L)).futureValue
+      offsetStore1.saveOffset(OffsetPidSeqNr(TimestampOffset(time2, Map(p2 -> 1L)), p2, 1L)).futureValue
+      offsetStore1.saveOffset(OffsetPidSeqNr(TimestampOffset(time3, Map(p3 -> 1L)), p3, 1L)).futureValue
+      offsetStore2.saveOffset(OffsetPidSeqNr(TimestampOffset(time4, Map(p4 -> 1L)), p4, 1L)).futureValue
+
+      // after downscaling
+      val offsetStore3 = R2dbcOffsetStore.fromConfig(
+        projectionId3,
+        Some(new TestTimestampSourceProvider(512, 1023, clock)),
+        system,
+        settings,
+        r2dbcExecutor)
+
+      // this will load from database
+      val offset = TimestampOffset.toTimestampOffset(offsetStore3.readOffset[TimestampOffset]().futureValue.get)
+      offsetStore3.getState().size shouldBe 4
+
+      offset.timestamp shouldBe time2
+      offset.seen shouldBe Map(p2 -> 1L)
+
+      // getOffset is used by management api, and that should not be adjusted
+      TimestampOffset.toTimestampOffset(offsetStore3.getOffset[TimestampOffset]().futureValue.get).timestamp shouldBe
+      time4
     }
   }
 }

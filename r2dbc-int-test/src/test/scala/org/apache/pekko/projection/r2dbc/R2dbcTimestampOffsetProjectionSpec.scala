@@ -37,6 +37,7 @@ import pekko.persistence.query.TimestampOffset
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.query.typed.scaladsl.EventTimestampQuery
 import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.persistence.r2dbc.Dialect
 import pekko.persistence.r2dbc.internal.EnvelopeOrigin
 import pekko.persistence.typed.PersistenceId
 import pekko.projection.BySlicesSourceProvider
@@ -47,7 +48,12 @@ import pekko.projection.ProjectionId
 import pekko.projection.TestStatusObserver
 import pekko.projection.TestStatusObserver.Err
 import pekko.projection.TestStatusObserver.OffsetProgress
+import pekko.projection.internal.AtLeastOnce
+import pekko.projection.internal.NoopStatusObserver
+import pekko.projection.internal.SingleHandlerStrategy
 import pekko.projection.r2dbc.internal.R2dbcOffsetStore
+import pekko.projection.r2dbc.internal.R2dbcProjectionImpl
+import pekko.projection.r2dbc.internal.mysql.MySQLR2dbcOffsetStore
 import pekko.projection.r2dbc.scaladsl.R2dbcHandler
 import pekko.projection.r2dbc.scaladsl.R2dbcProjection
 import pekko.projection.r2dbc.scaladsl.R2dbcSession
@@ -220,8 +226,7 @@ class R2dbcTimestampOffsetProjectionSpec
   private val concatHandlerFail4Msg = "fail on fourth envelope"
 
   private def withRepo[R](fun: TestRepository => Future[R]): Future[R] = {
-    r2dbcExecutor.withConnection("test") { conn =>
-      val session = new R2dbcSession(conn)
+    R2dbcSession.withSession(system, settings.useConnectionFactory) { session =>
       fun(TestRepository(session, settings))
     }
   }
@@ -1446,5 +1451,131 @@ class R2dbcTimestampOffsetProjectionSpec
       }
     }
 
+  }
+
+  "R2dbcProjection delete of old offsets with TimestampOffset" must {
+
+    val deleteInterval = 100.millis
+
+    // counts the scheduled deletes of old offsets
+    def createSpyOffsetStore(
+        projectionId: ProjectionId,
+        sourceProvider: TestTimestampSourceProvider,
+        deleteCount: AtomicInteger): R2dbcOffsetStore = {
+      val spySettings = settings.withDeleteInterval(JDuration.ofMillis(deleteInterval.toMillis))
+      // same dialect selection as R2dbcOffsetStore.fromConfig
+      settings.dialect match {
+        case Dialect.Postgres | Dialect.Yugabyte =>
+          new R2dbcOffsetStore(projectionId, Some(sourceProvider), system, spySettings, r2dbcExecutor) {
+            override def deleteOldTimestampOffsets(): Future[Long] = {
+              deleteCount.incrementAndGet()
+              super.deleteOldTimestampOffsets()
+            }
+          }
+        case Dialect.MySQL =>
+          new MySQLR2dbcOffsetStore(projectionId, Some(sourceProvider), system, spySettings, r2dbcExecutor) {
+            override def deleteOldTimestampOffsets(): Future[Long] = {
+              deleteCount.incrementAndGet()
+              super.deleteOldTimestampOffsets()
+            }
+          }
+      }
+    }
+
+    def createProjection(
+        projectionId: ProjectionId,
+        sourceProvider: TestTimestampSourceProvider,
+        offsetStore: R2dbcOffsetStore,
+        handler: () => Handler[EventEnvelope[String]]): R2dbcProjectionImpl[TimestampOffset, EventEnvelope[String]] = {
+      // same as R2dbcProjection.atLeastOnceAsync, but with the spy offset store
+      val adaptedHandler =
+        R2dbcProjectionImpl.adaptedHandlerForAtLeastOnceAsync(sourceProvider, handler, offsetStore)(
+          system.executionContext,
+          system)
+      new R2dbcProjectionImpl(
+        projectionId,
+        settings,
+        settingsOpt = None,
+        sourceProvider,
+        restartBackoffOpt = None,
+        offsetStrategy = AtLeastOnce(),
+        handlerStrategy = SingleHandlerStrategy(adaptedHandler),
+        NoopStatusObserver,
+        offsetStore)
+    }
+
+    def deleteCountShouldNotChange(deleteCount: AtomicInteger): Unit = {
+      // let a delete that was already due when the task was cancelled complete
+      Thread.sleep((deleteInterval * 2).toMillis)
+      val count = deleteCount.get()
+      Thread.sleep((deleteInterval * 10).toMillis)
+      deleteCount.get() shouldBe count
+    }
+
+    "only run the periodic delete while the projection is running" in {
+      implicit val pid: String = UUID.randomUUID().toString
+      val projectionId = genRandomProjectionId()
+      val envelopes = createEnvelopes(pid, 6)
+      val sourceProvider = createSourceProvider(envelopes, complete = false)
+      val deleteCount = new AtomicInteger()
+      val offsetStore = createSpyOffsetStore(projectionId, sourceProvider, deleteCount)
+      val handler: () => Handler[EventEnvelope[String]] = () =>
+        new Handler[EventEnvelope[String]] {
+          override def process(envelope: EventEnvelope[String]): Future[Done] = Future.successful(Done)
+        }
+      val projection = createProjection(projectionId, sourceProvider, offsetStore, handler)
+
+      // nothing is scheduled when the projection is created
+      Thread.sleep((deleteInterval * 5).toMillis)
+      deleteCount.get() shouldBe 0
+
+      val projectionRef = spawn(ProjectionBehavior(projection))
+      eventually {
+        deleteCount.get() should be >= 2
+      }
+
+      // the management command stops the running projection and starts it again,
+      // the delete task of the new run must not be cancelled by the completion of the previous run
+      ProjectionManagement(system).updateOffset(projectionId, envelopes(2).offset).futureValue shouldBe Done
+      val countAfterRestart = deleteCount.get()
+      eventually {
+        deleteCount.get() should be >= countAfterRestart + 3
+      }
+
+      projectionRef ! ProjectionBehavior.Stop
+      createTestProbe().expectTerminated(projectionRef)
+      deleteCountShouldNotChange(deleteCount)
+    }
+
+    "stop the periodic delete when the projection gives up after max restarts" in {
+      implicit val pid: String = UUID.randomUUID().toString
+      val projectionId = genRandomProjectionId()
+      val envelopes = createEnvelopes(pid, 6)
+      val sourceProvider = createSourceProvider(envelopes, complete = false)
+      val deleteCount = new AtomicInteger()
+      val offsetStore = createSpyOffsetStore(projectionId, sourceProvider, deleteCount)
+      val handlerProbe = createTestProbe[String]()
+      val failingHandler: () => Handler[EventEnvelope[String]] = () =>
+        new Handler[EventEnvelope[String]] {
+          override def process(envelope: EventEnvelope[String]): Future[Done] = {
+            handlerProbe.ref ! envelope.event
+            Future.failed(TestException("always failing"))
+          }
+        }
+      val projection =
+        createProjection(projectionId, sourceProvider, offsetStore, failingHandler)
+          .withRestartBackoff(deleteInterval * 3, deleteInterval * 3, 0.0, maxRestarts = 1)
+
+      val projectionRef = spawn(ProjectionBehavior(projection))
+      // first run and one restart, after which the stream gives up and completes
+      handlerProbe.expectMessage("e1")
+      handlerProbe.expectMessage("e1")
+      handlerProbe.expectNoMessage(deleteInterval * 5)
+
+      // the actor is still alive, but the task of the completed stream must not keep running
+      deleteCountShouldNotChange(deleteCount)
+
+      projectionRef ! ProjectionBehavior.Stop
+    }
   }
 }
