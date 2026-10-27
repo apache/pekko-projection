@@ -122,7 +122,8 @@ private[projection] object R2dbcProjectionImpl {
   private[projection] def createR2dbcExecutor(
       connectionFactory: ConnectionFactory,
       settings: R2dbcProjectionSettings,
-      config: Config)(implicit system: ActorSystem[?]): R2dbcExecutor = {
+      config: Config,
+      logger: Logger = log)(implicit system: ActorSystem[?]): R2dbcExecutor = {
     val cfConfig = connectionFactoryConfig(settings, config)
     val executionContext = settings.dialect match {
       case Dialect.H2 => H2OffsetStoreTables.executionContext(system, cfConfig)
@@ -130,7 +131,7 @@ private[projection] object R2dbcProjectionImpl {
     }
     new R2dbcExecutor(
       connectionFactory,
-      log,
+      logger,
       settings.logDbCallsExceeding,
       ConnectionFactorySettings.closeCallsExceeding(cfConfig))(executionContext, system)
   }
