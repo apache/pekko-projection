@@ -54,8 +54,21 @@ YugaByte
 MySQL
 :  @@snip [MySQL Schema](/r2dbc-int-test/ddl-scripts/create_tables_mysql.sql)
 
+MariaDB
+:  @@snip [MySQL Schema](/r2dbc-int-test/ddl-scripts/create_tables_mysql.sql)
+
 H2
 :  The tables are created automatically, see @ref:[H2](#h2).
+
+### MariaDB
+
+MariaDB 10.11 or later is supported with the `mariadb` dialect and the `org.mariadb:r2dbc-mariadb` driver, see
+@extref:[MariaDB in Apache Pekko Persistence R2DBC](pekko-persistence-r2dbc:getting-started.html#mariadb) for how to
+configure the connection and the driver dependency.
+
+The offset store uses the same tables as MySQL. The MariaDB driver doesn't support `java.time.Instant`, so the
+connection factory of Apache Pekko Persistence R2DBC binds and reads timestamps as `LocalDateTime` in UTC, with a UTC
+database session. The same applies to the statements of an `R2dbcHandler` that run on the `R2dbcSession`.
 
 ### H2
 

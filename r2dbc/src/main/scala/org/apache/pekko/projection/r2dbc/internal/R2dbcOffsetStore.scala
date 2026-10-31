@@ -52,6 +52,7 @@ import pekko.projection.internal.OffsetSerialization.MultipleOffsets
 import pekko.projection.internal.OffsetSerialization.SingleOffset
 import pekko.projection.r2dbc.R2dbcProjectionSettings
 import pekko.projection.r2dbc.internal.h2.H2R2dbcOffsetStore
+import pekko.projection.r2dbc.internal.mariadb.MariaDBR2dbcOffsetStore
 import pekko.projection.r2dbc.internal.mysql.MySQLR2dbcOffsetStore
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.Statement
@@ -194,6 +195,8 @@ private[projection] object R2dbcOffsetStore {
         new R2dbcOffsetStore(projectionId, sourceProvider, system, settings, r2dbcExecutor, clock)
       case Dialect.MySQL =>
         new MySQLR2dbcOffsetStore(projectionId, sourceProvider, system, settings, r2dbcExecutor, clock)
+      case Dialect.MariaDB =>
+        new MariaDBR2dbcOffsetStore(projectionId, sourceProvider, system, settings, r2dbcExecutor, clock)
       case Dialect.H2 =>
         new H2R2dbcOffsetStore(projectionId, sourceProvider, system, settings, r2dbcExecutor, clock)
     }

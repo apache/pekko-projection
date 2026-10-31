@@ -99,8 +99,8 @@ object R2dbcProjectionSpec {
     def createTableSql(dialect: Dialect): String = {
       val quotedTable = dialect match {
         // H2 would make an unquoted name upper case, so it must not be quoted in one place only
-        case Dialect.MySQL | Dialect.H2 => table
-        case _                          => s""""$table""""
+        case Dialect.MySQL | Dialect.MariaDB | Dialect.H2 => table
+        case _                                            => s""""$table""""
       }
       s"""|CREATE table IF NOT EXISTS $quotedTable (
           |  id VARCHAR(255) NOT NULL,
@@ -157,6 +157,13 @@ object R2dbcProjectionSpec {
             ON DUPLICATE KEY UPDATE
               id = excluded.id,
               concatenated = excluded.concatenated
+          """
+        case Dialect.MariaDB =>
+          sql"""
+            INSERT INTO $table (id, concatenated)  VALUES (?, ?)
+            ON DUPLICATE KEY UPDATE
+              id = VALUES(id),
+              concatenated = VALUES(concatenated)
           """
         case Dialect.H2 =>
           sql"""

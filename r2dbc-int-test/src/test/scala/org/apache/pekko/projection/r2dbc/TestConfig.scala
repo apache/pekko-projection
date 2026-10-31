@@ -59,6 +59,21 @@ object TestConfig {
             use-app-timestamp = on
           }
           """)
+      case "mariadb" =>
+        ConfigFactory.parseString("""
+          pekko.persistence.r2dbc {
+            connection-factory {
+              driver = "mariadb"
+              host = "localhost"
+              port = 3306
+              user = "root"
+              password = "root"
+              database = "mysql"
+            }
+            db-timestamp-monotonic-increasing = on
+            use-app-timestamp = on
+          }
+          """)
       case "h2" =>
         ConfigFactory.parseString("""
           pekko.persistence.r2dbc {
