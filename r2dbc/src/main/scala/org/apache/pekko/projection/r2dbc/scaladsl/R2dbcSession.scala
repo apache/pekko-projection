@@ -24,6 +24,8 @@ import pekko.annotation.ApiMayChange
 import pekko.persistence.r2dbc.ConnectionFactoryProvider
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
 import pekko.projection.r2dbc.R2dbcProjectionSettings
+import pekko.projection.r2dbc.internal.R2dbcProjectionImpl
+import com.typesafe.config.ConfigFactory
 import io.r2dbc.spi.Connection
 import io.r2dbc.spi.Row
 import io.r2dbc.spi.Statement
@@ -61,11 +63,12 @@ object R2dbcSession {
       connectionFactoryConfigPath: Option[String],
       fun: R2dbcSession => Future[A]): Future[A] =
     try {
-      val settings = R2dbcProjectionSettings(system)
-      val connectionFactory = ConnectionFactoryProvider(system).connectionFactoryFor(
-        connectionFactoryConfigPath.getOrElse(settings.useConnectionFactory))
+      val defaultSettings = R2dbcProjectionSettings(system)
+      val settings =
+        connectionFactoryConfigPath.fold(defaultSettings)(path => defaultSettings.withUseConnectionFactory(path))
+      val connectionFactory = ConnectionFactoryProvider(system).connectionFactoryFor(settings.useConnectionFactory)
       val r2dbcExecutor =
-        new R2dbcExecutor(connectionFactory, log, settings.logDbCallsExceeding)(system.executionContext, system)
+        R2dbcProjectionImpl.createR2dbcExecutor(connectionFactory, settings, ConfigFactory.empty(), log)(system)
       r2dbcExecutor.withConnection("R2dbcSession") { connection =>
         fun(new R2dbcSession(connection)(system.executionContext, system))
       }
