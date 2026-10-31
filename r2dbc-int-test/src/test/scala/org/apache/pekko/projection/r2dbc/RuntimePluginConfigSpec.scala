@@ -22,9 +22,7 @@ package org.apache.pekko.projection.r2dbc
 import java.util.UUID
 
 import scala.collection.immutable.ListSet
-import scala.concurrent.Await
 import scala.concurrent.Future
-import scala.concurrent.duration.DurationInt
 
 import org.apache.pekko
 import pekko.Done
@@ -36,6 +34,7 @@ import pekko.actor.typed.Behavior
 import pekko.persistence.Persistence
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.r2dbc.ConnectionFactoryProvider
+import pekko.persistence.r2dbc.ConnectionFactorySettings
 import pekko.persistence.r2dbc.JournalSettings
 import pekko.persistence.r2dbc.SnapshotSettings
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
@@ -75,6 +74,8 @@ object RuntimePluginConfigSpec {
               $configKey = {
                 connection-factory {
                   database = "$database"
+                  # one in-memory database per plugin, like the separate databases of the other dialects
+                  h2.database = "$database"
                 }
 
                 journal.$configKey.connection-factory = $${$configKey.connection-factory}
@@ -157,32 +158,20 @@ class RuntimePluginConfigSpec extends ScalaTestWithActorTestKit(TestConfig.confi
         new R2dbcExecutor(
           connectionFactoryProvider,
           LoggerFactory.getLogger(getClass),
-          journalSettings.logDbCallsExceeding)(system.executionContext, system)
+          journalSettings.logDbCallsExceeding,
+          ConnectionFactorySettings.closeCallsExceeding(journalConfig.getConfig(journalSettings.useConnectionFactory)))(
+          system.executionContext,
+          system)
 
-      Await.result(
-        r2dbcExecutor.updateOne("beforeAll delete")(
-          _.createStatement(s"delete from ${journalSettings.journalTableWithSchema}")),
-        10.seconds)
-      Await.result(
-        r2dbcExecutor.updateOne("beforeAll delete")(
-          _.createStatement(s"delete from ${snapshotSettings.snapshotsTableWithSchema}")),
-        10.seconds)
+      val dialect = journalSettings.dialect
+      TestDbLifecycle.deleteAll(r2dbcExecutor, dialect, journalSettings.journalTableWithSchema)
+      TestDbLifecycle.deleteAll(r2dbcExecutor, dialect, snapshotSettings.snapshotsTableWithSchema)
 
       val r2dbcProjectionSettings = R2dbcProjectionSettings(eventSourced.projectionConfig, system)
-      if (r2dbcProjectionSettings.isOffsetTableDefined) {
-        Await.result(
-          r2dbcExecutor.updateOne("beforeAll delete")(
-            _.createStatement(s"delete from ${r2dbcProjectionSettings.offsetTableWithSchema}")),
-          10.seconds)
-      }
-      Await.result(
-        r2dbcExecutor.updateOne("beforeAll delete")(
-          _.createStatement(s"delete from ${r2dbcProjectionSettings.timestampOffsetTableWithSchema}")),
-        10.seconds)
-      Await.result(
-        r2dbcExecutor.updateOne("beforeAll delete")(
-          _.createStatement(s"delete from ${r2dbcProjectionSettings.managementTableWithSchema}")),
-        10.seconds)
+      if (r2dbcProjectionSettings.isOffsetTableDefined)
+        TestDbLifecycle.deleteAll(r2dbcExecutor, dialect, r2dbcProjectionSettings.offsetTableWithSchema)
+      TestDbLifecycle.deleteAll(r2dbcExecutor, dialect, r2dbcProjectionSettings.timestampOffsetTableWithSchema)
+      TestDbLifecycle.deleteAll(r2dbcExecutor, dialect, r2dbcProjectionSettings.managementTableWithSchema)
     }
   }
 

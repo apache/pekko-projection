@@ -17,6 +17,7 @@ import org.apache.pekko
 import pekko.actor.typed.ActorSystem
 import pekko.persistence.Persistence
 import pekko.persistence.r2dbc.ConnectionFactoryProvider
+import pekko.persistence.r2dbc.ConnectionFactorySettings
 import pekko.persistence.r2dbc.JournalSettings
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
 import pekko.projection.r2dbc.R2dbcProjectionSettings
@@ -40,7 +41,11 @@ trait TestDbLifecycle extends BeforeAndAfterAll { this: Suite =>
     new R2dbcExecutor(
       ConnectionFactoryProvider(typedSystem).connectionFactoryFor(r2dbcProjectionSettings.useConnectionFactory),
       LoggerFactory.getLogger(getClass),
-      r2dbcProjectionSettings.logDbCallsExceeding)(typedSystem.executionContext, typedSystem)
+      r2dbcProjectionSettings.logDbCallsExceeding,
+      ConnectionFactorySettings.closeCallsExceeding(
+        typedSystem.settings.config.getConfig(r2dbcProjectionSettings.useConnectionFactory)))(
+      typedSystem.executionContext,
+      typedSystem)
   }
 
   lazy val persistenceExt: Persistence = Persistence(typedSystem)

@@ -207,3 +207,112 @@ jobs:
       - name: Print logs on failure
         if: ${{ failure() }}
         run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;
+
+  mariadb-test:
+    name: Build and Test Integration for R2DBC with MariaDB
+    runs-on: ubuntu-22.04
+    if: github.repository == 'apache/pekko-projection'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { java-version: 17, scala-version: 2.13,  sbt-opts: '' }
+          - { java-version: 17, scala-version: next,   sbt-opts: '' }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@057d08c2f9a2c4e7a4d33df3aae657b7db88b8cc # v8.2.0
+
+      - name: Setup JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: temurin
+
+      - name: Install sbt
+        uses: sbt/setup-sbt@ecad189dd245444b9ae0a0cd5922fd938b88906f # v1.5.12
+
+      - name: Start MariaDB
+        run: |-
+          docker compose -f docker-files/docker-compose-mariadb.yml up -d --wait
+          # loop to wait for the DB to be ready
+          for i in {1..8}; do
+            if docker exec -i docker-mariadb-db-1 mariadb \
+                -h 127.0.0.1 --user=root --password=root --database=mysql -e 'SELECT 1;' 2>/dev/null; then
+              break
+            fi
+            echo "Retry $i: SQL check failed, waiting before retry..."
+            sleep $((i * 2))
+          done
+          docker exec -i docker-mariadb-db-1 mariadb -h 127.0.0.1 --user=root --password=root --database=mysql < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
+          docker exec -i docker-mariadb-db-1 mariadb -h 127.0.0.1 --user=root --password=root -e 'CREATE SCHEMA database1;'
+          docker exec -i docker-mariadb-db-1 mariadb -h 127.0.0.1 --user=root --password=root --database=database1 < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
+          docker exec -i docker-mariadb-db-1 mariadb -h 127.0.0.1 --user=root --password=root -e 'CREATE SCHEMA database2;'
+          docker exec -i docker-mariadb-db-1 mariadb -h 127.0.0.1 --user=root --password=root --database=database2 < r2dbc-int-test/ddl-scripts/create_tables_mysql.sql
+
+      - name: test
+        run: |-
+          scala_version="$(bash .github/scripts/resolve-scala-version.sh "${{ matrix.scala-version }}")"
+          sbt -Dpekko.persistence.r2dbc.dialect=mariadb -Dpekko.projection.r2dbc.dialect=mariadb "++${scala_version}!" "r2dbc-int-test/test" ${{ matrix.sbt-opts }}
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;
+
+  h2-test:
+    name: Build and Test Integration for R2DBC with H2
+    runs-on: ubuntu-22.04
+    if: github.repository == 'apache/pekko-projection'
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - { java-version: 17, scala-version: 2.13,  sbt-opts: '' }
+          - { java-version: 17, scala-version: next,   sbt-opts: '' }
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          fetch-tags: true
+
+      - name: Checkout GitHub merge
+        if: github.event.pull_request
+        run: |-
+          git fetch origin pull/${{ github.event.pull_request.number }}/merge:scratch
+          git checkout scratch
+
+      - name: Cache Coursier cache
+        uses: coursier/cache-action@057d08c2f9a2c4e7a4d33df3aae657b7db88b8cc # v8.2.0
+
+      - name: Setup JDK ${{ matrix.java-version }}
+        uses: actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad # v6.1.0
+        with:
+          java-version: ${{ matrix.java-version }}
+          distribution: temurin
+
+      - name: Install sbt
+        uses: sbt/setup-sbt@ecad189dd245444b9ae0a0cd5922fd938b88906f # v1.5.12
+
+      # H2 runs in the test JVM and the projection creates its tables, no database container or schema script
+      - name: test
+        run: |-
+          scala_version="$(bash .github/scripts/resolve-scala-version.sh "${{ matrix.scala-version }}")"
+          sbt -Dpekko.persistence.r2dbc.dialect=h2 -Dpekko.projection.r2dbc.dialect=h2 "++${scala_version}!" "r2dbc-int-test/test" ${{ matrix.sbt-opts }}
+
+      - name: Print logs on failure
+        if: ${{ failure() }}
+        run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;

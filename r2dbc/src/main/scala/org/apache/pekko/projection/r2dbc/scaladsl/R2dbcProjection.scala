@@ -17,8 +17,6 @@ import org.apache.pekko
 import pekko.Done
 import pekko.actor.typed.ActorSystem
 import pekko.annotation.ApiMayChange
-import pekko.persistence.r2dbc.ConnectionFactoryProvider
-import pekko.persistence.r2dbc.internal.R2dbcExecutor
 import pekko.projection.BySlicesSourceProvider
 import pekko.projection.ProjectionContext
 import pekko.projection.ProjectionId
@@ -40,7 +38,6 @@ import pekko.projection.scaladsl.SourceProvider
 import pekko.stream.scaladsl.FlowWithContext
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
-import io.r2dbc.spi.ConnectionFactory
 
 @ApiMayChange
 object R2dbcProjection {
@@ -68,16 +65,14 @@ object R2dbcProjection {
       handler: () => R2dbcHandler[Envelope])(implicit
       system: ActorSystem[?]): ExactlyOnceProjection[Offset, Envelope] = {
     val r2dbcSettings = settings.getOrElse(R2dbcProjectionSettings(config, system))
-    val connFactory = connectionFactory(system, config, r2dbcSettings)
+    val connFactory = R2dbcProjectionImpl.connectionFactory(r2dbcSettings, config)
+    val r2dbcExecutor = R2dbcProjectionImpl.createR2dbcExecutor(connFactory, r2dbcSettings, config)
     val offsetStore =
       R2dbcProjectionImpl.createOffsetStore(
         projectionId,
         timestampOffsetBySlicesSourceProvider(sourceProvider),
         r2dbcSettings,
-        connFactory)
-    val r2dbcExecutor = new R2dbcExecutor(connFactory, R2dbcProjectionImpl.log, r2dbcSettings.logDbCallsExceeding)(
-      system.executionContext,
-      system)
+        r2dbcExecutor)
 
     val adaptedHandler =
       R2dbcProjectionImpl.adaptedHandlerForExactlyOnce(sourceProvider, handler, offsetStore, r2dbcExecutor)(
@@ -128,16 +123,14 @@ object R2dbcProjection {
       system: ActorSystem[?]): AtLeastOnceProjection[Offset, Envelope] = {
 
     val r2dbcSettings = settings.getOrElse(R2dbcProjectionSettings(config, system))
-    val connFactory = connectionFactory(system, config, r2dbcSettings)
+    val connFactory = R2dbcProjectionImpl.connectionFactory(r2dbcSettings, config)
+    val r2dbcExecutor = R2dbcProjectionImpl.createR2dbcExecutor(connFactory, r2dbcSettings, config)
     val offsetStore =
       R2dbcProjectionImpl.createOffsetStore(
         projectionId,
         timestampOffsetBySlicesSourceProvider(sourceProvider),
         r2dbcSettings,
-        connFactory)
-    val r2dbcExecutor = new R2dbcExecutor(connFactory, R2dbcProjectionImpl.log, r2dbcSettings.logDbCallsExceeding)(
-      system.executionContext,
-      system)
+        r2dbcExecutor)
 
     val adaptedHandler =
       R2dbcProjectionImpl.adaptedHandlerForAtLeastOnce(sourceProvider, handler, offsetStore, r2dbcExecutor)(
@@ -186,13 +179,13 @@ object R2dbcProjection {
       handler: () => Handler[Envelope])(implicit system: ActorSystem[?]): AtLeastOnceProjection[Offset, Envelope] = {
 
     val r2dbcSettings = settings.getOrElse(R2dbcProjectionSettings(config, system))
-    val connFactory = connectionFactory(system, config, r2dbcSettings)
+    val connFactory = R2dbcProjectionImpl.connectionFactory(r2dbcSettings, config)
     val offsetStore =
       R2dbcProjectionImpl.createOffsetStore(
         projectionId,
         timestampOffsetBySlicesSourceProvider(sourceProvider),
         r2dbcSettings,
-        connFactory)
+        R2dbcProjectionImpl.createR2dbcExecutor(connFactory, r2dbcSettings, config))
 
     val adaptedHandler =
       R2dbcProjectionImpl.adaptedHandlerForAtLeastOnceAsync(sourceProvider, handler, offsetStore)(
@@ -238,16 +231,14 @@ object R2dbcProjection {
       system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val r2dbcSettings = settings.getOrElse(R2dbcProjectionSettings(config, system))
-    val connFactory = connectionFactory(system, config, r2dbcSettings)
+    val connFactory = R2dbcProjectionImpl.connectionFactory(r2dbcSettings, config)
+    val r2dbcExecutor = R2dbcProjectionImpl.createR2dbcExecutor(connFactory, r2dbcSettings, config)
     val offsetStore =
       R2dbcProjectionImpl.createOffsetStore(
         projectionId,
         timestampOffsetBySlicesSourceProvider(sourceProvider),
         r2dbcSettings,
-        connFactory)
-    val r2dbcExecutor = new R2dbcExecutor(connFactory, R2dbcProjectionImpl.log, r2dbcSettings.logDbCallsExceeding)(
-      system.executionContext,
-      system)
+        r2dbcExecutor)
 
     val adaptedHandler =
       R2dbcProjectionImpl.adaptedHandlerForGrouped(sourceProvider, handler, offsetStore, r2dbcExecutor)(
@@ -297,13 +288,13 @@ object R2dbcProjection {
       system: ActorSystem[?]): GroupedProjection[Offset, Envelope] = {
 
     val r2dbcSettings = settings.getOrElse(R2dbcProjectionSettings(config, system))
-    val connFactory = connectionFactory(system, config, r2dbcSettings)
+    val connFactory = R2dbcProjectionImpl.connectionFactory(r2dbcSettings, config)
     val offsetStore =
       R2dbcProjectionImpl.createOffsetStore(
         projectionId,
         timestampOffsetBySlicesSourceProvider(sourceProvider),
         r2dbcSettings,
-        connFactory)
+        R2dbcProjectionImpl.createR2dbcExecutor(connFactory, r2dbcSettings, config))
 
     val adaptedHandler =
       R2dbcProjectionImpl.adaptedHandlerForGroupedAsync(sourceProvider, handler, offsetStore)(
@@ -361,13 +352,13 @@ object R2dbcProjection {
       system: ActorSystem[?]): AtLeastOnceFlowProjection[Offset, Envelope] = {
 
     val r2dbcSettings = settings.getOrElse(R2dbcProjectionSettings(config, system))
-    val connFactory = connectionFactory(system, config, r2dbcSettings)
+    val connFactory = R2dbcProjectionImpl.connectionFactory(r2dbcSettings, config)
     val offsetStore =
       R2dbcProjectionImpl.createOffsetStore(
         projectionId,
         timestampOffsetBySlicesSourceProvider(sourceProvider),
         r2dbcSettings,
-        connFactory)
+        R2dbcProjectionImpl.createR2dbcExecutor(connFactory, r2dbcSettings, config))
 
     val adaptedHandler =
       R2dbcProjectionImpl.adaptedHandlerForFlow(sourceProvider, handler, offsetStore, r2dbcSettings)(system)
@@ -382,11 +373,6 @@ object R2dbcProjection {
       handlerStrategy = FlowHandlerStrategy(adaptedHandler),
       NoopStatusObserver,
       offsetStore)
-  }
-
-  private def connectionFactory(system: ActorSystem[?], config: Config, r2dbcSettings: R2dbcProjectionSettings)
-      : ConnectionFactory = {
-    ConnectionFactoryProvider(system).connectionFactoryFor(r2dbcSettings.useConnectionFactory, config)
   }
 
   private def timestampOffsetBySlicesSourceProvider(
