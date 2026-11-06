@@ -32,6 +32,7 @@ import pekko.http.javadsl.ServerBinding
 import pekko.persistence.typed.ReplicaId
 import pekko.persistence.typed.crdt.LwwTime
 import pekko.persistence.typed.javadsl.CommandHandler
+import pekko.persistence.typed.javadsl.Effect
 import pekko.persistence.typed.javadsl.EventHandler
 import pekko.persistence.typed.javadsl.EventSourcedBehavior
 import pekko.persistence.typed.javadsl.ReplicationContext
@@ -53,6 +54,7 @@ import org.scalatest.wordspec.AnyWordSpecLike
 import org.slf4j.LoggerFactory
 
 import java.time.Duration
+import java.util.function.BiFunction
 import scala.jdk.FutureConverters._
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext
@@ -130,7 +132,7 @@ object ReplicationJavaDSLIntegrationSpec {
             { (state: State, command: Get) =>
               command.replyTo.tell(state.greeting)
               Effect.none()
-            })
+            }: BiFunction[State, Get, Effect[Event, State]])
           .onCommand(
             classOf[SetGreeting],
             { (state: State, command: SetGreeting) =>
@@ -141,7 +143,7 @@ object ReplicationJavaDSLIntegrationSpec {
                     timestamp =
                       state.timestamp.increase(replicationContext.currentTimeMillis(), replicationContext.replicaId)))
                 .thenReply(command.replyTo, _ => Done)
-            })
+            }: BiFunction[State, SetGreeting, Effect[Event, State]])
           .build()
 
       protected def eventHandler(): EventHandler[State, Event] =
@@ -151,7 +153,7 @@ object ReplicationJavaDSLIntegrationSpec {
             { (currentState: State, event: GreetingChanged) =>
               if (event.timestamp.isAfter(currentState.timestamp)) State(event.greeting, event.timestamp)
               else currentState
-            })
+            }: BiFunction[State, GreetingChanged, State])
           .build()
     }
   }
