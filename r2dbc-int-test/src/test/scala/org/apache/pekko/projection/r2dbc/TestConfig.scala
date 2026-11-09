@@ -59,6 +59,17 @@ object TestConfig {
             use-app-timestamp = on
           }
           """)
+      case "h2" =>
+        ConfigFactory.parseString("""
+          pekko.persistence.r2dbc {
+            connection-factory {
+              driver = "h2"
+              h2.protocol = "mem"
+            }
+            db-timestamp-monotonic-increasing = on
+            use-app-timestamp = on
+          }
+          """)
     }
 
     // using load here so that connection-factory can be overridden

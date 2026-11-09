@@ -54,6 +54,23 @@ YugaByte
 MySQL
 :  @@snip [MySQL Schema](/r2dbc-int-test/ddl-scripts/create_tables_mysql.sql)
 
+H2
+:  The tables are created automatically, see @ref:[H2](#h2).
+
+### H2
+
+With the `h2` dialect the database runs in the same JVM process, see
+@extref:[H2 in Apache Pekko Persistence R2DBC](pekko-persistence-r2dbc:getting-started.html#h2) for how to configure the
+connection and the H2 dependencies.
+
+Like the persistence plugins, a projection creates the offset store tables of its own `offset-store` settings when it is
+first used, so no schema script is needed. That includes the `schema` and table names of the projection settings and a
+separate `use-connection-factory`. The `projection_offset_store` table is not created when `offset-table` is set to
+`""`. The tables are not created when the connection is configured with an H2 `url`.
+
+The database calls of the projection run on the `h2.use-dispatcher` of the connection factory, since the H2 driver
+blocks.
+
 ## Configuration
 
 By default, `pekko-projection-r2dbc` uses the same connection pool and `dialect` as `pekko-persistence-r2dbc`, see

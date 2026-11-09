@@ -53,6 +53,7 @@ import pekko.projection.internal.NoopStatusObserver
 import pekko.projection.internal.SingleHandlerStrategy
 import pekko.projection.r2dbc.internal.R2dbcOffsetStore
 import pekko.projection.r2dbc.internal.R2dbcProjectionImpl
+import pekko.projection.r2dbc.internal.h2.H2R2dbcOffsetStore
 import pekko.projection.r2dbc.internal.mysql.MySQLR2dbcOffsetStore
 import pekko.projection.r2dbc.scaladsl.R2dbcHandler
 import pekko.projection.r2dbc.scaladsl.R2dbcProjection
@@ -1474,6 +1475,13 @@ class R2dbcTimestampOffsetProjectionSpec
           }
         case Dialect.MySQL =>
           new MySQLR2dbcOffsetStore(projectionId, Some(sourceProvider), system, spySettings, r2dbcExecutor) {
+            override def deleteOldTimestampOffsets(): Future[Long] = {
+              deleteCount.incrementAndGet()
+              super.deleteOldTimestampOffsets()
+            }
+          }
+        case Dialect.H2 =>
+          new H2R2dbcOffsetStore(projectionId, Some(sourceProvider), system, spySettings, r2dbcExecutor) {
             override def deleteOldTimestampOffsets(): Future[Long] = {
               deleteCount.incrementAndGet()
               super.deleteOldTimestampOffsets()
