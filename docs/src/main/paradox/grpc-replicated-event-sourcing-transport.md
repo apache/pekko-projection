@@ -172,6 +172,10 @@ filters on both sides. That is not handled automatically.
 Source code and build files for complete sample projects can be found in the `apache/pekko-projection` GitHub repository.
 
 
+## Security
+
+Mutual authentication with TLS can be set up according to the @extref:[Apache Pekko gRPC documentation](pekko-grpc:mtls.html)
+
 ## Access control
 
 ### From the consumer
