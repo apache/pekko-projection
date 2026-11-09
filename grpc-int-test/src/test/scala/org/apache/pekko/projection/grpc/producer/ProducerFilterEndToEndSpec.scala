@@ -147,7 +147,7 @@ class ProducerFilterEndToEndSpec(testContainerConf: TestContainerConf)
       val handler = EventProducer.grpcServiceHandler(eps)
 
       val bound =
-        Http(system)
+        Http()
           .newServerAt("127.0.0.1", grpcPort)
           .bind(ServiceHandler.concatOrNotFound(handler))
           .map(_.addToCoordinatedShutdown(3.seconds))

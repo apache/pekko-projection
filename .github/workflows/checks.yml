@@ -79,7 +79,8 @@ jobs:
         uses: coursier/cache-action@ee0650f98295f27a505e4bfd284c9bfaa913a465 # v9.0.1
 
       - name: Cross Compile all code with fatal warnings
-        run: sbt "clean ; +Test/compile"
+        # the int-test modules are not aggregated by the root project because they need external services to run
+        run: sbt "clean ; +Test/compile ; +grpc-int-test/Test/compile ; +jdbc-int-test/Test/compile ; +r2dbc-int-test/Test/compile ; +slick-int-test/Test/compile"
 
   check-docs:
     name: Check Docs
