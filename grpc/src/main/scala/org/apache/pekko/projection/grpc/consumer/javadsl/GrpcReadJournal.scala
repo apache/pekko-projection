@@ -49,18 +49,31 @@ object GrpcReadJournal {
   /**
    * Construct a gRPC read journal from configuration `pekko.projection.grpc.consumer`. The `stream-id` must
    * be defined in the configuration.
+   *
+   * Configuration from `pekko.projection.grpc.consumer.client` will be used to connect to the remote producer.
    */
   def create(
       system: ClassicActorSystemProvider,
       protobufDescriptors: java.util.List[Descriptors.FileDescriptor]): GrpcReadJournal =
+    create(system, GrpcQuerySettings(system), protobufDescriptors)
+
+  /**
+   * Construct a gRPC read journal for the given settings.
+   *
+   * Configuration from `pekko.projection.grpc.consumer.client` will be used to connect to the remote producer.
+   */
+  def create(
+      system: ClassicActorSystemProvider,
+      settings: GrpcQuerySettings,
+      protobufDescriptors: java.util.List[Descriptors.FileDescriptor]): GrpcReadJournal =
     create(
       system,
-      GrpcQuerySettings(system),
+      settings,
       GrpcClientSettings.fromConfig(system.classicSystem.settings.config.getConfig(Identifier + ".client"))(system),
       protobufDescriptors)
 
   /**
-   * Construct a gRPC read journal for the given stream-id and explicit `GrpcClientSettings` to control
+   * Construct a gRPC read journal for the given settings and explicit `GrpcClientSettings` to control
    * how to reach the Pekko Projection gRPC producer service (host, port etc).
    */
   def create(
