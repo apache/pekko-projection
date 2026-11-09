@@ -161,7 +161,7 @@ The exclude criteria can be a combination of:
 
 To exclude all events you can use `ExcludeRegexEntityIds` with `.*`.
 
-The exclude criteria can be a combination of:
+The include criteria can be a combination of:
 
 * `IncludeTags` - include events with any of the given tags
 * `IncludeRegexEntityIds` - include events for entities with entity ids matching the given regular expressions
