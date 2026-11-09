@@ -184,6 +184,12 @@ import org.slf4j.LoggerFactory
         initFilter = Nil // for GC
       }
 
+      override def postStop(): Unit = {
+        // replay streams that are still in progress would otherwise be leaked
+        replayInProgress.valuesIterator.foreach(_.queue.cancel())
+        replayInProgress = Map.empty
+      }
+
       private def onReplay(replayEnv: ReplayEnvelope): Unit = {
         def replayCompleted(): Unit = {
           replayInProgress -= replayEnv.persistenceId
