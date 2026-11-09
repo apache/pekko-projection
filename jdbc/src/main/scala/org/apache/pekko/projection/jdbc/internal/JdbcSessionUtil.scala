@@ -76,11 +76,13 @@ private[projection] object JdbcSessionUtil {
    * The AutoCloseable is closed after usage. If an exception is thrown when closing it, it will be ignored.
    */
   def tryWithResource[T, C <: AutoCloseable](closeable: => C)(func: C => T): T = {
+    // must be evaluated only once, otherwise the resource passed to `func` is not the one that is closed
+    val resource = closeable
     try {
-      func(closeable)
+      func(resource)
     } finally {
       try {
-        closeable.close()
+        resource.close()
       } catch {
         // if we get the result, but fail to close the statement, we just proceed
         // on connection close we will get another chance to close it
