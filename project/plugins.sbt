@@ -30,3 +30,5 @@ addSbtPlugin("com.lightbend.sbt" % "sbt-bill-of-materials" % "1.1.1")
 
 addSbtPlugin("com.github.sbt.junit" % "sbt-jupiter-interface" % "0.19.0")
 addSbtPlugin("org.apache.pekko" % "pekko-grpc-sbt-plugin" % "2.0.0-M2")
+
+addSbtPlugin("ch.epfl.scala" % "sbt-scalafix" % "0.14.10")

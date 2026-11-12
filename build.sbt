@@ -363,3 +363,20 @@ lazy val root = Project(id = "projection", base = file("."))
 // check format and headers
 addCommandAlias("checkCodeStyle", "scalafmtCheckAll; scalafmtSbtCheck; javafmtCheckAll; +headerCheckAll")
 addCommandAlias("applyCodeStyle", "+headerCreateAll; scalafmtAll; scalafmtSbt; javafmtAll")
+
+// Organize imports semantically before applying the usual source formatting.
+// Include projects intentionally omitted from the root's normal aggregation.
+addCommandAlias(
+  "sortImports",
+  Seq(
+    "scalafixEnable",
+    "scalafixAll OrganizeImports",
+    "jdbc-int-test/scalafixAll OrganizeImports",
+    "slick-int-test/scalafixAll OrganizeImports",
+    "grpc-int-test/scalafixAll OrganizeImports",
+    "r2dbc-int-test/scalafixAll OrganizeImports",
+    "scalafmtAll",
+    "jdbc-int-test/scalafmtAll",
+    "slick-int-test/scalafmtAll",
+    "grpc-int-test/scalafmtAll",
+    "r2dbc-int-test/scalafmtAll").mkString(";", ";", ""))
