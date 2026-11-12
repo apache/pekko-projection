@@ -24,6 +24,11 @@ You can join these forums and chats to discuss and ask Pekko and Pekko connector
 
 Contributions are very welcome. If you have an idea on how to improve Pekko, don't hesitate to create an issue or submit a pull request.
 
+Run `sbt applyCodeStyle` to format code and `sbt checkCodeStyle` to check it. Scala formatting explicitly
+follows Pekko core's import-selector layout, ready for the separate Scalafix OrganizeImports migration.
+Java formatting uses JDK 17 and preserves import ordering. The generated `ProjectionMessages.java`
+is excluded from Java formatting.
+
 ## License
 
 Apache Pekko Projections is available under the Apache License, version 2.0. See [LICENSE](https://github.com/apache/pekko-projection/blob/main/LICENSE) file for details.
