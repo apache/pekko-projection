@@ -31,6 +31,8 @@ lazy val core =
     .settings(AutomaticModuleName.settings("pekko.projection.core"))
     .settings(name := "pekko-projection-core")
     .settings(Protobuf.settings)
+    // Keep protoc-generated sources untouched, as in Pekko core.
+    .settings(javafmt / excludeFilter := (javafmt / excludeFilter).value || "ProjectionMessages.java")
 
 lazy val coreTest =
   Project(id = "core-test", base = file("core-test"))
