@@ -65,6 +65,17 @@ object Common extends AutoPlugin {
        Seq("-skip-packages", "org.apache.pekko.pattern")
      }),
     autoAPIMappings := true,
+    // SemanticDB must retain unused-import diagnostics for OrganizeImports.
+    // Informational diagnostics also work when the normal build treats warnings as errors.
+    scalacOptions ++= {
+      if (!semanticdbEnabled.value) Nil
+      else if (scalaBinaryVersion.value == "2.13")
+        Seq("-Wunused:imports", "-Wconf:cat=unused-imports:i")
+      else if (scalaBinaryVersion.value == "3")
+        Seq("-Wunused:imports", "-Wconf:msg=unused import:i")
+      else Nil
+    },
+
     javafmtSortImports := false,
     apiURL := Some(url(s"https://pekko.apache.org/api/pekko-projection/${projectInfoVersion.value}")),
     // show full stack traces and test case durations
