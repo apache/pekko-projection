@@ -69,6 +69,9 @@ object Dependencies {
     val r2dbcPool = "io.r2dbc" % "r2dbc-pool" % "1.0.2.RELEASE"
     val r2dbcPostgres = "org.postgresql" % "r2dbc-postgresql" % "1.1.3.RELEASE"
     val r2dbcMysql = "io.asyncer" % "r2dbc-mysql" % "1.4.3"
+    val r2dbcH2 = "io.r2dbc" % "r2dbc-h2" % "1.1.0.RELEASE" // ApacheV2
+    // the H2 version that pekko-persistence-r2dbc is built against
+    val h2R2dbc = "com.h2database" % "h2" % "2.5.252" // EPL 1.0 or MPL 2.0
   }
 
   object Test {
@@ -114,6 +117,8 @@ object Dependencies {
 
     val r2dbcPostgres = Compile.r2dbcPostgres % "test"
     val r2dbcMysql = Compile.r2dbcMysql % "test"
+    val r2dbcH2 = Compile.r2dbcH2 % "test"
+    val h2R2dbc = Compile.h2R2dbc % "test"
   }
 
   object Examples {
@@ -276,6 +281,8 @@ object Dependencies {
       Compile.r2dbcPool,
       Test.r2dbcPostgres,
       Test.r2dbcMysql,
+      Test.r2dbcH2,
+      Test.h2R2dbc,
       Test.pekkoSerializationJackson,
       Test.pekkoDiscovery,
       Test.pekkoDistributedData,
