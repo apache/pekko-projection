@@ -223,6 +223,10 @@ Application level deduplication of idempotency may be needed if the Projection c
 Source code and build files for complete sample projects can be found in `apache/pekko-projection` GitHub repository.
 
 
+## Security
+
+Mutual authentication with TLS can be set up according to the @extref:[Apache Pekko gRPC documentation](pekko-grpc:mtls.html)
+
 ## Access control
 
 ### From the consumer
