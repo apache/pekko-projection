@@ -261,7 +261,7 @@ class ReplicationJavaDSLIntegrationSpec(testContainerConf: TestContainerConf)
             .newServerAt("127.0.0.1", grpcPort)
             .bind(started.createSingleServiceHandler())
             .asScala
-            .map { binding: ServerBinding =>
+            .map { (binding: ServerBinding) =>
               binding.addToCoordinatedShutdown(Duration.ofSeconds(3), system)
               replica.replicaId -> started
             }
