@@ -86,7 +86,7 @@ object Dependencies {
 
     val junitJupiterApi = "org.junit.jupiter" % "junit-jupiter-api" % "6.1.3" % "test"
     val junitJupiterEngine = "org.junit.jupiter" % "junit-jupiter-engine" % "6.1.3" % "test"
-    val jupiterInterface = "com.github.sbt.junit" % "jupiter-interface" % "0.19.0" % "test"
+    val jupiterInterface = "com.github.sbt.junit" % "jupiter-interface" % "0.20.0" % "test"
     val junitPlatformLauncher = "org.junit.platform" % "junit-platform-launcher" % "6.1.3" % "test"
 
     val h2Driver = "com.h2database" % "h2" % Versions.h2Driver % "test"
