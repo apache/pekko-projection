@@ -139,6 +139,12 @@ the transformed event.
 A producer filter that excludes an event wins over any consumer defined filter, i.e. if the producer filter function
 returns `false` the event will not be emitted.
 
+Replayed events are an exception to this: events that are replayed for an entity, either explicitly via
+`IncludeEntityIds` or lazily after a gap in sequence numbers (see [Event replay](#event-replay)), are not evaluated
+against the producer filter, since the purpose of the filter is to decide whether all events of an entity are
+emitted or not. Once an event of an entity has passed the producer filter, the consumer can replay the earlier
+events of that entity.
+
 ### Consumer defined filter
 
 The consumer may define declarative filters that are sent to the producer and evaluated on the producer side
@@ -211,6 +217,9 @@ criteria:
 Any duplicate events are filtered out by the Projection on the consumer side. This deduplication mechanism depends
 on how long the Projection will keep old offsets. You may have to increase the configuration for this, but that has
 the drawback of more memory usage.
+
+Replayed events are not evaluated against the [producer defined filter](#producer-defined-filter), so that the
+consumer receives all earlier events of an entity once one of its events has passed the producer filter.
 
 ```
 pekko.projection.r2dbc.offset-store.time-window = 15 minutes
