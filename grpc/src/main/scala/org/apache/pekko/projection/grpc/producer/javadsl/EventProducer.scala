@@ -82,7 +82,8 @@ object EventProducer {
       scalaProducerSources,
       interceptor.toScala.map(new EventProducerInterceptorAdapter(_)))
 
-    val handler = EventProducerServicePowerApiHandler(eventProducerService)(system)
+    implicit val sys: ActorSystem[?] = system
+    val handler = EventProducerServicePowerApiHandler(eventProducerService)
     new JapiFunction[HttpRequest, CompletionStage[HttpResponse]] {
       override def apply(request: HttpRequest): CompletionStage[HttpResponse] =
         handler(request.asInstanceOf[org.apache.pekko.http.scaladsl.model.HttpRequest])
