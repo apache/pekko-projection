@@ -1,3 +1,12 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  license agreements; and to You under the Apache License, version 2.0:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+  This file is part of the Apache Pekko project, which was derived from Akka.
+-->
+
 # Changes from Durable State
 
 A typical source for Projections is the change stored with @apidoc[DurableStateBehavior$] in @extref:[Apache Pekko Persistence](pekko:typed/durable-state/persistence.html). Durable state changes can be @extref:[tagged](pekko:typed/durable-state/persistence.html#tagging) and then

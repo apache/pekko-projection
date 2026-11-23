@@ -1,6 +1,16 @@
 ---
 project.description: Snapshot builds of Apache Pekko Projection are provided via the Sonatype snapshot repository.
 ---
+
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  license agreements; and to You under the Apache License, version 2.0:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+  This file is part of the Apache Pekko project, which was derived from Akka.
+-->
+
 # Snapshots
 
 [snapshots]:        https://repository.apache.org/content/groups/snapshots/org/apache/pekko/pekko-projection-core_2.13/

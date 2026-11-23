@@ -1,3 +1,12 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  license agreements; and to You under the Apache License, version 2.0:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+  This file is part of the Apache Pekko project, which was derived from Akka.
+-->
+
 # Projection Settings
 
 A Projection is a background process that continuously consume event envelopes from a `Source`. Therefore, in case of failures, it is automatically restarted. This is done by automatically wrapping the `Source` with a @extref:[RestartSource with backoff on failures](pekko:stream/operators/RestartSource/onFailuresWithBackoff.html#restartsource-onfailureswithbackoff).
