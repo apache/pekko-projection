@@ -1,3 +1,12 @@
+<!--
+  Licensed to the Apache Software Foundation (ASF) under one or more
+  license agreements; and to You under the Apache License, version 2.0:
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+  This file is part of the Apache Pekko project, which was derived from Akka.
+-->
+
 # Messages from and to Apache Kafka
 
 A typical source for Projections is messages from Kafka. Pekko Projections supports integration with Kafka using [Apache Pekko Connectors Kafka](https://pekko.apache.org/docs/pekko-connectors-kafka/current/).
