@@ -19,10 +19,22 @@ permissions:
   contents: read
 
 jobs:
+  classify-pr:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/classify-root-readme.yml
+
   postgres-test:
+    needs: classify-pr
+    if: >-
+      ${{ always() && !cancelled() &&
+          github.repository == 'apache/pekko-projection' &&
+          (github.event_name != 'pull_request' ||
+           needs.classify-pr.result != 'success' ||
+           needs.classify-pr.outputs.docs_only != 'true') }}
     name: Build and Test Integration for R2DBC with PostgreSQL
     runs-on: ubuntu-22.04
-    if: github.repository == 'apache/pekko-projection'
     strategy:
       fail-fast: false
       matrix:
@@ -83,9 +95,15 @@ jobs:
         run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;
 
   yugabyte-test:
+    needs: classify-pr
+    if: >-
+      ${{ always() && !cancelled() &&
+          github.repository == 'apache/pekko-projection' &&
+          (github.event_name != 'pull_request' ||
+           needs.classify-pr.result != 'success' ||
+           needs.classify-pr.outputs.docs_only != 'true') }}
     name: Build and Test Integration for R2DBC with YugabyteDB
     runs-on: ubuntu-22.04
-    if: github.repository == 'apache/pekko-projection'
     strategy:
       fail-fast: false
       matrix:
@@ -146,9 +164,15 @@ jobs:
         run: find . -name "*.log" -exec ./scripts/cat-log.sh {} \;
 
   mysql-test:
+    needs: classify-pr
+    if: >-
+      ${{ always() && !cancelled() &&
+          github.repository == 'apache/pekko-projection' &&
+          (github.event_name != 'pull_request' ||
+           needs.classify-pr.result != 'success' ||
+           needs.classify-pr.outputs.docs_only != 'true') }}
     name: Build and Test Integration for R2DBC with MySQL
     runs-on: ubuntu-22.04
-    if: github.repository == 'apache/pekko-projection'
     strategy:
       fail-fast: false
       matrix:

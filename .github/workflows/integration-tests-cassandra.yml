@@ -16,10 +16,22 @@ on:
     tags-ignore: [ v.* ]
 
 jobs:
+  classify-pr:
+    if: github.event_name == 'pull_request'
+    permissions:
+      contents: read
+    uses: ./.github/workflows/classify-root-readme.yml
+
   test:
+    needs: classify-pr
+    if: >-
+      ${{ always() && !cancelled() &&
+          github.repository == 'apache/pekko-projection' &&
+          (github.event_name != 'pull_request' ||
+           needs.classify-pr.result != 'success' ||
+           needs.classify-pr.outputs.docs_only != 'true') }}
     name: Build and Test Integration for Cassandra
     runs-on: ubuntu-22.04
-    if: github.repository == 'apache/pekko-projection'
     strategy:
       fail-fast: false
       matrix:
