@@ -29,6 +29,7 @@ import pekko.actor.typed.scaladsl.adapter._
 import pekko.annotation.ApiMayChange
 import pekko.annotation.InternalApi
 import pekko.grpc.GrpcClientSettings
+import pekko.grpc.GrpcServiceException
 import pekko.grpc.scaladsl.BytesEntry
 import pekko.grpc.scaladsl.SingleResponseRequestBuilder
 import pekko.grpc.scaladsl.StreamResponseRequestBuilder
@@ -47,6 +48,7 @@ import pekko.projection.grpc.consumer.ConsumerFilter
 import pekko.projection.grpc.consumer.GrpcQuerySettings
 import pekko.projection.grpc.consumer.scaladsl
 import pekko.projection.grpc.consumer.scaladsl.GrpcReadJournal.withChannelBuilderOverrides
+import pekko.projection.grpc.internal.ConnectionException
 import pekko.projection.grpc.internal.ProtoAnySerialization
 import pekko.projection.grpc.internal.proto
 import pekko.projection.grpc.internal.proto.EntityIdOffset
@@ -355,6 +357,16 @@ final class GrpcReadJournal private (
       addRequestHeaders(client.eventsBySlices())
         .invoke(streamIn)
         .recover {
+          case ex: GrpcServiceException if ConnectionException.isTransportFailure(ex.status) =>
+            // this means we couldn't connect or lost the connection, will be retried, relatively common,
+            // so make it less noisy. A status returned by the producer is not a connection failure and
+            // is reported with its full status and cause below.
+            throw new ConnectionException(
+              clientSettings.serviceName,
+              clientSettings.servicePortName.getOrElse(clientSettings.defaultPort.toString),
+              streamId,
+              ex.status)
+
           case th: Throwable =>
             throw new RuntimeException(s"Failure to consume gRPC event stream for [${streamId}]", th)
         }
