@@ -98,13 +98,14 @@ class GrpcReadJournalConnectionSpec
     }
 
     "not report UNAVAILABLE returned by the producer as a connection failure" in {
-      val port = unusedPort()
       val streamId = "producer-unavailable-stream"
       val description = "producer is not ready"
       val handler =
         proto.EventProducerServiceHandler(
           new FailingEventProducerService(Status.UNAVAILABLE.withDescription(description)))
-      val binding = Http().newServerAt("127.0.0.1", port).bind(handler).futureValue
+      // bind to port 0 and use the port that was actually bound, so no other test can claim it in between
+      val binding = Http().newServerAt("127.0.0.1", 0).bind(handler).futureValue
+      val port = binding.localAddress.getPort
 
       try {
         val failure = eventsBySlicesFailure(streamId, port)
