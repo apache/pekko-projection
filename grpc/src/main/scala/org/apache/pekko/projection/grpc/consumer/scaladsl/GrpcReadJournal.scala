@@ -84,7 +84,6 @@ import pekko.util.Timeout
 import com.google.protobuf.Descriptors
 import com.google.protobuf.timestamp.Timestamp
 import com.typesafe.config.Config
-import io.grpc.Status
 import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -358,12 +357,15 @@ final class GrpcReadJournal private (
       addRequestHeaders(client.eventsBySlices())
         .invoke(streamIn)
         .recover {
-          case ex: GrpcServiceException if ex.status.getCode == Status.Code.UNAVAILABLE =>
-            // this means we couldn't connect, will be retried, relatively common, so make it less noisy
+          case ex: GrpcServiceException if ConnectionException.isTransportFailure(ex.status) =>
+            // this means we couldn't connect or lost the connection, will be retried, relatively common,
+            // so make it less noisy. A status returned by the producer is not a connection failure and
+            // is reported with its full status and cause below.
             throw new ConnectionException(
               clientSettings.serviceName,
               clientSettings.servicePortName.getOrElse(clientSettings.defaultPort.toString),
-              streamId)
+              streamId,
+              ex.status)
 
           case th: Throwable =>
             throw new RuntimeException(s"Failure to consume gRPC event stream for [${streamId}]", th)
