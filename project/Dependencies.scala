@@ -28,6 +28,7 @@ object Dependencies {
   object Versions {
     val pekko = PekkoCoreDependency.version
     val pekkoGrpc = org.apache.pekko.grpc.gen.BuildInfo.version
+    val pekkoHttp = "2.0.1"
     val pekkoPersistenceJdbc = PekkoPersistenceJDBCDependency.version
     val pekkoPersistenceR2dbc = PekkoPersistenceR2DBCDependency.version
     val pekkoPersistenceCassandra = "1.1.0"
@@ -50,6 +51,10 @@ object Dependencies {
     val pekkoPersistenceQuery = "org.apache.pekko" %% "pekko-persistence-query" % Versions.pekko
     val pekkoPersistenceTyped = "org.apache.pekko" %% "pekko-persistence-typed" % Versions.pekko
     val pekkoGrpcRuntime = "org.apache.pekko" %% "pekko-grpc-runtime" % Versions.pekkoGrpc
+    // pekko-grpc-runtime depends on pekko-http; these override the version it brings in transitively
+    val pekkoHttp = "org.apache.pekko" %% "pekko-http" % Versions.pekkoHttp
+    val pekkoHttpCore = "org.apache.pekko" %% "pekko-http-core" % Versions.pekkoHttp
+    val pekkoHttpCors = "org.apache.pekko" %% "pekko-http-cors" % Versions.pekkoHttp
     val pekkoPersistenceR2dbc = "org.apache.pekko" %% "pekko-persistence-r2dbc" % Versions.pekkoPersistenceR2dbc
 
     // TestKit in compile scope for ProjectionTestKit
@@ -226,6 +231,9 @@ object Dependencies {
   val grpc =
     deps ++= Seq(
       Compile.pekkoGrpcRuntime,
+      Compile.pekkoHttp,
+      Compile.pekkoHttpCore,
+      Compile.pekkoHttpCors,
       Compile.pekkoClusterShardingTyped % "provided",
       Compile.pekkoPersistenceQuery,
       Compile.pekkoPersistenceTyped,
