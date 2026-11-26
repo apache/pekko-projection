@@ -202,6 +202,10 @@ lazy val docs = project
   .settings(
     name := "Apache Pekko Projections",
     pekkoParadoxGithub := Some("https://github.com/apache/pekko-projection"),
+    pekkoParadoxCopyright :=
+      """Copyright © 2011-2023 <a href="https://www.lightbend.com/">Lightbend, Inc</a>.
+        | Apache Pekko, Pekko, Apache, the Apache logo, and the Apache Pekko project logo are either registered trademarks
+        | or trademarks of The Apache Software Foundation in the United States and other countries.""".stripMargin,
     publish / skip := true,
     makeSite := makeSite.dependsOn(LocalRootProject / ScalaUnidoc / doc).value,
     previewPath := (Paradox / siteSubdirName).value,
