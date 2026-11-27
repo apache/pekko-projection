@@ -13,6 +13,8 @@
 
 package org.apache.pekko.projection.grpc.producer.scaladsl
 
+import java.util.Optional
+
 import org.apache.pekko
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.projection.grpc.producer.scaladsl.EventProducer.Transformation
@@ -20,7 +22,7 @@ import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpec
 
-import scala.concurrent.Future
+import scala.concurrent.{ Future, Promise }
 
 class TransformationSpec extends AnyWordSpec with Matchers with ScalaFutures {
 
@@ -59,6 +61,48 @@ class TransformationSpec extends AnyWordSpec with Matchers with ScalaFutures {
         Transformation.empty.registerAsyncEnvelopeMapper((env: EventEnvelope[String]) =>
           Future.successful(env.eventMetadata))
       transformer(envelope("whatever", Some("meta"))).futureValue should ===(Some("meta"))
+    }
+
+    "map or omit an event synchronously using its envelope metadata" in {
+      val transformer = Transformation.empty.registerEnvelopeMapper((env: EventEnvelope[String]) => env.eventMetadata)
+      transformer(envelope("payload", Some("metadata"))).futureValue should ===(Some("metadata"))
+      transformer(envelope("payload")).futureValue should ===(None)
+    }
+
+    "keep exact event-class dispatch and use the last mapper registered for that class" in {
+      val asyncResult = Promise[Option[String]]()
+      val typed = Transformation.empty
+        .registerOrElseMapper(_ => Some("fallback"))
+        .registerEnvelopeMapper[Long, String](_ => Some("long"))
+        .registerMapper[String, String](_ => Some("event"))
+      val sync = typed.registerEnvelopeMapper[String, String](env => Some(env.persistenceId))
+      sync(envelope("payload")).futureValue should ===(Some("pid1"))
+
+      val async = sync.registerAsyncEnvelopeMapper[String, String](_ => asyncResult.future)
+      val mapped = async(envelope("payload"))
+      mapped.isCompleted shouldBe false
+      asyncResult.success(Some("async"))
+      mapped.futureValue should ===(Some("async"))
+      sync(envelope("payload")).futureValue should ===(Some("pid1"))
+      Transformation.empty
+        .registerOrElseMapper(_ => Some("fallback"))
+        .registerEnvelopeMapper[Long, String](_ => Some("long"))
+        .apply(envelope("payload"))
+        .futureValue should ===(Some("fallback"))
+    }
+
+    "preserve synchronous callback failures" in {
+      val cause = new IllegalStateException("mapper failed")
+      val transformer = Transformation.empty.registerEnvelopeMapper[String, String](_ => throw cause)
+      (intercept[IllegalStateException](transformer(envelope("payload"))) eq cause) shouldBe true
+    }
+
+    "adapt a Java envelope mapper result and empty Optional" in {
+      val transformer = Transformation.empty.toJava.registerEnvelopeMapper[String, String](
+        classOf[String],
+        env => if (env.event == "skip") Optional.empty[String]() else Optional.of(env.persistenceId))
+      transformer.delegate(envelope("payload")).futureValue should ===(Some("pid1"))
+      transformer.delegate(envelope("skip")).futureValue should ===(None)
     }
 
     "fail by default if no transformer exist for event" in {
