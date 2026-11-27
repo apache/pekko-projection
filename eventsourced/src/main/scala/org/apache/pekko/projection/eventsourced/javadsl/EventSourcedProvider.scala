@@ -14,6 +14,7 @@
 package org.apache.pekko.projection.eventsourced.javadsl
 
 import java.time.Instant
+import java.util.Objects
 import java.util.Optional
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.CompletionStage
@@ -110,6 +111,25 @@ object EventSourcedProvider {
     eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice)
   }
 
+  /**
+   * Create an events-by-slices source with a fallback query offset when the projection has no stored offset.
+   * See the overload that takes an EventsBySliceQuery for the fallback semantics.
+   *
+   * @since 2.0.0
+   */
+  def eventsBySlices[Event](
+      system: ActorSystem[?],
+      readJournalPluginId: String,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int,
+      initialOffset: Supplier[? <: CompletionStage[? <: Offset]])
+      : SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
+    val eventsBySlicesQuery =
+      PersistenceQuery(system).getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId)
+    eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice, initialOffset)
+  }
+
   def eventsBySlices[Event](
       system: ActorSystem[?],
       readJournalPluginId: String,
@@ -122,21 +142,76 @@ object EventSourcedProvider {
     eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice)
   }
 
+  /**
+   * Create an events-by-slices source with a fallback query offset when the projection has no stored offset.
+   * See the overload that takes an EventsBySliceQuery for the fallback semantics.
+   *
+   * @since 2.0.0
+   */
+  def eventsBySlices[Event](
+      system: ActorSystem[?],
+      readJournalPluginId: String,
+      readJournalConfig: Config,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int,
+      initialOffset: Supplier[? <: CompletionStage[? <: Offset]])
+      : SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
+    val eventsBySlicesQuery =
+      PersistenceQuery(system).getReadJournalFor(classOf[EventsBySliceQuery], readJournalPluginId, readJournalConfig)
+    eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice, initialOffset)
+  }
+
   def eventsBySlices[Event](
       system: ActorSystem[?],
       eventsBySlicesQuery: EventsBySliceQuery,
       entityType: String,
       minSlice: Int,
-      maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
+      maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] =
+    createEventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice, None)
+
+  /**
+   * Create an events-by-slices source with a fallback query offset.
+   *
+   * The supplier is called only when reading the stored offset succeeds but finds no offset. It can be called
+   * again after a restart if no offset has been stored. A supplier failure fails source creation; it is not
+   * treated as NoOffset. The supplied offset is passed to the query, not stored as a projection checkpoint.
+   *
+   * @since 2.0.0
+   */
+  def eventsBySlices[Event](
+      system: ActorSystem[?],
+      eventsBySlicesQuery: EventsBySliceQuery,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int,
+      initialOffset: Supplier[? <: CompletionStage[? <: Offset]])
+      : SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
+    val readInitialOffset: () => Future[Offset] = () => {
+      val stage: CompletionStage[? <: Offset] = initialOffset.get()
+      stage.asScala
+    }
+    createEventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice, Some(readInitialOffset))
+  }
+
+  private def createEventsBySlices[Event](
+      system: ActorSystem[?],
+      eventsBySlicesQuery: EventsBySliceQuery,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int,
+      initialOffset: Option[() => Future[Offset]])
+      : SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
     eventsBySlicesQuery match {
       case query: EventsBySliceQuery with CanTriggerReplay =>
-        new EventsBySlicesSourceProvider[Event](eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+        new EventsBySlicesSourceProvider[Event](
+          eventsBySlicesQuery, entityType, minSlice, maxSlice, system, initialOffset)
           with CanTriggerReplay {
           private[pekko] override def triggerReplay(persistenceId: String, fromSeqNr: Long): Unit =
             query.triggerReplay(persistenceId, fromSeqNr)
         }
       case _ =>
-        new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+        new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system, initialOffset)
     }
   }
 
@@ -183,7 +258,8 @@ object EventSourcedProvider {
       entityType: String,
       override val minSlice: Int,
       override val maxSlice: Int,
-      system: ActorSystem[?])
+      system: ActorSystem[?],
+      initialOffset: Option[() => Future[Offset]])
       extends SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]]
       with BySlicesSourceProvider
       with EventTimestampQuery
@@ -192,11 +268,17 @@ object EventSourcedProvider {
 
     override def source(offsetAsync: Supplier[CompletionStage[Optional[Offset]]])
         : CompletionStage[Source[pekko.persistence.query.typed.EventEnvelope[Event], NotUsed]] = {
-      val source: Future[Source[pekko.persistence.query.typed.EventEnvelope[Event], NotUsed]] =
-        offsetAsync.get().asScala.map { offsetOpt =>
-          eventsBySlicesQuery
-            .eventsBySlices(entityType, minSlice, maxSlice, offsetOpt.orElse(NoOffset))
-        }
+      def sourceAt(offset: Offset) = eventsBySlicesQuery.eventsBySlices[Event](entityType, minSlice, maxSlice, offset)
+
+      val storedOffset = offsetAsync.get().asScala
+      val source = initialOffset match {
+        case None          => storedOffset.map(offset => sourceAt(offset.orElse(NoOffset)))
+        case Some(initial) =>
+          storedOffset.flatMap { offset =>
+            if (offset.isPresent) Future.successful(sourceAt(offset.get()))
+            else initial().map(value => sourceAt(Objects.requireNonNull(value, "initialOffset result")))
+          }
+      }
       source.asJava
     }
 

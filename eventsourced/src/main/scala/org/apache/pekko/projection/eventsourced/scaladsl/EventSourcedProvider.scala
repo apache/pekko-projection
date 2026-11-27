@@ -14,6 +14,7 @@
 package org.apache.pekko.projection.eventsourced.scaladsl
 
 import java.time.Instant
+import java.util.Objects
 
 import scala.concurrent.ExecutionContext
 import scala.concurrent.Future
@@ -95,6 +96,25 @@ object EventSourcedProvider {
     eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice)
   }
 
+  /**
+   * Create an events-by-slices source with a fallback query offset when the projection has no stored offset.
+   * See the overload that takes an EventsBySliceQuery for the fallback semantics.
+   *
+   * @since 2.0.0
+   */
+  def eventsBySlices[Event](
+      system: ActorSystem[?],
+      readJournalPluginId: String,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int,
+      initialOffset: () => Future[Offset])
+      : SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
+    val eventsBySlicesQuery =
+      PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId)
+    eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice, initialOffset)
+  }
+
   def eventsBySlices[Event](
       system: ActorSystem[?],
       readJournalPluginId: String,
@@ -107,21 +127,71 @@ object EventSourcedProvider {
     eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice)
   }
 
+  /**
+   * Create an events-by-slices source with a fallback query offset when the projection has no stored offset.
+   * See the overload that takes an EventsBySliceQuery for the fallback semantics.
+   *
+   * @since 2.0.0
+   */
+  def eventsBySlices[Event](
+      system: ActorSystem[?],
+      readJournalPluginId: String,
+      readJournalConfig: Config,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int,
+      initialOffset: () => Future[Offset])
+      : SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
+    val eventsBySlicesQuery =
+      PersistenceQuery(system).readJournalFor[EventsBySliceQuery](readJournalPluginId, readJournalConfig)
+    eventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice, initialOffset)
+  }
+
   def eventsBySlices[Event](
       system: ActorSystem[?],
       eventsBySlicesQuery: EventsBySliceQuery,
       entityType: String,
       minSlice: Int,
-      maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
+      maxSlice: Int): SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] =
+    createEventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice, None)
+
+  /**
+   * Create an events-by-slices source with a fallback query offset.
+   *
+   * The supplier is called only when reading the stored offset succeeds but finds no offset. It can be called
+   * again after a restart if no offset has been stored. A supplier failure fails source creation; it is not
+   * treated as NoOffset. The supplied offset is passed to the query, not stored as a projection checkpoint.
+   *
+   * @since 2.0.0
+   */
+  def eventsBySlices[Event](
+      system: ActorSystem[?],
+      eventsBySlicesQuery: EventsBySliceQuery,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int,
+      initialOffset: () => Future[Offset])
+      : SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] =
+    createEventsBySlices(system, eventsBySlicesQuery, entityType, minSlice, maxSlice, Some(initialOffset))
+
+  private def createEventsBySlices[Event](
+      system: ActorSystem[?],
+      eventsBySlicesQuery: EventsBySliceQuery,
+      entityType: String,
+      minSlice: Int,
+      maxSlice: Int,
+      initialOffset: Option[() => Future[Offset]])
+      : SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]] = {
     eventsBySlicesQuery match {
       case query: EventsBySliceQuery with CanTriggerReplay =>
-        new EventsBySlicesSourceProvider[Event](eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+        new EventsBySlicesSourceProvider[Event](
+          eventsBySlicesQuery, entityType, minSlice, maxSlice, system, initialOffset)
           with CanTriggerReplay {
           private[pekko] override def triggerReplay(persistenceId: String, fromSeqNr: Long): Unit =
             query.triggerReplay(persistenceId, fromSeqNr)
         }
       case _ =>
-        new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system)
+        new EventsBySlicesSourceProvider(eventsBySlicesQuery, entityType, minSlice, maxSlice, system, initialOffset)
     }
   }
 
@@ -158,7 +228,8 @@ object EventSourcedProvider {
       entityType: String,
       override val minSlice: Int,
       override val maxSlice: Int,
-      system: ActorSystem[?])
+      system: ActorSystem[?],
+      initialOffset: Option[() => Future[Offset]])
       extends SourceProvider[Offset, pekko.persistence.query.typed.EventEnvelope[Event]]
       with BySlicesSourceProvider
       with EventTimestampQuery
@@ -166,11 +237,19 @@ object EventSourcedProvider {
     implicit val executionContext: ExecutionContext = system.executionContext
 
     override def source(offset: () => Future[Option[Offset]])
-        : Future[Source[pekko.persistence.query.typed.EventEnvelope[Event], NotUsed]] =
-      offset().map { offsetOpt =>
-        val offset = offsetOpt.getOrElse(NoOffset)
-        eventsBySlicesQuery.eventsBySlices(entityType, minSlice, maxSlice, offset)
+        : Future[Source[pekko.persistence.query.typed.EventEnvelope[Event], NotUsed]] = {
+      def sourceAt(offset: Offset) = eventsBySlicesQuery.eventsBySlices[Event](entityType, minSlice, maxSlice, offset)
+
+      val storedOffset = offset()
+      initialOffset match {
+        case None          => storedOffset.map(offset => sourceAt(offset.getOrElse(NoOffset)))
+        case Some(initial) =>
+          storedOffset.flatMap {
+            case Some(offset) => Future.successful(sourceAt(offset))
+            case None         => initial().map(value => sourceAt(Objects.requireNonNull(value, "initialOffset result")))
+          }
       }
+    }
 
     override def extractOffset(envelope: pekko.persistence.query.typed.EventEnvelope[Event]): Offset = envelope.offset
 

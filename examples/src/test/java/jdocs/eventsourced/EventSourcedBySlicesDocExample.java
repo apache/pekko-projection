@@ -14,6 +14,8 @@
 package jdocs.eventsourced;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.function.Supplier;
 import org.apache.pekko.actor.typed.ActorSystem;
 import org.apache.pekko.actor.typed.javadsl.Behaviors;
 // #eventsBySlicesSourceProvider
@@ -54,5 +56,13 @@ public interface EventSourcedBySlicesDocExample {
             system, R2dbcReadJournal.Identifier(), entityType, minSlice, maxSlice);
     // #eventsBySlicesSourceProvider
 
+  }
+
+  public static SourceProvider<Offset, EventEnvelope<ShoppingCart.Event>> withInitialOffset(
+      ActorSystem<?> system, String entityType, int minSlice, int maxSlice, Offset initialOffset) {
+    Supplier<CompletableFuture<Offset>> readInitialOffset =
+        () -> CompletableFuture.completedFuture(initialOffset);
+    return EventSourcedProvider.eventsBySlices(
+        system, R2dbcReadJournal.Identifier(), entityType, minSlice, maxSlice, readInitialOffset);
   }
 }
