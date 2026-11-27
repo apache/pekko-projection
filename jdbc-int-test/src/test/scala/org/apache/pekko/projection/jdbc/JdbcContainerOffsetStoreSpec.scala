@@ -22,9 +22,12 @@ import pekko.projection.TestTags
 import pekko.projection.jdbc.JdbcOffsetStoreSpec.JdbcSpecConfig
 import pekko.projection.jdbc.JdbcOffsetStoreSpec.PureJdbcSession
 import pekko.projection.jdbc.internal.Dialect
+import pekko.projection.jdbc.internal.JdbcOffsetStore
+import pekko.projection.jdbc.internal.JdbcSessionUtil.withConnection
 import pekko.projection.jdbc.internal.OracleDialect
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigValueFactory
 import org.scalatest.Tag
 import org.testcontainers.containers.JdbcDatabaseContainer
 import org.testcontainers.containers.OracleContainer
@@ -132,7 +135,55 @@ object JdbcContainerOffsetStoreSpec {
 
 }
 
-class PostgresJdbcOffsetStoreSpec extends JdbcOffsetStoreSpec(JdbcContainerOffsetStoreSpec.PostgresSpecConfig)
+class PostgresJdbcOffsetStoreSpec extends JdbcOffsetStoreSpec(JdbcContainerOffsetStoreSpec.PostgresSpecConfig) {
+
+  private val postgres = JdbcContainerOffsetStoreSpec.PostgresSpecConfig
+
+  "PostgreSQL table-specific index names" should {
+    "index both co-located offset tables and keep the second index when the first table is dropped" taggedAs
+    (postgres.tag) in {
+      val tables = List("projection_orders", "projection_products")
+      val stores = tables.map { table =>
+        val config = settings.config
+          .withValue("offset-store.table", ConfigValueFactory.fromAnyRef(table))
+          .withValue("offset-store.management-table", ConfigValueFactory.fromAnyRef(s"${table}_management"))
+          .withValue("offset-store.postgres-table-specific-index", ConfigValueFactory.fromAnyRef(Boolean.box(true)))
+        new JdbcOffsetStore(system, settings.copy(config = config), () => postgres.jdbcSessionFactory())
+      }
+
+      def projectionNameIndexes(table: String): Set[String] =
+        withConnection(() => postgres.jdbcSessionFactory()) { conn =>
+          val indexes = conn.getMetaData.getIndexInfo(null, postgres.schemaName, table, false, false)
+          try {
+            val names = Set.newBuilder[String]
+            while (indexes.next()) {
+              if ("projection_name" == indexes.getString("COLUMN_NAME") && indexes.getBoolean("NON_UNIQUE"))
+                names += indexes.getString("INDEX_NAME")
+            }
+            names.result()
+          } finally indexes.close()
+        }(settings.executionContext).futureValue
+
+      val List(first, second) = stores: @unchecked
+      try {
+        first.createIfNotExists().futureValue
+        second.createIfNotExists().futureValue
+        second.createIfNotExists().futureValue
+        val firstIndexes = projectionNameIndexes(tables.head)
+        val secondIndexes = projectionNameIndexes(tables.last)
+        firstIndexes should have size 1
+        secondIndexes should have size 1
+        firstIndexes.intersect(secondIndexes) shouldBe empty
+        first.dropIfExists().futureValue
+        projectionNameIndexes(tables.head) shouldBe empty
+        projectionNameIndexes(tables.last) shouldBe secondIndexes
+      } finally {
+        try first.dropIfExists().futureValue
+        finally second.dropIfExists().futureValue
+      }
+    }
+  }
+}
 
 class PostgresJdbcOffsetStoreLegacySchemaSpec
     extends JdbcOffsetStoreSpec(JdbcContainerOffsetStoreSpec.PostgresLegacySchemaSpecConfig) {

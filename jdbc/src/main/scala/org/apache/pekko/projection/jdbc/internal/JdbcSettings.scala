@@ -58,6 +58,14 @@ case class JdbcSettings(config: Config, executionContext: ExecutionContext) {
 
   }
 
+  private[jdbc] def createOffsetTableStatements: Seq[String] = dialect match {
+    case postgres: PostgresDialect
+        if config.hasPath("offset-store.postgres-table-specific-index") &&
+        config.getBoolean("offset-store.postgres-table-specific-index") =>
+      postgres.createTableStatementsWithTableSpecificIndex
+    case _ => dialect.createTableStatements
+  }
+
 }
 
 /**

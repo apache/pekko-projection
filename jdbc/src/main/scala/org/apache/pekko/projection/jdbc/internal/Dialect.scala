@@ -17,6 +17,9 @@ import org.apache.pekko
 import pekko.annotation.InternalApi
 import pekko.util.Helpers.toRootLowerCase
 
+import java.nio.charset.StandardCharsets.UTF_8
+import java.security.MessageDigest
+import java.util.HexFormat
 import java.util.Locale
 
 /**
@@ -62,6 +65,9 @@ private[projection] trait Dialect {
 private[projection] object DialectDefaults {
 
   def createTableStatement(table: String): Seq[String] =
+    createTableStatement(table, "PROJECTION_NAME_INDEX")
+
+  def createTableStatement(table: String, indexName: String): Seq[String] =
     Seq(
       s"""CREATE TABLE IF NOT EXISTS $table (
          |  "PROJECTION_NAME" VARCHAR(255) NOT NULL,
@@ -73,7 +79,7 @@ private[projection] object DialectDefaults {
          |  PRIMARY KEY("PROJECTION_NAME", "PROJECTION_KEY")
          |);""".stripMargin,
       // create index
-      s"""CREATE INDEX IF NOT EXISTS "PROJECTION_NAME_INDEX" on $table ("PROJECTION_NAME");""")
+      s"""CREATE INDEX IF NOT EXISTS "$indexName" on $table ("PROJECTION_NAME");""")
 
   def dropTableStatement(table: String): String =
     s"""DROP TABLE IF EXISTS $table;"""
@@ -259,6 +265,16 @@ private[projection] case class PostgresDialect(
 
   override val createTableStatements =
     DialectDefaults.createTableStatement(table).map(s => transform(s))
+
+  private[jdbc] def createTableStatementsWithTableSpecificIndex: Seq[String] = {
+    val nameBytes = transform(tableName).getBytes(UTF_8)
+    // Don't assign different index names to aliases that PostgreSQL would truncate to the same table.
+    require(nameBytes.length <= 63, "PostgreSQL offset-store table name must be no longer than 63 UTF-8 bytes")
+    // PostgreSQL places an index in the table's schema; omit the schema so a search-path alias gives the same name.
+    val digest = MessageDigest.getInstance("SHA-256").digest(nameBytes)
+    val suffix = HexFormat.of().formatHex(digest, 0, 20)
+    DialectDefaults.createTableStatement(table, s"pekko_projection_name_$suffix").map(s => transform(s))
+  }
 
   override def dropTableStatement: String =
     transform(DialectDefaults.dropTableStatement(table))
