@@ -15,6 +15,7 @@ package org.apache.pekko.projection.r2dbc
 
 import java.time.Instant
 import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 
 import scala.concurrent.Future
 import scala.concurrent.duration._
@@ -29,6 +30,8 @@ import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.Behavior
 import pekko.actor.typed.scaladsl.Behaviors
 import pekko.actor.typed.scaladsl.LoggerOps
+import pekko.persistence.query.Offset
+import pekko.persistence.query.TimestampOffset
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.r2dbc.JournalSettings
 import pekko.persistence.r2dbc.QuerySettings
@@ -44,6 +47,7 @@ import pekko.projection.eventsourced.scaladsl.EventSourcedProvider
 import pekko.projection.r2dbc.scaladsl.R2dbcHandler
 import pekko.projection.r2dbc.scaladsl.R2dbcProjection
 import pekko.projection.r2dbc.scaladsl.R2dbcSession
+import pekko.projection.scaladsl.ProjectionManagement
 import pekko.serialization.SerializationExtension
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
@@ -300,6 +304,80 @@ class EventSourcedEndToEndSpec
       assertEventsProcessed(expectedEvents, processedProbe, verifyProjectionId = true)
 
       projections.foreach(_ ! ProjectionBehavior.Stop)
+    }
+
+    "use a timestamp start offset only until the projection stores its first checkpoint" in {
+      val entityType = nextEntityType()
+      val archivedPid = nextPid(entityType)
+      val firstPid = nextPid(entityType)
+      val secondPid = nextPid(entityType)
+      val newPid = nextPid(entityType)
+      val sliceRange = EventSourcedProvider.sliceRanges(system, R2dbcReadJournal.Identifier, 1).head
+      val projectionId = ProjectionId(UUID.randomUUID().toString, s"${sliceRange.min}-${sliceRange.max}")
+      val processed = createTestProbe[Processed]()
+      val startsWithoutOffset = new AtomicInteger
+
+      val firstAt = TestClock.nowMicros().instant().minusSeconds(30)
+      val secondAt = firstAt.plusMillis(1)
+      val initialAt = firstAt.minusMillis(1)
+      // This control is outside the query backtracking window; the start offset is not a replay cutoff.
+      val archivedAt = initialAt.minusMillis(querySettings.backtrackingWindow.toMillis).minusSeconds(60)
+      writeEvent(archivedPid, 1L, archivedAt, "archived")
+      writeEvent(firstPid, 1L, firstAt, "first")
+      writeEvent(secondPid, 1L, secondAt, "second")
+
+      val initialOffset: Offset = TimestampOffset(initialAt, Map.empty)
+      val supplyInitialOffset = () =>
+        if (startsWithoutOffset.incrementAndGet() == 1) Future.successful(initialOffset)
+        else Future.failed(new IllegalStateException("The restart should use a stored offset"))
+
+      def startProjection(): ActorRef[ProjectionBehavior.Command] = {
+        val sourceProvider = EventSourcedProvider.eventsBySlices[String](
+          system,
+          R2dbcReadJournal.Identifier,
+          entityType,
+          sliceRange.min,
+          sliceRange.max,
+          supplyInitialOffset)
+        val projection = R2dbcProjection.exactlyOnce(
+          projectionId,
+          Some(projectionSettings),
+          sourceProvider,
+          () => new TestHandler(projectionId, processed.ref))
+        spawn(ProjectionBehavior(projection))
+      }
+
+      def stopProjection(ref: ActorRef[ProjectionBehavior.Command]): Unit = {
+        val termination = createTestProbe[Any]()
+        ref ! ProjectionBehavior.Stop
+        termination.expectTerminated(ref)
+      }
+
+      def nextEvent(expectedPid: String, expectedSeqNr: Long, expectedEvent: String): Unit = {
+        val envelope = processed.receiveMessage().envelope
+        (envelope.persistenceId, envelope.sequenceNr, envelope.event) shouldBe
+        ((expectedPid, expectedSeqNr, expectedEvent))
+      }
+
+      val firstRun = startProjection()
+      try {
+        nextEvent(firstPid, 1L, "first")
+        nextEvent(secondPid, 1L, "second")
+        processed.awaitAssert {
+          val storedOffset = ProjectionManagement(system).getOffset[TimestampOffset](projectionId).futureValue
+          storedOffset.map(_.timestamp) shouldBe Some(secondAt)
+          storedOffset.map(_.seen) shouldBe Some(Map(secondPid -> 1L))
+        }
+      } finally stopProjection(firstRun)
+
+      writeEvent(firstPid, 2L, secondAt.plusMillis(1), "resumed")
+      writeEvent(newPid, 1L, secondAt.plusMillis(2), "new")
+      val restarted = startProjection()
+      try {
+        nextEvent(firstPid, 2L, "resumed")
+        nextEvent(newPid, 1L, "new")
+        startsWithoutOffset.get() shouldBe 1
+      } finally stopProjection(restarted)
     }
 
     "accept unknown sequence number if previous is old" in {

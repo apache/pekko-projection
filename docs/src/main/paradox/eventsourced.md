@@ -79,3 +79,16 @@ The @scala[`EventEnvelope[ShoppingCart.Event]`]@java[`EventEnvelope<ShoppingCart
 handler will process. It contains the `Event` and additional meta data, such as the offset that will be stored
 by the `Projection`. See @apidoc[pekko.persistence.query.typed.EventEnvelope] for full details of what the
 envelope contains.
+
+### Starting without a saved offset
+
+Use the optional initial-offset supplier to choose a starting offset for the slice query when a projection
+has no saved offset. The supplier is not called if a saved offset exists. It can run again if the projection
+restarts before it has saved an offset, or after an offset is explicitly cleared. Supply a stable starting
+offset if those attempts should start at the same point.
+
+A failure to read the saved offset, or a failure from the supplier, fails that start attempt. The supplied
+offset is a query-start hint, not a saved checkpoint or a promise to skip all earlier events. It does not
+mark any events as processed or disable the read journal or projection's normal backtracking, replay, or
+sequence validation. For example, with R2DBC a timestamp offset does not seed expected sequence numbers:
+the projection can still validate a gap against earlier events or replay events before that timestamp.
