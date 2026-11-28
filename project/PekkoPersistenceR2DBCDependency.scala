@@ -21,5 +21,5 @@ import com.github.pjfanning.pekkobuild.PekkoDependency
 object PekkoPersistenceR2DBCDependency extends PekkoDependency {
   override val checkProject: String = "pekko-persistence-r2dbc"
   override val module: Option[String] = None
-  override val currentVersion: String = "2.0.0-M1"
+  override val currentVersion: String = "2.0.0-M1+120-5a212bab-SNAPSHOT"
 }
