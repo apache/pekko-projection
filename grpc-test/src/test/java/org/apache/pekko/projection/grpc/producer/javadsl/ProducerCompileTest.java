@@ -52,9 +52,12 @@ public class ProducerCompileTest {
             .registerAsyncEnvelopeOrElseMapper(
                 envelope -> CompletableFuture.completedFuture(Optional.empty()));
 
+    Transformation synchronousEnvelope =
+        transformation.registerEnvelopeMapper(String.class, EventEnvelope::getOptionalEvent);
+
     EventProducerSource source =
         new EventProducerSource(
-                "ShoppingCart", "cart", transformation, EventProducerSettings.apply(system))
+                "ShoppingCart", "cart", synchronousEnvelope, EventProducerSettings.apply(system))
             .withProducerFilter((EventEnvelope<Integer> env) -> env.event().doubleValue() > 0.0);
 
     Function<HttpRequest, CompletionStage<HttpResponse>> eventProducerService =

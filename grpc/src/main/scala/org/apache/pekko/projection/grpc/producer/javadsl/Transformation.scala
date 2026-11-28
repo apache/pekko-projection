@@ -76,6 +76,17 @@ final class Transformation private[pekko] (private[pekko] val delegate: scaladsl
       f.apply(envelope).asScala.map(_.toScala)(ExecutionContext.parasitic)))
   }
 
+  /**
+   * Register a synchronous mapper that can read the event envelope, including its metadata.
+   * Return an empty `Optional` to omit the event. The mapper must not block.
+   */
+  def registerEnvelopeMapper[A, B](
+      inputEventClass: Class[A],
+      mapEnvelope: JFunction[EventEnvelope[A], Optional[B]]): Transformation = {
+    implicit val inputClassTag: ClassTag[A] = ClassTag(inputEventClass)
+    new Transformation(delegate.registerEnvelopeMapper[A, B](envelope => mapEnvelope.apply(envelope).toScala))
+  }
+
   def registerAsyncOrElseMapper(f: AnyRef => CompletionStage[Optional[AnyRef]]): Transformation = {
     new Transformation(
       delegate.registerAsyncOrElseMapper(event =>

@@ -120,6 +120,16 @@ object EventProducer {
       new Transformation(mappers.updated(clazz, f.asInstanceOf[EventEnvelope[Any] => Future[Option[Any]]]), orElse)
     }
 
+    /**
+     * Register a synchronous mapper that can read the event envelope, including its metadata.
+     * Return `None` to omit the event. The mapper must not block.
+     */
+    def registerEnvelopeMapper[A: ClassTag, B](mapEnvelope: EventEnvelope[A] => Option[B]): Transformation =
+      registerAsyncEnvelopeMapper[A, B] { envelope =>
+        val mapped = mapEnvelope(envelope)
+        Future.successful(mapped)
+      }
+
     def registerAsyncMapper[A: ClassTag, B](f: A => Future[Option[B]]): Transformation = {
       val clazz = implicitly[ClassTag[A]].runtimeClass
       new Transformation(

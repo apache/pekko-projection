@@ -142,6 +142,10 @@ an individual event.
 Note that the purpose of the `withProducerFilter` is to toggle if all events for the entity are to be emitted or not.
 If the purpose is to filter out certain events you should instead use the `Transformation`.
 
+Use `registerMapper` when a transformation only needs the event. Use `registerEnvelopeMapper` when it also
+needs the envelope, such as its metadata or persistence ID. Return @scala[`None`]@java[`Optional.empty()`]
+to omit an event. If the mapping waits for an asynchronous result, use `registerAsyncEnvelopeMapper` instead.
+
 The producer filter is evaluated before the transformation function, i.e. the event is the original event and not
 the transformed event.
 
