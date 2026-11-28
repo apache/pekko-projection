@@ -78,7 +78,7 @@ class JdbcOffsetStore[S <: JdbcSession](
     withConnection(jdbcSessionFactory) { conn =>
       logger.debug("creating offset-store table, using connection id [{}]", System.identityHashCode(conn))
       tryWithResource(conn.createStatement()) { stmt =>
-        settings.dialect.createTableStatements.foreach { stmtStr =>
+        settings.createOffsetTableStatements.foreach { stmtStr =>
           stmt.execute(stmtStr)
         }
         settings.dialect.createManagementTableStatements.foreach { stmtStr =>

@@ -238,6 +238,25 @@ H2
 
 The schema can be created and dropped using the methods `JdbcProjection.createTablesIfNotExists` and `JdbcProjection.dropTablesIfExists`. This is particularly useful when writting tests. For production enviornments, we recommend creating the schema before deploying the application.
 
+### Multiple PostgreSQL offset tables
+
+For new JDBC offset tables that share a PostgreSQL schema, set
+`pekko.projection.jdbc.offset-store.postgres-table-specific-index = true` on each configuration that calls
+`JdbcProjection.createTablesIfNotExists`. This gives each table its own secondary index on `projection_name`,
+rather than using the historical name for all tables. The configured table name must fit PostgreSQL's default
+identifier limit of 63 UTF-8 bytes. The option only affects PostgreSQL and does not change the offset table,
+data, primary key, or offset queries.
+
+If the stores have independent create/drop lifecycles, configure a distinct `offset-store.management-table`
+for each store as well. If you deliberately share a management table, do not call
+`JdbcProjection.dropTablesIfExists` for one store independently: it also drops that store's configured
+management table.
+
+The option is off by default. It does not rename or drop existing indexes. Enabling it for an existing offset
+table may add a second index on the same column; check the schema first and use your normal migration process
+if you want to remove a redundant index. If you manage DDL externally, choose a distinct index name per offset table
+in your migration and do not enable automatic index creation for that purpose.
+
 ## Offset types
 
 The supported offset types of the `JdbcProjection` are:

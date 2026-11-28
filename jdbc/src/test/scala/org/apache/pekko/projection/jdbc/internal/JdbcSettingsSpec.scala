@@ -14,6 +14,7 @@
 package org.apache.pekko.projection.jdbc.internal
 
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext
 import scala.concurrent.duration._
 
 import org.apache.pekko
@@ -22,6 +23,7 @@ import pekko.actor.typed.ActorSystem
 import pekko.actor.typed.scaladsl.Behaviors
 import com.typesafe.config.Config
 import com.typesafe.config.ConfigFactory
+import com.typesafe.config.ConfigValueFactory
 import org.scalatest.TestSuite
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.wordspec.AnyWordSpecLike
@@ -199,6 +201,69 @@ class JdbcSettingsSpec extends TestSuite with Matchers with AnyWordSpecLike with
         JdbcSettings(sys)
       }
 
+    }
+  }
+
+  "PostgreSQL offset index naming" must {
+    def settings(
+        table: String = "offsets",
+        schema: String = "",
+        lowerCase: Boolean = true,
+        perTable: Boolean = false,
+        dialect: String = "postgres-dialect"): JdbcSettings = {
+      val config = ConfigFactory.load().getConfig("pekko.projection.jdbc")
+        .withValue("dialect", ConfigValueFactory.fromAnyRef(dialect))
+        .withValue("offset-store.table", ConfigValueFactory.fromAnyRef(table))
+        .withValue("offset-store.schema", ConfigValueFactory.fromAnyRef(schema))
+        .withValue("offset-store.use-lowercase-schema", ConfigValueFactory.fromAnyRef(Boolean.box(lowerCase)))
+        .withValue("offset-store.postgres-table-specific-index", ConfigValueFactory.fromAnyRef(Boolean.box(perTable)))
+      JdbcSettings(config, ExecutionContext.parasitic)
+    }
+
+    def indexStatement(value: JdbcSettings): String = value.createOffsetTableStatements.last
+
+    def indexName(value: JdbcSettings): String = indexStatement(value).split(" ")(5).stripPrefix("\"").stripSuffix("\"")
+
+    "keep the historical name by default and for other dialects" in {
+      val config = ConfigFactory.load().getConfig("pekko.projection.jdbc")
+        .withValue("dialect", ConfigValueFactory.fromAnyRef("postgres-dialect"))
+      val default = JdbcSettings(config, ExecutionContext.parasitic)
+      val legacy = settings()
+      val h2 = settings(perTable = true, dialect = "h2-dialect")
+      indexName(default) shouldBe "projection_name_index"
+      indexName(legacy) shouldBe "projection_name_index"
+      indexName(h2) shouldBe "projection_name_index"
+    }
+
+    "give two custom tables in the same schema distinct bounded and stable index names" in {
+      val sharedPrefix = "orders_" + "x" * 55
+      val first = settings(sharedPrefix + "a", schema = "analytics", perTable = true)
+      val second = settings(sharedPrefix + "b", schema = "analytics", perTable = true)
+      val unqualified = settings(sharedPrefix + "a", perTable = true)
+
+      indexName(first) should not be indexName(second)
+      indexName(first) shouldBe indexName(unqualified)
+      (indexName(first) should fullyMatch).regex("pekko_projection_name_[0-9a-f]{40}")
+      indexName(first).length should be <= 63
+      indexStatement(first) should include(s"on analytics.${first.table} (projection_name)")
+      first.dialect.dropTableStatement shouldBe s"drop table if exists analytics.${first.table};"
+    }
+
+    "follow the dialect's folding rules and retain the target table's case when quoted" in {
+      val lower = settings("dailyorders", perTable = true)
+      val folded = settings("DailyOrders", perTable = true)
+      val quoted = settings("DailyOrders", schema = "Analytics", lowerCase = false, perTable = true)
+
+      indexName(folded) shouldBe indexName(lower)
+      indexName(quoted) should not be indexName(lower)
+      indexStatement(quoted) should endWith("""on "Analytics"."DailyOrders" ("PROJECTION_NAME");""")
+    }
+
+    "reject names PostgreSQL would truncate when opting in" in {
+      val truncated = settings("é" * 32, lowerCase = false, perTable = true)
+      intercept[IllegalArgumentException] {
+        truncated.createOffsetTableStatements
+      }.getMessage should include("63 UTF-8 bytes")
     }
   }
 
