@@ -32,6 +32,9 @@ import pekko.persistence.query.DeletedDurableState
 import pekko.persistence.query.UpdatedDurableState
 import pekko.persistence.query.typed.EventEnvelope
 import pekko.persistence.query.typed.scaladsl.LoadEventQuery
+import pekko.persistence.r2dbc.ConnectionFactoryProvider
+import pekko.persistence.r2dbc.ConnectionFactorySettings
+import pekko.persistence.r2dbc.Dialect
 import pekko.persistence.r2dbc.internal.R2dbcExecutor
 import pekko.persistence.state.scaladsl.DurableStateStore
 import pekko.persistence.state.scaladsl.GetObjectResult
@@ -64,6 +67,7 @@ import pekko.projection.javadsl
 import pekko.projection.r2dbc.R2dbcProjectionSettings
 import pekko.projection.r2dbc.internal.R2dbcOffsetStore.RejectedEnvelope
 import pekko.projection.r2dbc.internal.R2dbcProjectionImpl.extractOffsetPidSeqNr
+import pekko.projection.r2dbc.internal.h2.H2OffsetStoreTables
 import pekko.projection.r2dbc.scaladsl.R2dbcHandler
 import pekko.projection.r2dbc.scaladsl.R2dbcSession
 import pekko.projection.scaladsl
@@ -72,6 +76,7 @@ import pekko.projection.scaladsl.SourceProvider
 import pekko.stream.RestartSettings
 import pekko.stream.scaladsl.FlowWithContext
 import pekko.stream.scaladsl.Source
+import com.typesafe.config.Config
 import io.r2dbc.spi.ConnectionFactory
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -92,11 +97,48 @@ private[projection] object R2dbcProjectionImpl {
       projectionId: ProjectionId,
       sourceProvider: Option[BySlicesSourceProvider],
       settings: R2dbcProjectionSettings,
-      connectionFactory: ConnectionFactory)(implicit system: ActorSystem[?]) = {
-    val r2dbcExecutor =
-      new R2dbcExecutor(connectionFactory, log, settings.logDbCallsExceeding)(system.executionContext, system)
+      r2dbcExecutor: R2dbcExecutor)(implicit system: ActorSystem[?]): R2dbcOffsetStore =
     R2dbcOffsetStore.fromConfig(projectionId, sourceProvider, system, settings, r2dbcExecutor)
+
+  /**
+   * The connection factory of `settings.useConnectionFactory`. With the H2 dialect it creates the offset store
+   * tables before the first connection is handed out, since there is no schema script for an in-process database.
+   */
+  private[projection] def connectionFactory(settings: R2dbcProjectionSettings, config: Config)(
+      implicit system: ActorSystem[?]): ConnectionFactory = {
+    val connectionFactory =
+      ConnectionFactoryProvider(system).connectionFactoryFor(settings.useConnectionFactory, config)
+    settings.dialect match {
+      case Dialect.H2 =>
+        H2OffsetStoreTables.creatingTables(connectionFactory, connectionFactoryConfig(settings, config), settings)
+      case _ => connectionFactory
+    }
   }
+
+  /**
+   * With the H2 dialect the database calls run on the `h2.use-dispatcher` of the connection factory, because the
+   * H2 driver blocks.
+   */
+  private[projection] def createR2dbcExecutor(
+      connectionFactory: ConnectionFactory,
+      settings: R2dbcProjectionSettings,
+      config: Config,
+      logger: Logger = log)(implicit system: ActorSystem[?]): R2dbcExecutor = {
+    val cfConfig = connectionFactoryConfig(settings, config)
+    val executionContext = settings.dialect match {
+      case Dialect.H2 => H2OffsetStoreTables.executionContext(system, cfConfig)
+      case _          => system.executionContext
+    }
+    new R2dbcExecutor(
+      connectionFactory,
+      logger,
+      settings.logDbCallsExceeding,
+      ConnectionFactorySettings.closeCallsExceeding(cfConfig))(executionContext, system)
+  }
+
+  private def connectionFactoryConfig(settings: R2dbcProjectionSettings, config: Config)(
+      implicit system: ActorSystem[?]): Config =
+    config.withFallback(system.settings.config).getConfig(settings.useConnectionFactory)
 
   private val loadEnvelopeCounter = new AtomicLong
 
