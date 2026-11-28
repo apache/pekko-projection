@@ -65,13 +65,11 @@ import pekko.projection.scaladsl
     delegate.isPaused(projectionId).map(java.lang.Boolean.valueOf).asJava
 
   /**
-   * Pause the given Projection. Processing will be stopped.
-   * While the Projection is paused other management operations can be performed, such as
-   * [[ProjectionManagement.resume]].
-   * The Projection can be resumed with [[ProjectionManagement.resume]].
+   * Pause processing for the given Projection.
+   * Once it is paused, use [[ProjectionManagement.updateOffset]] to change its stored offset if needed.
+   * Call [[ProjectionManagement.resume]] when you are ready to process events again.
    *
-   * The paused/resumed state is stored, and it is read when the Projections are started, for example
-   * in case of rebalance or system restart.
+   * The pause state is persisted and restored when the Projection starts after a rebalance or system restart.
    */
   def pause(projectionId: ProjectionId): CompletionStage[Done] =
     delegate.pause(projectionId).asJava
