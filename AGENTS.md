@@ -72,6 +72,7 @@ cs install scalafmt
 
 ## Formatting Rules
 
+- Use syntax compatible with both Scala 2.13 and Scala 3. In shared sources, use braces for blocks, `=>` for import renames, `_` for wildcard imports, and `: _*` for vararg splices. The `dialectOverride` in `.scalafmt.conf` enforces these restrictions.
 - Prefer native scalafmt for changed Scala and SBT files when it is available.
 
 ```shell
